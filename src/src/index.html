@@ -1792,5 +1792,47 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
 })();
 </script>
 
+
+<style id="nf-live-music-photo-guard">
+#musica.music-section{display:grid!important;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr)!important;align-items:stretch!important}
+#musica .music-art{display:block!important;position:relative!important;min-width:0!important;min-height:clamp(300px,48vw,680px)!important;overflow:hidden!important;background:linear-gradient(0deg,rgba(16,12,10,.28),rgba(16,12,10,.08)),url("https://nculgrwlzjitggjcgbpp.supabase.co/storage/v1/object/public/site-media/live_music/1794003820918-6l0r8l.jpg") center/cover no-repeat!important}
+#musica .music-art-fallback{position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;object-position:center!important;z-index:0!important;pointer-events:none!important}
+#musica .music-copy{position:relative!important;z-index:1!important;min-width:0!important}
+@media(max-width:760px){#musica.music-section{grid-template-columns:minmax(0,1fr)!important}#musica .music-art{min-height:300px!important}}
+</style>
+<script id="nf-live-music-photo-guard-runtime">
+(function(){
+ const src='https://nculgrwlzjitggjcgbpp.supabase.co/storage/v1/object/public/site-media/live_music/1794003820918-6l0r8l.jpg';
+ function ensurePhoto(){
+  const section=document.getElementById('musica');
+  if(!section)return;
+  let art=section.querySelector('.music-art');
+  if(!art){
+   art=document.createElement('div');
+   art.className='music-art';
+   art.setAttribute('aria-hidden','true');
+   const copy=section.querySelector('.music-copy')||section.firstElementChild;
+   section.insertBefore(art,copy||section.firstChild);
+  }
+  let img=art.querySelector('img.music-art-fallback');
+  if(!img){
+   img=document.createElement('img');
+   img.className='music-art-fallback';
+   img.alt='';
+   img.setAttribute('aria-hidden','true');
+   img.loading='eager';
+   img.decoding='async';
+   img.src=src;
+   art.prepend(img);
+  }else if(img.getAttribute('src')!==src){
+   img.src=src;
+  }
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ensurePhoto,{once:true});
+ else ensurePhoto();
+ const observer=new MutationObserver(ensurePhoto);
+ observer.observe(document.body,{childList:true,subtree:true});
+})();
+</script>
 </body>
 </html><script async data-explicit-opt-in="true" data-deployment-id="dpl_7tHJ9DycmxR1TALK2u85APShiyVZ" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_EmRnWHsGMUkcJwHUQ7vz8FCmfTh6" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_E5nptDv68tSzPwNaRWjjuQBRJWLT" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_3kBEXjiEjcHv33v8JxwMth6Znb56" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_GbSb1nxg8uKN3nnLoyFhoPVdiZvt" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
