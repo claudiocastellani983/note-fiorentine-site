@@ -1102,6 +1102,7 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
  width:min(100%,1120px)!important;aspect-ratio:16/9!important;background:#100D0B!important;
 }
 .nf-artists-viewer-stage video{width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:contain!important}
+.nf-artists-video-diagnostic{width:min(100%,1120px);margin:0 auto;padding:7px 10px;border:1px solid rgba(208,174,131,.45);color:#392B24;background:rgba(208,174,131,.12);font:11px/1.5 Arial,sans-serif;overflow-wrap:anywhere}.nf-artists-video-diagnostic[hidden]{display:none}
 @media(max-width:640px){
  .nf-artists-viewer-stage{width:min(100%,calc(58vh * 4 / 3))!important;aspect-ratio:4/3!important}
  .nf-artists-viewer-stage.nf-artists-portrait{width:min(100%,calc(58vh * 3 / 4))!important;aspect-ratio:3/4!important}
@@ -1227,7 +1228,7 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
     </section>
     
   </main>
-<div class="nf-artists-viewer" id="nfArtistsViewer" aria-hidden="true"><div class="nf-artists-dialog" role="dialog" aria-modal="true" aria-labelledby="nfArtistsViewerTitle"><div class="nf-artists-viewer-top"><h2 class="nf-artists-viewer-title" id="nfArtistsViewerTitle">Galleria artisti</h2><span class="nf-artists-viewer-count" id="nfArtistsViewerCount"></span><button class="nf-artists-viewer-btn" id="nfArtistsViewerClose" type="button" aria-label="Chiudi galleria">CHIUDI ×</button></div><div class="nf-artists-viewer-stage" id="nfArtistsViewerStage"><div class="nf-artists-viewer-empty">Caricamento…</div></div><div class="nf-artists-viewer-controls"><button class="nf-artists-viewer-btn" id="nfArtistsViewerPrev" type="button" aria-label="Elemento precedente">‹</button><button class="nf-artists-viewer-btn" id="nfArtistsViewerNext" type="button" aria-label="Elemento successivo">›</button></div></div></div>
+<div class="nf-artists-viewer" id="nfArtistsViewer" aria-hidden="true"><div class="nf-artists-dialog" role="dialog" aria-modal="true" aria-labelledby="nfArtistsViewerTitle"><div class="nf-artists-viewer-top"><h2 class="nf-artists-viewer-title" id="nfArtistsViewerTitle">Galleria artisti</h2><span class="nf-artists-viewer-count" id="nfArtistsViewerCount"></span><button class="nf-artists-viewer-btn" id="nfArtistsViewerClose" type="button" aria-label="Chiudi galleria">CHIUDI ×</button></div><div class="nf-artists-viewer-stage" id="nfArtistsViewerStage"><div class="nf-artists-viewer-empty">Caricamento…</div></div><div class="nf-artists-video-diagnostic" id="nfArtistsVideoDiagnostic" role="status" aria-live="polite" hidden></div><div class="nf-artists-viewer-controls"><button class="nf-artists-viewer-btn" id="nfArtistsViewerPrev" type="button" aria-label="Elemento precedente">‹</button><button class="nf-artists-viewer-btn" id="nfArtistsViewerNext" type="button" aria-label="Elemento successivo">›</button></div></div></div>
 <div class="nf-gallery-viewer" id="nfGalleryViewer" aria-hidden="true">
   <div class="nf-gallery-dialog" role="dialog" aria-modal="true" aria-labelledby="nfGalleryTitle">
     <div class="nf-gallery-top"><h2 class="nf-gallery-title" id="nfGalleryTitle">Il ristorante</h2><span class="nf-gallery-counter" id="nfGalleryCounter"></span><button class="nf-gallery-btn nf-gallery-close" id="nfGalleryClose" type="button" aria-label="Chiudi galleria">CHIUDI ×</button></div>
@@ -1735,6 +1736,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
 (async function(){
  const api='https://nculgrwlzjitggjcgbpp.supabase.co',key='sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0';
  const viewer=document.getElementById('nfArtistsViewer'),stage=document.getElementById('nfArtistsViewerStage'),title=document.getElementById('nfArtistsViewerTitle'),count=document.getElementById('nfArtistsViewerCount');
+ const diagnostic=document.getElementById('nfArtistsVideoDiagnostic');
  if(!viewer||!stage)return;
  let items=[],index=0,kind='images',lastFocus=null;
  const publicUrl=(bucket,path)=>api+'/storage/v1/object/public/'+bucket+'/'+String(path).split('/').map(encodeURIComponent).join('/');
@@ -1748,6 +1750,20 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
    media.src=publicUrl('site-media',item.image_path);
   }else{
    media.src=publicUrl('performance-videos',item.video_path);media.controls=true;media.playsInline=true;media.preload='metadata';media.setAttribute('aria-label',item.title||'Video artisti Note Fiorentine');
+   if(diagnostic){
+    diagnostic.hidden=false;
+    const report=(eventName)=>{
+     const err=media.error;
+     const errorText=err?' · errore '+err.code+(err.message?' ('+err.message+')':''):'';
+     const duration=Number.isFinite(media.duration)?media.duration.toFixed(1)+'s':'n/d';
+     const current=Number.isFinite(media.currentTime)?media.currentTime.toFixed(1)+'s':'0.0s';
+     diagnostic.textContent='Video '+(index+1)+'/'+items.length+' · '+eventName+' · pronto '+media.readyState+'/4 · rete '+media.networkState+'/3 · durata '+duration+' · posizione '+current+errorText;
+     console.info('[NF video diagnostica]',{event:eventName,src:media.currentSrc||media.src,readyState:media.readyState,networkState:media.networkState,duration:media.duration,currentTime:media.currentTime,error:err?{code:err.code,message:err.message}:null});
+    };
+    ['loadstart','loadedmetadata','loadeddata','canplay','canplaythrough','playing','waiting','stalled','suspend','abort','emptied','ended','error'].forEach(name=>media.addEventListener(name,()=>report(name)));
+    media.addEventListener('timeupdate',()=>{if(!media.paused)report('riproduzione')});
+    report('inizializzazione');
+   }
    media.volume=preferredVolume;
    media.addEventListener('volumechange',()=>{if(!media.__nfAdjustingVolume)preferredVolume=media.volume});
    media.addEventListener('play',()=>{media.classList.remove('nf-artist-video-visible','nf-artist-video-fading');requestAnimationFrame(()=>requestAnimationFrame(()=>media.classList.add('nf-artist-video-visible')));media.__nfAdjustingVolume=true;media.volume=0;media.__nfAdjustingVolume=false;fadeAudio(media,preferredVolume,1350)});
@@ -1781,7 +1797,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
  async function move(step){if(!items.length||fading)return;fading=true;await fadeOutCurrent();index=(index+step+items.length)%items.length;render();fading=false}
  async function close(){if(fading)return;fading=true;await fadeOutCurrent();viewer.classList.remove('open');viewer.setAttribute('aria-hidden','true');document.body.style.overflow='';stage.replaceChildren();if(lastFocus)lastFocus.focus();fading=false}
  async function open(kindValue,button){
-  kind=kindValue;lastFocus=button;index=0;title.textContent=kind==='images'?'Gli artisti · Fotografie':'Gli artisti · Video';viewer.classList.add('open');viewer.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';stage.innerHTML='<div class="nf-artists-viewer-empty">Caricamento…</div>';count.textContent='';
+  kind=kindValue;lastFocus=button;index=0;if(diagnostic){diagnostic.hidden=kind!=='videos';diagnostic.textContent=kind==='videos'?'Diagnostica video: caricamento…':'';}title.textContent=kind==='images'?'Gli artisti · Fotografie':'Gli artisti · Video';viewer.classList.add('open');viewer.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';stage.innerHTML='<div class="nf-artists-viewer-empty">Caricamento…</div>';count.textContent='';
   try{
    const table=kind==='images'?'artist_images':'performance_videos',field=kind==='images'?'image_path':'video_path';
    const columns=kind==='images'?'id,title,image_path,focal_x,focal_y,focal_zoom':'id,title,video_path';
