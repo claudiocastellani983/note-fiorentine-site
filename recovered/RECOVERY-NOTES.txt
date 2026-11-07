@@ -1,0 +1,4 @@
+Recovered from immutable Vercel deployment dpl_GbSb1nxg8uKN3nnLoyFhoPVdiZvt.
+These are the four HTML entry pages fetched directly from the published deployment.
+This is a recovery baseline, not yet a complete source repository: referenced assets,
+backend services, environment variables and build configuration still require audit.

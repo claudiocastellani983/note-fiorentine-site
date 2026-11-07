@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#F4EBDD"><title>Gestione immagini | Note Fiorentine</title>
+<style>
+:root{--red:#8F2928;--paper:#F4EBDD;--ink:#392B24;--gold:#A97843;--line:#D8C6AD}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Arial,sans-serif}.top{height:4px;background:var(--red)}header{padding:24px 20px 18px;text-align:center;border-bottom:1px solid var(--line)}.fleur{font:30px Georgia;color:var(--red)}h1{font:34px Georgia,serif;letter-spacing:.08em;margin:8px 0 5px;color:var(--red)}header p{font:11px Arial;letter-spacing:.16em;text-transform:uppercase;margin:0;color:#756257}.wrap{max-width:850px;margin:28px auto;padding:0 16px 50px}.panel{background:#FBF7EF;border:1px solid var(--line);padding:22px;margin:16px 0;box-shadow:0 8px 24px rgba(44,33,29,.05)}h2{font:26px Georgia,serif;margin:0 0 8px}.muted{color:#756257;font-size:14px;line-height:1.6}.field{display:block;font-size:13px;font-weight:700;margin:14px 0 6px}input[type=email],input[type=password]{width:100%;padding:14px;border:1px solid var(--line);background:white;border-radius:2px;font-size:16px}button,.upload-label{display:inline-flex;justify-content:center;align-items:center;background:var(--red);color:#fff9f0;border:0;padding:13px 17px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border-radius:2px;min-height:44px}button.secondary{background:transparent;color:var(--red);border:1px solid var(--red)}button:disabled{opacity:.55;cursor:wait}.hidden{display:none!important}.status{padding:12px;background:#efe5d5;border-left:3px solid var(--gold);font-size:13px;line-height:1.5;margin:14px 0}.cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}.image-card{border:1px solid var(--line);background:#fff;padding:14px;min-width:0}.image-card h3{font:21px Georgia,serif;margin:0 0 4px}.category{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--gold)}.preview{width:100%;aspect-ratio:16/10;background-color:#e7dccb;background-size:cover;background-position:50% 50%;margin:12px 0;display:block}.image-card input[type=file]{width:100%;font-size:13px}.hint{font-size:12px;color:#756257;line-height:1.5;margin:9px 0}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.actions button{flex:1}.actions .choose-btn{background:transparent;color:var(--red);border:1px solid var(--red)}.selected-file{font-size:12px;color:#756257;line-height:1.5;margin:8px 0 0;overflow-wrap:anywhere}.cropbox{margin:12px 0;padding:12px;border:1px solid var(--line);background:var(--paper)}.cropbox[hidden]{display:none}.cropstage{width:100%;overflow:hidden;background:#29231f;background-size:cover;background-position:50% 50%;touch-action:none;cursor:grab}.cropstage:active{cursor:grabbing}.zoomrow{display:flex;gap:12px;align-items:center;margin-top:10px;font-size:12px}.zoomrow input{flex:1;min-width:0}.crophelp{font-size:11px;color:#756257;margin:8px 0 0}.foot{font-size:12px;color:#756257;text-align:center;padding:20px}@media(max-width:620px){.cards{grid-template-columns:1fr}.wrap{margin-top:16px}.panel{padding:17px}h1{font-size:29px}}
+</style><style id="nf-gallery-admin-css">
+.gallery-admin-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:18px}
+.gallery-admin-card{border:1px solid var(--line);background:#fff;padding:14px;min-width:0}
+.gallery-admin-card h3{font:22px Georgia,serif;margin:0 0 5px;color:var(--red)}
+.gallery-admin-card p{font-size:12px;line-height:1.5;color:#756257}
+.gallery-admin-card input[type=file]{width:100%;font-size:12px;margin:9px 0}
+.gallery-admin-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:14px}
+.gallery-admin-item{position:relative;min-width:0;border:1px solid var(--line);background:var(--paper);padding:5px}
+.gallery-admin-item img{width:100%;height:95px;display:block;object-fit:cover}
+.gallery-admin-item button{width:100%;min-height:34px;padding:8px;margin-top:5px;font-size:10px}
+.gallery-admin-count{font-size:11px!important;letter-spacing:.08em;text-transform:uppercase}
+.gallery-admin-status{font-size:12px;line-height:1.5;margin-top:9px;color:#68452F;overflow-wrap:anywhere}
+@media(max-width:700px){.gallery-admin-grid{grid-template-columns:1fr}.gallery-admin-list{grid-template-columns:repeat(3,minmax(0,1fr))}.gallery-admin-item img{height:85px}}
+</style>
+<style id="nf-artist-admin-css">
+#artistMediaAdminPanel{margin-top:22px}.artist-media-upload{width:100%;margin:8px 0}.gallery-admin-item video{width:100%;height:95px;object-fit:cover;background:#171210}.gallery-admin-item .media-delete{margin-top:5px}
+.artist-media-selection{font-size:13px;color:#68452F;line-height:1.5;overflow-wrap:anywhere;margin:8px 0}.artist-media-publish{width:100%;margin:8px 0;background:#6F3929;color:#fff;border:1px solid #6F3929}.artist-media-publish:disabled{opacity:.45;cursor:not-allowed}
+</style>
+<style>
+.artist-order-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:12px 0;color:var(--ink,#392B24);font-size:13px}
+.artist-order-tools button,.artist-order-controls button{min-height:38px;padding:7px 13px;border:1px solid rgba(143,41,40,.28);border-radius:9px;background:#F4EBDD;color:#8F2928;font:inherit;font-weight:600;cursor:pointer}
+.artist-order-tools button:disabled,.artist-order-controls button:disabled{opacity:.35;cursor:not-allowed}
+.artist-order-controls{display:flex;align-items:center;justify-content:center;gap:7px;margin:8px 0}
+.artist-order-position{font-size:12px;color:var(--ink,#392B24);min-width:48px;text-align:center}
+.artist-order-controls .artist-order-move{width:40px;font-size:18px;line-height:1}
+</style><style>.artist-order-tools,.artist-order-controls,.media-visibility{position:relative}.media-visibility{display:block;width:100%;margin:5px 0;padding:8px 10px;border:1px solid rgba(143,41,40,.25);border-radius:8px;background:#F4EBDD;color:#8F2928;font:inherit;font-size:12px;font-weight:600;cursor:pointer}.media-visibility:disabled{opacity:.5;cursor:wait}</style><style>
+.gallery-order-controls{display:flex;align-items:center;justify-content:center;gap:7px;margin:7px 0}
+.gallery-order-position{font-size:11px;color:#68452F;min-width:42px;text-align:center}
+.gallery-admin-item .gallery-order-move{width:40px;min-height:36px;padding:5px;font-size:17px}
+.gallery-admin-item .gallery-order-move:disabled{opacity:.35;cursor:not-allowed}
+.gallery-admin-item .gallery-visibility{width:100%;min-height:34px;padding:7px;margin-top:5px;font-size:10px;background:#F4EBDD;color:#8F2928;border:1px solid rgba(143,41,40,.25)}
+</style><style id="nf-gallery-photo-editor-css">
+.nf-photo-editor-backdrop{position:fixed;inset:0;z-index:200000;background:rgba(25,18,14,.82);display:grid;place-items:center;padding:12px;overflow:auto}
+.nf-photo-editor{width:min(680px,100%);max-height:96dvh;overflow:auto;background:#FBF7EF;border:1px solid #D8C6AD;padding:16px;color:#392B24}
+.nf-photo-editor h2{font:26px Georgia,serif;color:#8F2928;margin:0 0 6px}
+.nf-photo-editor p{font-size:12px;line-height:1.5;color:#756257}
+.nf-photo-editor-stage{width:min(100%,560px);aspect-ratio:4/3;margin:14px auto;background:#211916 center/cover no-repeat;overflow:hidden;touch-action:none;cursor:grab;border:1px solid #D8C6AD}
+.nf-photo-editor-stage.portrait{width:min(100%,330px);aspect-ratio:3/4}
+.nf-photo-editor-stage:active{cursor:grabbing}
+.nf-photo-editor-control{display:grid;grid-template-columns:145px 1fr 42px;gap:10px;align-items:center;margin:13px 0;font:12px Arial,sans-serif}
+.nf-photo-editor-control input{width:100%;min-width:0}
+.nf-photo-editor-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.nf-photo-editor-actions button{flex:1;min-width:130px}
+.nf-photo-editor-preview-label{text-align:center;font:10px Arial,sans-serif;letter-spacing:.13em;text-transform:uppercase;color:#A97843}
+@media(max-width:480px){.nf-photo-editor{padding:12px}.nf-photo-editor-control{grid-template-columns:1fr 2fr 38px;gap:7px}.nf-photo-editor-stage{max-height:52dvh}}
+</style></head><body><div class="top"></div><header><div class="fleur">⚜</div><h1>NOTE FIORENTINE</h1><p>Gestione immagini · Area riservata</p></header>
+<main class="wrap">
+<section class="panel" id="loginPanel"><h2>Accesso amministratore</h2><p class="muted">Accedi con le credenziali del tuo account amministratore del sito.</p><label class="field" for="email">Email</label><input id="email" type="email" autocomplete="username" value="claudiocastellani983@gmail.com"><label class="field" for="password">Password</label><input id="password" type="password" autocomplete="current-password"><div class="actions"><button id="loginBtn">Accedi</button></div><div class="status hidden" id="loginStatus" role="status"></div></section>
+<section id="manager" class="hidden"><div class="panel" id="visualEditorShortcut"><h2>Editor grafico homepage</h2><p class="muted">Seleziona i testi direttamente sulla homepage, modifica contenuto, carattere, dimensione e allineamento, controlla l’anteprima e salva le modifiche.</p><div class="actions"><a href="/gestione-grafica.html" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;justify-content:center;background:#8F2928;color:#fff9f0;text-decoration:none;padding:13px 17px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;min-height:44px;border-radius:2px">Apri editor grafico</a></div></div><div class="panel"><h2>Le tue immagini</h2><p class="muted">Scegli una nuova fotografia dalla galleria del telefono. La sostituzione aggiorna il sito senza cambiare impaginazione, colori o marchio. Formati ammessi: JPG, PNG, WEBP. Dimensione massima: 15 MB.</p><div class="status" id="managerStatus">Caricamento immagini…</div><div class="actions"><button class="secondary" id="refreshBtn">Aggiorna elenco</button><button class="secondary" id="logoutBtn">Esci</button></div></div><div class="cards" id="imageCards"></div>
+<section class="card" id="homepagePopupControl" style="margin:18px 0;padding:20px;border:1px solid #b9956d;border-radius:10px;background:#f4ebdd;color:#392b24"><h2 style="margin:0 0 8px">Visibilità popup homepage</h2><p id="popupVisibilityStatus" aria-live="polite">Caricamento stato…</p><button type="button" id="popupVisibilityBtn" disabled>Attendere…</button><button type="button" id="popupVisibilityRefresh" style="margin-left:8px">Aggiorna stato</button></section>
+<div class="panel" id="galleryAdminPanel">
+ <h2>Album della galleria in homepage</h2>
+ <p class="muted">Carica tutte le fotografie che vuoi nei tre album. Puoi selezionare più immagini insieme dal telefono. Le fotografie pubblicate saranno visibili cliccando il riquadro corrispondente in homepage. Formati JPG, PNG o WEBP · massimo 15 MB per immagine.</p>
+ <div class="gallery-admin-grid" id="galleryAdminGrid">
+  <div class="gallery-admin-card" data-gallery-admin="restaurant"><h3>Il ristorante</h3><p>Ambienti, sala e dettagli del locale.</p><input type="file" accept="image/jpeg,image/png,image/webp" multiple aria-label="Aggiungi foto Il ristorante"><button type="button" class="gallery-upload-btn">Aggiungi fotografie</button><div class="gallery-admin-status" aria-live="polite"></div><div class="gallery-admin-count"></div><div class="gallery-admin-list"></div></div>
+  <div class="gallery-admin-card" data-gallery-admin="kitchen"><h3>La cucina</h3><p>Piatti, ingredienti e preparazioni.</p><input type="file" accept="image/jpeg,image/png,image/webp" multiple aria-label="Aggiungi foto La cucina"><button type="button" class="gallery-upload-btn">Aggiungi fotografie</button><div class="gallery-admin-status" aria-live="polite"></div><div class="gallery-admin-count"></div><div class="gallery-admin-list"></div></div>
+  <div class="gallery-admin-card" data-gallery-admin="music"><h3>L’atmosfera</h3><p>Dettagli e accoglienza</p><input type="file" accept="image/jpeg,image/png,image/webp" multiple aria-label="Aggiungi foto L’atmosfera"><button type="button" class="gallery-upload-btn">Aggiungi fotografie</button><div class="gallery-admin-status" aria-live="polite"></div><div class="gallery-admin-count"></div><div class="gallery-admin-list"></div></div>
+ </div>
+</div>
+<div class="panel" id="artistMediaAdminPanel">
+ <h2>Gallerie degli artisti</h2>
+ <p class="muted">Gestisci le fotografie e i video che i clienti vedranno nella sezione degli artisti in homepage. Le copertine si modificano nella sezione Immagini qui sopra. JPG, PNG o WEBP fino a 15 MB per foto; MP4, WEBM o MOV fino a 100 MB per video.</p>
+ <div class="gallery-admin-grid">
+  <div class="gallery-admin-card" data-artist-media="images"><h3>Galleria fotografica</h3><p>Carica più fotografie degli artisti e delle serate.</p><input type="file" accept="image/jpeg,image/png,image/webp" multiple aria-label="Aggiungi foto artisti"><button type="button" class="artist-media-upload">Aggiungi fotografie</button><div class="gallery-admin-status" aria-live="polite"></div><div class="gallery-admin-count"></div><div class="gallery-admin-list"></div></div>
+  <div class="gallery-admin-card" data-artist-media="videos"><h3>Galleria video</h3><p>Carica le performance. I clienti potranno riprodurle e scorrerle una alla volta.</p><p>Seleziona i video salvati sul telefono. Se un file supera 100 MB, proveremo a ridurne il peso automaticamente mantenendo una qualità elevata.</p><input type="file" accept="video/*,.mp4,.mov,.webm,.m4v,.3gp" multiple aria-label="Seleziona video dal telefono"><button type="button" class="artist-media-upload">Scegli video dal telefono</button><div class="artist-media-selection" aria-live="polite">Nessun video selezionato.</div><button type="button" class="artist-media-publish" disabled>Pubblica video selezionati</button><div class="gallery-admin-status" aria-live="polite"></div><div class="gallery-admin-count"></div><div class="gallery-admin-list"></div></div>
+ </div>
+</div>
+</section>
+<div class="foot">Note Fiorentine · Ristorante Toscano & Live Music</div></main>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const supabase=createClient('https://nculgrwlzjitggjcgbpp.supabase.co','sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0');
+const $=id=>document.getElementById(id);
+const slots=[
+ {key:'hero',label:'Immagine principale',category:'Homepage',desc:'Riquadro principale della homepage.',desktopRatio:'1.12 / 1',mobileRatio:'0.89 / 1'},
+ {key:'live_music',label:'Musica dal vivo',category:'Musica',desc:'Riquadro della sezione musica.',desktopRatio:'1.03 / 1',mobileRatio:'0.91 / 1'},
+ {key:'gallery_restaurant',label:'Il ristorante',category:'Galleria',desc:'Primo riquadro della galleria.',desktopRatio:'1.09 / 1',mobileRatio:'1 / 1'},
+ {key:'gallery_food',label:'La cucina',category:'Galleria',desc:'Secondo riquadro della galleria.',desktopRatio:'0.73 / 1',mobileRatio:'0.65 / 1'},
+ {key:'gallery_atmosphere',label:'L’atmosfera',category:'Galleria',desc:'Terzo riquadro della galleria.',desktopRatio:'0.73 / 1',mobileRatio:'0.65 / 1'},
+ {key:'artists_gallery_cover',label:'Copertina galleria artisti · Immagini',category:'Artisti',desc:'Immagine cliccabile che apre la galleria fotografica degli artisti.',desktopRatio:'1.2 / 1',mobileRatio:'1 / 1'},
+ {key:'artists_video_cover',label:'Copertina galleria artisti · Video',category:'Artisti',desc:'Immagine cliccabile che apre la galleria video degli artisti.',desktopRatio:'1.2 / 1',mobileRatio:'1 / 1'}
+];
+let currentUser=null;
+function status(msg){$('managerStatus').textContent=msg}
+function loginStatus(msg){$('loginStatus').textContent=msg;$('loginStatus').classList.remove('hidden')}
+async function checkSession(){
+ const {data:{session}}=await supabase.auth.getSession();
+ if(!session){$('loginPanel').classList.remove('hidden');$('manager').classList.add('hidden');return}
+ const {data:admin,error}=await supabase.from('admin_users').select('user_id').eq('user_id',session.user.id).maybeSingle();
+ if(error||!admin){await supabase.auth.signOut();$('loginPanel').classList.remove('hidden');$('manager').classList.add('hidden');loginStatus('Questo account non risulta abilitato come amministratore.');return}
+ currentUser=session.user;$('loginPanel').classList.add('hidden');$('manager').classList.remove('hidden');await loadImages();await loadGalleryAdmin();await loadArtistMediaAdmin();
+ await loadPopup();
+}
+async function loadPopup(){
+ const status=document.getElementById('popupVisibilityStatus'),btn=document.getElementById('popupVisibilityBtn');if(!status||!btn)return;
+ btn.disabled=true;status.textContent='Lettura stato popup…';
+ try{const {data,error}=await supabase.from('homepage_popup').select('id,active,updated_at').order('created_at',{ascending:false}).limit(1).maybeSingle();if(error)throw error;if(!data){status.textContent='Nessun popup configurato.';btn.textContent='Nessun popup';return;}window.nfPopupControl=data;status.textContent='Popup attualmente '+(data.active?'VISIBILE':'NASCOSTO');btn.textContent=data.active?'Nascondi popup':'Rendi visibile popup';btn.disabled=false;}catch(e){status.textContent='Errore lettura popup: '+(e.message||e);btn.textContent='Non disponibile';}
+}
+async function togglePopup(){
+ const btn=document.getElementById('popupVisibilityBtn'),status=document.getElementById('popupVisibilityStatus'),current=window.nfPopupControl;if(!current)return;
+ const next=!current.active;btn.disabled=true;status.textContent='Aggiornamento in corso…';
+ try{const {data,error}=await supabase.from('homepage_popup').update({active:next,updated_at:new Date().toISOString()}).eq('id',current.id).select('id,active,updated_at').single();if(error)throw error;window.nfPopupControl=data;status.textContent='Popup attualmente '+(data.active?'VISIBILE':'NASCOSTO');btn.textContent=data.active?'Nascondi popup':'Rendi visibile popup';btn.disabled=false;}catch(e){status.textContent='Aggiornamento non riuscito: '+(e.message||e);btn.disabled=false;}
+}
+document.getElementById('popupVisibilityBtn')?.addEventListener('click',togglePopup);
+document.getElementById('popupVisibilityRefresh')?.addEventListener('click',loadPopup);
+
+$('loginBtn').addEventListener('click',async()=>{
+ const email=$('email').value.trim(),password=$('password').value;
+ if(!email||!password){loginStatus('Inserisci email e password.');return}
+ $('loginBtn').disabled=true;loginStatus('Accesso in corso…');
+ const {error}=await supabase.auth.signInWithPassword({email,password});
+ $('loginBtn').disabled=false;
+ if(error){loginStatus('Accesso non riuscito: '+error.message);return}
+ $('loginStatus').classList.add('hidden');await 
+await checkSession();
+});
+$('password').addEventListener('keydown',e=>{if(e.key==='Enter')$('loginBtn').click()});
+$('logoutBtn').addEventListener('click',async()=>{await supabase.auth.signOut();currentUser=null;checkSession()});
+$('refreshBtn').addEventListener('click',loadImages);
+function publicUrl(path){return supabase.storage.from('site-media').getPublicUrl(path).data.publicUrl}
+async function loadImages(){
+ status('Caricamento…');
+ const {data,error}=await supabase.from('site_images').select('image_key,image_path,alt_text,focal_x,focal_y,focal_zoom').order('sort_order');
+ if(error){status('Errore nel caricamento: '+error.message);return}
+ const map=Object.fromEntries((data||[]).map(x=>[x.image_key,x]));
+ $('imageCards').replaceChildren();
+ for(const slot of slots){
+  const row=map[slot.key]||{},card=document.createElement('article');card.className='image-card';
+  const title=document.createElement('h3');title.textContent=slot.label;card.append(title);
+  const cat=document.createElement('div');cat.className='category';cat.textContent=slot.category;card.append(cat);
+  const desc=document.createElement('p');desc.className='hint';desc.textContent=slot.desc;card.append(desc);
+  const img=document.createElement('div');img.className='preview';img.setAttribute('role','img');img.setAttribute('aria-label',slot.label);img.style.aspectRatio=slot.desktopRatio;img.style.backgroundImage=row.image_path?'url("'+publicUrl(row.image_path)+'")':'none';img.style.backgroundSize='cover';img.style.backgroundPosition=(row.focal_x??50)+'% '+(row.focal_y??50)+'%';card.append(img);
+  if(row.image_path){const previewSource=new Image();previewSource.onload=()=>{const update=()=>{const rect=img.getBoundingClientRect();if(!rect.width||!rect.height)return;const zoom=Math.max(1,Math.min(3,Number(row.focal_zoom||1))),scale=Math.max(rect.width/previewSource.naturalWidth,rect.height/previewSource.naturalHeight)*zoom;img.style.backgroundSize=(previewSource.naturalWidth*scale)+'px '+(previewSource.naturalHeight*scale)+'px'};update();if('ResizeObserver' in window){const observer=new ResizeObserver(update);observer.observe(img)}};previewSource.src=publicUrl(row.image_path)}
+  const file=document.createElement('input');file.type='file';file.accept='image/jpeg,image/png,image/webp';file.setAttribute('aria-label','Scegli nuova immagine: '+slot.label);file.hidden=true;card.append(file);
+  const selected=document.createElement('p');selected.className='selected-file';selected.textContent='Nessun nuovo file selezionato.';card.append(selected);
+  let focalX=Number(row.focal_x??50),focalY=Number(row.focal_y??50),focalZoom=Number(row.focal_zoom??1),drag=false,lastX=0,lastY=0,sourceImage=null;
+  const cropBox=document.createElement('div');cropBox.className='cropbox';cropBox.hidden=true;
+  const mode=document.createElement('select');mode.innerHTML='<option value="desktop">Riquadro sito · Desktop</option><option value="mobile">Riquadro sito · Telefono</option><option value="full">Fotografia intera · senza crop</option>';mode.style.cssText='width:100%;padding:10px;border:1px solid var(--line);background:white;margin-bottom:10px';
+  const stage=document.createElement('div');stage.className='cropstage';stage.style.aspectRatio=slot.desktopRatio;
+  const xRow=document.createElement('div');xRow.className='zoomrow';const xLabel=document.createElement('span');xLabel.textContent='Spostamento orizzontale';const xInput=document.createElement('input');xInput.type='range';xInput.min='0';xInput.max='100';xInput.step='1';xInput.value=String(focalX);xRow.append(xLabel,xInput);
+  const yRow=document.createElement('div');yRow.className='zoomrow';const yLabel=document.createElement('span');yLabel.textContent='Spostamento verticale';const yInput=document.createElement('input');yInput.type='range';yInput.min='0';yInput.max='100';yInput.step='1';yInput.value=String(focalY);yRow.append(yLabel,yInput);
+  const zoomRow=document.createElement('div');zoomRow.className='zoomrow';const zoomLabel=document.createElement('span');zoomLabel.textContent='Zoom';const zoomInput=document.createElement('input');zoomInput.type='range';zoomInput.min='1';zoomInput.max='3';zoomInput.step='0.05';zoomInput.value=String(focalZoom);zoomRow.append(zoomLabel,zoomInput);
+  const help=document.createElement('p');help.className='crophelp';help.textContent='Scegli “Fotografia intera” per vedere l’originale senza tagli, oppure il riquadro desktop/telefono per controllare esattamente l’inquadratura del sito. Il file originale non viene ritagliato né modificato.';
+  cropBox.append(mode,stage,xRow,yRow,zoomRow,help);card.append(cropBox);
+  function updatePosition(){const rect=stage.getBoundingClientRect();if(mode.value==='full'&&sourceImage?.naturalWidth){stage.style.backgroundSize='contain';stage.style.backgroundPosition='center center';xInput.disabled=true;yInput.disabled=true;zoomInput.disabled=true;}else{if(sourceImage?.naturalWidth&&rect.width&&rect.height){const scale=Math.max(rect.width/sourceImage.naturalWidth,rect.height/sourceImage.naturalHeight)*focalZoom;stage.style.backgroundSize=(sourceImage.naturalWidth*scale)+'px '+(sourceImage.naturalHeight*scale)+'px'}else{stage.style.backgroundSize='cover'}stage.style.backgroundPosition=focalX+'% '+focalY+'%';xInput.disabled=false;yInput.disabled=false;zoomInput.disabled=false;}xInput.value=String(Math.round(focalX));yInput.value=String(Math.round(focalY));zoomInput.value=String(focalZoom)}
+  function applyMode(){if(mode.value==='full'&&sourceImage?.naturalWidth){stage.style.aspectRatio=sourceImage.naturalWidth+'/'+sourceImage.naturalHeight;stage.style.backgroundColor='#26211d'}else{stage.style.aspectRatio=mode.value==='mobile'?slot.mobileRatio:slot.desktopRatio}updatePosition()}
+  mode.addEventListener('change',applyMode);xInput.addEventListener('input',()=>{focalX=Number(xInput.value);updatePosition()});yInput.addEventListener('input',()=>{focalY=Number(yInput.value);updatePosition()});zoomInput.addEventListener('input',()=>{focalZoom=Number(zoomInput.value);updatePosition()});
+  stage.addEventListener('pointerdown',e=>{e.preventDefault();drag=true;lastX=e.clientX;lastY=e.clientY;try{stage.setPointerCapture(e.pointerId)}catch(_){}});
+  stage.addEventListener('pointermove',e=>{if(!drag||mode.value==='full'||!sourceImage?.naturalWidth)return;const rect=stage.getBoundingClientRect(),scale=Math.max(rect.width/sourceImage.naturalWidth,rect.height/sourceImage.naturalHeight)*focalZoom,overflowX=Math.max(0,sourceImage.naturalWidth*scale-rect.width),overflowY=Math.max(0,sourceImage.naturalHeight*scale-rect.height);if(overflowX>0.5)focalX=Math.max(0,Math.min(100,focalX-(e.clientX-lastX)/overflowX*100));if(overflowY>0.5)focalY=Math.max(0,Math.min(100,focalY-(e.clientY-lastY)/overflowY*100));lastX=e.clientX;lastY=e.clientY;updatePosition()});
+  stage.addEventListener('pointerup',()=>drag=false);stage.addEventListener('pointercancel',()=>drag=false);stage.addEventListener('lostpointercapture',()=>drag=false);
+  const actions=document.createElement('div');actions.className='actions';
+  const cardStatus=document.createElement('div');cardStatus.className='status';cardStatus.setAttribute('role','status');cardStatus.setAttribute('aria-live','polite');cardStatus.hidden=true;
+  function cardMessage(message){cardStatus.textContent=message;cardStatus.hidden=false;}
+  const chooseBtn=document.createElement('button');chooseBtn.type='button';chooseBtn.className='choose-btn';chooseBtn.textContent='Carica immagine';
+  const replaceBtn=document.createElement('button');replaceBtn.type='button';replaceBtn.textContent='Sostituisci immagine';replaceBtn.disabled=true;
+  actions.append(chooseBtn,replaceBtn);card.append(actions,cardStatus);
+  const hint=document.createElement('p');hint.className='hint';hint.textContent=row.image_path?'Immagine attualmente caricata.':'Nessuna fotografia personalizzata: viene mostrata la grafica predefinita.';card.append(hint);
+  chooseBtn.addEventListener('click',()=>file.click());
+  file.addEventListener('change',()=>{const f=file.files?.[0];if(!f){selected.textContent='Nessun nuovo file selezionato.';replaceBtn.disabled=true;cropBox.hidden=true;return}
+   if(!['image/jpeg','image/png','image/webp'].includes(f.type)||f.size>15*1024*1024){status('File non valido: usa JPG, PNG o WEBP fino a 15 MB.');file.value='';replaceBtn.disabled=true;cropBox.hidden=true;return}
+   selected.textContent='Immagine pronta: '+f.name;replaceBtn.disabled=false;focalX=50;focalY=50;focalZoom=1.15;const objectUrl=URL.createObjectURL(f);sourceImage=new Image();sourceImage.onload=()=>updatePosition();sourceImage.src=objectUrl;stage.style.backgroundImage='url("'+objectUrl+'")';stage.style.backgroundSize='cover';cropBox.hidden=false;mode.value='desktop';applyMode();img.style.backgroundImage=stage.style.backgroundImage;img.style.backgroundPosition='50% 50%';cardMessage('Foto selezionata. Spostala nel riquadro e premi “Sostituisci immagine” per salvarla.');
+  });
+  replaceBtn.addEventListener('click',async()=>{
+   const f=file.files?.[0];if(!f){status('Prima premi “Carica immagine” e scegli una fotografia.');return}
+   replaceBtn.disabled=true;chooseBtn.disabled=true;cardMessage('Caricamento della fotografia in corso…');replaceBtn.textContent='Caricamento…';
+   try{
+    const ext=f.type==='image/png'?'png':f.type==='image/webp'?'webp':'jpg';
+    const path=slot.key+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;
+    const {error:uploadError}=await supabase.storage.from('site-media').upload(path,f,{contentType:f.type,upsert:false,cacheControl:'3600'});
+    if(uploadError)throw new Error('Caricamento non riuscito: '+uploadError.message);
+    const {data:updated,error:saveError}=await supabase.from('site_images').update({image_path:path,focal_x:focalX,focal_y:focalY,focal_zoom:focalZoom,updated_by:currentUser.id,updated_at:new Date().toISOString()}).eq('image_key',slot.key).select('image_key,image_path').maybeSingle();
+    if(saveError)throw new Error('File caricato, ma collegamento al sito non riuscito: '+saveError.message);
+    if(!updated)throw new Error('Il file è stato caricato, ma non è stata aggiornata la voce immagine nel database.');
+    cardMessage('Sostituzione completata. La nuova fotografia è stata collegata al sito. Ricarica la homepage per visualizzarla.');replaceBtn.textContent='Sostituzione completata';
+    file.value='';selected.textContent='Nessun nuovo file selezionato.';cropBox.hidden=true;await loadImages();
+   }catch(err){cardMessage(err.message||'Errore imprevisto durante la sostituzione.');replaceBtn.disabled=false;replaceBtn.textContent='Riprova'}
+   finally{chooseBtn.disabled=false;if(replaceBtn.textContent==='Caricamento…')replaceBtn.textContent='Sostituisci immagine'}
+  });
+  $('imageCards').append(card);
+ }
+ status('Pronto. Le modifiche vengono salvate direttamente nel sito.');
+}
+// Gestione dei tre album fotografici della homepage.
+const galleryLabels={restaurant:'Il ristorante',kitchen:'La cucina',music:'L’atmosfera'};
+function galleryStatus(card,message){card.querySelector('.gallery-admin-status').textContent=message}
+async function saveGalleryOrder(category,items,card){
+ const results=await Promise.all(items.map((item,index)=>supabase.from('gallery_images').update({sort_order:(index+1)*10}).eq('id',item.id).eq('category',category)));
+ const failed=results.find(r=>r.error);if(failed)throw new Error('Salvataggio ordine non riuscito: '+failed.error.message);
+ galleryStatus(card,'Ordine salvato. La sequenza sul sito è stata aggiornata.');
+}
+
+// Editor condiviso per tutte le fotografie delle gallerie.
+function openGalleryPhotoEditor({table,item,categoryLabel,card}){
+ const backdrop=document.createElement('div');backdrop.className='nf-photo-editor-backdrop';backdrop.setAttribute('role','dialog');backdrop.setAttribute('aria-modal','true');
+ const panel=document.createElement('section');panel.className='nf-photo-editor';
+ const heading=document.createElement('h2');heading.textContent='Regola inquadratura · '+categoryLabel;
+ const intro=document.createElement('p');intro.textContent='Trascina la fotografia nell’anteprima oppure usa i controlli. Il riquadro riproduce il taglio della galleria pubblicata.';
+ const previewLabel=document.createElement('div');previewLabel.className='nf-photo-editor-preview-label';previewLabel.textContent='Anteprima pubblicazione';
+ const stage=document.createElement('div');stage.className='nf-photo-editor-stage';
+ const controls=[];
+ function slider(label,min,max,step,value){
+  const row=document.createElement('label');row.className='nf-photo-editor-control';
+  const name=document.createElement('span');name.textContent=label;
+  const input=document.createElement('input');input.type='range';input.min=String(min);input.max=String(max);input.step=String(step);input.value=String(value);
+  const val=document.createElement('output');val.textContent=String(value);
+  row.append(name,input,val);panel.append(row);controls.push({input,val});return input;
+ }
+ const initialX=Number(item.focal_x??50),initialY=Number(item.focal_y??50),initialZoom=Number(item.focal_zoom??1);
+ let x=initialX,y=initialY,zoom=initialZoom,dragging=false,lastX=0,lastY=0,naturalW=0,naturalH=0;
+ const url=supabase.storage.from('site-media').getPublicUrl(item.image_path).data.publicUrl;
+ const source=new Image();
+ function update(){
+  if(!naturalW||!naturalH)return;
+  const rect=stage.getBoundingClientRect();if(!rect.width||!rect.height)return;
+  const scale=Math.max(rect.width/naturalW,rect.height/naturalH)*zoom;
+  stage.style.backgroundSize=(naturalW*scale)+'px '+(naturalH*scale)+'px';
+  stage.style.backgroundPosition=x+'% '+y+'%';
+  controls[0].input.value=String(Math.round(x));controls[0].val.textContent=String(Math.round(x));
+  controls[1].input.value=String(Math.round(y));controls[1].val.textContent=String(Math.round(y));
+  controls[2].input.value=String(zoom.toFixed(2));controls[2].val.textContent=zoom.toFixed(2)+'×';
+ }
+ const xi=slider('Asse orizzontale',0,100,1,x),yi=slider('Asse verticale',0,100,1,y),zi=slider('Zoom',1,3,.05,zoom);
+ xi.addEventListener('input',()=>{x=Number(xi.value);update()});
+ yi.addEventListener('input',()=>{y=Number(yi.value);update()});
+ zi.addEventListener('input',()=>{zoom=Number(zi.value);update()});
+ stage.addEventListener('pointerdown',e=>{e.preventDefault();dragging=true;lastX=e.clientX;lastY=e.clientY;stage.setPointerCapture(e.pointerId)});
+ stage.addEventListener('pointermove',e=>{if(!dragging||!naturalW)return;const rect=stage.getBoundingClientRect(),scale=Math.max(rect.width/naturalW,rect.height/naturalH)*zoom,overflowX=Math.max(0,naturalW*scale-rect.width),overflowY=Math.max(0,naturalH*scale-rect.height);if(overflowX>0)x=Math.max(0,Math.min(100,x-(e.clientX-lastX)/overflowX*100));if(overflowY>0)y=Math.max(0,Math.min(100,y-(e.clientY-lastY)/overflowY*100));lastX=e.clientX;lastY=e.clientY;update()});
+ ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>stage.addEventListener(ev,()=>dragging=false));
+ source.onload=()=>{naturalW=source.naturalWidth;naturalH=source.naturalHeight;if(naturalH>naturalW)stage.classList.add('portrait');update()};
+ source.src=url;stage.style.backgroundImage='url("'+url.replace(/"/g,'%22')+'")';
+ const note=document.createElement('p');note.textContent='La foto originale resta intatta. Vengono memorizzati solo posizione e ingrandimento.';
+ const actions=document.createElement('div');actions.className='nf-photo-editor-actions';
+ const cancel=document.createElement('button');cancel.type='button';cancel.className='secondary';cancel.textContent='Annulla';cancel.addEventListener('click',()=>backdrop.remove());
+ const save=document.createElement('button');save.type='button';save.textContent='Salva inquadratura';
+ save.addEventListener('click',async()=>{save.disabled=true;save.textContent='Salvataggio…';try{
+  const {error}=await supabase.from(table).update({focal_x:x,focal_y:y,focal_zoom:zoom}).eq('id',item.id);
+  if(error)throw error;
+  backdrop.remove();
+  if(table==='gallery_images')await loadGalleryAdmin();else await loadArtistMediaAdmin();
+  const status=card?.querySelector('.gallery-admin-status');if(status)status.textContent='Inquadratura salvata. L’anteprima e la galleria useranno questo taglio.';
+ }catch(e){save.disabled=false;save.textContent='Riprova';const err=document.createElement('p');err.textContent='Salvataggio non riuscito: '+e.message;panel.append(err)}});
+ actions.append(cancel,save);
+ panel.append(heading,intro,previewLabel,stage,note,actions);backdrop.append(panel);
+ backdrop.addEventListener('click',e=>{if(e.target===backdrop)backdrop.remove()});
+ document.addEventListener('keydown',function esc(e){if(e.key==='Escape'&&backdrop.isConnected){backdrop.remove();document.removeEventListener('keydown',esc)}});
+ document.body.append(backdrop);
+}
+
+async function loadGalleryAdmin(){
+ for(const [category,label] of Object.entries(galleryLabels)){
+  const card=document.querySelector('[data-gallery-admin="'+category+'"]');if(!card)continue;
+  const list=card.querySelector('.gallery-admin-list'),count=card.querySelector('.gallery-admin-count');
+  const {data,error}=await supabase.from('gallery_images').select('id,title,image_path,sort_order,is_published,focal_x,focal_y,focal_zoom').eq('category',category).order('sort_order',{ascending:true}).order('created_at',{ascending:true});
+  if(error){galleryStatus(card,'Errore caricamento: '+error.message);continue}
+  const items=data||[];list.replaceChildren();count.textContent=items.length+' fotografie caricate';
+  for(let i=0;i<items.length;i++){
+   const item=items[i],wrap=document.createElement('div');wrap.className='gallery-admin-item';
+   const img=document.createElement('img');img.src=publicGalleryUrl(item.image_path);img.alt=item.title||label;img.loading='lazy';img.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';img.style.transform='scale('+(item.focal_zoom??1)+')';wrap.append(img);
+   const edit=document.createElement('button');edit.type='button';edit.className='secondary';edit.textContent='Regola foto';edit.addEventListener('click',()=>openGalleryPhotoEditor({table:'gallery_images',item,categoryLabel:label,card}));wrap.append(edit);
+   const controls=document.createElement('div');controls.className='gallery-order-controls';
+   const pos=document.createElement('span');pos.className='gallery-order-position';pos.textContent=(i+1)+' / '+items.length;controls.append(pos);
+   for(const [symbol,delta,aria] of [['↑',-1,'Sposta in alto'],['↓',1,'Sposta in basso']]){
+    const move=document.createElement('button');move.type='button';move.className='secondary gallery-order-move';move.textContent=symbol;move.setAttribute('aria-label',aria);move.disabled=i+delta<0||i+delta>=items.length;
+    move.addEventListener('click',async()=>{const next=[...items],j=i+delta;[next[i],next[j]]=[next[j],next[i]];controls.querySelectorAll('button').forEach(x=>x.disabled=true);
+     try{await saveGalleryOrder(category,next,card);await loadGalleryAdmin()}catch(e){galleryStatus(card,e.message);controls.querySelectorAll('button').forEach(x=>x.disabled=false)}
+    });controls.append(move);
+   }
+   wrap.append(controls);
+   const visibility=document.createElement('button');visibility.type='button';visibility.className='secondary gallery-visibility';visibility.textContent=item.is_published?'Nascondi dal sito':'Mostra sul sito';
+   visibility.addEventListener('click',async()=>{visibility.disabled=true;const {error:ve}=await supabase.from('gallery_images').update({is_published:!item.is_published}).eq('id',item.id);if(ve){galleryStatus(card,'Modifica visibilità non riuscita: '+ve.message);visibility.disabled=false;return}galleryStatus(card,item.is_published?'Fotografia nascosta dal sito.':'Fotografia pubblicata sul sito.');await loadGalleryAdmin()});
+   wrap.append(visibility);
+   const del=document.createElement('button');del.type='button';del.className='secondary';del.textContent='Elimina';del.addEventListener('click',async()=>{
+    if(!confirm('Eliminare questa fotografia dall’album "'+label+'"?'))return;
+    del.disabled=true;galleryStatus(card,'Eliminazione in corso…');
+    const {error:deleteError}=await supabase.from('gallery_images').delete().eq('id',item.id);
+    if(deleteError){galleryStatus(card,'Eliminazione non riuscita: '+deleteError.message);del.disabled=false;return}
+    const {error:storageError}=await supabase.storage.from('site-media').remove([item.image_path]);
+    galleryStatus(card,storageError?'Foto rimossa dall’album; pulizia del file non riuscita: '+storageError.message:'Fotografia eliminata.');await loadGalleryAdmin();
+   });wrap.append(del);list.append(wrap);
+  }
+  if(!items.length){const empty=document.createElement('p');empty.textContent='Nessuna fotografia aggiuntiva caricata.';empty.style.gridColumn='1/-1';list.append(empty)}
+ }
+}
+function publicGalleryUrl(path){return supabase.storage.from('site-media').getPublicUrl(path).data.publicUrl}
+document.querySelectorAll('[data-gallery-admin]').forEach(card=>{
+ const category=card.dataset.galleryAdmin,file=card.querySelector('input[type=file]'),button=card.querySelector('.gallery-upload-btn');
+ button.addEventListener('click',async()=>{
+  const files=Array.from(file.files||[]);
+  if(!files.length){galleryStatus(card,'Seleziona prima una o più fotografie.');return}
+  const invalid=files.find(f=>!['image/jpeg','image/png','image/webp'].includes(f.type)||f.size>15*1024*1024);
+  if(invalid){galleryStatus(card,'File non valido: '+invalid.name+'. Usa JPG, PNG o WEBP fino a 15 MB.');return}
+  button.disabled=true;file.disabled=true;
+  let done=0;
+  try{
+   for(const f of files){
+    galleryStatus(card,'Caricamento '+(done+1)+' di '+files.length+': '+f.name);
+    const ext=f.type==='image/png'?'png':f.type==='image/webp'?'webp':'jpg';
+    const path='gallery/'+category+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,9)+'.'+ext;
+    const {error:uploadError}=await supabase.storage.from('site-media').upload(path,f,{contentType:f.type,upsert:false,cacheControl:'3600'});
+    if(uploadError)throw new Error('Upload non riuscito per '+f.name+': '+uploadError.message);
+    const {data:existing,error:readError}=await supabase.from('gallery_images').select('sort_order').eq('category',category).order('sort_order',{ascending:false}).limit(1);
+    if(readError)throw new Error('Lettura ordine album non riuscita: '+readError.message);
+    const nextOrder=(existing?.[0]?.sort_order||0)+10;
+    const {error:insertError}=await supabase.from('gallery_images').insert({category,title:f.name.replace(/\.[^.]+$/,''),image_path:path,sort_order:nextOrder,is_published:true,focal_x:50,focal_y:50,focal_zoom:1});
+    if(insertError){await supabase.storage.from('site-media').remove([path]);throw new Error('Immagine caricata ma salvataggio in galleria non riuscito: '+insertError.message)}
+    done++;
+   }
+   file.value='';galleryStatus(card,done+' fotografie aggiunte e pubblicate nell’album.');await loadGalleryAdmin();
+  }catch(error){galleryStatus(card,error.message||'Errore durante il caricamento.')}
+  finally{button.disabled=false;file.disabled=false}
+ });
+});
+
+
+// Gestione delle gallerie fotografiche e video degli artisti.
+function artistMediaStatus(card,msg){card.querySelector('.gallery-admin-status').textContent=msg}
+async function saveArtistMediaOrder(def,items,card){
+ const results=await Promise.all(items.map((item,index)=>supabase.from(def.table).update({sort_order:(index+1)*10}).eq('id',item.id)));
+ const failed=results.find(r=>r.error);if(failed)throw new Error('Salvataggio ordine non riuscito: '+failed.error.message);
+ artistMediaStatus(card,'Ordine salvato. La sequenza sul sito è stata aggiornata.');
+}
+async function loadArtistMediaAdmin(){
+ const defs=[{kind:'images',table:'artist_images',bucket:'site-media',label:'fotografie'},{kind:'videos',table:'performance_videos',bucket:'performance-videos',label:'video'}];
+ for(const def of defs){
+  const card=document.querySelector('[data-artist-media="'+def.kind+'"]');if(!card)continue;
+  const list=card.querySelector('.gallery-admin-list'),count=card.querySelector('.gallery-admin-count'),field=def.kind==='images'?'image_path':'video_path';
+  const {data,error}=await supabase.from(def.table).select('id,title,'+field+',sort_order,is_published,created_at,focal_x,focal_y,focal_zoom').order('sort_order',{ascending:true}).order('created_at',{ascending:def.kind==='images'});
+  if(error){artistMediaStatus(card,'Errore caricamento: '+error.message);continue}
+  const items=data||[];list.replaceChildren();count.textContent=items.length+' '+def.label+' caricat'+(def.kind==='images'?'e':'i');
+  let tools=card.querySelector('.artist-order-tools');
+  if(!tools){tools=document.createElement('div');tools.className='artist-order-tools';count.after(tools)}
+  tools.replaceChildren();const hint=document.createElement('span');hint.textContent='Ordine di visualizzazione';tools.append(hint);
+  if(def.kind==='videos'){
+   const reset=document.createElement('button');reset.type='button';reset.className='secondary artist-order-reset';reset.textContent='Più recenti prima';
+   reset.addEventListener('click',async()=>{reset.disabled=true;try{
+    const {data:chron,error:readError}=await supabase.from(def.table).select('id,created_at').order('created_at',{ascending:false});
+    if(readError)throw readError;const sorted=(chron||[]).map(x=>items.find(i=>i.id===x.id)).filter(Boolean);
+    await saveArtistMediaOrder(def,sorted,card);await loadArtistMediaAdmin();
+   }catch(e){artistMediaStatus(card,'Riordino automatico non riuscito: '+e.message);reset.disabled=false}});
+   tools.append(reset);
+  }
+  for(let i=0;i<items.length;i++){
+   const item=items[i],wrap=document.createElement('div');wrap.className='gallery-admin-item';
+   const media=def.kind==='images'?document.createElement('img'):document.createElement('video');
+   media.src=supabase.storage.from(def.bucket).getPublicUrl(item[field]).data.publicUrl;
+   if(def.kind==='images'){media.alt=item.title||'Fotografia artista';media.loading='lazy';media.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';media.style.transform='scale('+(item.focal_zoom??1)+')'}else{media.controls=true;media.preload='metadata';media.muted=true}
+   wrap.append(media);if(def.kind==='images'){const edit=document.createElement('button');edit.type='button';edit.className='secondary';edit.textContent='Regola foto';edit.addEventListener('click',()=>openGalleryPhotoEditor({table:'artist_images',item,categoryLabel:'Artisti',card}));wrap.append(edit)}const controls=document.createElement('div');controls.className='artist-order-controls';
+   const position=document.createElement('span');position.className='artist-order-position';position.textContent=(i+1)+' / '+items.length;controls.append(position);
+   for(const [label,delta,aria] of [['↑',-1,'Sposta in alto'],['↓',1,'Sposta in basso']]){
+    const move=document.createElement('button');move.type='button';move.className='secondary artist-order-move';move.textContent=label;move.setAttribute('aria-label',aria);move.disabled=i+delta<0||i+delta>=items.length;
+    move.addEventListener('click',async()=>{const next=[...items],target=i+delta;[next[i],next[target]]=[next[target],next[i]];
+     controls.querySelectorAll('button').forEach(b=>b.disabled=true);
+     try{await saveArtistMediaOrder(def,next,card);await loadArtistMediaAdmin()}catch(e){artistMediaStatus(card,e.message);controls.querySelectorAll('button').forEach(b=>b.disabled=false)}
+    });controls.append(move);
+   }
+   wrap.append(controls);
+   const visibility=document.createElement('button');visibility.type='button';visibility.className='secondary media-visibility';visibility.textContent=item.is_published?'Nascondi dal sito':'Mostra sul sito';
+   visibility.addEventListener('click',async()=>{visibility.disabled=true;const {error:visibilityError}=await supabase.from(def.table).update({is_published:!item.is_published}).eq('id',item.id);if(visibilityError){artistMediaStatus(card,'Modifica visibilità non riuscita: '+visibilityError.message);visibility.disabled=false;return}artistMediaStatus(card,item.is_published?'Contenuto nascosto dal sito.':'Contenuto pubblicato sul sito.');await loadArtistMediaAdmin()});
+   wrap.append(visibility);
+   const del=document.createElement('button');del.type='button';del.className='secondary media-delete';del.textContent='Elimina';del.addEventListener('click',async()=>{
+    if(!confirm('Eliminare questo contenuto dalla galleria?'))return;del.disabled=true;artistMediaStatus(card,'Eliminazione in corso…');
+    const {error:de}=await supabase.from(def.table).delete().eq('id',item.id);
+    if(de){artistMediaStatus(card,'Eliminazione non riuscita: '+de.message);del.disabled=false;return}
+    const {error:se}=await supabase.storage.from(def.bucket).remove([item[field]]);
+    artistMediaStatus(card,se?'Contenuto rimosso; pulizia del file non riuscita: '+se.message:'Contenuto eliminato.');await loadArtistMediaAdmin();
+   });wrap.append(del);list.append(wrap);
+  }
+  if(!items.length){const empty=document.createElement('p');empty.textContent='Nessun contenuto caricato.';empty.style.gridColumn='1/-1';list.append(empty)}
+ }
+}
+
+
+async function compressOversizedVideo(file,card){
+ const limit=100*1024*1024;
+ if(file.size<=limit)return file;
+ if(!window.MediaRecorder||!HTMLCanvasElement.prototype.captureStream)throw new Error('Compressione automatica non supportata da questo browser. Aggiorna Chrome o usa un video sotto 100 MB.');
+ artistMediaStatus(card,'Video oltre 100 MB: compressione in corso. Non chiudere la pagina…');
+ const sourceUrl=URL.createObjectURL(file),video=document.createElement('video');
+ let canvasStream=null,capture=null,recorder=null,frame=0;
+ video.preload='auto';video.playsInline=true;video.src=sourceUrl;video.volume=0;
+ try{
+  await new Promise((resolve,reject)=>{video.onloadedmetadata=resolve;video.onerror=()=>reject(new Error('Il telefono non riesce a leggere questo video.'))});
+  const duration=Number(video.duration),vw=video.videoWidth,vh=video.videoHeight;
+  if(!Number.isFinite(duration)||duration<=0||!vw||!vh)throw new Error('Durata o dimensioni del video non riconosciute.');
+  const targetBytes=88*1024*1024,audioRate=128000;
+  const calculated=Math.floor((targetBytes*8/duration)-audioRate);
+  if(calculated<350000)throw new Error('Il video è troppo lungo: non posso ridurlo sotto 100 MB mantenendo una qualità accettabile.');
+  const videoRate=Math.min(6500000,calculated);
+  const scale=Math.min(1,1920/vw,1080/vh);
+  const width=Math.max(2,Math.floor(vw*scale/2)*2),height=Math.max(2,Math.floor(vh*scale/2)*2);
+  const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
+  const ctx=canvas.getContext('2d',{alpha:false});
+  if(!ctx)throw new Error('Impossibile avviare la conversione.');
+  canvasStream=canvas.captureStream(30);
+  if(typeof video.captureStream==='function')capture=video.captureStream();
+  else if(typeof video.mozCaptureStream==='function')capture=video.mozCaptureStream();
+  if(capture)capture.getAudioTracks().forEach(track=>canvasStream.addTrack(track));
+  const mime=['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'].find(type=>MediaRecorder.isTypeSupported(type));
+  if(!mime)throw new Error('Questo browser non dispone di un codificatore WebM compatibile.');
+  recorder=new MediaRecorder(canvasStream,{mimeType:mime,videoBitsPerSecond:videoRate,audioBitsPerSecond:audioRate});
+  const chunks=[];
+  const finished=new Promise((resolve,reject)=>{
+   recorder.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
+   recorder.onerror=()=>reject(new Error('Errore durante la conversione del video.'));
+   recorder.onstop=()=>resolve(new Blob(chunks,{type:recorder.mimeType||'video/webm'}));
+  });
+  await video.play();
+  const render=()=>{
+   if(video.readyState>=2)ctx.drawImage(video,0,0,width,height);
+   if(!video.ended&&!video.paused)frame=requestAnimationFrame(render);
+  };
+  render();recorder.start(1000);
+  await new Promise((resolve,reject)=>{
+   video.onended=resolve;
+   video.onerror=()=>reject(new Error('La lettura del video si è interrotta.'));
+  });
+  if(frame)cancelAnimationFrame(frame);
+  if(recorder.state!=='inactive')recorder.stop();
+  const blob=await finished;
+  if(blob.size>limit)throw new Error('Il video resta superiore a 100 MB anche dopo la conversione. Occorre accorciarlo.');
+  const out=new File([blob],file.name.replace(/\.[^.]+$/,'')+'.webm',{type:blob.type,lastModified:Date.now()});
+  artistMediaStatus(card,'Compressione completata: '+(file.size/1048576).toFixed(1)+' MB → '+(out.size/1048576).toFixed(1)+' MB.');
+  return out;
+ }finally{
+  if(frame)cancelAnimationFrame(frame);
+  if(recorder&&recorder.state!=='inactive'){try{recorder.stop()}catch{}}
+  if(canvasStream)canvasStream.getTracks().forEach(track=>track.stop());
+  if(capture)capture.getTracks().forEach(track=>track.stop());
+  video.pause();video.removeAttribute('src');video.load();URL.revokeObjectURL(sourceUrl);
+ }
+}
+function isSupportedVideo(file){
+ const ext=(file.name.split('.').pop()||'').toLowerCase();
+ return (file.type||'').startsWith('video/')||['mp4','mov','webm','m4v','3gp','3gpp','mkv','avi'].includes(ext);
+}
+document.querySelectorAll('[data-artist-media]').forEach(card=>{
+ const kind=card.dataset.artistMedia,file=card.querySelector('input[type=file]'),button=card.querySelector('.artist-media-upload');
+ const publish=card.querySelector('.artist-media-publish'),selection=card.querySelector('.artist-media-selection');
+ let selectedVideos=[];
+ button.addEventListener('click',()=>file.click());
+ if(kind==='videos'){
+  file.addEventListener('change',()=>{
+   selectedVideos=Array.from(file.files||[]);
+   selection.textContent=selectedVideos.length?selectedVideos.map(f=>f.name+' ('+(f.size/1048576).toFixed(1)+' MB)').join(' · '):'Nessun video selezionato.';
+   publish.disabled=!selectedVideos.length;
+   publish.textContent=selectedVideos.length?'Pubblica '+selectedVideos.length+' video selezionat'+(selectedVideos.length===1?'o':'i'):'Pubblica video selezionati';
+   artistMediaStatus(card,selectedVideos.length?'Controlla i file selezionati, poi premi Pubblica video.':'');
+  });
+  publish.addEventListener('click',async()=>{
+   if(!selectedVideos.length)return;
+   const files=[...selectedVideos];
+   const invalid=files.find(f=>!isSupportedVideo(f));
+   if(invalid){artistMediaStatus(card,'Formato video non riconosciuto: '+invalid.name);return}
+   publish.disabled=true;button.disabled=true;file.disabled=true;
+   let done=0;
+   try{
+    for(const original of files){
+     let uploadFile=original;
+     if(original.size>100*1024*1024)uploadFile=await compressOversizedVideo(original,card);
+     if(uploadFile.size>100*1024*1024)throw new Error('Il file '+original.name+' supera il limite di 100 MB.');
+     artistMediaStatus(card,'Pubblicazione '+(done+1)+' di '+files.length+': caricamento '+original.name);
+     const ext=(uploadFile.name.split('.').pop()||'mp4').toLowerCase();
+     const path='artist-videos/'+Date.now()+'-'+Math.random().toString(36).slice(2,9)+'.'+ext;
+     const {error:up}=await supabase.storage.from('performance-videos').upload(path,uploadFile,{contentType:uploadFile.type||'video/mp4',upsert:false,cacheControl:'3600'});
+     if(up)throw new Error('Caricamento non riuscito per '+original.name+': '+up.message);
+     const {data:existing,error:read}=await supabase.from('performance_videos').select('sort_order').order('sort_order',{ascending:true}).limit(1);
+     if(read){await supabase.storage.from('performance-videos').remove([path]);throw new Error('Lettura ordine non riuscita: '+read.message)}
+     const {error:ins}=await supabase.from('performance_videos').insert({title:original.name.replace(/\.[^.]+$/,''),video_path:path,sort_order:(existing?.[0]?.sort_order??10)-10,is_published:true,focal_x:50,focal_y:50,focal_zoom:1});
+     if(ins){await supabase.storage.from('performance-videos').remove([path]);throw new Error('File caricato ma pubblicazione non riuscita: '+ins.message)}
+     done++;
+    }
+    selectedVideos=[];file.value='';selection.textContent='Nessun video selezionato.';
+    publish.textContent='Pubblica video selezionati';
+    artistMediaStatus(card,done+' video caricati e pubblicati nella galleria.');await loadArtistMediaAdmin();
+   }catch(e){artistMediaStatus(card,e.message||'Errore durante la pubblicazione.')}
+   finally{publish.disabled=!selectedVideos.length;button.disabled=false;file.disabled=false}
+  });
+ }else{
+  button.addEventListener('click',async()=>{
+   const files=Array.from(file.files||[]);if(!files.length){artistMediaStatus(card,'Seleziona prima una o più fotografie.');return}
+   const bad=files.find(f=>!['image/jpeg','image/png','image/webp'].includes(f.type)||f.size>15*1024*1024);
+   if(bad){artistMediaStatus(card,'File immagine non valido o troppo grande: '+bad.name);return}
+   button.disabled=true;file.disabled=true;let done=0;
+   try{
+    for(const f of files){
+     artistMediaStatus(card,'Caricamento '+(done+1)+' di '+files.length+': '+f.name);
+     const ext=(f.name.split('.').pop()||'jpg').toLowerCase(),path='artist-gallery/'+Date.now()+'-'+Math.random().toString(36).slice(2,9)+'.'+ext;
+     const {error:up}=await supabase.storage.from('site-media').upload(path,f,{contentType:f.type,upsert:false,cacheControl:'3600'});
+     if(up)throw new Error('Caricamento non riuscito per '+f.name+': '+up.message);
+     const {data:existing,error:read}=await supabase.from('artist_images').select('sort_order').order('sort_order',{ascending:false}).limit(1);
+     if(read){await supabase.storage.from('site-media').remove([path]);throw new Error('Lettura ordine non riuscita: '+read.message)}
+     const {error:ins}=await supabase.from('artist_images').insert({title:f.name.replace(/\.[^.]+$/,''),image_path:path,sort_order:(existing?.[0]?.sort_order||0)+10,is_published:true});
+     if(ins){await supabase.storage.from('site-media').remove([path]);throw new Error('File caricato ma salvataggio non riuscito: '+ins.message)}
+     done++;
+    }
+    file.value='';artistMediaStatus(card,done+' fotografie aggiunte e pubblicate.');await loadArtistMediaAdmin();
+   }catch(e){artistMediaStatus(card,e.message||'Errore durante il caricamento.')}
+   finally{button.disabled=false;file.disabled=false}
+  });
+ }
+});
+
+checkSession();
+</script></body></html><script async data-explicit-opt-in="true" data-deployment-id="dpl_7tHJ9DycmxR1TALK2u85APShiyVZ" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_EmRnWHsGMUkcJwHUQ7vz8FCmfTh6" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_E5nptDv68tSzPwNaRWjjuQBRJWLT" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_3kBEXjiEjcHv33v8JxwMth6Znb56" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_GbSb1nxg8uKN3nnLoyFhoPVdiZvt" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
