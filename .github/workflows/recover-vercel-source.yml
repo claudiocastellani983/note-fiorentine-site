@@ -1,0 +1,48 @@
+name: Recover deployed Note Fiorentine source
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/recover-vercel-source.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Download published source files
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="https://note-fiorentine-635z4k9gr-claudiocastellani983-5675.vercel.app"
+          mkdir -p recovered/site
+          for file in index.html menu.html gestione-immagini.html gestione-grafica.html; do
+            curl --fail --location --silent --show-error "$BASE/$file" -o "recovered/site/$file"
+            test "$(wc -c < "recovered/site/$file")" -gt 5000
+            grep -Eqi '<!doctype html|<html' "recovered/site/$file"
+          done
+          cat > recovered/RECOVERY-NOTES.txt <<'EOF'
+          Recovered from immutable Vercel deployment dpl_GbSb1nxg8uKN3nnLoyFhoPVdiZvt.
+          These are the four HTML entry pages fetched directly from the published deployment.
+          This is a recovery baseline, not yet a complete source repository: referenced assets,
+          backend services, environment variables and build configuration still require audit.
+          EOF
+      - name: Commit recovered files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add recovered/site recovered/RECOVERY-NOTES.txt
+          if git diff --cached --quiet; then
+            echo "No recovered files changed."
+            exit 0
+          fi
+          git commit -m "Recover published Note Fiorentine HTML source"
+          git push origin HEAD:main
