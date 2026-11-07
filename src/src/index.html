@@ -1175,7 +1175,7 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
       <p style="text-align:center;margin:32px auto 0"><a class="button" href="/menu.html">Consulta il menù completo</a></p>
     </section>
     <section class="music-section" id="musica">
-      <div class="music-art" aria-hidden="true"></div>
+      <div class="music-art" aria-hidden="true"><img class="music-art-fallback" src="https://nculgrwlzjitggjcgbpp.supabase.co/storage/v1/object/public/site-media/live_music/1794003820918-6l0r8l.jpg" alt="" aria-hidden="true" loading="eager" decoding="async"></div>
       <div class="music-copy">
         <div class="section-kicker">Ristorante Toscano & Live Music</div>
         <h2>Ogni sera,<br>la musica è di casa.</h2>
@@ -1609,6 +1609,8 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
   .music-videos .video-card figcaption { padding:16px 10px 14px; }
 }
 
+.music-art-fallback{position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;object-position:center!important;z-index:0!important;pointer-events:none!important}
+.music-art{background-image:linear-gradient(0deg,rgba(16,12,10,.28),rgba(16,12,10,.08)),url("https://nculgrwlzjitggjcgbpp.supabase.co/storage/v1/object/public/site-media/live_music/1794003820918-6l0r8l.jpg")!important;background-position:center!important;background-size:cover!important;background-repeat:no-repeat!important}
 </style>
 <script id="nf-site-images-runtime">
 (async function(){
