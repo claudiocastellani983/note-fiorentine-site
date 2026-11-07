@@ -1269,8 +1269,8 @@ links.querySelectorAll('a').forEach(link => link.addEventListener('click', () =>
   container.innerHTML=items.map(x=>{
    const date=x.starts_at?new Intl.DateTimeFormat('it-IT',{dateStyle:'full',timeStyle:'short'}).format(new Date(x.starts_at)):'';
    const path=x.image_path||'';
-   const img=path?'<img src="'+esc(/^https?:\\/\\//i.test(path)?path:base+'/storage/v1/object/public/site-media/'+path.split('/').map(encodeURIComponent).join('/'))+'" alt="'+esc(x.title)+'">':'';
-   const url=/^https?:\\/\\//i.test(x.external_url||'')?x.external_url:'';
+   const img=path?'<img src="'+esc((path.startsWith('https://')||path.startsWith('http://'))?path:base+'/storage/v1/object/public/site-media/'+path.split('/').map(encodeURIComponent).join('/'))+'" alt="'+esc(x.title)+'">':'';
+   const url=(String(x.external_url||'').startsWith('https://')||String(x.external_url||'').startsWith('http://'))?x.external_url:'';
    return '<article class="event-card">'+img+(date?'<p class="event-date">'+esc(date)+'</p>':'')+'<h3>'+esc(x.title)+'</h3>'+(x.description?'<p>'+esc(x.description)+'</p>':'')+(url?'<a class="event-action" href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">'+esc(x.button_label||'Scopri l’evento')+'</a>':'')+'</article>';
   }).join('');
  }catch(e){console.error('Errore caricamento eventi:',e);container.innerHTML='<p class="event-empty">Al momento non è possibile caricare gli eventi.</p>';}
