@@ -1,5 +1,9 @@
-# Note Fiorentine — recupero sorgenti
+# Note Fiorentine — stato del recupero
 
-Archivio originale recuperato dalla distribuzione Vercel pubblicata il 5 novembre 2026. I file HTML di produzione sono conservati nella cartella `site/` quando recuperabili; l'archivio ZIP originale è conservato in `recovery/`.
+Il repository era vuoto al momento del collegamento. È stato inizializzato con questo README, ma non contiene ancora una copia integra dei sorgenti del sito.
 
-Nota: questa è una copia di recupero della distribuzione, non una ricostruzione del repository di sviluppo originale.
+La distribuzione Vercel pubblica contiene un archivio ZIP e pagine HTML di recupero. L'API disponibile restituisce contenuti troncati oltre il proprio limite di risposta; per evitare di committare file corrotti, i payload incompleti sono stati rimossi.
+
+Nessuna modifica è stata pubblicata su Vercel e nessun file del sito pubblico è stato sovrascritto.
+
+Per completare il ripristino serve ottenere l'archivio ZIP originale in forma integra (ad esempio scaricandolo dal pannello/distribuzione Vercel e caricandolo qui).
