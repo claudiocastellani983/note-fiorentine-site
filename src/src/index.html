@@ -110,6 +110,11 @@ section { scroll-margin-top:80px; }
 .event-card { padding:27px 24px; border:1px solid var(--line); background:rgba(255,255,255,.32); }
 .event-card h3 { margin:0 0 12px; color:#6F3929; font-size:25px; }
 .event-card p { margin:0; color:var(--ink-soft); line-height:1.7; }
+.event-card { overflow:hidden; display:flex; flex-direction:column; min-height:100%; }
+.event-card img { width:calc(100% + 48px); max-width:none; height:190px; object-fit:cover; margin:-27px -24px 22px; }
+.event-card .event-date { margin:0 0 10px; color:#8F2928; font:600 11px Arial,sans-serif; letter-spacing:.1em; text-transform:uppercase; }
+.event-card .event-action { display:inline-flex; align-self:flex-start; margin-top:20px; padding:11px 16px; background:#8F2928; color:#FFF9F0; text-decoration:none; font:600 11px Arial,sans-serif; letter-spacing:.08em; text-transform:uppercase; }
+.event-empty { grid-column:1/-1; text-align:center; color:var(--ink-soft); padding:25px; }
 .menu-category-tabs { max-width:1050px; margin:34px auto 24px; display:flex; justify-content:center; flex-wrap:wrap; gap:10px; }
 .menu-category-button { border:1px solid #A97843; border-radius:999px; padding:11px 20px; background:transparent; color:#6F3929; font:600 13px Arial,sans-serif; letter-spacing:.04em; cursor:pointer; transition:background .2s,color .2s,box-shadow .2s; }
 .menu-category-button:hover,.menu-category-button:focus-visible { background:#E8DCC9; outline:2px solid #A97843; outline-offset:2px; }
@@ -1205,20 +1210,7 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
       <div class="section-kicker">Appuntamenti speciali</div>
       <h2>Eventi</h2>
       <p class="section-lead">Le serate speciali di Note Fiorentine.</p>
-      <div class="event-grid">
-        <article class="event-card">
-          <h3>Live music</h3>
-          <p>Appuntamento tutte le sere, dalle 19:30 alle 21:30. Artisti e generi musicali variabili.</p>
-        </article>
-        <article class="event-card">
-          <h3>Prossimi appuntamenti</h3>
-          <p>Il calendario delle prossime serate speciali sarà pubblicato prossimamente.</p>
-        </article>
-        <article class="event-card">
-          <h3>Una serata speciale</h3>
-          <p>Contattaci per informazioni e prenotazioni in occasione degli eventi.</p>
-        </article>
-      </div>
+      <div class="event-grid" id="eventList"><p class="event-empty">I prossimi eventi saranno pubblicati qui a breve.</p></div>
     </section>
     
     <section class="content-section" id="galleria">
@@ -1262,6 +1254,27 @@ links.querySelectorAll('a').forEach(link => link.addEventListener('click', () =>
   links.classList.remove('open');
   toggle.setAttribute('aria-expanded', 'false');
 }));
+
+// Carica gli eventi pubblicati dal pannello amministrativo.
+(async function loadPublishedEvents(){
+ const container=document.getElementById('eventList');if(!container)return;
+ const base='https://nculgrwlzjitggjcgbpp.supabase.co';
+ const key='sb_publishable_vg78G491'+'ekPPQt4CwCeJDw_Pp1n44V0';
+ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ try{
+  const res=await fetch(base+'/rest/v1/events?select=id,title,description,starts_at,image_path,external_url,button_label,is_published&is_published=eq.true',{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});
+  if(!res.ok)throw new Error('HTTP '+res.status);
+  const now=Date.now(),items=(await res.json()).filter(x=>!x.starts_at||new Date(x.starts_at).getTime()>=now).sort((a,b)=>(a.starts_at?new Date(a.starts_at).getTime():Infinity)-(b.starts_at?new Date(b.starts_at).getTime():Infinity)).slice(0,4);
+  if(!items.length){container.innerHTML='<p class="event-empty">I prossimi eventi saranno pubblicati qui a breve.</p>';return;}
+  container.innerHTML=items.map(x=>{
+   const date=x.starts_at?new Intl.DateTimeFormat('it-IT',{dateStyle:'full',timeStyle:'short'}).format(new Date(x.starts_at)):'';
+   const path=x.image_path||'';
+   const img=path?'<img src="'+esc(/^https?:\\/\\//i.test(path)?path:base+'/storage/v1/object/public/site-media/'+path.split('/').map(encodeURIComponent).join('/'))+'" alt="'+esc(x.title)+'">':'';
+   const url=/^https?:\\/\\//i.test(x.external_url||'')?x.external_url:'';
+   return '<article class="event-card">'+img+(date?'<p class="event-date">'+esc(date)+'</p>':'')+'<h3>'+esc(x.title)+'</h3>'+(x.description?'<p>'+esc(x.description)+'</p>':'')+(url?'<a class="event-action" href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">'+esc(x.button_label||'Scopri l’evento')+'</a>':'')+'</article>';
+  }).join('');
+ }catch(e){console.error('Errore caricamento eventi:',e);container.innerHTML='<p class="event-empty">Al momento non è possibile caricare gli eventi.</p>';}
+})();
 
 // Carica i video pubblicati dal pannello amministrativo.
 (async function loadPerformanceVideos() {
