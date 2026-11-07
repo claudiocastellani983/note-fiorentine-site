@@ -328,7 +328,8 @@ async function loadArtistMediaAdmin(){
  for(const def of defs){
   const card=document.querySelector('[data-artist-media="'+def.kind+'"]');if(!card)continue;
   const list=card.querySelector('.gallery-admin-list'),count=card.querySelector('.gallery-admin-count'),field=def.kind==='images'?'image_path':'video_path';
-  const {data,error}=await supabase.from(def.table).select('id,title,'+field+',sort_order,is_published,created_at,focal_x,focal_y,focal_zoom').order('sort_order',{ascending:true}).order('created_at',{ascending:def.kind==='images'});
+  const mediaColumns=def.kind==='images'?'id,title,image_path,sort_order,is_published,created_at,focal_x,focal_y,focal_zoom':'id,title,video_path,sort_order,is_published,created_at';
+  const {data,error}=await supabase.from(def.table).select(mediaColumns).order('sort_order',{ascending:true}).order('created_at',{ascending:def.kind==='images'});
   if(error){artistMediaStatus(card,'Errore caricamento: '+error.message);continue}
   const items=data||[];list.replaceChildren();count.textContent=items.length+' '+def.label+' caricat'+(def.kind==='images'?'e':'i');
   let tools=card.querySelector('.artist-order-tools');
@@ -469,7 +470,7 @@ document.querySelectorAll('[data-artist-media]').forEach(card=>{
      if(up)throw new Error('Caricamento non riuscito per '+original.name+': '+up.message);
      const {data:existing,error:read}=await supabase.from('performance_videos').select('sort_order').order('sort_order',{ascending:true}).limit(1);
      if(read){await supabase.storage.from('performance-videos').remove([path]);throw new Error('Lettura ordine non riuscita: '+read.message)}
-     const {error:ins}=await supabase.from('performance_videos').insert({title:original.name.replace(/\.[^.]+$/,''),video_path:path,sort_order:(existing?.[0]?.sort_order??10)-10,is_published:true,focal_x:50,focal_y:50,focal_zoom:1});
+     const {error:ins}=await supabase.from('performance_videos').insert({title:original.name.replace(/\.[^.]+$/,''),video_path:path,sort_order:(existing?.[0]?.sort_order??10)-10,is_published:true});
      if(ins){await supabase.storage.from('performance-videos').remove([path]);throw new Error('File caricato ma pubblicazione non riuscita: '+ins.message)}
      done++;
     }
