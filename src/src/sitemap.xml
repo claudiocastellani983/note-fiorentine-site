@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://www.notefiorentine.it/</loc>
+    <xhtml:link rel="alternate" hreflang="it" href="https://www.notefiorentine.it/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.notefiorentine.it/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.notefiorentine.it/?lang=de"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.notefiorentine.it/?lang=fr"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.notefiorentine.it/?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.notefiorentine.it/?lang=zh"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.notefiorentine.it/"/>
+  </url>
+  <url>
+    <loc>https://www.notefiorentine.it/?lang=en</loc>
+    <xhtml:link rel="alternate" hreflang="it" href="https://www.notefiorentine.it/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.notefiorentine.it/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.notefiorentine.it/?lang=de"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.notefiorentine.it/?lang=fr"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.notefiorentine.it/?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.notefiorentine.it/?lang=zh"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.notefiorentine.it/"/>
+  </url>
+  <url>
+    <loc>https://www.notefiorentine.it/?lang=de</loc>
+    <xhtml:link rel="alternate" hreflang="it" href="https://www.notefiorentine.it/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.notefiorentine.it/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.notefiorentine.it/?lang=de"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.notefiorentine.it/?lang=fr"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.notefiorentine.it/?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.notefiorentine.it/?lang=zh"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.notefiorentine.it/"/>
+  </url>
+  <url>
+    <loc>https://www.notefiorentine.it/?lang=fr</loc>
+    <xhtml:link rel="alternate" hreflang="it" href="https://www.notefiorentine.it/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.notefiorentine.it/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.notefiorentine.it/?lang=de"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.notefiorentine.it/?lang=fr"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.notefiorentine.it/?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.notefiorentine.it/?lang=zh"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.notefiorentine.it/"/>
+  </url>
+  <url>
+    <loc>https://www.notefiorentine.it/?lang=es</loc>
+    <xhtml:link rel="alternate" hreflang="it" href="https://www.notefiorentine.it/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.notefiorentine.it/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.notefiorentine.it/?lang=de"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.notefiorentine.it/?lang=fr"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.notefiorentine.it/?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.notefiorentine.it/?lang=zh"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.notefiorentine.it/"/>
+  </url>
+  <url>
+    <loc>https://www.notefiorentine.it/?lang=zh</loc>
+    <xhtml:link rel="alternate" hreflang="it" href="https://www.notefiorentine.it/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.notefiorentine.it/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.notefiorentine.it/?lang=de"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.notefiorentine.it/?lang=fr"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.notefiorentine.it/?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.notefiorentine.it/?lang=zh"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.notefiorentine.it/"/>
+  </url>
+</urlset>
