@@ -194,7 +194,31 @@ async function loadMediaPopup(){
  const images=(im.data||[]).map(x=>'<div class="media-card"><b>'+esc(x.label||x.image_key)+'</b><img class="media-preview" src="'+esc(mediaUrl(x.image_path))+'"><label>Sostituisci immagine</label><input type="file" accept="image/jpeg,image/png,image/webp,image/gif" data-imfile="'+esc(x.id)+'"><label>Posizione orizzontale</label><input type="range" min="0" max="100" value="'+Number(x.focal_x??50)+'" data-fx="'+esc(x.id)+'"><label>Posizione verticale</label><input type="range" min="0" max="100" value="'+Number(x.focal_y??50)+'" data-fy="'+esc(x.id)+'"><label>Zoom</label><input type="range" min="1" max="2" step=".05" value="'+Number(x.focal_zoom??1)+'" data-fz="'+esc(x.id)+'"><label>Testo alternativo</label><input value="'+esc(x.alt_text||'')+'" data-alt="'+esc(x.id)+'"></div>').join('');
  $('items').innerHTML='<section class="site-group"><h3>Popup homepage</h3><p class="media-note">Il salvataggio aggiorna il sito pubblico.</p><label class="checkrow"><input id="pActive" type="checkbox" '+(popupRecord?.active?'checked':'')+'> Popup attivo</label><div class="site-grid"><div class="site-field"><label>Titolo italiano</label><input id="pTitleIt" value="'+esc(popupRecord?.title_it||'')+'"></div><div class="site-field"><label>Titolo inglese</label><input id="pTitleEn" value="'+esc(popupRecord?.title_en||'')+'"></div><div class="site-field full"><label>Testo italiano</label><textarea id="pBodyIt">'+esc(popupRecord?.body_it||'')+'</textarea></div><div class="site-field full"><label>Testo inglese</label><textarea id="pBodyEn">'+esc(popupRecord?.body_en||'')+'</textarea></div><div class="site-field"><label>Pulsante IT</label><input id="pButtonIt" value="'+esc(popupRecord?.button_label_it||'')+'"></div><div class="site-field"><label>Pulsante EN</label><input id="pButtonEn" value="'+esc(popupRecord?.button_label_en||'')+'"></div><div class="site-field full"><label>Email contatto</label><input id="pEmail" type="email" value="'+esc(popupRecord?.contact_email||'')+'"></div></div><h3>File popup</h3><div class="media-grid">'+files+'</div><label>Aggiungi PDF o immagini (massimo 8 file totali)</label><input id="pFiles" type="file" accept="application/pdf,image/jpeg,image/png,image/webp,image/gif" multiple><p class="media-note">Caricamento da telefono. Massimo 15 MB per file (limite effettivo del bucket).</p></section><section class="site-group"><h3>Immagini del sito</h3><p class="media-note">Anteprime, sostituzione, punto focale e zoom.</p><div class="media-grid">'+images+'</div></section><section class="site-group"><h3>Libreria immagini</h3><p class="media-note">Carica nuove fotografie nella libreria, visualizza i file già presenti e copia il percorso da usare nei contenuti. I file esistenti non vengono eliminati.</p><label>Aggiungi immagini (JPEG, PNG, WebP o GIF · massimo 15 MB)</label><input id="libraryFiles" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple><div class="site-savebar"><button id="uploadLibrary" type="button">Carica nella libreria</button><span id="libraryStatus" class="status"></span></div><div id="libraryItems" class="media-grid"></div></section><div class="site-savebar"><button id="saveMedia" class="primary" type="button">Salva immagini e popup</button><span id="mediaStatus" class="status"></span></div>';
  $('items').querySelectorAll('[data-popremove]').forEach(b=>b.onclick=()=>{popupMedia.splice(+b.dataset.popremove,1);b.closest('.media-card').remove()});
- $('saveMedia').onclick=saveMedia;say('Sezione immagini e popup pronta.');await loadMediaLibrary();
+ $('saveMedia').onclick=saveMedia;
+ $('uploadLibrary').onclick=async()=>{
+  const btn=$('uploadLibrary'),status=$('libraryStatus'),input=$('libraryFiles');
+  if(!btn||!status||!input)return;
+  const selected=[...(input.files||[])];
+  if(!selected.length){status.textContent='Seleziona prima una o più immagini.';return;}
+  btn.disabled=true;
+  try{
+   for(const file of selected){
+    if(file.size>15*1024*1024)throw Error('Il bucket consente file fino a 15 MB: '+file.name);
+    if(!['image/jpeg','image/png','image/webp','image/gif'].includes(file.type))throw Error('Formato non supportato: '+file.name);
+    const safe=file.name.normalize('NFKD').replace(/[^a-zA-Z0-9._-]/g,'-');
+    const path='library/'+crypto.randomUUID()+'-'+safe;
+    const result=await db.storage.from('site-media').upload(path,file,{contentType:file.type,upsert:false});
+    if(result.error)throw result.error;
+   }
+   input.value='';status.textContent='File caricati correttamente.';
+   await loadMediaLibrary();
+  }catch(e){
+   status.textContent=(e?.message==='Failed to fetch'||e instanceof TypeError)
+    ?'Connessione al servizio Storage non riuscita (Failed to fetch). Controllare rete/sessione e riprovare.'
+    :'Caricamento non riuscito: '+(e.message||String(e));
+  }finally{btn.disabled=false;}
+ };
+ say('Sezione immagini e popup pronta.');await loadMediaLibrary();
 }
 
 async function loadMediaLibrary(){
@@ -206,7 +230,7 @@ async function loadMediaLibrary(){
  $('libraryStatus').textContent=files.length+' immagini disponibili';
  }catch(e){host.innerHTML='<p class="status">Errore lettura libreria: '+esc(e.message||e)+'</p>';}
 }
-$('uploadLibrary').onclick=async()=>{const btn=$('uploadLibrary'),status=$('libraryStatus'),input=$('libraryFiles'),selected=[...(input?.files||[])];if(!selected.length){status.textContent='Seleziona prima una o più immagini.';return;}btn.disabled=true;try{for(const file of selected){if(file.size>15*1024*1024)throw Error('Il bucket consente file fino a 15 MB: '+file.name);if(!['image/jpeg','image/png','image/webp','image/gif'].includes(file.type))throw Error('Formato non supportato: '+file.name);const safe=file.name.normalize('NFKD').replace(/[^a-zA-Z0-9._-]/g,'-'),path='library/'+crypto.randomUUID()+'-'+safe,result=await db.storage.from('site-media').upload(path,file,{contentType:file.type,upsert:false});if(result.error)throw result.error;}input.value='';status.textContent='File caricati correttamente.';await loadMediaLibrary();}catch(e){status.textContent=(e?.message==='Failed to fetch'||e instanceof TypeError)?'Connessione al servizio Storage non riuscita (Failed to fetch). Controllare rete/sessione e riprovare.':'Caricamento non riuscito: '+(e.message||String(e));}finally{btn.disabled=false;}};
+// Handler collegato dopo la creazione dinamica del pulsante.
 
 async function saveMedia(){
  const btn=$('saveMedia'),st=$('mediaStatus');btn.disabled=true;st.textContent='Salvataggio…';const uploaded=[],old=[];
