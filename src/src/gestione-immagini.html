@@ -572,7 +572,7 @@ async function saveEvent(){
   if(result.error)throw result.error;
   const saved=result.data;
   if(!saved||saved.is_published!==expectedPublished)throw new Error('Verifica pubblicazione fallita: lo stato salvato non corrisponde alla scelta. Controlla l’evento nell’elenco prima di riprovare.');
-  if(file&&existing?.image_path&&existing.image_path!==imagePath&&!/^https?:\\/\\//i.test(existing.image_path)){await supabase.storage.from('site-media').remove([existing.image_path])}
+  if(file&&existing?.image_path&&existing.image_path!==imagePath&&!(existing.image_path.startsWith('http://')||existing.image_path.startsWith('https://'))){await supabase.storage.from('site-media').remove([existing.image_path])}
   const savedState=saved.is_published?'PUBBLICATO':'IN BOZZA';
   eventAdminStatus('Salvataggio verificato: '+savedState+'. '+(saved.starts_at?'Data e ora registrate: '+eventDateLabel(saved.starts_at):'Nessuna data/ora impostata.'));
   resetEventForm();await loadEventsAdmin();updateEventPublishHint();
