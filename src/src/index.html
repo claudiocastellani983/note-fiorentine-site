@@ -1176,7 +1176,7 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
       <p style="text-align:center;margin:32px auto 0"><a class="button" href="/menu.html">Consulta il menù completo</a></p>
     </section>
     <section class="music-section" id="musica">
-      <div class="music-art" aria-hidden="true"><img class="music-art-fallback" src="https://nculgrwlzjitggjcgbpp.supabase.co/storage/v1/object/public/site-media/live_music/1794003820918-6l0r8l.jpg" alt="" aria-hidden="true" loading="eager" decoding="async"></div>
+      
       <div class="music-copy">
         <div class="section-kicker">Ristorante Toscano & Live Music</div>
         <h2>Ogni sera,<br>la musica è di casa.</h2>
@@ -1793,15 +1793,18 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
 </script>
 
 
-<style id="nf-live-music-section-v2">
-/* Sezione Musica autonoma: immagine servita direttamente dal markup HTML */
-#musica.music-section{display:grid!important;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr)!important;align-items:stretch!important}
-#musica .music-art{display:block!important;position:relative!important;min-width:0!important;min-height:clamp(300px,48vw,680px)!important;overflow:hidden!important;background:#241B18!important}
-#musica .music-art-fallback{position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;object-position:center!important;z-index:0!important;pointer-events:none!important}
-#musica .music-art:before{position:absolute!important;z-index:1!important;pointer-events:none!important}
-#musica .music-art:after{position:absolute!important;z-index:2!important;pointer-events:none!important}
-#musica .music-copy{position:relative!important;z-index:3!important;min-width:0!important}
-@media(max-width:760px){#musica.music-section{grid-template-columns:minmax(0,1fr)!important}#musica .music-art{min-height:300px!important}}
+<style id="nf-live-music-section-v3">
+/* Sezione Musica ricostruita: la foto è un elemento della griglia CSS, indipendente dal markup interno */
+#musica.music-section{display:grid!important;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr)!important;grid-template-rows:auto auto!important;align-items:stretch!important}
+#musica.music-section::before{content:""!important;display:block!important;grid-column:1!important;grid-row:1!important;min-width:0!important;min-height:clamp(300px,48vw,680px)!important;background:linear-gradient(0deg,rgba(16,12,10,.28),rgba(16,12,10,.08)),url("https://nculgrwlzjitggjcgbpp.supabase.co/storage/v1/object/public/site-media/live_music/1794003820918-6l0r8l.jpg") center/cover no-repeat!important;position:relative!important;z-index:0!important}
+#musica .music-copy{grid-column:2!important;grid-row:1!important;position:relative!important;z-index:1!important;min-width:0!important}
+#musica .music-videos{grid-column:1/-1!important;grid-row:2!important;min-width:0!important}
+@media(max-width:760px){
+ #musica.music-section{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto auto!important}
+ #musica.music-section::before{grid-column:1!important;grid-row:1!important;min-height:300px!important}
+ #musica .music-copy{grid-column:1!important;grid-row:2!important}
+ #musica .music-videos{grid-column:1!important;grid-row:3!important}
+}
 </style>
 </body>
 </html><script async data-explicit-opt-in="true" data-deployment-id="dpl_7tHJ9DycmxR1TALK2u85APShiyVZ" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_EmRnWHsGMUkcJwHUQ7vz8FCmfTh6" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_E5nptDv68tSzPwNaRWjjuQBRJWLT" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_3kBEXjiEjcHv33v8JxwMth6Znb56" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_GbSb1nxg8uKN3nnLoyFhoPVdiZvt" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
