@@ -47,4 +47,17 @@ test('admin: login e diagnostica si caricano senza toccare Supabase', async ({ p
   expect(visualEditorSource).not.toContain("db.from('site_content').upsert");
   expect(adminHtml).toContain('Pubblica modifiche del sito');
   expect(adminHtml).toContain('Confermi la pubblicazione immediata delle modifiche sul sito pubblico?');
+
+  const saveMediaStart = adminHtml.indexOf('async function saveMedia()');
+  const saveMediaEnd = adminHtml.indexOf('function field(', saveMediaStart);
+  const saveMediaSource = adminHtml.slice(saveMediaStart, saveMediaEnd);
+  expect(saveMediaSource).toContain('dbWritesStarted');
+  expect(saveMediaSource).toContain('I file precedenti restano conservati');
+  expect(saveMediaSource).not.toContain('remove(old)');
+  expect(saveMediaSource).not.toContain('old.push');
+
+  const popupSaveStart = adminHtml.indexOf('async function savePopupAdmin()');
+  const popupSaveEnd = adminHtml.indexOf('function mediaUrl(', popupSaveStart);
+  const popupSaveSource = adminHtml.slice(popupSaveStart, popupSaveEnd);
+  expect(popupSaveSource).not.toContain('remove(removed)');
 });
