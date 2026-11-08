@@ -25,12 +25,27 @@ test('pagina Menu: caricamento diretto', async ({ page }) => {
   await expect(page.locator('body')).not.toBeEmpty();
 });
 
-test('homepage in cinese: la variante linguistica si apre', async ({ page }) => {
+test('homepage in cinese: selettore, lingua e navigazione vengono tradotti', async ({ page }) => {
   const response = await page.goto('/?lang=zh');
   expect(response).not.toBeNull();
   expect(response.status()).toBe(200);
   await expect(page).toHaveTitle(/Note Fiorentine/i);
-  await expect(page.locator('body')).not.toBeEmpty();
+  await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
+  await expect(page.locator('.language-switch a[data-lang="zh"]')).toBeVisible();
+  await expect(page.locator('.navlinks')).toContainText('餐厅');
+  await expect(page.locator('.navlinks')).toContainText('现场音乐');
+});
+
+test('menu in cinese: categorie e piatti usano le traduzioni salvate', async ({ page }) => {
+  const response = await page.goto('/menu.html?lang=zh');
+  expect(response).not.toBeNull();
+  expect(response.status()).toBe(200);
+  await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
+  const categories = page.locator('#menuCategories .menu-category-button');
+  await expect(categories).toHaveCount(7, { timeout: 15000 });
+  await expect(categories.first()).toHaveText('开胃菜');
+  await categories.first().click();
+  await expect(page.locator('#menuItems .menu-item-card h3').first()).toContainText(/[一-龥]/);
 });
 
 test('homepage mobile: nessuno scorrimento orizzontale globale', async ({ page }) => {
@@ -53,6 +68,7 @@ test('sorgente corrente del branch: home, Menu, lingua cinese e testi approvati'
   expect(response.status()).toBe(200);
   await expect(page).toHaveTitle(/Note Fiorentine/i);
 
+  await expect(page.locator('.language-switch a[data-lang="zh"]')).toBeVisible();
   const visibleText = await page.locator('body').innerText();
   expect(visibleText).toContain('Note Fiorentine');
   expect(visibleText).toContain('Ristorante Toscano & Live Music');
@@ -75,4 +91,6 @@ test('sorgente corrente del branch: home, Menu, lingua cinese e testi approvati'
   expect(chineseResponse).not.toBeNull();
   expect(chineseResponse.status()).toBe(200);
   await expect(page).toHaveTitle(/Note Fiorentine/i);
+  await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
+  await expect(page.locator('.navlinks')).toContainText('餐厅');
 });
