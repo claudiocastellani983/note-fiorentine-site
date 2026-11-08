@@ -89,6 +89,21 @@
   <div class="gallery-admin-card" data-artist-media="videos"><h3>Galleria video</h3><p>Visualizza e gestisci i video degli artisti. Puoi aggiungere un link YouTube oppure continuare a caricare un file dal telefono.</p><div class="youtube-link-form"><label class="field" for="artistYoutubeUrl">Link YouTube</label><input class="artist-youtube-url" id="artistYoutubeUrl" type="url" inputmode="url" placeholder="https://youtu.be/…" autocomplete="url"><label class="field" for="artistYoutubeTitle">Titolo del video</label><input class="artist-youtube-title" id="artistYoutubeTitle" type="text" maxlength="160" placeholder="Es. Live music · Note Fiorentine"><button type="button" class="artist-youtube-add">＋ Aggiungi link YouTube</button><p class="hint">Il video viene aggiunto come bozza. Potrai controllarlo e scegliere “Mostra sul sito” per renderlo visibile.</p></div><p class="hint">Oppure carica un file video dal telefono (MP4, WEBM o MOV · massimo 100 MB).</p><input type="file" accept="video/*,.mp4,.mov,.webm,.m4v,.3gp" multiple aria-label="Seleziona video dal telefono"><button type="button" class="artist-media-upload">Scegli video dal telefono</button><div class="artist-media-selection" aria-live="polite">Nessun video selezionato.</div><button type="button" class="artist-media-publish" disabled>Pubblica video selezionati</button><div class="gallery-admin-status" aria-live="polite"></div><div class="gallery-admin-count"></div><div class="gallery-admin-list"></div></div>
  </div>
 
+<div class="panel" id="restaurantVideosAdminPanel">
+ <h2>Video degli ambienti del ristorante</h2>
+ <p class="muted">Aggiungi i video caricati sul canale YouTube Note Fiorentine. I link vengono salvati separatamente dai video degli artisti e puoi scegliere quando mostrarli sul sito.</p>
+ <div class="youtube-link-form">
+  <label class="field" for="restaurantYoutubeUrl">Link YouTube</label>
+  <input id="restaurantYoutubeUrl" type="url" inputmode="url" placeholder="https://youtu.be/…" autocomplete="url">
+  <label class="field" for="restaurantYoutubeTitle">Titolo del video</label>
+  <input id="restaurantYoutubeTitle" type="text" maxlength="160" placeholder="Es. La sala principale">
+  <button type="button" id="restaurantYoutubeAdd">＋ Aggiungi video degli ambienti</button>
+  <p class="hint">Il video viene aggiunto come bozza. Controllalo e scegli “Mostra sul sito” per pubblicarlo.</p>
+ </div>
+ <div class="gallery-admin-status" id="restaurantVideosAdminStatus" role="status" aria-live="polite">Caricamento video…</div>
+ <div class="gallery-admin-count" id="restaurantVideosAdminCount"></div>
+ <div class="gallery-admin-list" id="restaurantVideosAdminList"></div>
+</div>
 <div class="panel" id="eventAdminPanel">
  <h2>Gestione Eventi</h2>
  <p class="muted">Crea e aggiorna gli appuntamenti speciali. Gli eventi in bozza non compaiono sul sito; quelli pubblicati vengono mostrati in homepage se la data non è passata.</p>
@@ -131,7 +146,7 @@ async function checkSession(){
  if(!session){$('loginPanel').classList.remove('hidden');$('manager').classList.add('hidden');return}
  const {data:admin,error}=await supabase.from('admin_users').select('user_id').eq('user_id',session.user.id).maybeSingle();
  if(error||!admin){await supabase.auth.signOut();$('loginPanel').classList.remove('hidden');$('manager').classList.add('hidden');loginStatus('Questo account non risulta abilitato come amministratore.');return}
- currentUser=session.user;$('loginPanel').classList.add('hidden');$('manager').classList.remove('hidden');await loadImages();await loadGalleryAdmin();await loadArtistMediaAdmin();await loadEventsAdmin();
+ currentUser=session.user;$('loginPanel').classList.add('hidden');$('manager').classList.remove('hidden');await loadImages();await loadGalleryAdmin();await loadArtistMediaAdmin();await loadRestaurantVideosAdmin();await loadEventsAdmin();
  await loadPopup();
 }
 async function loadPopup(){
@@ -433,6 +448,54 @@ async function loadArtistMediaAdmin(){
  }
 }
 
+
+async function loadRestaurantVideosAdmin(){
+ const panel=$('restaurantVideosAdminPanel');if(!panel)return;
+ const status=$('restaurantVideosAdminStatus'),count=$('restaurantVideosAdminCount'),list=$('restaurantVideosAdminList');
+ status.textContent='Caricamento video degli ambienti…';
+ const {data,error}=await supabase.from('restaurant_videos').select('id,title,youtube_url,sort_order,is_published,created_at').order('sort_order',{ascending:true}).order('created_at',{ascending:true});
+ if(error){status.textContent='Errore caricamento: '+error.message;return}
+ const items=data||[];list.replaceChildren();count.textContent=items.length+' video degli ambienti';
+ for(let i=0;i<items.length;i++){
+  const item=items[i],wrap=document.createElement('div');wrap.className='gallery-admin-item';
+  const id=extractYouTubeId(item.youtube_url),thumb=document.createElement('img');
+  if(id){thumb.className='youtube-thumb';thumb.src='https://i.ytimg.com/vi/'+encodeURIComponent(id)+'/hqdefault.jpg';thumb.alt='Anteprima YouTube: '+(item.title||'Video ambiente');thumb.loading='lazy';thumb.addEventListener('click',()=>window.open('https://youtu.be/'+id,'_blank','noopener'))}
+  const title=document.createElement('p');title.textContent=item.title||'Video ambiente';title.style.cssText='margin:0 0 7px;font-weight:700;color:#392B24';
+  if(id)wrap.append(thumb);wrap.append(title);
+  const controls=document.createElement('div');controls.className='artist-order-controls';
+  const position=document.createElement('span');position.className='artist-order-position';position.textContent=(i+1)+' / '+items.length;controls.append(position);
+  for(const [label,delta,aria] of [['↑',-1,'Sposta in alto'],['↓',1,'Sposta in basso']]){
+   const move=document.createElement('button');move.type='button';move.className='secondary artist-order-move';move.textContent=label;move.setAttribute('aria-label',aria);move.disabled=i+delta<0||i+delta>=items.length;
+   move.addEventListener('click',async()=>{const next=[...items],target=i+delta;[next[i],next[target]]=[next[target],next[i]];controls.querySelectorAll('button').forEach(b=>b.disabled=true);try{for(let n=0;n<next.length;n++){const {error:e}=await supabase.from('restaurant_videos').update({sort_order:(n+1)*10}).eq('id',next[n].id);if(e)throw e}status.textContent='Ordine aggiornato.';await loadRestaurantVideosAdmin()}catch(e){status.textContent='Salvataggio ordine non riuscito: '+e.message;controls.querySelectorAll('button').forEach(b=>b.disabled=false)}});
+   controls.append(move);
+  }
+  wrap.append(controls);
+  const visibility=document.createElement('button');visibility.type='button';visibility.className='secondary media-visibility';visibility.textContent=item.is_published?'Nascondi dal sito':'Mostra sul sito';
+  visibility.addEventListener('click',async()=>{visibility.disabled=true;const {error:e}=await supabase.from('restaurant_videos').update({is_published:!item.is_published,updated_at:new Date().toISOString()}).eq('id',item.id);if(e){status.textContent='Modifica visibilità non riuscita: '+e.message;visibility.disabled=false;return}status.textContent=item.is_published?'Video nascosto dal sito.':'Video pubblicato sul sito.';await loadRestaurantVideosAdmin()});
+  wrap.append(visibility);
+  const del=document.createElement('button');del.type='button';del.className='secondary media-delete';del.textContent='Elimina';
+  del.addEventListener('click',async()=>{if(!confirm('Eliminare questo link video degli ambienti?'))return;del.disabled=true;const {error:e}=await supabase.from('restaurant_videos').delete().eq('id',item.id);if(e){status.textContent='Eliminazione non riuscita: '+e.message;del.disabled=false;return}status.textContent='Link eliminato.';await loadRestaurantVideosAdmin()});
+  wrap.append(del);list.append(wrap);
+ }
+ if(!items.length){const empty=document.createElement('p');empty.textContent='Nessun video degli ambienti aggiunto.';empty.style.gridColumn='1/-1';list.append(empty)}
+ status.textContent=items.length+' video caricati. I contenuti in bozza non compaiono nella homepage.';
+}
+$('restaurantYoutubeAdd').addEventListener('click',async()=>{
+ const url=$('restaurantYoutubeUrl').value.trim(),id=extractYouTubeId(url),title=$('restaurantYoutubeTitle').value.trim();
+ const status=$('restaurantVideosAdminStatus'),button=$('restaurantYoutubeAdd');
+ if(!id){status.textContent='Link YouTube non valido. Incolla un link youtube.com o youtu.be completo.';return}
+ button.disabled=true;status.textContent='Aggiunta del video…';
+ try{
+  const {data:existing,error:read}=await supabase.from('restaurant_videos').select('sort_order').order('sort_order',{ascending:true}).limit(1);
+  if(read)throw read;
+  const {error:insertError}=await supabase.from('restaurant_videos').insert({title:title||'Video degli ambienti',youtube_url:'https://youtu.be/'+id,sort_order:(existing?.[0]?.sort_order??10)-10,is_published:false});
+  if(insertError)throw insertError;
+  $('restaurantYoutubeUrl').value='';$('restaurantYoutubeTitle').value='';
+  status.textContent='Video aggiunto come bozza. Puoi controllarlo e pubblicarlo dall’elenco.';
+  await loadRestaurantVideosAdmin();
+ }catch(e){status.textContent='Aggiunta non riuscita: '+(e.message||String(e))}
+ finally{button.disabled=false}
+});
 
 async function compressOversizedVideo(file,card){
  const limit=100*1024*1024;
