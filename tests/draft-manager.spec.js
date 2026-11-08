@@ -182,5 +182,5 @@ test('ottimizza le immagini prima dei caricamenti e mantiene la cache annuale', 
   expect(adminSource).toContain("const uploadFile=f.type.startsWith('image/')?await optimizeImageFile(f):f");
   expect(adminSource).toContain('const optimized=await optimizeImageFile(f)');
   expect(adminSource).toContain("cacheControl:'31536000'");
-  expect(adminSource).toContain('if(!file||!/^image\\\\/(jpeg|png|webp)$/i.test(file.type))return file;');
+  expect(adminSource).toContain('if(!file||!/^image\\/(jpeg|png|webp)$/i.test(file.type))return file;');
 });

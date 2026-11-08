@@ -45,8 +45,14 @@ test('admin: login e diagnostica si caricano senza toccare Supabase', async ({ p
   expect(visualEditorSource).toContain('Salva bozza');
   expect(visualEditorSource).toContain('localStorage.setItem(visualDraftKey');
   expect(visualEditorSource).not.toContain("db.from('site_content').upsert");
-  expect(adminHtml).toContain('Pubblica modifiche del sito');
-  expect(adminHtml).toContain('Confermi la pubblicazione immediata delle modifiche sul sito pubblico?');
+  expect(adminHtml).toContain('Release in preparazione');
+  expect(adminHtml).toContain('Esporta pacchetto');
+  expect(adminHtml).not.toContain('Pubblica modifiche del sito');
+  expect(adminHtml).not.toContain('Confermi la pubblicazione immediata delle modifiche sul sito pubblico?');
+
+  const draftManagerSource = require('node:fs').readFileSync(require('node:path').join(__dirname, '..', 'admin/src/draft-manager.js'), 'utf8');
+  expect(draftManagerSource).toContain("status:'pending-review'");
+  expect(draftManagerSource).toContain('approvalRequired:true,productionWrites:false');
 
   const saveMediaStart = adminHtml.indexOf('async function saveMedia()');
   const saveMediaEnd = adminHtml.indexOf('function field(', saveMediaStart);
