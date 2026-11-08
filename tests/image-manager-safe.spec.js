@@ -39,4 +39,12 @@ test('gestione immagini: struttura protetta e controlli media presenti senza bac
   // Nessuna operazione di login, upload, modifica o pubblicazione viene eseguita.
   expect(supabaseRequests).toEqual([]);
   expect(pageErrors).toEqual([]);
+
+  const managerHtml = await page.content();
+  expect(managerHtml).toContain('Il file originale resta conservato come copia di sicurezza.');
+  const eventSaveStart = managerHtml.indexOf('async function saveEvent()');
+  const eventSaveEnd = managerHtml.indexOf("$('eventSaveBtn').addEventListener", eventSaveStart);
+  const eventSaveSource = managerHtml.slice(eventSaveStart, eventSaveEnd);
+  expect(eventSaveSource).toContain('dbWriteSucceeded');
+  expect(eventSaveSource).not.toContain('remove([existing.image_path])');
 });
