@@ -49,6 +49,7 @@ test('menu in cinese: categorie e piatti usano le traduzioni salvate nel sorgent
   expect(response.status()).toBe(200);
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
   await expect(page.locator('.hero-copy .eyebrow')).toHaveText('Ristorante Toscano & Live Music');
+  await expect(page.locator('.art-sub')).toHaveText('Ristorante Toscano & Live Music');
   const categories = page.locator('#menuCategories .menu-category-button');
   await expect(categories).toHaveCount(7, { timeout: 15000 });
   const categoryCount = await categories.count();
