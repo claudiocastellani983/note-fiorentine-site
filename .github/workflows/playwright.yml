@@ -22,6 +22,8 @@ jobs:
       # Preview correnti: il commit test-only non modifica gli asset dell'applicazione.
       PLAYWRIGHT_BASE_URL: https://note-fiorentine-ad3iymv0h-claudiocastellani983-5675.vercel.app
       ADMIN_BASE_URL: https://note-fiorentine-admin-lia9cfd4h-claudiocastellani983-5675.vercel.app
+      LOCAL_SITE_BASE_URL: http://127.0.0.1:8000
+      LOCAL_ADMIN_BASE_URL: http://127.0.0.1:8001
 
     steps:
       - name: Checkout repository
@@ -34,6 +36,20 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+
+      - name: Start isolated local source servers
+        run: |
+          python3 -m http.server 8000 --directory recovered/site >/tmp/nf-site-server.log 2>&1 &
+          python3 -m http.server 8001 --directory admin >/tmp/nf-admin-server.log 2>&1 &
+          for attempt in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:8000/ >/dev/null && curl -fsS http://127.0.0.1:8001/src/index.html >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/nf-site-server.log
+          cat /tmp/nf-admin-server.log
+          exit 1
 
       - name: Install Playwright browser
         run: npx playwright install --with-deps ${{ matrix.browser }}
