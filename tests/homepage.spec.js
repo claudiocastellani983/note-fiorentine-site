@@ -36,8 +36,10 @@ test('homepage in cinese: selettore, lingua e navigazione vengono tradotti', asy
   await expect(page.locator('.navlinks')).toContainText('现场音乐');
 });
 
-test('menu in cinese: categorie e piatti usano le traduzioni salvate', async ({ page }) => {
-  const response = await page.goto('/menu.html?lang=zh');
+test('menu in cinese: categorie e piatti usano le traduzioni salvate nel sorgente corrente', async ({ page }) => {
+  const localBase = process.env.LOCAL_SITE_BASE_URL;
+  test.skip(!localBase, 'LOCAL_SITE_BASE_URL non configurato');
+  const response = await page.goto(localBase + '/menu.html?lang=zh');
   expect(response).not.toBeNull();
   expect(response.status()).toBe(200);
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
