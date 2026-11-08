@@ -19,6 +19,7 @@
 <style id="nf-artist-admin-css">
 #artistMediaAdminPanel{margin-top:22px}.artist-media-upload{width:100%;margin:8px 0}.gallery-admin-item video{width:100%;height:95px;object-fit:cover;background:#171210}.gallery-admin-item .media-delete{margin-top:5px}
 .artist-media-selection{font-size:13px;color:#68452F;line-height:1.5;overflow-wrap:anywhere;margin:8px 0}.artist-media-publish{width:100%;margin:8px 0;background:#6F3929;color:#fff;border:1px solid #6F3929}.artist-media-publish:disabled{opacity:.45;cursor:not-allowed}
+.youtube-link-form{margin:14px 0;padding:14px;border:1px solid var(--line);background:#F4EBDD}.youtube-link-form input{display:block;width:100%;padding:12px;border:1px solid var(--line);background:#fff;color:var(--ink);font:14px Arial,sans-serif;margin:6px 0 10px}.youtube-link-form .artist-youtube-add{width:100%;margin-top:8px;background:#6F3929}.gallery-admin-item .youtube-thumb{width:100%;height:95px;object-fit:cover;display:block;cursor:pointer;background:#171210}
 </style>
 <style>
 .artist-order-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:12px 0;color:var(--ink,#392B24);font-size:13px}
@@ -85,7 +86,7 @@
  <p class="muted">Gestisci le fotografie e i video che i clienti vedranno nella sezione degli artisti in homepage. Le copertine si modificano nella sezione Immagini qui sopra. JPG, PNG o WEBP fino a 15 MB per foto; MP4, WEBM o MOV fino a 100 MB per video.</p>
  <div class="gallery-admin-grid">
   <div class="gallery-admin-card" data-artist-media="images"><h3>Galleria fotografica</h3><p>Carica più fotografie degli artisti e delle serate.</p><input type="file" accept="image/jpeg,image/png,image/webp" multiple aria-label="Aggiungi foto artisti"><button type="button" class="artist-media-upload">Aggiungi fotografie</button><div class="gallery-admin-status" aria-live="polite"></div><div class="gallery-admin-count"></div><div class="gallery-admin-list"></div></div>
-  <div class="gallery-admin-card" data-artist-media="videos"><h3>Galleria video</h3><p>Carica le performance. I clienti potranno riprodurle e scorrerle una alla volta.</p><p>Seleziona i video salvati sul telefono. Se un file supera 100 MB, proveremo a ridurne il peso automaticamente mantenendo una qualità elevata.</p><input type="file" accept="video/*,.mp4,.mov,.webm,.m4v,.3gp" multiple aria-label="Seleziona video dal telefono"><button type="button" class="artist-media-upload">Scegli video dal telefono</button><div class="artist-media-selection" aria-live="polite">Nessun video selezionato.</div><button type="button" class="artist-media-publish" disabled>Pubblica video selezionati</button><div class="gallery-admin-status" aria-live="polite"></div><div class="gallery-admin-count"></div><div class="gallery-admin-list"></div></div>
+  <div class="gallery-admin-card" data-artist-media="videos"><h3>Galleria video</h3><p>Visualizza e gestisci i video degli artisti. Puoi aggiungere un link YouTube oppure continuare a caricare un file dal telefono.</p><div class="youtube-link-form"><label class="field" for="artistYoutubeUrl">Link YouTube</label><input class="artist-youtube-url" id="artistYoutubeUrl" type="url" inputmode="url" placeholder="https://youtu.be/…" autocomplete="url"><label class="field" for="artistYoutubeTitle">Titolo del video</label><input class="artist-youtube-title" id="artistYoutubeTitle" type="text" maxlength="160" placeholder="Es. Live music · Note Fiorentine"><button type="button" class="artist-youtube-add">＋ Aggiungi link YouTube</button><p class="hint">Il video viene aggiunto come bozza. Potrai controllarlo e scegliere “Mostra sul sito” per renderlo visibile.</p></div><p class="hint">Oppure carica un file video dal telefono (MP4, WEBM o MOV · massimo 100 MB).</p><input type="file" accept="video/*,.mp4,.mov,.webm,.m4v,.3gp" multiple aria-label="Seleziona video dal telefono"><button type="button" class="artist-media-upload">Scegli video dal telefono</button><div class="artist-media-selection" aria-live="polite">Nessun video selezionato.</div><button type="button" class="artist-media-publish" disabled>Pubblica video selezionati</button><div class="gallery-admin-status" aria-live="polite"></div><div class="gallery-admin-count"></div><div class="gallery-admin-list"></div></div>
  </div>
 
 <div class="panel" id="eventAdminPanel">
@@ -356,6 +357,17 @@ document.querySelectorAll('[data-gallery-admin]').forEach(card=>{
 
 // Gestione delle gallerie fotografiche e video degli artisti.
 function artistMediaStatus(card,msg){card.querySelector('.gallery-admin-status').textContent=msg}
+function extractYouTubeId(value){
+ const raw=String(value||'').trim();
+ if(/^[A-Za-z0-9_-]{11}$/.test(raw))return raw;
+ try{
+  const url=new URL(raw),host=url.hostname.toLowerCase().replace(/^www\./,'');
+  let id='';
+  if(host==='youtu.be')id=url.pathname.split('/').filter(Boolean)[0]||'';
+  else if(['youtube.com','m.youtube.com','youtube-nocookie.com'].includes(host))id=url.searchParams.get('v')||(url.pathname.match(/^\/(?:embed|shorts|live)\/([^/?]+)/)||[])[1]||'';
+  return /^[A-Za-z0-9_-]{11}$/.test(id)?id:null;
+ }catch{return null}
+}
 async function saveArtistMediaOrder(def,items,card){
  const results=await Promise.all(items.map((item,index)=>supabase.from(def.table).update({sort_order:(index+1)*10}).eq('id',item.id)));
  const failed=results.find(r=>r.error);if(failed)throw new Error('Salvataggio ordine non riuscito: '+failed.error.message);
@@ -384,9 +396,17 @@ async function loadArtistMediaAdmin(){
   }
   for(let i=0;i<items.length;i++){
    const item=items[i],wrap=document.createElement('div');wrap.className='gallery-admin-item';
-   const media=def.kind==='images'?document.createElement('img'):document.createElement('video');
-   media.src=supabase.storage.from(def.bucket).getPublicUrl(item[field]).data.publicUrl;
-   if(def.kind==='images'){media.alt=item.title||'Fotografia artista';media.loading='lazy';media.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';media.style.transform='scale('+(item.focal_zoom??1)+')'}else{media.controls=true;media.preload='metadata';media.muted=true}
+   const youtubeId=def.kind==='videos'?extractYouTubeId(item.video_path):null;
+   const media=def.kind==='images'?document.createElement('img'):(youtubeId?document.createElement('img'):document.createElement('video'));
+   if(def.kind==='images'){
+    media.src=supabase.storage.from(def.bucket).getPublicUrl(item[field]).data.publicUrl;
+    media.alt=item.title||'Fotografia artista';media.loading='lazy';media.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';media.style.transform='scale('+(item.focal_zoom??1)+')';
+   }else if(youtubeId){
+    media.className='youtube-thumb';media.src='https://i.ytimg.com/vi/'+encodeURIComponent(youtubeId)+'/hqdefault.jpg';media.alt='Anteprima YouTube: '+(item.title||'Video artista');media.loading='lazy';media.addEventListener('click',()=>window.open('https://youtu.be/'+youtubeId,'_blank','noopener'));
+   }else{
+    media.src=supabase.storage.from(def.bucket).getPublicUrl(item[field]).data.publicUrl;media.controls=true;media.preload='metadata';media.muted=true;
+   }
+   if(def.kind==='videos'){const title=document.createElement('p');title.textContent=item.title||'Video artista';title.style.cssText='margin:0 0 7px;font-weight:700;color:#392B24';wrap.append(title)}
    wrap.append(media);if(def.kind==='images'){const edit=document.createElement('button');edit.type='button';edit.className='secondary';edit.textContent='Regola foto';edit.addEventListener('click',()=>openGalleryPhotoEditor({table:'artist_images',item,categoryLabel:'Artisti',card}));wrap.append(edit)}const controls=document.createElement('div');controls.className='artist-order-controls';
    const position=document.createElement('span');position.className='artist-order-position';position.textContent=(i+1)+' / '+items.length;controls.append(position);
    for(const [label,delta,aria] of [['↑',-1,'Sposta in alto'],['↓',1,'Sposta in basso']]){
@@ -404,8 +424,9 @@ async function loadArtistMediaAdmin(){
     if(!confirm('Eliminare questo contenuto dalla galleria?'))return;del.disabled=true;artistMediaStatus(card,'Eliminazione in corso…');
     const {error:de}=await supabase.from(def.table).delete().eq('id',item.id);
     if(de){artistMediaStatus(card,'Eliminazione non riuscita: '+de.message);del.disabled=false;return}
-    const {error:se}=await supabase.storage.from(def.bucket).remove([item[field]]);
-    artistMediaStatus(card,se?'Contenuto rimosso; pulizia del file non riuscita: '+se.message:'Contenuto eliminato.');await loadArtistMediaAdmin();
+    let storageError=null;
+    if(!extractYouTubeId(item.video_path)){const {error:se}=await supabase.storage.from(def.bucket).remove([item[field]]);storageError=se}
+    artistMediaStatus(card,storageError?'Contenuto rimosso; pulizia del file non riuscita: '+storageError.message:'Contenuto eliminato.');await loadArtistMediaAdmin();
    });wrap.append(del);list.append(wrap);
   }
   if(!items.length){const empty=document.createElement('p');empty.textContent='Nessun contenuto caricato.';empty.style.gridColumn='1/-1';list.append(empty)}
@@ -482,6 +503,22 @@ document.querySelectorAll('[data-artist-media]').forEach(card=>{
  let selectedVideos=[];
  button.addEventListener('click',()=>file.click());
  if(kind==='videos'){
+  const youtubeUrl=card.querySelector('.artist-youtube-url'),youtubeTitle=card.querySelector('.artist-youtube-title'),youtubeAdd=card.querySelector('.artist-youtube-add');
+  youtubeAdd.addEventListener('click',async()=>{
+   const id=extractYouTubeId(youtubeUrl.value);
+   if(!id){artistMediaStatus(card,'Link YouTube non valido. Incolla un link youtube.com o youtu.be completo.');return}
+   youtubeAdd.disabled=true;artistMediaStatus(card,'Aggiunta del video YouTube…');
+   try{
+    const {data:existing,error:read}=await supabase.from('performance_videos').select('sort_order').order('sort_order',{ascending:true}).limit(1);
+    if(read)throw read;
+    const {error:ins}=await supabase.from('performance_videos').insert({title:youtubeTitle.value.trim()||'Video Note Fiorentine',video_path:'https://youtu.be/'+id,sort_order:(existing?.[0]?.sort_order??10)-10,is_published:false});
+    if(ins)throw ins;
+    youtubeUrl.value='';youtubeTitle.value='';
+    artistMediaStatus(card,'Video aggiunto come bozza. Controlla l’anteprima e premi “Mostra sul sito” quando vuoi pubblicarlo.');
+    await loadArtistMediaAdmin();
+   }catch(e){artistMediaStatus(card,'Aggiunta non riuscita: '+(e.message||String(e)))}
+   finally{youtubeAdd.disabled=false}
+  });
   file.addEventListener('change',()=>{
    selectedVideos=Array.from(file.files||[]);
    selection.textContent=selectedVideos.length?selectedVideos.map(f=>f.name+' ('+(f.size/1048576).toFixed(1)+' MB)').join(' · '):'Nessun video selezionato.';
