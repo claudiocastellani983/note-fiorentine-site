@@ -45,4 +45,6 @@ test('admin: login e diagnostica si caricano senza toccare Supabase', async ({ p
   expect(visualEditorSource).toContain('Salva bozza');
   expect(visualEditorSource).toContain('localStorage.setItem(visualDraftKey');
   expect(visualEditorSource).not.toContain("db.from('site_content').upsert");
+  expect(adminHtml).toContain('Pubblica modifiche del sito');
+  expect(adminHtml).toContain('Confermi la pubblicazione immediata delle modifiche sul sito pubblico?');
 });
