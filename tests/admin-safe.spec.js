@@ -1,0 +1,39 @@
+const { test, expect } = require('@playwright/test');
+
+test('admin: login e diagnostica si caricano senza toccare Supabase', async ({ page, browserName }) => {
+  test.skip(browserName !== 'chromium', 'Controllo admin eseguito una volta sola');
+
+  const adminBaseUrl = process.env.ADMIN_BASE_URL;
+  test.skip(!adminBaseUrl, 'ADMIN_BASE_URL non configurato');
+
+  const supabaseRequests = [];
+  const pageErrors = [];
+
+  // Isolamento assoluto: nessuna richiesta raggiunge il progetto Supabase reale.
+  await page.route('https://nculgrwlzjitggjcgbpp.supabase.co/**', async route => {
+    supabaseRequests.push({
+      method: route.request().method(),
+      url: route.request().url()
+    });
+    await route.abort('blockedbyclient');
+  });
+
+  page.on('pageerror', error => pageErrors.push(error.message));
+
+  const response = await page.goto(new URL('/src/index.html', adminBaseUrl).toString());
+  expect(response).not.toBeNull();
+  expect(response.status()).toBeLessThan(400);
+
+  await expect(page.getByRole('heading', { name: 'Accesso riservato' })).toBeVisible();
+  await expect(page.locator('#email')).toHaveAttribute('type', 'email');
+  await expect(page.locator('#password')).toHaveAttribute('type', 'password');
+
+  // Il pannello diagnostico deve essere utilizzabile anche senza autenticazione.
+  await page.getByRole('button', { name: 'DEBUG' }).click();
+  await expect(page.locator('#nf-debug-panel')).toBeVisible();
+  await expect(page.locator('#nf-debug-output')).toContainText('Modulo amministrativo');
+
+  // Non vengono effettuati login, upload, salvataggi o chiamate al database.
+  expect(supabaseRequests).toEqual([]);
+  expect(pageErrors).toEqual([]);
+});
