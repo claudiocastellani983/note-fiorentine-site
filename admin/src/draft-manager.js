@@ -25,7 +25,7 @@ function render(){
 }
 function review(){
  const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
- const w=window.open('','_blank','noopener,noreferrer,width=760,height=700');if(!w){alert(drafts.length+' bozze da rivedere.');return}
+ const w=window.open('','_blank','width=760,height=700');if(!w){alert(drafts.length+' bozze da rivedere.');return}
  w.document.write('<!doctype html><meta charset="utf-8"><title>Bozze Note Fiorentine</title><body style="font:15px system-ui;background:#171411;color:#f1e7d6;padding:24px"><h1 style="color:#c5a16b">Bozze · Note Fiorentine</h1><p>'+drafts.length+' modifiche in attesa</p>'+drafts.map((d,i)=>'<article style="border:1px solid #4b4033;border-radius:10px;padding:14px;margin:12px 0"><h3 style="color:#c5a16b">'+(i+1)+'. '+esc(d.section)+' — '+esc(d.type)+'</h3><small>'+esc(new Date(d.createdAt).toLocaleString())+'</small><pre style="white-space:pre-wrap;overflow-wrap:anywhere">'+esc(JSON.stringify(d.payload,null,2))+'</pre></article>').join('')+'</body>');w.document.close()
 }
 function dataUrl(blob){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(r.error);r.readAsDataURL(blob)})}
@@ -61,7 +61,6 @@ document.addEventListener('click',async e=>{
  if(btn.id==='savePopupAdmin'||btn.id==='saveMedia'){e.preventDefault();e.stopImmediatePropagation();await capturePopup(btn.id);return}
  if(btn.matches('[data-del],[data-pub]')){e.preventDefault();e.stopImmediatePropagation();const item=btn.closest('.item');stage(btn.hasAttribute('data-del')?'delete-record':'toggle-publish',$('sectionTitle')?.textContent||'Contenuti',{rowIndex:btn.dataset.del??btn.dataset.pub,label:item?.querySelector('strong')?.textContent||item?.innerText||'Elemento'});return}
 },true);
-const observer=new MutationObserver(render);observer.observe(document.body,{childList:true,subtree:true});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',render);else render();
 window.__NF_DRAFTS={count:()=>drafts.length,exportPackage,review};
 })();
