@@ -362,8 +362,7 @@ async function loadGalleryAdmin(){
     del.disabled=true;galleryStatus(card,'Eliminazione in corso…');
     const {error:deleteError}=await supabase.from('gallery_images').delete().eq('id',item.id);
     if(deleteError){galleryStatus(card,'Eliminazione non riuscita: '+deleteError.message);del.disabled=false;return}
-    const {error:storageError}=await supabase.storage.from('site-media').remove([item.image_path]);
-    galleryStatus(card,storageError?'Foto rimossa dall’album; pulizia del file non riuscita: '+storageError.message:'Fotografia eliminata.');await loadGalleryAdmin();
+    galleryStatus(card,'Fotografia rimossa dall’album. Il file originale resta conservato come copia di sicurezza.');await loadGalleryAdmin();
    });wrap.append(del);list.append(wrap);
   }
   if(!items.length){const empty=document.createElement('p');empty.textContent='Nessuna fotografia aggiuntiva caricata.';empty.style.gridColumn='1/-1';list.append(empty)}
@@ -720,7 +719,7 @@ async function saveEvent(){
  if(Boolean(date)!==Boolean(time)){eventAdminStatus('Inserisci sia la data sia l’ora, oppure lascia entrambi vuoti.');return}
  if(url){try{const parsed=new URL(url);if(!['http:','https:'].includes(parsed.protocol))throw new Error()}catch(_){eventAdminStatus('Il link deve iniziare con http:// o https://.');return}}
  if(file&&(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>15*1024*1024)){eventAdminStatus('Immagine non valida: usa JPG, PNG o WEBP fino a 15 MB.');return}
- const save=$('eventSaveBtn');save.disabled=true;let uploadedPath=null;
+ const save=$('eventSaveBtn');save.disabled=true;let uploadedPath=null,dbWriteSucceeded=false;
  try{
   let startsAt=null;
   if(date&&time){const localDate=new Date(date+'T'+time);if(Number.isNaN(localDate.getTime()))throw new Error('Data o ora non valida.');startsAt=localDate.toISOString()}
@@ -728,14 +727,13 @@ async function saveEvent(){
   if(file){const ext=(file.name.split('.').pop()||'jpg').toLowerCase();uploadedPath='event-images/'+Date.now()+'-'+Math.random().toString(36).slice(2,9)+'.'+ext;const {error:uploadError}=await supabase.storage.from('site-media').upload(uploadedPath,file,{contentType:file.type,upsert:false,cacheControl:'3600'});if(uploadError)throw new Error('Caricamento immagine non riuscito: '+uploadError.message);imagePath=uploadedPath}
   const payload={title,description:description||null,starts_at:startsAt,image_path:imagePath,is_published:expectedPublished,external_url:url||null,button_label:buttonLabel,updated_at:new Date().toISOString()};
   let result;if(editingEventId)result=await supabase.from('events').update(payload).eq('id',editingEventId).select('id,is_published,starts_at').single();else result=await supabase.from('events').insert(payload).select('id,is_published,starts_at').single();
-  if(result.error)throw result.error;
+  if(result.error)throw result.error;dbWriteSucceeded=true;
   const saved=result.data;
   if(!saved||saved.is_published!==expectedPublished)throw new Error('Verifica pubblicazione fallita: lo stato salvato non corrisponde alla scelta. Controlla l’evento nell’elenco prima di riprovare.');
-  if(file&&existing?.image_path&&existing.image_path!==imagePath&&!(existing.image_path.startsWith('http://')||existing.image_path.startsWith('https://'))){await supabase.storage.from('site-media').remove([existing.image_path])}
   const savedState=saved.is_published?'PUBBLICATO':'IN BOZZA';
-  eventAdminStatus('Salvataggio verificato: '+savedState+'. '+(saved.starts_at?'Data e ora registrate: '+eventDateLabel(saved.starts_at):'Nessuna data/ora impostata.'));
+  eventAdminStatus('Salvataggio verificato: '+savedState+'. '+(file?'Il file precedente è stato conservato. ':'')+(saved.starts_at?'Data e ora registrate: '+eventDateLabel(saved.starts_at):'Nessuna data/ora impostata.'));
   resetEventForm();await loadEventsAdmin();updateEventPublishHint();
- }catch(e){if(uploadedPath)await supabase.storage.from('site-media').remove([uploadedPath]);eventAdminStatus('Salvataggio/verifica non riusciti: '+(e.message||e))}
+ }catch(e){if(uploadedPath&&!dbWriteSucceeded)await supabase.storage.from('site-media').remove([uploadedPath]);eventAdminStatus('Salvataggio/verifica non riusciti: '+(e.message||e)+(dbWriteSucceeded?' Il nuovo file è stato conservato per evitare un collegamento interrotto.':''))}
  finally{save.disabled=false}
 }
 $('eventSaveBtn').addEventListener('click',saveEvent);$('eventCancelBtn').addEventListener('click',resetEventForm);$('eventRefreshBtn').addEventListener('click',loadEventsAdmin);$('eventImage').addEventListener('change',()=>{const file=$('eventImage').files?.[0],preview=$('eventImagePreview');if(!file)return;const reader=new FileReader();reader.onload=()=>{preview.src=reader.result;preview.classList.remove('hidden')};reader.readAsDataURL(file)});
