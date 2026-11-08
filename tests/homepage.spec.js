@@ -45,9 +45,23 @@ test('menu in cinese: categorie e piatti usano le traduzioni salvate nel sorgent
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
   const categories = page.locator('#menuCategories .menu-category-button');
   await expect(categories).toHaveCount(7, { timeout: 15000 });
-  await expect(categories.first()).toHaveText('开胃菜');
-  await categories.first().click();
-  await expect(page.locator('#menuItems .menu-item-card h3').first()).toContainText(/[一-龥]/);
+  const categoryCount = await categories.count();
+  expect(categoryCount).toBeGreaterThanOrEqual(7);
+  for (let i = 0; i < categoryCount; i++) {
+    const category = categories.nth(i);
+    await expect(category).toContainText(/[一-龥]/);
+    await category.click();
+    const dishes = page.locator('#menuItems .menu-item-card h3');
+    const dishCount = await dishes.count();
+    expect(dishCount, 'Ogni categoria pubblicata deve mostrare almeno un piatto').toBeGreaterThan(0);
+    for (let j = 0; j < dishCount; j++) {
+      await expect(dishes.nth(j)).toContainText(/[一-龥]/);
+    }
+    const allergenLabels = page.locator('#menuItems .menu-item-allergens');
+    for (let j = 0; j < await allergenLabels.count(); j++) {
+      await expect(allergenLabels.nth(j)).toContainText('过敏原：');
+    }
+  }
 });
 
 test('homepage mobile: nessuno scorrimento orizzontale globale', async ({ page }) => {
