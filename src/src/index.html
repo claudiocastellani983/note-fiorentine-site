@@ -1129,6 +1129,23 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
 .nf-environments-choice-close{margin-top:24px;border:1px solid rgba(208,174,131,.7);background:transparent;color:#F4EBDD;padding:12px 20px;font:11px Arial,sans-serif;letter-spacing:.14em;cursor:pointer}
 @media(max-width:640px){.nf-environments-choice{padding:12px}.nf-environments-choice-dialog{padding:24px 16px}.nf-environments-choice-dialog .nf-artists-cards{grid-template-columns:1fr}.nf-environments-choice-dialog .nf-artists-card{min-height:190px}}
 </style>
+<style id="nf-environments-home-theme">
+/* Le gallerie degli ambienti riprendono la carta avorio e l'inchiostro della homepage */
+.nf-environments-choice{background:rgba(244,235,221,.97)!important}
+.nf-environments-choice-dialog{background:#F4EBDD!important;color:#392B24!important;border:1px solid #A97843!important;box-shadow:0 24px 80px rgba(44,33,29,.18)}
+.nf-environments-choice-dialog h2{color:#392B24!important}
+.nf-environments-choice-dialog p{color:#6F5B4B!important}
+.nf-environments-choice-close{border-color:#A97843!important;color:#6F3929!important}
+.nf-gallery-viewer.nf-environments-gallery,.nf-artists-viewer.nf-environments-gallery{background:rgba(244,235,221,.98)!important;color:#392B24!important}
+.nf-environments-gallery .nf-gallery-dialog,.nf-environments-gallery .nf-artists-dialog{color:#392B24!important}
+.nf-environments-gallery .nf-gallery-title,.nf-environments-gallery .nf-artists-viewer-title{color:#392B24!important}
+.nf-environments-gallery .nf-gallery-count,.nf-environments-gallery .nf-artists-viewer-count{color:#6F5B4B!important}
+.nf-environments-gallery .nf-gallery-btn,.nf-environments-gallery .nf-artists-viewer-btn{color:#6F3929!important;border-color:#A97843!important}
+.nf-environments-gallery .nf-gallery-close,.nf-environments-gallery .nf-artists-viewer-close{color:#6F3929!important}
+.nf-environments-gallery .nf-artists-viewer-stage{background:transparent!important}
+.nf-environments-gallery .nf-artists-viewer-stage img,.nf-environments-gallery .nf-artists-viewer-stage video{background:#E8DCC9!important}
+.nf-environments-gallery .nf-artists-viewer-empty{color:#6F5B4B!important}
+</style>
 </head>
 <body>
 <div id="app">
@@ -1721,9 +1738,10 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
   counter.textContent=(position+1)+' / '+photos.length;
   document.getElementById('nfGalleryPrev').disabled=photos.length<2;document.getElementById('nfGalleryNext').disabled=photos.length<2;
  }
- function close(){viewer.classList.remove('open');viewer.setAttribute('aria-hidden','true');document.body.style.overflow='';if(lastFocus)lastFocus.focus()}
+ function close(){viewer.classList.remove('nf-environments-gallery');viewer.classList.remove('open');viewer.setAttribute('aria-hidden','true');document.body.style.overflow='';if(lastFocus)lastFocus.focus()}
  function move(step){if(!photos.length)return;position=(position+step+photos.length)%photos.length;render()}
  async function openGallery(category,button){
+  viewer.classList.toggle('nf-environments-gallery',category==='restaurant');
   if(category==='restaurant'&&!selectingRestaurantPhotos){openEnvironmentChooser(button);return}
   lastFocus=button;viewer.dataset.category=category;title.textContent=labels[category]||'La galleria';viewer.classList.add('open');viewer.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';stage.innerHTML='<div class="nf-gallery-empty">Caricamento fotografie…</div>';counter.textContent='';
   try{
@@ -1876,7 +1894,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
  async function move(step){if(!items.length||fading)return;fading=true;await fadeOutCurrent();index=(index+step+items.length)%items.length;render();fading=false}
  async function close(){if(fading)return;fading=true;await fadeOutCurrent();viewer.classList.remove('open');viewer.setAttribute('aria-hidden','true');document.body.style.overflow='';stage.replaceChildren();if(lastFocus)lastFocus.focus();fading=false}
  async function open(kindValue,button){
-  kind=kindValue;lastFocus=button;index=0;if(diagnostic){diagnostic.hidden=kind!=='videos';diagnostic.textContent=kind==='videos'?'Diagnostica video: caricamento…':'';}title.textContent=kind==='images'?'Gli artisti · Fotografie':kind==='restaurant-videos'?'Gli ambienti · Video':'Gli artisti · Video';viewer.classList.add('open');viewer.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';stage.innerHTML='<div class="nf-artists-viewer-empty">Caricamento…</div>';count.textContent='';
+  kind=kindValue;lastFocus=button;index=0;viewer.classList.toggle('nf-environments-gallery',kind==='restaurant-videos');if(diagnostic){diagnostic.hidden=kind!=='videos';diagnostic.textContent=kind==='videos'?'Diagnostica video: caricamento…':'';}title.textContent=kind==='images'?'Gli artisti · Fotografie':kind==='restaurant-videos'?'Gli ambienti · Video':'Gli artisti · Video';viewer.classList.add('open');viewer.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';stage.innerHTML='<div class="nf-artists-viewer-empty">Caricamento…</div>';count.textContent='';
   try{
    const table=kind==='images'?'artist_images':kind==='restaurant-videos'?'restaurant_videos':'performance_videos';
    const columns=kind==='images'?'id,title,image_path,focal_x,focal_y,focal_zoom':kind==='restaurant-videos'?'id,title,youtube_url':'id,title,video_path';
