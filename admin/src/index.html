@@ -140,7 +140,7 @@ async function loadSiteEditor(){
  const q=await db.from('site_content').select('content_value').eq('content_key','public_site').maybeSingle();
  if(q.error)throw q.error;
  siteCurrent=q.data?.content_value&&typeof q.data.content_value==='object'?q.data.content_value:{};
- $('items').innerHTML='<form id="siteEditorForm" class="site-editor">'+siteGroups.map(g=>'<section class="site-group"><h3>'+esc(g.title)+'</h3><div class="site-grid">'+g.fields.map(f=>siteControl(f,siteCurrent)+siteEnglishControl(f,siteCurrent)).join('')+'</div></section>').join('')+'<div class="site-savebar"><button class="primary" type="submit">Salva modifiche del sito</button><a href="https://note-fiorentine.vercel.app/" target="_blank" rel="noopener">Apri il sito pubblico ↗</a></div><p class="site-help">Le modifiche vengono pubblicate sul sito dopo il salvataggio. Le immagini sostituite vengono rimosse solo dopo il salvataggio riuscito.</p></form>';
+ $('items').innerHTML='<form id="siteEditorForm" class="site-editor">'+siteGroups.map(g=>'<section class="site-group"><h3>'+esc(g.title)+'</h3><div class="site-grid">'+g.fields.map(f=>siteControl(f,siteCurrent)+siteEnglishControl(f,siteCurrent)).join('')+'</div></section>').join('')+'<div class="site-savebar"><button class="primary" type="submit">Pubblica modifiche del sito</button><a href="https://note-fiorentine.vercel.app/" target="_blank" rel="noopener">Apri il sito pubblico ↗</a></div><p class="site-help"><strong>ATTENZIONE:</strong> questo comando aggiorna immediatamente il sito pubblico. Prima controlla la preview e conferma la pubblicazione nella finestra successiva. Per modifiche grafiche non pubblicate usa “Editor visuale · bozza”. I file originali delle immagini restano conservati.</p></form>';
  const form=$('siteEditorForm');
  form.querySelectorAll('[data-site-image]').forEach(input=>input.addEventListener('change',()=>{
    const file=input.files?.[0];if(!file)return;
@@ -149,7 +149,7 @@ async function loadSiteEditor(){
    img.src=URL.createObjectURL(file);
  }));
  form.onsubmit=async e=>{
-   e.preventDefault();const btn=form.querySelector('[type=submit]');btn.disabled=true;
+   e.preventDefault();if(!confirm('Confermi la pubblicazione immediata delle modifiche sul sito pubblico? Se vuoi soltanto fare una prova, annulla e usa l’editor visuale in modalità bozza.'))return;const btn=form.querySelector('[type=submit]');btn.disabled=true;
    const next={...siteCurrent},uploaded=[],oldPaths=[];
    try{
      form.querySelectorAll('[data-site-field]').forEach(el=>next[el.dataset.siteField]=el.value);
