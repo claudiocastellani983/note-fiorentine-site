@@ -22,12 +22,13 @@ test('gestione immagini: UI autenticata simulata, senza chiamate o scritture rea
               eq() { return this; },
               order() { return this; },
               limit() { return this; },
-              update() { return this; },
+              update() { window.__mockDbUpdates = (window.__mockDbUpdates || 0) + 1; return this; },
               insert() { return Promise.resolve({ data: null, error: null }); },
               delete() { return this; },
               maybeSingle() {
                 if (table === 'admin_users') return Promise.resolve({ data: { user_id: 'mock-admin' }, error: null });
                 if (table === 'homepage_popup') return Promise.resolve({ data: { id: 'mock-popup', active: false, updated_at: new Date().toISOString() }, error: null });
+                if (table === 'site_images') return Promise.resolve({ data: { image_key: 'mock-slot', image_path: 'mock/file.png' }, error: null });
                 return Promise.resolve({ data: null, error: null });
               },
               single() { return Promise.resolve({ data: { id: 'mock-popup', active: true, updated_at: new Date().toISOString() }, error: null }); },
@@ -42,7 +43,7 @@ test('gestione immagini: UI autenticata simulata, senza chiamate o scritture rea
               signOut: async () => ({ error: null })
             },
             from: query,
-            storage: { from: () => ({ getPublicUrl: path => ({ data: { publicUrl: 'https://mock.invalid/' + path } }), upload: async () => ({ error: null }), remove: async () => ({ error: null }) }) }
+            storage: { from: () => ({ getPublicUrl: path => ({ data: { publicUrl: 'https://mock.invalid/' + path } }), upload: async () => { window.__mockStorageUploads = (window.__mockStorageUploads || 0) + 1; return { error: null }; }, remove: async () => ({ error: null }) }) }
           };
         }
       `
@@ -77,6 +78,19 @@ test('gestione immagini: UI autenticata simulata, senza chiamate o scritture rea
   await page.locator('#popupVisibilityBtn').click();
   await expect(page.locator('#popupVisibilityStatus')).toContainText('Popup attualmente VISIBILE');
   await expect(page.locator('#popupVisibilityBtn')).toHaveText('Nascondi popup');
+
+  // Selezione e sostituzione provate con un PNG in memoria e storage/database simulati.
+  const firstImageCard = page.locator('#imageCards article').first();
+  await firstImageCard.locator('input[type="file"]').setInputFiles({
+    name: 'test-image.png',
+    mimeType: 'image/png',
+    buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/pXcAAAAASUVORK5CYII=', 'base64')
+  });
+  await expect(firstImageCard.locator('.selected-file')).toContainText('test-image.png');
+  await expect(firstImageCard.locator('.cropbox')).toBeVisible();
+  await firstImageCard.getByRole('button', { name: 'Sostituisci immagine' }).click();
+  await expect.poll(() => page.evaluate(() => window.__mockStorageUploads || 0)).toBe(1);
+  await expect.poll(() => page.evaluate(() => window.__mockDbUpdates || 0)).toBeGreaterThan(0);
 
   expect(realSupabaseRequests).toEqual([]);
   expect(pageErrors).toEqual([]);
