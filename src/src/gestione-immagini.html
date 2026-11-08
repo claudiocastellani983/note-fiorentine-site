@@ -476,7 +476,7 @@ async function loadArtistMediaAdmin(){
    }else if(youtubeId){
     media.className='youtube-thumb';media.src='https://i.ytimg.com/vi/'+encodeURIComponent(youtubeId)+'/hqdefault.jpg';media.alt='Anteprima YouTube: '+(item.title||'Video artista');media.loading='lazy';media.addEventListener('click',()=>window.open('https://youtu.be/'+youtubeId,'_blank','noopener'));
    }else{
-    media.src=supabase.storage.from(def.bucket).getPublicUrl(item[field]).data.publicUrl;media.controls=true;media.preload='metadata';media.muted=true;
+    media.src=supabase.storage.from(def.bucket).getPublicUrl(item[field]).data.publicUrl;media.controls=true;media.preload='none';media.muted=true;
    }
    if(def.kind==='videos'){const title=document.createElement('p');title.textContent=item.title||'Video artista';title.style.cssText='margin:0 0 7px;font-weight:700;color:#392B24';wrap.append(title)}
    wrap.append(media);if(def.kind==='images'){const edit=document.createElement('button');edit.type='button';edit.className='secondary';edit.textContent='Regola foto';edit.addEventListener('click',()=>openGalleryPhotoEditor({table:'artist_images',item,categoryLabel:'Artisti',card}));wrap.append(edit)}const controls=document.createElement('div');controls.className='artist-order-controls';
@@ -661,7 +661,7 @@ document.querySelectorAll('[data-artist-media]').forEach(card=>{
      artistMediaStatus(card,'Pubblicazione '+(done+1)+' di '+files.length+': caricamento '+original.name);
      const ext=(uploadFile.name.split('.').pop()||'mp4').toLowerCase();
      const path='artist-videos/'+Date.now()+'-'+Math.random().toString(36).slice(2,9)+'.'+ext;
-     const {error:up}=await supabase.storage.from('performance-videos').upload(path,uploadFile,{contentType:uploadFile.type||'video/mp4',upsert:false,cacheControl:'3600'});
+     const {error:up}=await supabase.storage.from('performance-videos').upload(path,uploadFile,{contentType:uploadFile.type||'video/mp4',upsert:false,cacheControl:'31536000'});
      if(up)throw new Error('Caricamento non riuscito per '+original.name+': '+up.message);
      const {data:existing,error:read}=await supabase.from('performance_videos').select('sort_order').order('sort_order',{ascending:true}).limit(1);
      if(read){await supabase.storage.from('performance-videos').remove([path]);throw new Error('Lettura ordine non riuscita: '+read.message)}

@@ -16,6 +16,10 @@ test('ottimizzazione egress presente in homepage e pannelli', async ({ browserNa
 
   expect(homepage).toContain("img.loading=priority?'eager':'lazy'");
   expect(homepage).toContain("rootMargin:'350px'");
+  expect(homepage).toContain("media.preload='none'");
+  expect(manager).toContain("media.preload='none'");
+  expect(manager).toContain("cacheControl:'31536000'");
+  expect(admin).toContain("cacheControl:'31536000'");
 
   expect(admin).toContain('async function optimizeImageFile(file)');
   expect(admin).toContain("cacheControl:'31536000'");

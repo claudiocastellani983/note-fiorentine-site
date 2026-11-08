@@ -1848,7 +1848,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
    media.addEventListener('load',()=>{stage.classList.toggle('nf-artists-portrait',media.naturalHeight>media.naturalWidth)},{once:true});
    media.src=publicUrl('site-media',item.image_path);
   }else{
-   media.src=publicUrl('performance-videos',item.video_path);media.controls=true;media.playsInline=true;media.preload='metadata';media.setAttribute('aria-label',item.title||'Video artisti Note Fiorentine');
+   media.src=publicUrl('performance-videos',item.video_path);media.controls=true;media.playsInline=true;media.preload='none';media.setAttribute('aria-label',item.title||'Video artisti Note Fiorentine');
    if(diagnostic){
     diagnostic.hidden=false;
     const report=(eventName)=>{
