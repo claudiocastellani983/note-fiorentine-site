@@ -41,17 +41,17 @@ async function captureSubmit(e){
  const form=e.target;if(!form||form.id==='loginForm')return;
  if(!['editForm','siteEditorForm'].includes(form.id))return;
  e.preventDefault();e.stopImmediatePropagation();
- try{const payload=await formPayload(form);const section=form.id==='siteEditorForm'?'Testi e grafica':($('sectionTitle')?.textContent||'Contenuti');stage(form.id==='siteEditorForm'?'site-content':'record',section,payload);if(form.id==='editForm'){$('editor')?.classList.add('hidden')}else status('Bozza grafica salvata. Rivedila ed esporta il pacchetto quando hai terminato.')}
+ try{const payload=await formPayload(form);const section=form.id==='siteEditorForm'?'Testi e grafica':($('sectionTitle')?.textContent||'Contenuti');payload.recordId=form.dataset.rowId||null;stage(form.id==='siteEditorForm'?'site-content':'record',section,payload);if(form.id==='editForm'){$('editor')?.classList.add('hidden')}else status('Bozza grafica salvata. Rivedila ed esporta il pacchetto quando hai terminato.')}
  catch(err){status('Bozza non salvata: '+(err.message||err))}
 }
 async function capturePopup(id){
  try{
-  if(id==='savePopupAdmin'){const files=await captureFiles([...($('popupAdminFiles')?.files||[])]);stage('popup-settings','Popup',{active:$('popupAdminActive')?.checked,email:$('popupAdminEmail')?.value||'',files})}
+  if(id==='savePopupAdmin'){const files=await captureFiles([...($('popupAdminFiles')?.files||[])]);const existingMedia=[...document.querySelectorAll('#popupAdminMedia .media-card')].map(card=>({name:card.querySelector('p')?.textContent||'File popup',url:card.querySelector('img')?.src||'',type:card.querySelector('img')?'image':'application/pdf'}));stage('popup-settings','Popup',{active:$('popupAdminActive')?.checked,email:$('popupAdminEmail')?.value||'',existingMedia,files})}
   else{
    const files=await captureFiles([...($('pFiles')?.files||[])]),images=[];
    document.querySelectorAll('[data-imfile]').forEach(el=>{const id=el.dataset.imfile;images.push({id,file:el.files?.[0]||null,focal_x:document.querySelector('[data-fx="'+id+'"]')?.value,focal_y:document.querySelector('[data-fy="'+id+'"]')?.value,focal_zoom:document.querySelector('[data-fz="'+id+'"]')?.value,alt_text:document.querySelector('[data-alt="'+id+'"]')?.value})});
    const imageFiles=[];for(const x of images)if(x.file){const [ref]=await captureFiles([x.file]);imageFiles.push({id:x.id,file:ref,focal_x:x.focal_x,focal_y:x.focal_y,focal_zoom:x.focal_zoom,alt_text:x.alt_text})}else imageFiles.push({...x,file:null});
-   stage('popup-and-media','Immagini e popup',{active:$('pActive')?.checked,title_it:$('pTitleIt')?.value,title_en:$('pTitleEn')?.value,body_it:$('pBodyIt')?.value,body_en:$('pBodyEn')?.value,button_label_it:$('pButtonIt')?.value,button_label_en:$('pButtonEn')?.value,email:$('pEmail')?.value,files,imageFiles});
+   const existingMedia=[...document.querySelectorAll('#items .media-card a[href]')].map(a=>({name:a.textContent,url:a.href}));stage('popup-and-media','Immagini e popup',{existingMedia,active:$('pActive')?.checked,title_it:$('pTitleIt')?.value,title_en:$('pTitleEn')?.value,body_it:$('pBodyIt')?.value,body_en:$('pBodyEn')?.value,button_label_it:$('pButtonIt')?.value,button_label_en:$('pButtonEn')?.value,email:$('pEmail')?.value,files,imageFiles});
   }
  }catch(err){status('Bozza popup non salvata: '+(err.message||err))}
 }
@@ -59,7 +59,7 @@ document.addEventListener('submit',captureSubmit,true);
 document.addEventListener('click',async e=>{
  const btn=e.target.closest('button');if(!btn)return;
  if(btn.id==='savePopupAdmin'||btn.id==='saveMedia'){e.preventDefault();e.stopImmediatePropagation();await capturePopup(btn.id);return}
- if(btn.matches('[data-del],[data-pub]')){e.preventDefault();e.stopImmediatePropagation();const item=btn.closest('.item');stage(btn.hasAttribute('data-del')?'delete-record':'toggle-publish',$('sectionTitle')?.textContent||'Contenuti',{rowIndex:btn.dataset.del??btn.dataset.pub,label:item?.querySelector('strong')?.textContent||item?.innerText||'Elemento'});return}
+ if(btn.matches('[data-del],[data-pub]')){e.preventDefault();e.stopImmediatePropagation();const item=btn.closest('.item');stage(btn.hasAttribute('data-del')?'delete-record':'toggle-publish',$('sectionTitle')?.textContent||'Contenuti',{rowIndex:btn.dataset.del??btn.dataset.pub,recordId:item?.dataset.rowId||null,label:item?.querySelector('strong')?.textContent||item?.innerText||'Elemento'});return}
 },true);
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',render);else render();
 window.__NF_DRAFTS={count:()=>drafts.length,exportPackage,review};
