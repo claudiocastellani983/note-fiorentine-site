@@ -1118,7 +1118,18 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
 /* Swipe orizzontale: navigazione foto senza ostacolare lo scroll verticale */
 .nf-gallery-stage,.nf-artists-viewer-stage{touch-action:pan-y pinch-zoom}
 .nf-gallery-stage .nf-gallery-photo,.nf-artists-viewer-stage .nf-artists-gallery-photo{user-select:none;-webkit-user-select:none;-webkit-user-drag:none}
-</style><style id="nf-homepage-global-centering-v1">main,main section,footer{text-align:center!important}.hero-copy{align-items:center!important;text-align:center!important}main section h1,main section h2,main section h3,main section h4,main section p{text-align:center!important}main section .section-heading,main section .section-header,main section .section-copy,main section .menu-intro,main section .gallery-intro,main section .artists-intro{margin-left:auto!important;margin-right:auto!important;text-align:center!important}footer{align-items:center}</style></head>
+</style><style id="nf-homepage-global-centering-v1">main,main section,footer{text-align:center!important}.hero-copy{align-items:center!important;text-align:center!important}main section h1,main section h2,main section h3,main section h4,main section p{text-align:center!important}main section .section-heading,main section .section-header,main section .section-copy,main section .menu-intro,main section .gallery-intro,main section .artists-intro{margin-left:auto!important;margin-right:auto!important;text-align:center!important}footer{align-items:center}</style><style id="nf-environments-choice-css">
+.nf-environments-choice{position:fixed;inset:0;z-index:100001;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(12,10,9,.96)}
+.nf-environments-choice.open{display:flex}
+.nf-environments-choice-dialog{width:min(980px,100%);max-height:92vh;overflow:auto;padding:clamp(24px,5vw,48px);background:#211916;color:#F4EBDD;border:1px solid rgba(197,154,105,.65);text-align:center}
+.nf-environments-choice-dialog h2{font:400 clamp(27px,4vw,38px)/1.1 Georgia,serif;color:#F4EBDD;margin:8px 0 12px}
+.nf-environments-choice-dialog p{color:#D7C8B8;line-height:1.7}
+.nf-environments-choice-dialog .nf-artists-cards{grid-template-columns:repeat(2,minmax(0,1fr));max-width:780px}
+.nf-environments-choice-dialog .nf-artists-card{min-height:clamp(210px,28vw,320px)}
+.nf-environments-choice-close{margin-top:24px;border:1px solid rgba(208,174,131,.7);background:transparent;color:#F4EBDD;padding:12px 20px;font:11px Arial,sans-serif;letter-spacing:.14em;cursor:pointer}
+@media(max-width:640px){.nf-environments-choice{padding:12px}.nf-environments-choice-dialog{padding:24px 16px}.nf-environments-choice-dialog .nf-artists-cards{grid-template-columns:1fr}.nf-environments-choice-dialog .nf-artists-card{min-height:190px}}
+</style>
+</head>
 <body>
 <div id="app">
   <div class="topline"></div>
@@ -1227,6 +1238,7 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
     </section>
     </main>
 <div class="nf-artists-viewer" id="nfArtistsViewer" aria-hidden="true"><div class="nf-artists-dialog" role="dialog" aria-modal="true" aria-labelledby="nfArtistsViewerTitle"><div class="nf-artists-viewer-top"><h2 class="nf-artists-viewer-title" id="nfArtistsViewerTitle">Galleria artisti</h2><span class="nf-artists-viewer-count" id="nfArtistsViewerCount"></span><button class="nf-artists-viewer-btn" id="nfArtistsViewerClose" type="button" aria-label="Chiudi galleria">CHIUDI ×</button></div><div class="nf-artists-viewer-stage" id="nfArtistsViewerStage"><div class="nf-artists-viewer-empty">Caricamento…</div></div><div class="nf-artists-video-diagnostic" id="nfArtistsVideoDiagnostic" role="status" aria-live="polite" hidden></div><div class="nf-artists-viewer-controls"><button class="nf-artists-viewer-btn" id="nfArtistsViewerPrev" type="button" aria-label="Elemento precedente">‹</button><button class="nf-artists-viewer-btn" id="nfArtistsViewerNext" type="button" aria-label="Elemento successivo">›</button></div></div></div>
+<div class="nf-environments-choice" id="nfEnvironmentsChoice" aria-hidden="true"><div class="nf-environments-choice-dialog" role="dialog" aria-modal="true" aria-labelledby="nfEnvironmentsChoiceTitle"><div class="section-kicker">NOTE FIORENTINE · IL RISTORANTE</div><h2 id="nfEnvironmentsChoiceTitle">Gli ambienti</h2><p>Scopri gli spazi del ristorante attraverso immagini e video.</p><div class="nf-artists-cards"><button type="button" class="nf-artists-card" data-env-choice="videos" aria-label="Apri i video degli ambienti"><span class="nf-artists-play" aria-hidden="true">▶</span><span class="nf-artists-card-copy"><strong>Video degli ambienti</strong><small>Guarda gli spazi del ristorante</small></span></button><button type="button" class="nf-artists-card" data-env-choice="photos" aria-label="Apri le fotografie degli ambienti"><span class="nf-artists-card-copy"><strong>Foto degli ambienti</strong><small>Esplora la galleria fotografica</small></span></button></div><button type="button" class="nf-environments-choice-close" id="nfEnvironmentsChoiceClose">CHIUDI ×</button></div></div>
 <div class="nf-gallery-viewer" id="nfGalleryViewer" aria-hidden="true">
   <div class="nf-gallery-dialog" role="dialog" aria-modal="true" aria-labelledby="nfGalleryTitle">
     <div class="nf-gallery-top"><h2 class="nf-gallery-title" id="nfGalleryTitle">Il ristorante</h2><span class="nf-gallery-counter" id="nfGalleryCounter"></span><button class="nf-gallery-btn nf-gallery-close" id="nfGalleryClose" type="button" aria-label="Chiudi galleria">CHIUDI ×</button></div>
@@ -1656,6 +1668,15 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
  const api='https://nculgrwlzjitggjcgbpp.supabase.co',key='sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0';
  const log=(...args)=>{if(window.console)console.warn('[Note Fiorentine immagini]',...args)};
  const publicUrl=path=>api+'/storage/v1/object/public/site-media/'+String(path).split('/').map(encodeURIComponent).join('/');
+ const choice=document.getElementById('nfEnvironmentsChoice');
+ let choiceFocus=null;
+ function openEnvironmentChooser(button){choiceFocus=button;choice.classList.add('open');choice.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';choice.querySelector('[data-env-choice="videos"]').focus()}
+ function closeEnvironmentChooser(){choice.classList.remove('open');choice.setAttribute('aria-hidden','true');document.body.style.overflow='';if(choiceFocus)choiceFocus.focus()}
+ choice.querySelector('#nfEnvironmentsChoiceClose').addEventListener('click',closeEnvironmentChooser);
+ choice.addEventListener('click',e=>{if(e.target===choice)closeEnvironmentChooser()});
+ choice.querySelector('[data-env-choice="photos"]').addEventListener('click',()=>{const button=choice.querySelector('[data-env-choice="photos"]');closeEnvironmentChooser();openGallery('restaurant',button)});
+ choice.querySelector('[data-env-choice="videos"]').addEventListener('click',()=>{const button=choice.querySelector('[data-env-choice="videos"]');closeEnvironmentChooser();document.dispatchEvent(new CustomEvent('nf-open-restaurant-videos',{detail:{button}}))});
+
  function mount(el,row){
   if(!el||!row||!row.image_path)return;
   const url=publicUrl(row.image_path),zoom=Math.max(1,Math.min(3,Number(row.focal_zoom||1)));
@@ -1702,6 +1723,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
  function close(){viewer.classList.remove('open');viewer.setAttribute('aria-hidden','true');document.body.style.overflow='';if(lastFocus)lastFocus.focus()}
  function move(step){if(!photos.length)return;position=(position+step+photos.length)%photos.length;render()}
  async function openGallery(category,button){
+  if(category==='restaurant'){openEnvironmentChooser(button);return}
   lastFocus=button;viewer.dataset.category=category;title.textContent=labels[category]||'La galleria';viewer.classList.add('open');viewer.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';stage.innerHTML='<div class="nf-gallery-empty">Caricamento fotografie…</div>';counter.textContent='';
   try{
    const url=api+'/rest/v1/gallery_images?select=id,title,image_path,sort_order,focal_x,focal_y,focal_zoom&category=eq.'+encodeURIComponent(category)+'&is_published=eq.true&order=sort_order.asc,created_at.asc';
@@ -1716,7 +1738,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
  viewer.addEventListener('click',e=>{if(e.target===viewer)close()});
  document.getElementById('nfGalleryPrev').addEventListener('click',()=>move(-1));
  document.getElementById('nfGalleryNext').addEventListener('click',()=>move(1));
- document.addEventListener('keydown',e=>{if(!viewer.classList.contains('open'))return;if(e.key==='Escape')close();if(e.key==='ArrowLeft')move(-1);if(e.key==='ArrowRight')move(1)});
+ document.addEventListener('keydown',e=>{if(choice.classList.contains('open')&&e.key==='Escape'){closeEnvironmentChooser();return}if(!viewer.classList.contains('open'))return;if(e.key==='Escape')close();if(e.key==='ArrowLeft')move(-1);if(e.key==='ArrowRight')move(1)});
  let touchStartX=0,touchStartY=0;
  stage.addEventListener('touchstart',e=>{const t=e.changedTouches[0];touchStartX=t?.clientX||0;touchStartY=t?.clientY||0},{passive:true});
  stage.addEventListener('touchend',e=>{const t=e.changedTouches[0],dx=(t?.clientX||0)-touchStartX,dy=(t?.clientY||0)-touchStartY;if(Math.abs(dx)>48&&Math.abs(dx)>Math.abs(dy)*1.25)move(dx<0?1:-1)},{passive:true});
@@ -1765,8 +1787,8 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
  }
  function render(){
   stage.replaceChildren();stage.classList.remove('nf-artists-portrait');
-  if(!items.length){const empty=document.createElement('div');empty.className='nf-artists-viewer-empty';empty.textContent=kind==='images'?'Le fotografie degli artisti saranno disponibili a breve.':'I video degli artisti saranno disponibili a breve.';stage.append(empty);count.textContent='0 ELEMENTI';document.getElementById('nfArtistsViewerPrev').disabled=true;document.getElementById('nfArtistsViewerNext').disabled=true;return}
-  const item=items[index],youtubeId=kind==='videos'?(item.youtubeId||extractYouTubeId(item.video_path)):null,media=kind==='images'?document.createElement('img'):document.createElement('video');
+  if(!items.length){const empty=document.createElement('div');empty.className='nf-artists-viewer-empty';empty.textContent=kind==='images'?'Le fotografie degli artisti saranno disponibili a breve.':kind==='restaurant-videos'?'I video degli ambienti saranno disponibili a breve.':'I video degli artisti saranno disponibili a breve.';stage.append(empty);count.textContent='0 ELEMENTI';document.getElementById('nfArtistsViewerPrev').disabled=true;document.getElementById('nfArtistsViewerNext').disabled=true;return}
+  const item=items[index],youtubeId=(kind==='videos'||kind==='restaurant-videos')?(item.youtubeId||extractYouTubeId(kind==='restaurant-videos'?item.youtube_url:item.video_path)):null,media=kind==='images'?document.createElement('img'):document.createElement('video');
   if(kind==='videos' && youtubeId){
    if(diagnostic)diagnostic.hidden=true;
    const placeholder=document.createElement('button');
@@ -1853,10 +1875,10 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
  async function move(step){if(!items.length||fading)return;fading=true;await fadeOutCurrent();index=(index+step+items.length)%items.length;render();fading=false}
  async function close(){if(fading)return;fading=true;await fadeOutCurrent();viewer.classList.remove('open');viewer.setAttribute('aria-hidden','true');document.body.style.overflow='';stage.replaceChildren();if(lastFocus)lastFocus.focus();fading=false}
  async function open(kindValue,button){
-  kind=kindValue;lastFocus=button;index=0;if(diagnostic){diagnostic.hidden=kind!=='videos';diagnostic.textContent=kind==='videos'?'Diagnostica video: caricamento…':'';}title.textContent=kind==='images'?'Gli artisti · Fotografie':'Gli artisti · Video';viewer.classList.add('open');viewer.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';stage.innerHTML='<div class="nf-artists-viewer-empty">Caricamento…</div>';count.textContent='';
+  kind=kindValue;lastFocus=button;index=0;if(diagnostic){diagnostic.hidden=kind!=='videos';diagnostic.textContent=kind==='videos'?'Diagnostica video: caricamento…':'';}title.textContent=kind==='images'?'Gli artisti · Fotografie':kind==='restaurant-videos'?'Gli ambienti · Video':'Gli artisti · Video';viewer.classList.add('open');viewer.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';stage.innerHTML='<div class="nf-artists-viewer-empty">Caricamento…</div>';count.textContent='';
   try{
-   const table=kind==='images'?'artist_images':'performance_videos',field=kind==='images'?'image_path':'video_path';
-   const columns=kind==='images'?'id,title,image_path,focal_x,focal_y,focal_zoom':'id,title,video_path';
+   const table=kind==='images'?'artist_images':kind==='restaurant-videos'?'restaurant_videos':'performance_videos';
+   const columns=kind==='images'?'id,title,image_path,focal_x,focal_y,focal_zoom':kind==='restaurant-videos'?'id,title,youtube_url':'id,title,video_path';
    const response=await fetch(api+'/rest/v1/'+table+'?select='+columns+'&is_published=eq.true&order=sort_order.asc,created_at.asc',{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});
    if(!response.ok)throw new Error('HTTP '+response.status);
    items=await response.json();
