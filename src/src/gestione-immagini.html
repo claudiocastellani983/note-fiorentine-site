@@ -75,6 +75,7 @@
 <div class="panel" id="galleryAdminPanel">
  <h2>Album della galleria in homepage</h2>
  <p class="muted">Carica tutte le fotografie che vuoi nei tre album. Puoi selezionare più immagini insieme dal telefono. Le fotografie pubblicate saranno visibili cliccando il riquadro corrispondente in homepage. Formati JPG, PNG o WEBP · massimo 15 MB per immagine.</p>
+ <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0 18px"><button type="button" id="optimizeExistingImages" class="secondary">Ottimizza immagini già caricate</button><span id="optimizeExistingStatus" class="gallery-admin-status" aria-live="polite">Gli originali saranno conservati come copie di sicurezza.</span></div>
  <div class="gallery-admin-grid" id="galleryAdminGrid">
   <div class="gallery-admin-card" data-gallery-admin="restaurant"><h3>Il ristorante</h3><p>Ambienti, sala e dettagli del locale.</p><input type="file" accept="image/jpeg,image/png,image/webp" multiple aria-label="Aggiungi foto Il ristorante"><button type="button" class="gallery-upload-btn">Aggiungi fotografie</button><div class="gallery-admin-status" aria-live="polite"></div><div class="gallery-admin-count"></div><div class="gallery-admin-list"></div></div>
   <div class="gallery-admin-card" data-gallery-admin="kitchen"><h3>La cucina</h3><p>Piatti, ingredienti e preparazioni.</p><input type="file" accept="image/jpeg,image/png,image/webp" multiple aria-label="Aggiungi foto La cucina"><button type="button" class="gallery-upload-btn">Aggiungi fotografie</button><div class="gallery-admin-status" aria-live="polite"></div><div class="gallery-admin-count"></div><div class="gallery-admin-list"></div></div>
@@ -369,6 +370,33 @@ async function loadGalleryAdmin(){
  }
 }
 function publicGalleryUrl(path){return supabase.storage.from('site-media').getPublicUrl(path).data.publicUrl}
+document.getElementById('optimizeExistingImages')?.addEventListener('click',async()=>{
+ const button=document.getElementById('optimizeExistingImages'),output=document.getElementById('optimizeExistingStatus');if(!button||!output)return;
+ if(!confirm('Ottimizzare le immagini già collegate al sito? Gli originali verranno conservati come copie di sicurezza.'))return;
+ button.disabled=true;let scanned=0,updated=0,saved=0,failed=0;
+ const jobs=[{table:'site_images',key:'id',label:'immagini principali'},{table:'gallery_images',key:'id',label:'galleria ristorante'},{table:'artist_images',key:'id',label:'galleria artisti'}];
+ try{
+  for(const job of jobs){
+   const {data,error}=await supabase.from(job.table).select('id,image_path');if(error)throw new Error('Lettura '+job.label+' non riuscita: '+error.message);
+   for(const row of data||[]){
+    if(!row.image_path)continue;scanned++;output.textContent='Analisi '+job.label+': '+scanned+' file controllati…';
+    try{
+     const {data:blob,error:downloadError}=await supabase.storage.from('site-media').download(row.image_path);if(downloadError)throw downloadError;
+     const original=new File([blob],row.image_path.split('/').pop()||'immagine',{type:blob.type||'image/jpeg'});
+     const optimized=await optimizeImageFile(original);if(optimized===original||optimized.size>=original.size*0.97)continue;
+     const folder=row.image_path.includes('/')?row.image_path.slice(0,row.image_path.lastIndexOf('/')+1):'';
+     const newPath=folder+Date.now()+'-'+Math.random().toString(36).slice(2,9)+'.webp';
+     const {error:uploadError}=await supabase.storage.from('site-media').upload(newPath,optimized,{contentType:'image/webp',upsert:false,cacheControl:'31536000'});if(uploadError)throw uploadError;
+     const {error:updateError}=await supabase.from(job.table).update({image_path:newPath}).eq(job.key,row[job.key]);
+     if(updateError){await supabase.storage.from('site-media').remove([newPath]);throw updateError;}
+     updated++;saved+=original.size-optimized.size;output.textContent='Ottimizzate '+updated+' immagini · '+(saved/1024/1024).toFixed(1)+' MB risparmiati · '+row.image_path.split('/').pop();
+    }catch(error){failed++;console.warn('Ottimizzazione immagine non riuscita:',job.table,row.image_path,error);}
+   }
+  }
+  output.textContent='Completato: '+updated+' immagini ottimizzate; '+(saved/1024/1024).toFixed(1)+' MB in meno per i download futuri. '+(failed?failed+' file non riusciti.':'Nessun errore. Gli originali sono conservati.');
+ }catch(error){output.textContent='Operazione interrotta: '+(error.message||error);}
+ finally{button.disabled=false;}
+});
 document.querySelectorAll('[data-gallery-admin]').forEach(card=>{
  const category=card.dataset.galleryAdmin,file=card.querySelector('input[type=file]'),button=card.querySelector('.gallery-upload-btn');
  button.addEventListener('click',async()=>{
