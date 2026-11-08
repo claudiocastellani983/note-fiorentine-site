@@ -172,3 +172,15 @@ test('mantiene il blocco di tutte le scritture al database e allo Storage in ant
   expect(adminSource).toContain("if(['upload','remove','update','move','copy'].includes(String(key)))return blockedWrite");
   expect(adminSource).toContain('<script src="./draft-manager.js"></script>');
 });
+
+
+test('ottimizza le immagini prima dei caricamenti e mantiene la cache annuale', async () => {
+  expect(adminSource).toContain('async function optimizeImageFile(file)');
+  expect(adminSource).toContain("1800/width");
+  expect(adminSource).toContain("canvas.toBlob(resolve,'image/webp',0.82)");
+  expect(adminSource).toContain('const optimized=await optimizeImageFile(file)');
+  expect(adminSource).toContain("const uploadFile=f.type.startsWith('image/')?await optimizeImageFile(f):f");
+  expect(adminSource).toContain('const optimized=await optimizeImageFile(f)');
+  expect(adminSource).toContain("cacheControl:'31536000'");
+  expect(adminSource).toContain('if(!file||!/^image\\\\/(jpeg|png|webp)$/i.test(file.type))return file;');
+});
