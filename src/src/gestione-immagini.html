@@ -178,6 +178,32 @@ $('password').addEventListener('keydown',e=>{if(e.key==='Enter')$('loginBtn').cl
 $('logoutBtn').addEventListener('click',async()=>{await supabase.auth.signOut();currentUser=null;checkSession()});
 $('refreshBtn').addEventListener('click',loadImages);
 function publicUrl(path){return supabase.storage.from('site-media').getPublicUrl(path).data.publicUrl}
+async function optimizeImageFile(file){
+ if(!file||!/^image\/(jpeg|png|webp)$/i.test(file.type))return file;
+ let source=null,bitmap=null,objectUrl=null;
+ try{
+  if(typeof createImageBitmap==='function'){bitmap=await createImageBitmap(file);source=bitmap;}
+  else{objectUrl=URL.createObjectURL(file);source=await new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>reject(new Error('Immagine non leggibile'));image.src=objectUrl});}
+  const width=source.width||source.naturalWidth,height=source.height||source.naturalHeight;
+  if(!width||!height)return file;
+  if(width<=1800&&height<=1800&&file.size<=260*1024)return file;
+  const scale=Math.min(1,1800/width,1800/height),canvas=document.createElement('canvas');
+  canvas.width=Math.max(1,Math.round(width*scale));canvas.height=Math.max(1,Math.round(height*scale));
+  const context=canvas.getContext('2d',{alpha:true});if(!context)return file;
+  context.drawImage(source,0,0,canvas.width,canvas.height);
+  let blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/webp',0.82));if(!blob)return file;
+  if(blob.size>=file.size*0.97&&width<=1800&&height<=1800)return file;
+  if(blob.size>=file.size*0.97){
+   const smaller=document.createElement('canvas'),scale2=Math.min(1,1500/width,1500/height);
+   smaller.width=Math.max(1,Math.round(width*scale2));smaller.height=Math.max(1,Math.round(height*scale2));
+   const c2=smaller.getContext('2d',{alpha:true});if(!c2)return file;c2.drawImage(source,0,0,smaller.width,smaller.height);
+   const reduced=await new Promise(resolve=>smaller.toBlob(resolve,'image/webp',0.72));if(reduced&&reduced.size<blob.size)blob=reduced;
+  }
+  if(blob.size>=file.size*0.97)return file;
+  return new File([blob],file.name.replace(/\.[^.]+$/,'')+'.webp',{type:'image/webp',lastModified:Date.now()});
+ }catch(error){console.warn('Ottimizzazione immagine non disponibile per '+(file.name||'file'),error);return file;}
+ finally{if(bitmap)bitmap.close?.();if(objectUrl)URL.revokeObjectURL(objectUrl);}
+}
 async function loadImages(){
  status('Caricamento…');
  const {data,error}=await supabase.from('site_images').select('image_key,image_path,alt_text,focal_x,focal_y,focal_zoom').order('sort_order');
@@ -224,9 +250,10 @@ async function loadImages(){
    const f=file.files?.[0];if(!f){status('Prima premi “Carica immagine” e scegli una fotografia.');return}
    replaceBtn.disabled=true;chooseBtn.disabled=true;cardMessage('Caricamento della fotografia in corso…');replaceBtn.textContent='Caricamento…';
    try{
-    const ext=f.type==='image/png'?'png':f.type==='image/webp'?'webp':'jpg';
+    const optimized=await optimizeImageFile(f);
+    const ext=optimized.type==='image/webp'?'webp':optimized.type==='image/png'?'png':'jpg';
     const path=slot.key+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;
-    const {error:uploadError}=await supabase.storage.from('site-media').upload(path,f,{contentType:f.type,upsert:false,cacheControl:'3600'});
+    const {error:uploadError}=await supabase.storage.from('site-media').upload(path,optimized,{contentType:optimized.type,upsert:false,cacheControl:'31536000'});
     if(uploadError)throw new Error('Caricamento non riuscito: '+uploadError.message);
     const {data:updated,error:saveError}=await supabase.from('site_images').update({image_path:path,focal_x:focalX,focal_y:focalY,focal_zoom:focalZoom,updated_by:currentUser.id,updated_at:new Date().toISOString()}).eq('image_key',slot.key).select('image_key,image_path').maybeSingle();
     if(saveError)throw new Error('File caricato, ma collegamento al sito non riuscito: '+saveError.message);
@@ -354,9 +381,10 @@ document.querySelectorAll('[data-gallery-admin]').forEach(card=>{
   try{
    for(const f of files){
     galleryStatus(card,'Caricamento '+(done+1)+' di '+files.length+': '+f.name);
-    const ext=f.type==='image/png'?'png':f.type==='image/webp'?'webp':'jpg';
+    const optimized=await optimizeImageFile(f);
+    const ext=optimized.type==='image/webp'?'webp':optimized.type==='image/png'?'png':'jpg';
     const path='gallery/'+category+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,9)+'.'+ext;
-    const {error:uploadError}=await supabase.storage.from('site-media').upload(path,f,{contentType:f.type,upsert:false,cacheControl:'3600'});
+    const {error:uploadError}=await supabase.storage.from('site-media').upload(path,optimized,{contentType:optimized.type,upsert:false,cacheControl:'31536000'});
     if(uploadError)throw new Error('Upload non riuscito per '+f.name+': '+uploadError.message);
     const {data:existing,error:readError}=await supabase.from('gallery_images').select('sort_order').eq('category',category).order('sort_order',{ascending:false}).limit(1);
     if(readError)throw new Error('Lettura ordine album non riuscita: '+readError.message);
@@ -629,8 +657,9 @@ document.querySelectorAll('[data-artist-media]').forEach(card=>{
    try{
     for(const f of files){
      artistMediaStatus(card,'Caricamento '+(done+1)+' di '+files.length+': '+f.name);
-     const ext=(f.name.split('.').pop()||'jpg').toLowerCase(),path='artist-gallery/'+Date.now()+'-'+Math.random().toString(36).slice(2,9)+'.'+ext;
-     const {error:up}=await supabase.storage.from('site-media').upload(path,f,{contentType:f.type,upsert:false,cacheControl:'3600'});
+     const optimized=await optimizeImageFile(f);
+     const ext=optimized.type==='image/webp'?'webp':optimized.type==='image/png'?'png':'jpg',path='artist-gallery/'+Date.now()+'-'+Math.random().toString(36).slice(2,9)+'.'+ext;
+     const {error:up}=await supabase.storage.from('site-media').upload(path,optimized,{contentType:optimized.type,upsert:false,cacheControl:'31536000'});
      if(up)throw new Error('Caricamento non riuscito per '+f.name+': '+up.message);
      const {data:existing,error:read}=await supabase.from('artist_images').select('sort_order').order('sort_order',{ascending:false}).limit(1);
      if(read){await supabase.storage.from('site-media').remove([path]);throw new Error('Lettura ordine non riuscita: '+read.message)}
