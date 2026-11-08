@@ -1674,8 +1674,8 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
  function closeEnvironmentChooser(){choice.classList.remove('open');choice.setAttribute('aria-hidden','true');document.body.style.overflow='';if(choiceFocus)choiceFocus.focus()}
  choice.querySelector('#nfEnvironmentsChoiceClose').addEventListener('click',closeEnvironmentChooser);
  choice.addEventListener('click',e=>{if(e.target===choice)closeEnvironmentChooser()});
- choice.querySelector('[data-env-choice="photos"]').addEventListener('click',()=>{const button=choice.querySelector('[data-env-choice="photos"]');closeEnvironmentChooser();openGallery('restaurant',button)});
- choice.querySelector('[data-env-choice="videos"]').addEventListener('click',()=>{const button=choice.querySelector('[data-env-choice="videos"]');closeEnvironmentChooser();document.dispatchEvent(new CustomEvent('nf-open-restaurant-videos',{detail:{button}}))});
+ choice.querySelector('[data-env-choice="photos"]').addEventListener('click',()=>{const returnFocus=choiceFocus;closeEnvironmentChooser();openGallery('restaurant',returnFocus)});
+ choice.querySelector('[data-env-choice="videos"]').addEventListener('click',()=>{const returnFocus=choiceFocus;closeEnvironmentChooser();document.dispatchEvent(new CustomEvent('nf-open-restaurant-videos',{detail:{button:returnFocus}}))});
 
  function mount(el,row){
   if(!el||!row||!row.image_path)return;
@@ -1891,6 +1891,7 @@ render();
   }
   document.getElementById('nfArtistsViewerClose').focus();
  }
+ document.addEventListener('nf-open-restaurant-videos',e=>open('restaurant-videos',e.detail?.button||null));
  document.querySelectorAll('[data-artist-gallery]').forEach(b=>b.addEventListener('click',()=>open(b.dataset.artistGallery,b)));
  document.getElementById('nfArtistsViewerClose').addEventListener('click',close);
  viewer.addEventListener('click',e=>{if(e.target===viewer)close()});
