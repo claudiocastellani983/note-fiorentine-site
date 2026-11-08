@@ -1,0 +1,18 @@
+{
+  "name": "note-fiorentine-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Test end-to-end del sito Note Fiorentine con Playwright",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
