@@ -36,4 +36,13 @@ test('admin: login e diagnostica si caricano senza toccare Supabase', async ({ p
   // Non vengono effettuati login, upload, salvataggi o chiamate al database.
   expect(supabaseRequests).toEqual([]);
   expect(pageErrors).toEqual([]);
+
+  // L'editor visuale deve conservare una bozza locale e non scrivere su site_content.
+  const adminHtml = await page.content();
+  const visualEditorStart = adminHtml.indexOf('// Editor visuale');
+  expect(visualEditorStart).toBeGreaterThanOrEqual(0);
+  const visualEditorSource = adminHtml.slice(visualEditorStart);
+  expect(visualEditorSource).toContain('Salva bozza');
+  expect(visualEditorSource).toContain('localStorage.setItem(visualDraftKey');
+  expect(visualEditorSource).not.toContain("db.from('site_content').upsert");
 });
