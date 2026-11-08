@@ -161,6 +161,10 @@ test('homepage: tutte le sei lingue sono selezionabili e mantengono il marchio',
     await expect(page.locator('.navlinks')).toContainText(item.nav);
     await expect(page.locator('.hero-copy .eyebrow')).toHaveText('Ristorante Toscano & Live Music');
     await expect(page.locator('.brand-mini small').first()).toHaveText('Ristorante Toscano & Live Music');
+    if (item.lang !== 'it') {
+      await expect(page.locator('.hero-copy > p')).not.toContainText('La cucina toscana');
+      await expect(page.locator('#ristorante h2')).not.toContainText('Il piacere di stare a tavola');
+    }
   }
 });
 
@@ -178,6 +182,7 @@ test('menu: categorie e primo piatto si traducono in tutte le lingue', async ({ 
   for (const item of cases) {
     await page.goto(localBase + '/menu.html?lang=' + item.lang);
     await expect(page.locator('html')).toHaveAttribute('lang', item.html);
+    await expect(page.locator('.hero-copy .eyebrow')).toHaveText('Ristorante Toscano & Live Music');
     const firstCategory = page.locator('#menuCategories .menu-category-button').first();
     await expect(firstCategory).toHaveText(item.category, { timeout: 15000 });
     await firstCategory.click();
