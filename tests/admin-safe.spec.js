@@ -60,4 +60,5 @@ test('admin: login e diagnostica si caricano senza toccare Supabase', async ({ p
   const popupSaveEnd = adminHtml.indexOf('function mediaUrl(', popupSaveStart);
   const popupSaveSource = adminHtml.slice(popupSaveStart, popupSaveEnd);
   expect(popupSaveSource).not.toContain('remove(removed)');
+  expect(popupSaveSource).toContain('dbWriteSucceeded');
 });
