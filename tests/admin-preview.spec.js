@@ -107,6 +107,23 @@ test('admin separato: login simulato, schede e caricamenti mock senza Supabase r
     await expect(page.locator('#siteEditorForm a')).toBeVisible();
   }
 
+  // Editor visuale: iframe sostituito con pagina statica di test; nessun salvataggio.
+  await page.route('https://www.notefiorentine.it/**', route => {
+    if (new URL(route.request().url()).searchParams.has('visual-editor')) {
+      return route.fulfill({ status: 200, contentType: 'text/html', body: '<!doctype html><html><body><h1>Anteprima isolata</h1></body></html>' });
+    }
+    return route.continue();
+  });
+  await expect(page.locator('#openVisualEditor')).toBeVisible();
+  await page.locator('#openVisualEditor').click();
+  await expect(page.locator('#visualEditorModal')).toBeVisible();
+  await page.locator('#veMobile').click();
+  await expect(page.locator('#veFrameWrap')).toHaveClass(/mobile/);
+  await page.locator('#veDesktop').click();
+  await expect(page.locator('#veFrameWrap')).not.toHaveClass(/mobile/);
+  await page.locator('#veClose').click();
+  await expect(page.locator('#visualEditorModal')).toHaveCount(0);
+
   // Scheda popup: PDF simulato e aggiornamento database simulato.
   await page.locator('[data-tab="Popup"]').click();
   await expect(page.locator('#popupAdminFiles')).toBeVisible();
