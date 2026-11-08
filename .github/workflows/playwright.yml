@@ -2,7 +2,7 @@ name: Playwright E2E
 
 on:
   push:
-    branches: [main, chore/setup-playwright]
+    branches: [main, chore/setup-playwright, perf/image-egress-optimization]
   pull_request:
     branches: [main]
   workflow_dispatch:
