@@ -71,7 +71,7 @@ test('gestione immagini: UI autenticata simulata, senza chiamate o scritture rea
 
   // Verifica che i selettori file siano presenti, senza selezionare né caricare file.
   await expect(page.locator('#galleryAdminPanel input[type="file"]')).toHaveCount(3);
-  await expect(page.locator('#artistMediaAdminPanel input[type="file"]')).toHaveCount(2);
+  await expect(page.locator('#artistMediaAdminPanel input[type="file"]')).toHaveCount(3);
 
   expect(realSupabaseRequests).toEqual([]);
   expect(pageErrors).toEqual([]);
