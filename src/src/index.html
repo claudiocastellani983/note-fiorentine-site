@@ -1709,6 +1709,8 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
   mount(document.querySelector('.hero-art'),map.hero);
   mount(document.querySelector('.nf-artists-photo'),map.artists_gallery_cover);
   mount(document.querySelector('.nf-artists-video'),map.artists_video_cover);
+  mount(document.querySelector('[data-env-choice="videos"]'),map.environment_video_cover);
+  mount(document.querySelector('[data-env-choice="photos"]'),map.environment_photos_cover);
   const tiles=document.querySelectorAll('.gallery-tile');
   ['gallery_restaurant','gallery_food','gallery_atmosphere'].forEach((key,index)=>mount(tiles[index],map[key]));
  }catch(error){log('Errore nel caricamento del catalogo immagini:',error)}
