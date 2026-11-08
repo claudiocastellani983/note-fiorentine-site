@@ -122,3 +122,24 @@ test('sorgente corrente del branch: home, Menu, lingua cinese e testi approvati'
   await expect(page.locator('.brand-mini small').first()).toHaveText('Ristorante Toscano & Live Music');
   await expect(page.locator('#galleria .section-kicker')).toHaveText('餐厅图片与视频');
 });
+
+test('homepage: immagini principali servite correttamente da Supabase Storage', async ({ page }) => {
+  const storageResponses = new Map();
+  page.on('response', response => {
+    const url = response.url();
+    if (url.includes('/storage/v1/object/public/site-media/')) {
+      storageResponses.set(url, response.status());
+    }
+  });
+
+  await page.goto('/');
+  await page.locator('.music-art').scrollIntoViewIfNeeded();
+  await page.locator('.gallery-tile').first().scrollIntoViewIfNeeded();
+
+  for (const key of ['hero', 'live_music', 'gallery_restaurant', 'gallery_food', 'gallery_atmosphere']) {
+    await expect.poll(() => {
+      const match = [...storageResponses.entries()].find(([url]) => url.includes('/' + key + '/'));
+      return match ? match[1] : 0;
+    }, { timeout: 15000 }).toBe(200);
+  }
+});
