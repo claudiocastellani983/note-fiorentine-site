@@ -64,7 +64,7 @@ test('gestione immagini: UI autenticata simulata, senza chiamate o scritture rea
   await expect(page.locator('#homepagePopupControl')).toBeVisible();
   await expect(page.locator('#galleryAdminPanel')).toBeVisible();
   await expect(page.locator('#artistMediaAdminPanel')).toBeVisible();
-  await expect(page.locator('#imageCards article')).toHaveCount(5);
+  await expect(page.locator('#imageCards article')).toHaveCount(7);
   await expect(page.locator('[data-gallery-admin]')).toHaveCount(3);
   await expect(page.locator('[data-artist-media]')).toHaveCount(2);
   await expect(page.locator('#popupVisibilityBtn')).toBeEnabled();
