@@ -34,6 +34,13 @@ test('homepage in cinese: selettore, lingua e navigazione vengono tradotti', asy
   await expect(page.locator('.language-switch a[data-lang="zh"]').first()).toBeVisible();
   await expect(page.locator('.navlinks')).toContainText('餐厅');
   await expect(page.locator('.navlinks')).toContainText('现场音乐');
+  await expect(page.locator('.hero-copy .eyebrow')).toHaveText('Ristorante Toscano & Live Music');
+  await expect(page.locator('.art-sub')).toHaveText('Ristorante Toscano & Live Music');
+  await expect(page.locator('.hero-copy > p')).toContainText('托斯卡纳美食');
+  await expect(page.locator('#ristorante h2')).toContainText('共享美食时光');
+  await expect(page.locator('#musica h2')).toContainText('每一个夜晚');
+  await expect(page.locator('#menu h2')).toHaveText('菜单');
+  await expect(page.locator('#galleria h2')).toHaveText('图片集');
 });
 
 test('menu in cinese: categorie e piatti usano le traduzioni salvate nel sorgente corrente', async ({ page }) => {
@@ -43,6 +50,7 @@ test('menu in cinese: categorie e piatti usano le traduzioni salvate nel sorgent
   expect(response).not.toBeNull();
   expect(response.status()).toBe(200);
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
+  await expect(page.locator('.hero-copy .eyebrow')).toHaveText('Ristorante Toscano & Live Music');
   const categories = page.locator('#menuCategories .menu-category-button');
   await expect(categories).toHaveCount(7, { timeout: 15000 });
   const categoryCount = await categories.count();
@@ -109,4 +117,6 @@ test('sorgente corrente del branch: home, Menu, lingua cinese e testi approvati'
   await expect(page).toHaveTitle(/Note Fiorentine/i);
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
   await expect(page.locator('.navlinks')).toContainText('餐厅');
+  await expect(page.locator('.hero-copy .eyebrow')).toHaveText('Ristorante Toscano & Live Music');
+  await expect(page.locator('#galleria .section-kicker')).toHaveText('餐厅图片与视频');
 });
