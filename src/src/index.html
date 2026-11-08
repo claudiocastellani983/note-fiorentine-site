@@ -1686,10 +1686,10 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
  const log=(...args)=>{if(window.console)console.warn('[Note Fiorentine immagini]',...args)};
  const publicUrl=path=>api+'/storage/v1/object/public/site-media/'+String(path).split('/').map(encodeURIComponent).join('/');
 
- function mount(el,row){
+ function mount(el,row,priority=false){
   if(!el||!row||!row.image_path)return;
   const url=publicUrl(row.image_path),zoom=Math.max(1,Math.min(3,Number(row.focal_zoom||1)));
-  const img=document.createElement('img');img.className='nf-managed-image';img.alt=row.alt_text||'';img.decoding='async';img.loading='eager';img.fetchPriority='high';
+  const img=document.createElement('img');img.className='nf-managed-image';img.alt=row.alt_text||'';img.decoding='async';img.loading=priority?'eager':'lazy';img.fetchPriority=priority?'high':'low';
   img.style.objectPosition=(row.focal_x??50)+'% '+(row.focal_y??50)+'%';
   img.style.transform='scale('+zoom+')';img.style.transformOrigin=(row.focal_x??50)+'% '+(row.focal_y??50)+'%';
   img.addEventListener('error',()=>{img.remove();el.classList.remove('has-managed-image');log('Immagine non caricata:',row.image_key,url)});
@@ -1705,8 +1705,8 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
   if(!response.ok){log('Lettura immagini non riuscita:',response.status,await response.text());return}
   const rows=await response.json(),map=Object.fromEntries(rows.map(row=>[row.image_key,row]));
   const musicImage=map.live_music;
-  if(musicImage?.image_path){const section=document.querySelector('#musica');if(section)section.style.setProperty('--nf-live-music-image','url("'+publicUrl(musicImage.image_path)+'")');}
-  mount(document.querySelector('.hero-art'),map.hero);
+  if(musicImage?.image_path){const section=document.querySelector('#musica');if(section){const apply=()=>section.style.setProperty('--nf-live-music-image','url("'+publicUrl(musicImage.image_path)+'")');if('IntersectionObserver'in window){const observer=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting)){apply();observer.disconnect()}},{rootMargin:'350px'});observer.observe(section)}else apply();}}
+  mount(document.querySelector('.hero-art'),map.hero,true);
   mount(document.querySelector('.nf-artists-photo'),map.artists_gallery_cover);
   mount(document.querySelector('.nf-artists-video'),map.artists_video_cover);
   mount(document.querySelector('[data-env-choice="videos"]'),map.environment_video_cover);
