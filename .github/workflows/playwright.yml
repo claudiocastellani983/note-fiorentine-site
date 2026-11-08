@@ -39,7 +39,7 @@ jobs:
 
       - name: Start isolated local source servers
         run: |
-          python3 -m http.server 8000 --directory recovered/site >/tmp/nf-site-server.log 2>&1 &
+          python3 -m http.server 8000 --directory src/src >/tmp/nf-site-server.log 2>&1 &
           python3 -m http.server 8001 --directory admin >/tmp/nf-admin-server.log 2>&1 &
           for attempt in $(seq 1 20); do
             if curl -fsS http://127.0.0.1:8000/ >/dev/null && curl -fsS http://127.0.0.1:8001/src/index.html >/dev/null; then
