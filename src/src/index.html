@@ -1668,14 +1668,6 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
  const api='https://nculgrwlzjitggjcgbpp.supabase.co',key='sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0';
  const log=(...args)=>{if(window.console)console.warn('[Note Fiorentine immagini]',...args)};
  const publicUrl=path=>api+'/storage/v1/object/public/site-media/'+String(path).split('/').map(encodeURIComponent).join('/');
- const choice=document.getElementById('nfEnvironmentsChoice');
- let choiceFocus=null;
- function openEnvironmentChooser(button){choiceFocus=button;choice.classList.add('open');choice.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';choice.querySelector('[data-env-choice="videos"]').focus()}
- function closeEnvironmentChooser(){choice.classList.remove('open');choice.setAttribute('aria-hidden','true');document.body.style.overflow='';if(choiceFocus)choiceFocus.focus()}
- choice.querySelector('#nfEnvironmentsChoiceClose').addEventListener('click',closeEnvironmentChooser);
- choice.addEventListener('click',e=>{if(e.target===choice)closeEnvironmentChooser()});
- choice.querySelector('[data-env-choice="photos"]').addEventListener('click',()=>{const returnFocus=choiceFocus;closeEnvironmentChooser();openGallery('restaurant',returnFocus)});
- choice.querySelector('[data-env-choice="videos"]').addEventListener('click',()=>{const returnFocus=choiceFocus;closeEnvironmentChooser();document.dispatchEvent(new CustomEvent('nf-open-restaurant-videos',{detail:{button:returnFocus}}))});
 
  function mount(el,row){
   if(!el||!row||!row.image_path)return;
@@ -1713,6 +1705,15 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
  if(!viewer||!stage)return;
  let photos=[],position=0,touchStart=0,lastFocus=null;
  const publicUrl=path=>api+'/storage/v1/object/public/site-media/'+String(path).split('/').map(encodeURIComponent).join('/');
+ const choice=document.getElementById('nfEnvironmentsChoice');
+ let choiceFocus=null;
+ function openEnvironmentChooser(button){choiceFocus=button;choice.classList.add('open');choice.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';choice.querySelector('[data-env-choice="videos"]').focus()}
+ function closeEnvironmentChooser(){choice.classList.remove('open');choice.setAttribute('aria-hidden','true');document.body.style.overflow='';if(choiceFocus)choiceFocus.focus()}
+ choice.querySelector('#nfEnvironmentsChoiceClose').addEventListener('click',closeEnvironmentChooser);
+ choice.addEventListener('click',e=>{if(e.target===choice)closeEnvironmentChooser()});
+ choice.querySelector('[data-env-choice="photos"]').addEventListener('click',()=>{const returnFocus=choiceFocus;closeEnvironmentChooser();openGallery('restaurant',returnFocus)});
+ choice.querySelector('[data-env-choice="videos"]').addEventListener('click',()=>{const returnFocus=choiceFocus;closeEnvironmentChooser();document.dispatchEvent(new CustomEvent('nf-open-restaurant-videos',{detail:{button:returnFocus}}))});
+
  function render(){
   stage.replaceChildren();
   if(!photos.length){const empty=document.createElement('div');empty.className='nf-gallery-empty';empty.textContent='Le fotografie di questa galleria saranno disponibili a breve.';stage.append(empty);counter.textContent='0 FOTO';document.getElementById('nfGalleryPrev').disabled=true;document.getElementById('nfGalleryNext').disabled=true;return}
