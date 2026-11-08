@@ -73,6 +73,11 @@ test('gestione immagini: UI autenticata simulata, senza chiamate o scritture rea
   await expect(page.locator('#galleryAdminPanel input[type="file"]')).toHaveCount(3);
   await expect(page.locator('#artistMediaAdminPanel input[type="file"]')).toHaveCount(2);
 
+  // Il toggle viene provato solo contro il client fittizio: nessuna scrittura sul backend reale.
+  await page.locator('#popupVisibilityBtn').click();
+  await expect(page.locator('#popupVisibilityStatus')).toContainText('Popup attualmente VISIBILE');
+  await expect(page.locator('#popupVisibilityBtn')).toHaveText('Nascondi popup');
+
   expect(realSupabaseRequests).toEqual([]);
   expect(pageErrors).toEqual([]);
 });
