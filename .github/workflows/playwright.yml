@@ -1,0 +1,63 @@
+name: Playwright E2E
+
+on:
+  push:
+    branches: [main, chore/setup-playwright, perf/image-egress-optimization]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  playwright:
+    name: E2E (${{ matrix.browser }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    env:
+      PLAYWRIGHT_BASE_URL: http://127.0.0.1:4173
+      ADMIN_BASE_URL: http://127.0.0.1:4174
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Start local static previews from the PR source
+        run: |
+          python3 -m http.server 4173 --directory src/src >/tmp/nf-site-preview.log 2>&1 &
+          python3 -m http.server 4174 --directory admin >/tmp/nf-admin-preview.log 2>&1 &
+          for attempt in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null && curl -fsS http://127.0.0.1:4174/src/index.html >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Le preview statiche locali non si sono avviate."
+          cat /tmp/nf-site-preview.log /tmp/nf-admin-preview.log
+          exit 1
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Run Playwright tests
+        run: npx playwright test --project=${{ matrix.browser }}
+
+      - name: Upload HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.browser }}
+          path: playwright-report/
+          retention-days: 14

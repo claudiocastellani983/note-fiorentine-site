@@ -55,6 +55,7 @@
 <div class="panel" id="galleryAdminPanel">
  <h2>Album della galleria in homepage</h2>
  <p class="muted">Carica tutte le fotografie che vuoi nei tre album. Puoi selezionare più immagini insieme dal telefono. Le fotografie pubblicate saranno visibili cliccando il riquadro corrispondente in homepage. Formati JPG, PNG o WEBP · massimo 15 MB per immagine.</p>
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0 18px"><button type="button" id="optimizeExistingImages" class="secondary">Ottimizza immagini già caricate</button><span id="optimizeExistingStatus" class="gallery-admin-status" aria-live="polite">Gli originali saranno conservati come copie di sicurezza.</span></div>
  <div class="gallery-admin-grid" id="galleryAdminGrid">
   <div class="gallery-admin-card" data-gallery-admin="restaurant"><h3>Il ristorante</h3><p>Ambienti, sala e dettagli del locale.</p><input type="file" accept="image/jpeg,image/png,image/webp" multiple aria-label="Aggiungi foto Il ristorante"><button type="button" class="gallery-upload-btn">Aggiungi fotografie</button><div class="gallery-admin-status" aria-live="polite"></div><div class="gallery-admin-count"></div><div class="gallery-admin-list"></div></div>
   <div class="gallery-admin-card" data-gallery-admin="kitchen"><h3>La cucina</h3><p>Piatti, ingredienti e preparazioni.</p><input type="file" accept="image/jpeg,image/png,image/webp" multiple aria-label="Aggiungi foto La cucina"><button type="button" class="gallery-upload-btn">Aggiungi fotografie</button><div class="gallery-admin-status" aria-live="polite"></div><div class="gallery-admin-count"></div><div class="gallery-admin-list"></div></div>
@@ -122,6 +123,33 @@ $('password').addEventListener('keydown',e=>{if(e.key==='Enter')$('loginBtn').cl
 $('logoutBtn').addEventListener('click',async()=>{await supabase.auth.signOut();currentUser=null;checkSession()});
 $('refreshBtn').addEventListener('click',loadImages);
 function publicUrl(path){return supabase.storage.from('site-media').getPublicUrl(path).data.publicUrl}
+async function optimizeImageFile(file){
+ if(!file||!/^image\/(jpeg|png|webp)$/i.test(file.type))return file;
+ let source=null,bitmap=null,objectUrl=null;
+ try{
+  if(typeof createImageBitmap==='function'){bitmap=await createImageBitmap(file);source=bitmap;}
+  else{objectUrl=URL.createObjectURL(file);source=await new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>reject(new Error('Immagine non leggibile'));image.src=objectUrl});}
+  const width=source.width||source.naturalWidth,height=source.height||source.naturalHeight;
+  if(!width||!height)return file;
+  if(width<=1800&&height<=1800&&file.size<=260*1024)return file;
+  const scale=Math.min(1,1800/width,1800/height),canvas=document.createElement('canvas');
+  canvas.width=Math.max(1,Math.round(width*scale));canvas.height=Math.max(1,Math.round(height*scale));
+  const context=canvas.getContext('2d',{alpha:true});if(!context)return file;
+  context.drawImage(source,0,0,canvas.width,canvas.height);
+  let blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/webp',0.82));if(!blob)return file;
+  if(blob.size>=file.size*0.97&&width<=1800&&height<=1800)return file;
+  if(blob.size>=file.size*0.97){
+   const smaller=document.createElement('canvas'),scale2=Math.min(1,1500/width,1500/height);
+   smaller.width=Math.max(1,Math.round(width*scale2));smaller.height=Math.max(1,Math.round(height*scale2));
+   const c2=smaller.getContext('2d',{alpha:true});if(!c2)return file;c2.drawImage(source,0,0,smaller.width,smaller.height);
+   const reduced=await new Promise(resolve=>smaller.toBlob(resolve,'image/webp',0.72));if(reduced&&reduced.size<blob.size)blob=reduced;
+  }
+  if(blob.size>=file.size*0.97)return file;
+  return new File([blob],file.name.replace(/\.[^.]+$/,'')+'.webp',{type:'image/webp',lastModified:Date.now()});
+ }catch(error){console.warn('Ottimizzazione immagine non disponibile per '+(file.name||'file'),error);return file;}
+ finally{if(bitmap)bitmap.close?.();if(objectUrl)URL.revokeObjectURL(objectUrl);}
+}
+
 async function loadImages(){
  status('Caricamento…');
  const {data,error}=await supabase.from('site_images').select('image_key,image_path,alt_text,focal_x,focal_y,focal_zoom').order('sort_order');
@@ -168,9 +196,10 @@ async function loadImages(){
    const f=file.files?.[0];if(!f){status('Prima premi “Carica immagine” e scegli una fotografia.');return}
    replaceBtn.disabled=true;chooseBtn.disabled=true;cardMessage('Caricamento della fotografia in corso…');replaceBtn.textContent='Caricamento…';
    try{
-    const ext=f.type==='image/png'?'png':f.type==='image/webp'?'webp':'jpg';
+    const optimized=await optimizeImageFile(f);
+    const ext=optimized.type==='image/webp'?'webp':optimized.type==='image/png'?'png':'jpg';
     const path=slot.key+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;
-    const {error:uploadError}=await supabase.storage.from('site-media').upload(path,f,{contentType:f.type,upsert:false,cacheControl:'3600'});
+    const {error:uploadError}=await supabase.storage.from('site-media').upload(path,optimized,{contentType:optimized.type,upsert:false,cacheControl:'31536000'});
     if(uploadError)throw new Error('Caricamento non riuscito: '+uploadError.message);
     const {data:updated,error:saveError}=await supabase.from('site_images').update({image_path:path,focal_x:focalX,focal_y:focalY,focal_zoom:focalZoom,updated_by:currentUser.id,updated_at:new Date().toISOString()}).eq('image_key',slot.key).select('image_key,image_path').maybeSingle();
     if(saveError)throw new Error('File caricato, ma collegamento al sito non riuscito: '+saveError.message);
@@ -286,6 +315,34 @@ async function loadGalleryAdmin(){
  }
 }
 function publicGalleryUrl(path){return supabase.storage.from('site-media').getPublicUrl(path).data.publicUrl}
+document.getElementById('optimizeExistingImages')?.addEventListener('click',async()=>{
+ const button=document.getElementById('optimizeExistingImages'),output=document.getElementById('optimizeExistingStatus');if(!button||!output)return;
+ if(!confirm('Ottimizzare le immagini già collegate al sito? Gli originali verranno conservati come copie di sicurezza.'))return;
+ button.disabled=true;let scanned=0,updated=0,saved=0,failed=0;
+ const jobs=[{table:'site_images',key:'id',label:'immagini principali'},{table:'gallery_images',key:'id',label:'galleria ristorante'},{table:'artist_images',key:'id',label:'galleria artisti'}];
+ try{
+  for(const job of jobs){
+   const {data,error}=await supabase.from(job.table).select('id,image_path');if(error)throw new Error('Lettura '+job.label+' non riuscita: '+error.message);
+   for(const row of data||[]){
+    if(!row.image_path)continue;scanned++;output.textContent='Analisi '+job.label+': '+scanned+' file controllati…';
+    try{
+     const {data:blob,error:downloadError}=await supabase.storage.from('site-media').download(row.image_path);if(downloadError)throw downloadError;
+     const original=new File([blob],row.image_path.split('/').pop()||'immagine',{type:blob.type||'image/jpeg'});
+     const optimized=await optimizeImageFile(original);if(optimized===original||optimized.size>=original.size*0.97)continue;
+     const folder=row.image_path.includes('/')?row.image_path.slice(0,row.image_path.lastIndexOf('/')+1):'';
+     const newPath=folder+Date.now()+'-'+Math.random().toString(36).slice(2,9)+'.webp';
+     const {error:uploadError}=await supabase.storage.from('site-media').upload(newPath,optimized,{contentType:'image/webp',upsert:false,cacheControl:'31536000'});if(uploadError)throw uploadError;
+     const {error:updateError}=await supabase.from(job.table).update({image_path:newPath}).eq(job.key,row[job.key]);
+     if(updateError){await supabase.storage.from('site-media').remove([newPath]);throw updateError;}
+     updated++;saved+=original.size-optimized.size;output.textContent='Ottimizzate '+updated+' immagini · '+(saved/1024/1024).toFixed(1)+' MB risparmiati · '+row.image_path.split('/').pop();
+    }catch(error){failed++;console.warn('Ottimizzazione immagine non riuscita:',job.table,row.image_path,error);}
+   }
+  }
+  output.textContent='Completato: '+updated+' immagini ottimizzate; '+(saved/1024/1024).toFixed(1)+' MB in meno per i download futuri. '+(failed?failed+' file non riusciti.':'Nessun errore. Gli originali sono conservati.');
+ }catch(error){output.textContent='Operazione interrotta: '+(error.message||error);}
+ finally{button.disabled=false;}
+});
+
 document.querySelectorAll('[data-gallery-admin]').forEach(card=>{
  const category=card.dataset.galleryAdmin,file=card.querySelector('input[type=file]'),button=card.querySelector('.gallery-upload-btn');
  button.addEventListener('click',async()=>{
@@ -298,10 +355,11 @@ document.querySelectorAll('[data-gallery-admin]').forEach(card=>{
   try{
    for(const f of files){
     galleryStatus(card,'Caricamento '+(done+1)+' di '+files.length+': '+f.name);
-    const ext=f.type==='image/png'?'png':f.type==='image/webp'?'webp':'jpg';
-    const path='gallery/'+category+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,9)+'.'+ext;
-    const {error:uploadError}=await supabase.storage.from('site-media').upload(path,f,{contentType:f.type,upsert:false,cacheControl:'3600'});
-    if(uploadError)throw new Error('Upload non riuscito per '+f.name+': '+uploadError.message);
+    const optimized=await optimizeImageFile(f);
+     const ext=optimized.type==='image/webp'?'webp':optimized.type==='image/png'?'png':'jpg';
+     const path='gallery/'+category+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,9)+'.'+ext;
+     const {error:uploadError}=await supabase.storage.from('site-media').upload(path,optimized,{contentType:optimized.type,upsert:false,cacheControl:'31536000'});
+     if(uploadError)throw new Error('Upload non riuscito per '+f.name+': '+uploadError.message);
     const {data:existing,error:readError}=await supabase.from('gallery_images').select('sort_order').eq('category',category).order('sort_order',{ascending:false}).limit(1);
     if(readError)throw new Error('Lettura ordine album non riuscita: '+readError.message);
     const nextOrder=(existing?.[0]?.sort_order||0)+10;
@@ -347,7 +405,7 @@ async function loadArtistMediaAdmin(){
    const item=items[i],wrap=document.createElement('div');wrap.className='gallery-admin-item';
    const media=def.kind==='images'?document.createElement('img'):document.createElement('video');
    media.src=supabase.storage.from(def.bucket).getPublicUrl(item[field]).data.publicUrl;
-   if(def.kind==='images'){media.alt=item.title||'Fotografia artista';media.loading='lazy';media.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';media.style.transform='scale('+(item.focal_zoom??1)+')'}else{media.controls=true;media.preload='metadata';media.muted=true}
+   if(def.kind==='images'){media.alt=item.title||'Fotografia artista';media.loading='lazy';media.decoding='async';media.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';media.style.transform='scale('+(item.focal_zoom??1)+')'}else{media.controls=true;media.preload='metadata';media.muted=true}
    wrap.append(media);if(def.kind==='images'){const edit=document.createElement('button');edit.type='button';edit.className='secondary';edit.textContent='Regola foto';edit.addEventListener('click',()=>openGalleryPhotoEditor({table:'artist_images',item,categoryLabel:'Artisti',card}));wrap.append(edit)}const controls=document.createElement('div');controls.className='artist-order-controls';
    const position=document.createElement('span');position.className='artist-order-position';position.textContent=(i+1)+' / '+items.length;controls.append(position);
    for(const [label,delta,aria] of [['↑',-1,'Sposta in alto'],['↓',1,'Sposta in basso']]){
@@ -465,7 +523,7 @@ document.querySelectorAll('[data-artist-media]').forEach(card=>{
      artistMediaStatus(card,'Pubblicazione '+(done+1)+' di '+files.length+': caricamento '+original.name);
      const ext=(uploadFile.name.split('.').pop()||'mp4').toLowerCase();
      const path='artist-videos/'+Date.now()+'-'+Math.random().toString(36).slice(2,9)+'.'+ext;
-     const {error:up}=await supabase.storage.from('performance-videos').upload(path,uploadFile,{contentType:uploadFile.type||'video/mp4',upsert:false,cacheControl:'3600'});
+     const {error:up}=await supabase.storage.from('performance-videos').upload(path,uploadFile,{contentType:uploadFile.type||'video/mp4',upsert:false,cacheControl:'31536000'});
      if(up)throw new Error('Caricamento non riuscito per '+original.name+': '+up.message);
      const {data:existing,error:read}=await supabase.from('performance_videos').select('sort_order').order('sort_order',{ascending:true}).limit(1);
      if(read){await supabase.storage.from('performance-videos').remove([path]);throw new Error('Lettura ordine non riuscita: '+read.message)}
@@ -488,9 +546,10 @@ document.querySelectorAll('[data-artist-media]').forEach(card=>{
    try{
     for(const f of files){
      artistMediaStatus(card,'Caricamento '+(done+1)+' di '+files.length+': '+f.name);
-     const ext=(f.name.split('.').pop()||'jpg').toLowerCase(),path='artist-gallery/'+Date.now()+'-'+Math.random().toString(36).slice(2,9)+'.'+ext;
-     const {error:up}=await supabase.storage.from('site-media').upload(path,f,{contentType:f.type,upsert:false,cacheControl:'3600'});
-     if(up)throw new Error('Caricamento non riuscito per '+f.name+': '+up.message);
+     const optimized=await optimizeImageFile(f);
+      const ext=optimized.type==='image/webp'?'webp':optimized.type==='image/png'?'png':'jpg',path='artist-gallery/'+Date.now()+'-'+Math.random().toString(36).slice(2,9)+'.'+ext;
+      const {error:up}=await supabase.storage.from('site-media').upload(path,optimized,{contentType:optimized.type,upsert:false,cacheControl:'31536000'});
+      if(up)throw new Error('Caricamento non riuscito per '+f.name+': '+up.message);
      const {data:existing,error:read}=await supabase.from('artist_images').select('sort_order').order('sort_order',{ascending:false}).limit(1);
      if(read){await supabase.storage.from('site-media').remove([path]);throw new Error('Lettura ordine non riuscita: '+read.message)}
      const {error:ins}=await supabase.from('artist_images').insert({title:f.name.replace(/\.[^.]+$/,''),image_path:path,sort_order:(existing?.[0]?.sort_order||0)+10,is_published:true});
