@@ -1,21 +1,36 @@
 const { test, expect } = require('@playwright/test');
 
-test('homepage pubblica: caricamento e identità del ristorante', async ({ page }) => {
+test('homepage: caricamento e identità del ristorante', async ({ page }) => {
   const pageErrors = [];
   page.on('pageerror', error => pageErrors.push(error.message));
 
   const response = await page.goto('/', { waitUntil: 'domcontentloaded' });
-  expect(response, 'La navigazione deve ricevere una risposta HTTP').not.toBeNull();
-  expect(response.status(), 'La homepage deve rispondere senza errori HTTP').toBeLessThan(400);
+  expect(response, 'La homepage deve restituire una risposta').not.toBeNull();
+  expect(response.status(), 'La homepage non deve restituire un errore HTTP').toBeLessThan(400);
   await expect(page.locator('body')).toContainText('Note Fiorentine');
-
   expect(pageErrors, 'Non devono verificarsi errori JavaScript non gestiti').toEqual([]);
 });
 
+test('navigazione principale: i link puntano a sezioni esistenti', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+
+  const links = page.locator('nav[aria-label="Navigazione principale"] .navlinks a[href^="#"]');
+  await expect(links.first()).toBeVisible();
+
+  const count = await links.count();
+  expect(count, 'Devono esserci link di navigazione interni').toBeGreaterThan(0);
+
+  for (let i = 0; i < count; i += 1) {
+    const link = links.nth(i);
+    const href = await link.getAttribute('href');
+    expect(href, 'Ogni link deve avere un riferimento interno').toMatch(/^#[^#]+$/);
+    const target = page.locator(href);
+    await expect(target, 'Il link ' + href + ' deve puntare a una sezione esistente').toHaveCount(1);
+  }
+});
+
 test('sezione ambienti: scelta foto e video', async ({ page }) => {
-  const response = await page.goto('/', { waitUntil: 'domcontentloaded' });
-  expect(response).not.toBeNull();
-  expect(response.status()).toBeLessThan(400);
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
 
   const restaurantTile = page.locator('[data-gallery-category="restaurant"]');
   await expect(restaurantTile).toBeVisible();
