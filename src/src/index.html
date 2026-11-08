@@ -1734,9 +1734,10 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
 </style>
 <style id="nf-artists-youtube-lazy-v1">
 .nf-artist-youtube-placeholder{
- display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;
- width:100%;min-height:clamp(250px,52vw,620px);padding:28px;
- border:1px solid rgba(197,154,105,.65);background:linear-gradient(145deg,#38251F,#171210);
+ position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;
+ width:100%;aspect-ratio:4/3;min-height:0;padding:20px;overflow:hidden;
+ border:1px solid rgba(197,154,105,.65);
+ background-color:#171210;background-position:center;background-size:cover;background-repeat:no-repeat;
  color:#F4EBDD;cursor:pointer;text-align:center;font-family:inherit;
 }
 .nf-artist-youtube-placeholder:focus-visible{outline:3px solid #D9B88D;outline-offset:4px}
@@ -1746,7 +1747,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
 }
 .nf-artist-youtube-placeholder strong{font:400 clamp(23px,3vw,34px) Georgia,serif}
 .nf-artist-youtube-placeholder small{font:11px Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#D9B88D}
-.nf-artist-youtube-frame{display:block;width:100%;aspect-ratio:16/9;border:0;background:#100D0B}
+.nf-artist-youtube-frame{display:block;width:100%;aspect-ratio:4/3;height:auto;border:0;background:#100D0B}
 </style>
 <script id="nf-artists-media-runtime">
 (async function(){
@@ -1765,7 +1766,8 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
    const placeholder=document.createElement('button');
    placeholder.type='button';
    placeholder.className='nf-artist-youtube-placeholder';
-   placeholder.setAttribute('aria-label','Carica il video su YouTube');
+   placeholder.style.backgroundImage='linear-gradient(rgba(20,14,11,.24),rgba(20,14,11,.55)),url("https://i.ytimg.com/vi/'+encodeURIComponent(item.youtubeId)+'/hqdefault.jpg")';
+   placeholder.setAttribute('aria-label','Anteprima video: '+(item.title||'Note Fiorentine')+'. Tocca per riprodurre');
    const play=document.createElement('span');
    play.className='nf-artist-youtube-play';
    play.setAttribute('aria-hidden','true');
