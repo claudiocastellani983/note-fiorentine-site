@@ -1,0 +1,49 @@
+name: Playwright - verifica manuale sito
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "URL da testare (default: sito pubblico)"
+        required: false
+        type: string
+        default: "https://www.notefiorentine.it"
+
+permissions:
+  contents: read
+
+jobs:
+  browser-check:
+    name: Test browser Chromium
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Playwright
+        run: |
+          npm init -y
+          npm install --save-dev @playwright/test
+          npx playwright install --with-deps chromium
+
+      - name: Run manual website checks
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ inputs.base_url }}
+        run: npx playwright test
+
+      - name: Upload screenshots and report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7
