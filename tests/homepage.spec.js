@@ -59,7 +59,7 @@ test('sorgente corrente del branch: home, Menu, lingua cinese e testi approvati'
   expect(visibleText).not.toContain('Nessun supplemento');
   expect(visibleText).not.toContain('La tua serata a Firenze');
 
-  const navText = await page.locator('nav').innerText();
+  const navText = (await page.locator('nav').allInnerTexts()).join(' ');
   expect(navText).not.toMatch(/Contatti|Eventi/i);
 
   const sectionIds = await page.locator('section[id]').evaluateAll(nodes => nodes.map(node => node.id));
