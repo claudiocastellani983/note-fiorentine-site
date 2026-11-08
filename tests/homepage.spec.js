@@ -31,7 +31,7 @@ test('homepage in cinese: selettore, lingua e navigazione vengono tradotti', asy
   expect(response.status()).toBe(200);
   await expect(page).toHaveTitle(/Note Fiorentine/i);
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
-  await expect(page.locator('.language-switch a[data-lang="zh"]')).toBeVisible();
+  await expect(page.locator('.language-switch a[data-lang="zh"]').first()).toBeVisible();
   await expect(page.locator('.navlinks')).toContainText('餐厅');
   await expect(page.locator('.navlinks')).toContainText('现场音乐');
 });
@@ -70,7 +70,7 @@ test('sorgente corrente del branch: home, Menu, lingua cinese e testi approvati'
   expect(response.status()).toBe(200);
   await expect(page).toHaveTitle(/Note Fiorentine/i);
 
-  await expect(page.locator('.language-switch a[data-lang="zh"]')).toBeVisible();
+  await expect(page.locator('.language-switch a[data-lang="zh"]').first()).toBeVisible();
   const visibleText = await page.locator('body').innerText();
   expect(visibleText).toContain('Note Fiorentine');
   expect(visibleText).toContain('Ristorante Toscano & Live Music');
