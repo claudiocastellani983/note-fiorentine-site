@@ -1790,7 +1790,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
   stage.replaceChildren();stage.classList.remove('nf-artists-portrait');
   if(!items.length){const empty=document.createElement('div');empty.className='nf-artists-viewer-empty';empty.textContent=kind==='images'?'Le fotografie degli artisti saranno disponibili a breve.':kind==='restaurant-videos'?'I video degli ambienti saranno disponibili a breve.':'I video degli artisti saranno disponibili a breve.';stage.append(empty);count.textContent='0 ELEMENTI';document.getElementById('nfArtistsViewerPrev').disabled=true;document.getElementById('nfArtistsViewerNext').disabled=true;return}
   const item=items[index],youtubeId=(kind==='videos'||kind==='restaurant-videos')?(item.youtubeId||extractYouTubeId(kind==='restaurant-videos'?item.youtube_url:item.video_path)):null,media=kind==='images'?document.createElement('img'):document.createElement('video');
-  if(kind==='videos' && youtubeId){
+  if((kind==='videos'||kind==='restaurant-videos') && youtubeId){
    if(diagnostic)diagnostic.hidden=true;
    const placeholder=document.createElement('button');
    placeholder.type='button';
