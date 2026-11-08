@@ -12,6 +12,17 @@ test('ottimizzazione egress presente in homepage e pannelli', async ({ browserNa
   expect(manager).toContain('async function optimizeImageFile(file)');
   expect(manager).toContain("cacheControl:'31536000'");
   expect(manager).toContain('id="optimizeExistingImages"');
+  expect(manager).toContain('Analizza immagini (sola lettura)');
+  const inventoryStart = manager.indexOf("document.getElementById('optimizeExistingImages')?.addEventListener('click',async()=>{");
+  const inventoryEnd = manager.indexOf("\n document.querySelectorAll('[data-gallery-admin]')", inventoryStart);
+  expect(inventoryStart).toBeGreaterThanOrEqual(0);
+  expect(inventoryEnd).toBeGreaterThan(inventoryStart);
+  const inventorySource = manager.slice(inventoryStart, inventoryEnd);
+  expect(inventorySource).toContain(".select('id,image_path')");
+  expect(inventorySource).not.toContain('.download(');
+  expect(inventorySource).not.toContain('.upload(');
+  expect(inventorySource).not.toContain('.update(');
+  expect(inventorySource).not.toContain('.remove(');
   expect(manager.match(/upload\(path,optimized/g)?.length || 0).toBeGreaterThanOrEqual(3);
 
   expect(homepage).toContain("img.loading=priority?'eager':'lazy'");
