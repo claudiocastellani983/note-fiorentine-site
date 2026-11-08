@@ -82,7 +82,7 @@ test('admin separato: login simulato, schede e caricamenti mock senza Supabase r
 
   await page.locator('#email').fill('test@example.invalid');
   await page.locator('#password').fill('mock-password');
-  await page.locator('#loginForm button[type="submit"]').click();
+  await page.locator('#loginForm button').click();
   await expect(page.locator('#app')).toBeVisible();
   await expect(page.locator('#tabs button')).toHaveCount(9);
   await expect(page.locator('a.admin-tools-link')).toHaveAttribute('href', 'https://www.notefiorentine.it/gestione-immagini.html');
