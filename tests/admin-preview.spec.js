@@ -101,6 +101,7 @@ test('admin separato: login simulato, schede e caricamenti mock senza Supabase r
   await page.locator('[data-tab="Testi e grafica"]').click();
   await expect(page.locator('#siteEditorForm')).toBeVisible();
   await expect(page.locator('[data-site-field="hero_description"]')).toBeVisible();
+  await expect(page.locator('#siteEditorForm a[href="https://www.notefiorentine.it/"]')).toBeVisible();
 
   // Scheda popup: PDF simulato e aggiornamento database simulato.
   await page.locator('[data-tab="Popup"]').click();
