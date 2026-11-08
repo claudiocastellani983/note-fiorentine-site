@@ -1624,10 +1624,10 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
  const api='https://nculgrwlzjitggjcgbpp.supabase.co',key='sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0';
  const log=(...args)=>{if(window.console)console.warn('[Note Fiorentine immagini]',...args)};
  const publicUrl=path=>api+'/storage/v1/object/public/site-media/'+String(path).split('/').map(encodeURIComponent).join('/');
- function mount(el,row){
+ function mount(el,row,priority=false){
   if(!el||!row||!row.image_path)return;
   const url=publicUrl(row.image_path),zoom=Math.max(1,Math.min(3,Number(row.focal_zoom||1)));
-  const img=document.createElement('img');img.className='nf-managed-image';img.alt=row.alt_text||'';img.decoding='async';img.loading='eager';img.fetchPriority='high';
+  const img=document.createElement('img');img.className='nf-managed-image';img.alt=row.alt_text||'';img.decoding='async';img.loading=priority?'eager':'lazy';img.fetchPriority=priority?'high':'low';
   img.style.objectPosition=(row.focal_x??50)+'% '+(row.focal_y??50)+'%';
   img.style.transform='scale('+zoom+')';img.style.transformOrigin=(row.focal_x??50)+'% '+(row.focal_y??50)+'%';
   img.addEventListener('error',()=>{img.remove();el.classList.remove('has-managed-image');log('Immagine non caricata:',row.image_key,url)});
@@ -1643,8 +1643,8 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
   if(!response.ok){log('Lettura immagini non riuscita:',response.status,await response.text());return}
   const rows=await response.json(),map=Object.fromEntries(rows.map(row=>[row.image_key,row]));
   const musicImage=map.live_music;
-  if(musicImage?.image_path){const section=document.querySelector('#musica');if(section)section.style.setProperty('--nf-live-music-image','url("'+publicUrl(musicImage.image_path)+'")');}
-  mount(document.querySelector('.hero-art'),map.hero);
+  if(musicImage?.image_path){const section=document.querySelector('#musica');if(section){const apply=()=>section.style.setProperty('--nf-live-music-image','url("'+publicUrl(musicImage.image_path)+'")');if('IntersectionObserver'in window){const observer=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting)){apply();observer.disconnect()}},{rootMargin:'350px'});observer.observe(section)}else apply();}}
+  mount(document.querySelector('.hero-art'),map.hero,true);
   mount(document.querySelector('.nf-artists-photo'),map.artists_gallery_cover);
   mount(document.querySelector('.nf-artists-video'),map.artists_video_cover);
   const tiles=document.querySelectorAll('.gallery-tile');
@@ -1663,7 +1663,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
  function render(){
   stage.replaceChildren();
   if(!photos.length){const empty=document.createElement('div');empty.className='nf-gallery-empty';empty.textContent='Le fotografie di questa galleria saranno disponibili a breve.';stage.append(empty);counter.textContent='0 FOTO';document.getElementById('nfGalleryPrev').disabled=true;document.getElementById('nfGalleryNext').disabled=true;return}
-  const item=photos[position],img=document.createElement('img');img.className='nf-gallery-photo';img.addEventListener('load',()=>{stage.classList.toggle('nf-gallery-portrait',img.naturalHeight>img.naturalWidth)},{once:true});img.src=publicUrl(item.image_path);img.alt=item.title||labels[viewer.dataset.category]||'Fotografia Note Fiorentine';img.draggable=false;img.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';img.style.transform='scale('+(item.focal_zoom??1)+')';stage.append(img);
+  const item=photos[position],img=document.createElement('img');img.className='nf-gallery-photo';img.addEventListener('load',()=>{stage.classList.toggle('nf-gallery-portrait',img.naturalHeight>img.naturalWidth)},{once:true});img.decoding='async';img.loading='eager';img.src=publicUrl(item.image_path);img.alt=item.title||labels[viewer.dataset.category]||'Fotografia Note Fiorentine';img.draggable=false;img.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';img.style.transform='scale('+(item.focal_zoom??1)+')';stage.append(img);
   counter.textContent=(position+1)+' / '+photos.length;
   document.getElementById('nfGalleryPrev').disabled=photos.length<2;document.getElementById('nfGalleryNext').disabled=photos.length<2;
  }
@@ -1710,7 +1710,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
   if(!items.length){const empty=document.createElement('div');empty.className='nf-artists-viewer-empty';empty.textContent=kind==='images'?'Le fotografie degli artisti saranno disponibili a breve.':'I video degli artisti saranno disponibili a breve.';stage.append(empty);count.textContent='0 ELEMENTI';document.getElementById('nfArtistsViewerPrev').disabled=true;document.getElementById('nfArtistsViewerNext').disabled=true;return}
   const item=items[index],media=kind==='images'?document.createElement('img'):document.createElement('video');
   if(kind==='images'){
-   media.className='nf-artists-gallery-photo';media.alt=item.title||'Artisti Note Fiorentine';media.draggable=false;media.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';media.style.transform='scale('+(item.focal_zoom??1)+')';
+   media.className='nf-artists-gallery-photo';media.alt=item.title||'Artisti Note Fiorentine';media.decoding='async';media.loading='eager';media.draggable=false;media.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';media.style.transform='scale('+(item.focal_zoom??1)+')';
    media.addEventListener('load',()=>{stage.classList.toggle('nf-artists-portrait',media.naturalHeight>media.naturalWidth)},{once:true});
    media.src=publicUrl('site-media',item.image_path);
   }else{
