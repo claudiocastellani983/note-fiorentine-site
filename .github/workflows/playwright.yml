@@ -19,8 +19,8 @@ jobs:
       matrix:
         browser: [chromium, firefox, webkit]
     env:
-      PLAYWRIGHT_BASE_URL: https://note-fiorentine-l5e16bol1-claudiocastellani983-5675.vercel.app
-      ADMIN_BASE_URL: https://note-fiorentine-admin-3lfmkchgf-claudiocastellani983-5675.vercel.app
+      PLAYWRIGHT_BASE_URL: https://note-fiorentine-64cgvjh4b-claudiocastellani983-5675.vercel.app
+      ADMIN_BASE_URL: https://note-fiorentine-admin-avwkcyhq0-claudiocastellani983-5675.vercel.app
 
     steps:
       - name: Checkout repository
