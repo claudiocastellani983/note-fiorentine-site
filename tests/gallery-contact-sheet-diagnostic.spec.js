@@ -1,0 +1,14 @@
+const { test, expect } = require('@playwright/test');
+
+test('diagnostica temporanea contatto immagini album ristorante', async ({ page, browserName }) => {
+  test.skip(browserName !== 'chromium', 'Diagnostica eseguita solo su Chromium');
+  await page.setViewportSize({ width: 600, height: 650 });
+  await page.setContent(`<article><img src="https://nculgrwlzjitggjcgbpp.supabase.co/storage/v1/object/public/site-media/gallery/restaurant/1793866127874-rpuf6e1.jpg"><div>1000083646</div></article><article><img src="https://nculgrwlzjitggjcgbpp.supabase.co/storage/v1/object/public/site-media/gallery/restaurant/1793866129038-lqh2oql.jpg"><div>1000083645</div></article><article><img src="https://nculgrwlzjitggjcgbpp.supabase.co/storage/v1/object/public/site-media/gallery/restaurant/1793866129651-tkj0erw.jpg"><div>1000083642</div></article><article><img src="https://nculgrwlzjitggjcgbpp.supabase.co/storage/v1/object/public/site-media/gallery/restaurant/1793866130166-rlf2pvm.jpg"><div>1000083644</div></article><article><img src="https://nculgrwlzjitggjcgbpp.supabase.co/storage/v1/object/public/site-media/gallery/restaurant/1793866130682-ofy8v9q.jpg"><div>1000083576</div></article><article><img src="https://nculgrwlzjitggjcgbpp.supabase.co/storage/v1/object/public/site-media/gallery/restaurant/1793866132482-ms2sjvo.jpg"><div>1000083588</div></article><article><img src="https://nculgrwlzjitggjcgbpp.supabase.co/storage/v1/object/public/site-media/gallery/restaurant/1793866134583-cy7iykf.jpg"><div>1000083594</div></article><article><img src="https://nculgrwlzjitggjcgbpp.supabase.co/storage/v1/object/public/site-media/gallery/restaurant/1793866136228-u4xgqup.jpg"><div>1000083597</div></article><article><img src="https://nculgrwlzjitggjcgbpp.supabase.co/storage/v1/object/public/site-media/gallery/restaurant/1793866140256-x9mqkne.jpg"><div>1000083612</div></article>`);
+  await page.addStyleTag({ content: 'body{margin:0;padding:8px;background:#eee;font:12px Arial}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}article{background:white;padding:4px;min-width:0}img{width:100%;height:190px;object-fit:contain;background:#ddd;display:block}article div{text-align:center;padding:5px}' });
+  await page.locator('body').evaluate(el => { const grid=document.createElement('div');grid.className='grid';while(el.firstChild)grid.appendChild(el.firstChild);el.appendChild(grid); });
+  await page.waitForFunction(() => [...document.images].every(i => i.complete && i.naturalWidth > 0), null, { timeout: 20000 });
+  const metrics = await page.locator('img').evaluateAll(images => images.map((img,i) => ({ title: img.nextElementSibling?.textContent, width: img.naturalWidth, height: img.naturalHeight })));
+  const preview = await page.screenshot({ type: 'jpeg', quality: 30, fullPage: true });
+  console.log('NF_GALLERY_METRICS=' + JSON.stringify(metrics));
+  console.log('NF_GALLERY_PREVIEW=' + preview.toString('base64'));
+});
