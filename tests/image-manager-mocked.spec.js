@@ -2,8 +2,11 @@ const { test, expect } = require('@playwright/test');
 
 test('gestione immagini: flussi simulati, senza chiamate o scritture reali', async ({ page, browserName }) => {
   test.skip(browserName !== 'chromium', 'Simulazione admin eseguita una volta sola');
-  const baseUrl = process.env.PLAYWRIGHT_BASE_URL;
-  test.skip(!baseUrl, 'PLAYWRIGHT_BASE_URL non configurato');
+  const targets = [
+    { label: 'preview Vercel', url: process.env.PLAYWRIGHT_BASE_URL },
+    { label: 'sorgente corrente del branch', url: process.env.LOCAL_SITE_BASE_URL }
+  ].filter(target => target.url);
+  test.skip(!targets.length, 'Nessun endpoint sito configurato');
 
   const realSupabaseRequests = [];
   const pageErrors = [];
@@ -65,7 +68,8 @@ test('gestione immagini: flussi simulati, senza chiamate o scritture reali', asy
   });
   page.on('pageerror', error => pageErrors.push(error.message));
 
-  const response = await page.goto(new URL('/gestione-immagini.html', baseUrl).toString());
+  for (const target of targets) {
+  const response = await page.goto(new URL('/gestione-immagini.html', target.url).toString());
   expect(response).not.toBeNull();
   expect(response.status()).toBe(200);
 
@@ -127,6 +131,7 @@ test('gestione immagini: flussi simulati, senza chiamate o scritture reali', asy
   const buckets = await page.evaluate(() => window.__mockStorageByBucket || {});
   expect(buckets['site-media']).toBe(3);
   expect(buckets['performance-videos']).toBe(1);
+  }
   expect(realSupabaseRequests).toEqual([]);
   expect(pageErrors).toEqual([]);
 });
