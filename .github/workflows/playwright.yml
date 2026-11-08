@@ -1,0 +1,66 @@
+name: Playwright E2E
+
+on:
+  push:
+    branches: [main, chore/setup-playwright]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  playwright:
+    name: E2E (${{ matrix.browser }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    env:
+      # Preview correnti: il commit test-only non modifica gli asset dell'applicazione.
+      PLAYWRIGHT_BASE_URL: https://note-fiorentine-ad3iymv0h-claudiocastellani983-5675.vercel.app
+      ADMIN_BASE_URL: https://note-fiorentine-admin-lia9cfd4h-claudiocastellani983-5675.vercel.app
+      LOCAL_SITE_BASE_URL: http://127.0.0.1:8000
+      LOCAL_ADMIN_BASE_URL: http://127.0.0.1:8001
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Start isolated local source servers
+        run: |
+          python3 -m http.server 8000 --directory src/src >/tmp/nf-site-server.log 2>&1 &
+          python3 -m http.server 8001 --directory admin >/tmp/nf-admin-server.log 2>&1 &
+          for attempt in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:8000/ >/dev/null && curl -fsS http://127.0.0.1:8001/src/index.html >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/nf-site-server.log
+          cat /tmp/nf-admin-server.log
+          exit 1
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Run Playwright tests
+        run: npx playwright test --project=${{ matrix.browser }}
+
+      - name: Upload HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.browser }}
+          path: playwright-report/
+          retention-days: 14
