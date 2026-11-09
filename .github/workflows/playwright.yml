@@ -10,11 +10,9 @@ on:
       site_preview_url:
         description: URL della preview Home Vercel
         required: false
-        default: https://note-fiorentine-dv1e625mo-claudiocastellani983-5675.vercel.app/
       admin_preview_url:
         description: URL della preview Admin Vercel
         required: false
-        default: https://note-fiorentine-admin-nb5f8lyif-claudiocastellani983-5675.vercel.app/src/index.html
 
 permissions:
   contents: read
@@ -74,6 +72,7 @@ jobs:
           retention-days: 14
 
   playwright-live-previews:
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.site_preview_url != '' && github.event.inputs.admin_preview_url != ''
     name: Preview Vercel reali (${{ matrix.browser }})
     runs-on: ubuntu-latest
     strategy:
@@ -81,8 +80,8 @@ jobs:
       matrix:
         browser: [chromium, firefox, webkit]
     env:
-      SITE_PREVIEW_URL: ${{ github.event.inputs.site_preview_url || 'https://note-fiorentine-dv1e625mo-claudiocastellani983-5675.vercel.app/' }}
-      ADMIN_PREVIEW_URL: ${{ github.event.inputs.admin_preview_url || 'https://note-fiorentine-admin-nb5f8lyif-claudiocastellani983-5675.vercel.app/src/index.html' }}
+      SITE_PREVIEW_URL: ${{ github.event.inputs.site_preview_url }}
+      ADMIN_PREVIEW_URL: ${{ github.event.inputs.admin_preview_url }}
 
     steps:
       - name: Checkout repository
