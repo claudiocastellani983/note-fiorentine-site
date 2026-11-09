@@ -167,9 +167,10 @@ test('accoda eliminazione e cambio pubblicazione senza eseguirli', async ({ page
 });
 
 test('mantiene il blocco di tutte le scritture al database e allo Storage in anteprima', async () => {
-  expect(adminSource).toContain('const PREVIEW_READ_ONLY=true');
+  expect(adminSource).toContain("const PREVIEW_WRITE_HOSTS=new Set(['note-fiorentine-admin.vercel.app','www.notefiorentine.it','notefiorentine.it'])");
+  expect(adminSource).toContain('const PREVIEW_READ_ONLY=!PREVIEW_WRITE_HOSTS.has(location.hostname)');
   expect(adminSource).toContain("if(['insert','update','upsert','delete'].includes(String(key)))return blockedWrite");
-  expect(adminSource).toContain("if(['upload','remove','update','move','copy'].includes(String(key)))return blockedWrite");
+  expect(adminSource).toContain("if(PREVIEW_READ_ONLY&&['upload','remove','update','move','copy'].includes(String(key)))return blockedWrite");
   expect(adminSource).toContain('<script src="./draft-manager.js"></script>');
 });
 
