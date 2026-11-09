@@ -25,6 +25,7 @@ test('espone un solo comando che esegue analisi, conversione, verifica e sostitu
   expect(optimizerSource).toContain('async function run()');
   expect(optimizerSource).toContain('async function optimize(blob)');
   expect(optimizerSource).toContain('async function collectReferences()');
+  expect(optimizerSource).toContain('.range(offset, offset + pageSize - 1)');
   expect(optimizerSource).toContain('async function updateReferences(');
   expect(optimizerSource).toContain('async function verifyReferences(');
   expect(optimizerSource).toContain("status('1/5 · Analisi archivio");
@@ -91,6 +92,7 @@ test('esegue con un clic la sostituzione verificata e conserva l’originale', a
       const q = {
         eq(column, value) { filters.push([column, value]); return q; },
         select(columns) { if (columns) selectedColumns = columns; return q; },
+        range(from, to) { q.pageRange = [from, to]; return q; },
         then(resolve, reject) {
           try {
             const tableRows = rows[table] || [];
