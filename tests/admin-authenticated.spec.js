@@ -29,6 +29,7 @@ test('Admin: login autorizzato, ottimizzazione WebP reale e originali integri su
     const method = request.method().toUpperCase();
     if (url.hostname === 'iuxskknbopboynjlsxbk.supabase.co' &&
         url.pathname.includes('/rest/v1/') &&
+        !url.pathname.endsWith('/rpc/is_admin') &&
         !['GET', 'HEAD', 'OPTIONS'].includes(method)) {
       databaseMutations.push(method + ' ' + url.pathname);
     }
