@@ -1,3 +1,4 @@
+# Playwright checks use the verified alias of the current integrated Home deployment.
 name: Playwright E2E
 
 on:
