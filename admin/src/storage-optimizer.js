@@ -19,6 +19,8 @@ export function mountStorageOptimizer({ db, root, readOnly }) {
     '<h3>Ottimizzazione archivio immagini</h3>' +
     '<p class="media-note">Analizza le immagini già presenti in Storage, individua quelle pesanti e prepara copie WebP in una cartella separata. Gli originali e i collegamenti del sito restano invariati.</p>' +
     '<p class="media-note"><strong>Ambiente:</strong> progetto collegato all’Admin di test. Questa procedura non accede all’archivio di produzione.</p>' +
+    '<div class="site-savebar"><input type="file" id="optimizerSamples" accept="image/jpeg,image/png,image/webp" multiple style="max-width:360px"><button type="button" id="optimizerUploadSamples">Carica campioni grezzi su Test</button></div>' +
+    '<p class="media-note">Per provare l’intero flusso, carica qui immagini di test originali superiori a 1 MB. I campioni vengono salvati soltanto nel bucket Test, nella cartella optimizer-input.</p>' +
     '<div class="site-savebar"><button type="button" id="optimizerScan" class="primary">1 · Analizza archivio</button>' +
     '<button type="button" id="optimizerPrepare" disabled>2 · Prepara copie ottimizzate</button>' +
     '<span id="optimizerStatus" class="status" role="status" aria-live="polite"></span></div>' +
@@ -87,6 +89,34 @@ export function mountStorageOptimizer({ db, root, readOnly }) {
       if (typeof ref === 'string' && (ref.endsWith('/' + path) || ref.includes('/' + path + '?'))) return true;
     }
     return false;
+  }
+
+  async function uploadSamples() {
+    if (readOnly) return status('Modalità sola lettura: caricamento campioni disabilitato.');
+    const input = $('optimizerSamples'), button = $('optimizerUploadSamples');
+    const files = [...(input.files || [])];
+    if (!files.length) return status('Seleziona almeno un’immagine di prova.');
+    button.disabled = true;
+    try {
+      let uploaded = 0;
+      for (const file of files) {
+        if (!/^image\/(jpeg|png|webp)$/i.test(file.type)) throw new Error('Formato non supportato: ' + file.name);
+        if (file.size <= 1024 * 1024) throw new Error('Ogni campione deve superare 1 MB: ' + file.name);
+        if (file.size > 15 * 1024 * 1024) throw new Error('File oltre il limite di 15 MB: ' + file.name);
+        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '-');
+        const path = 'optimizer-input/' + crypto.randomUUID() + '-' + safeName;
+        const result = await db.storage.from('site-media').upload(path, file, {
+          contentType: file.type, upsert: false, cacheControl: '31536000'
+        });
+        if (result.error) throw new Error('Upload campione ' + file.name + ': ' + result.error.message);
+        uploaded++;
+      }
+      input.value = '';
+      status(uploaded + ' campioni originali caricati nel solo progetto Test. Avvio nuova analisi…');
+      await scan();
+    } catch (error) {
+      status('Caricamento campioni interrotto: ' + (error.message || String(error)) + '. Gli eventuali campioni già caricati restano nel progetto Test.');
+    } finally { button.disabled = false; }
   }
 
   async function scan() {
@@ -216,5 +246,9 @@ export function mountStorageOptimizer({ db, root, readOnly }) {
 
   $('optimizerScan').addEventListener('click', scan);
   $('optimizerPrepare').addEventListener('click', prepare);
-  if (readOnly) $('optimizerPrepare').title = 'Disponibile solo nelle anteprime Admin abilitate alla scrittura sul progetto Test.';
+  $('optimizerUploadSamples').addEventListener('click', uploadSamples);
+  if (readOnly) {
+    $('optimizerPrepare').title = 'Disponibile solo nelle anteprime Admin abilitate alla scrittura sul progetto Test.';
+    $('optimizerUploadSamples').disabled = true;
+  }
 }
