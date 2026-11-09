@@ -13,7 +13,7 @@ export function mountStorageOptimizer({ db, root, readOnly }) {
   };
   const eligible = file => /^image\/(jpeg|png|webp)$/i.test(file.mime || '') ||
     /\.(jpe?g|png|webp)$/i.test(file.name || '');
-  const state = { files: [], candidates: [], scanned: false };
+  const state = { files: [], heavyFiles: [], candidates: [], scanned: false };
 
   root.innerHTML = '<section class="site-group" id="storageOptimizer">' +
     '<h3>Ottimizzazione archivio immagini</h3>' +
@@ -128,19 +128,20 @@ export function mountStorageOptimizer({ db, root, readOnly }) {
     $('optimizerSummary').textContent = '';
     try {
       const [files, refs] = await Promise.all([listFolder(), collectReferences()]);
-      state.files = files.filter(file => eligible(file) && file.size > 1024 * 1024)
+      state.files = files.filter(file => eligible(file))
         .map(file => ({ ...file, referenced: isReferenced(file.path, refs) }))
         .sort((a, b) => b.size - a.size);
+      state.heavyFiles = state.files.filter(file => file.size > 1024 * 1024);
       state.candidates = [];
       state.scanned = true;
-      const total = state.files.reduce((sum, file) => sum + file.size, 0);
+      const total = state.heavyFiles.reduce((sum, file) => sum + file.size, 0);
       const linked = state.files.filter(file => file.referenced).length;
-      $('optimizerSummary').textContent = files.length + ' immagini totali rilevate · ' +
-        state.files.length + ' oltre 1 MB (' + formatBytes(total) + ') · ' +
+      $('optimizerSummary').textContent = state.files.length + ' immagini totali rilevate · ' +
+        state.heavyFiles.length + ' oltre 1 MB (' + formatBytes(total) + ') · ' +
         linked + ' con riferimenti individuati nel database. I file senza riferimenti non vengono eliminati.';
-      $('optimizerPrepare').disabled = readOnly || state.files.length === 0;
+      $('optimizerPrepare').disabled = readOnly || state.heavyFiles.length === 0;
       render();
-      status(state.files.length ? 'Analisi completata.' : 'Nessuna immagine oltre 1 MB trovata.');
+      status(state.heavyFiles.length ? 'Analisi completata.' : 'Nessuna immagine oltre 1 MB: i file rilevati sono già sotto la soglia di ottimizzazione.');
     } catch (error) {
       status('Analisi non riuscita: ' + (error.message || String(error)));
     } finally {
@@ -187,9 +188,9 @@ export function mountStorageOptimizer({ db, root, readOnly }) {
     button.disabled = true;
     state.candidates = [];
     let completed = 0;
-    const total = state.files.length;
+    const total = state.heavyFiles.length;
     try {
-      for (const file of state.files) {
+      for (const file of state.heavyFiles) {
         completed++;
         status('Preparazione ' + completed + '/' + total + ': ' + file.name);
         const downloaded = await db.storage.from('site-media').download(file.path);
@@ -243,7 +244,9 @@ export function mountStorageOptimizer({ db, root, readOnly }) {
           ' · risparmio ' + Math.round(candidate.savings * 100) + '% · ' +
           candidate.outputWidth + '×' + candidate.outputHeight + '</p><a href="' + esc(candidate.outputUrl) +
           '" target="_blank" rel="noopener" style="color:var(--gold)">Apri copia WebP</a>'
-        : candidate?.skipped ? '<p class="media-note">' + esc(candidate.reason) + '</p>' : '';
+        : candidate?.skipped ? '<p class="media-note">' + esc(candidate.reason) + '</p>'
+        : file.size <= 1024 * 1024 ? '<p class="media-note">Sotto soglia 1 MB · non richiede ottimizzazione.</p>'
+        : '<p class="media-note">Supera 1 MB · pronto per la preparazione WebP.</p>';
       return '<article class="media-card">' + comparison + '<b>' + esc(file.path) +
         '</b><p class="media-note">' + formatBytes(file.size) +
         ' · ' + (file.referenced ? 'riferimento DB individuato' : 'nessun riferimento DB individuato') +
