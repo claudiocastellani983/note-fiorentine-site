@@ -14,7 +14,7 @@ test('ottimizzazione egress presente in homepage e pannelli', async ({ browserNa
   expect(manager).toContain('id="optimizeExistingImages"');
   expect(manager).toContain('Analizza immagini (sola lettura)');
   const inventoryStart = manager.indexOf("document.getElementById('optimizeExistingImages')?.addEventListener('click',async()=>{");
-  const inventoryEnd = manager.indexOf("\n document.querySelectorAll('[data-gallery-admin]')", inventoryStart);
+  const inventoryEnd = manager.indexOf("\ndocument.querySelectorAll('[data-gallery-admin]')", inventoryStart);
   expect(inventoryStart).toBeGreaterThanOrEqual(0);
   expect(inventoryEnd).toBeGreaterThan(inventoryStart);
   const inventorySource = manager.slice(inventoryStart, inventoryEnd);
