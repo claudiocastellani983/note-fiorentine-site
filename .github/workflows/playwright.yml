@@ -116,7 +116,7 @@ jobs:
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     env:
-      ADMIN_PREVIEW_URL: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.admin_preview_url || 'https://note-fiorentine-admin-nl51f5b6o-claudiocastellani983-5675.vercel.app/' }}
+      ADMIN_PREVIEW_URL: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.admin_preview_url || 'https://note-fiorentine-admin-git-rele-890dc9-claudiocastellani983-5675.vercel.app/' }}
       NF_TEST_ADMIN_EMAIL: ${{ secrets.NF_TEST_ADMIN_EMAIL }}
       NF_TEST_ADMIN_PASSWORD: ${{ secrets.NF_TEST_ADMIN_PASSWORD }}
     steps:
