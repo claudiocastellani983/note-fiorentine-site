@@ -260,7 +260,7 @@ test('Admin: gestione immagini intuitiva, upload reale su Supabase Test e ripris
 
   try {
     const card = page.locator('#imageCards .image-card').filter({ hasText: 'La cucina' });
-    const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASsJTYQAAAAASUVORK5CYII=', 'base64');
+    const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=', 'base64');
     await card.locator('input[type="file"]').setInputFiles({
       name: 'nf-playwright-gallery-food.png',
       mimeType: 'image/png',
