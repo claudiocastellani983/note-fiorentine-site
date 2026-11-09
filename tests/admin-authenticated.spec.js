@@ -216,14 +216,16 @@ test('Admin: gestione immagini intuitiva, upload reale su Supabase Test e ripris
   let uploadedPath = null;
   let originalRow = null;
   let cleanupResult = null;
+  let uploadVerified = false;
 
   page.on('pageerror', error => pageErrors.push(error.message));
   page.on('request', request => {
     const url = new URL(request.url());
+    const marker = '/storage/v1/object/site-media/';
     if (url.hostname === 'iuxskknbopboynjlsxbk.supabase.co' &&
         request.method().toUpperCase() === 'POST' &&
-        url.pathname.includes('/storage/v1/object/site-media/')) {
-      uploadedPath = decodeURIComponent(url.pathname.split('/storage/v1/object/site-media/')[1]);
+        url.pathname.includes(marker)) {
+      uploadedPath = decodeURIComponent(url.pathname.slice(url.pathname.indexOf(marker) + marker.length));
     }
   });
 
@@ -256,75 +258,83 @@ test('Admin: gestione immagini intuitiva, upload reale su Supabase Test e ripris
     return rows[0];
   }, { supabaseUrl: SUPABASE_URL, publicKey: SUPABASE_PUBLIC_KEY });
 
-  const card = page.locator('#imageCards .image-card').filter({ hasText: 'La cucina' });
-  const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/pXcAAAAASUVORK5CYII=', 'base64');
-  await card.locator('input[type="file"]').setInputFiles({
-    name: 'nf-playwright-gallery-food.png',
-    mimeType: 'image/png',
-    buffer: png
-  });
-  await expect(card.getByRole('button', { name: 'Sostituisci immagine' })).toBeEnabled();
-  await card.getByRole('button', { name: 'Sostituisci immagine' }).click();
-  await expect(card.getByRole('button', { name: 'Sostituzione completata' })).toBeVisible({ timeout: 45000 });
-  expect(uploadedPath, 'Il file deve essere caricato nello Storage Test').toMatch(/^gallery_food\//);
-
-  const updatedRow = await page.evaluate(async ({ supabaseUrl, publicKey }) => {
-    const storageKey = Object.keys(localStorage).find(key => key.endsWith('-auth-token'));
-    const session = JSON.parse(localStorage.getItem(storageKey) || '{}');
-    const response = await fetch(supabaseUrl + '/rest/v1/site_images?select=image_key,image_path&image_key=eq.gallery_food', {
-      headers: { apikey: publicKey, Authorization: 'Bearer ' + session.access_token, Accept: 'application/json' }
-    });
-    if (!response.ok) throw new Error('Verifica database non riuscita: ' + response.status);
-    return (await response.json())[0];
-  }, { supabaseUrl: SUPABASE_URL, publicKey: SUPABASE_PUBLIC_KEY });
-  expect(updatedRow.image_path).toBe(uploadedPath);
-
-  const publicImage = SUPABASE_URL + '/storage/v1/object/public/site-media/' +
-    uploadedPath.split('/').map(encodeURIComponent).join('/');
-  const imageResponse = await page.request.get(publicImage);
-  expect(imageResponse.status(), 'L’immagine caricata deve essere leggibile dallo Storage Test').toBe(200);
-
   try {
-    const paths = uploadedPath ? [uploadedPath] : [];
-    cleanupResult = await page.evaluate(async ({ paths, original, publicKey, supabaseUrl }) => {
+    const card = page.locator('#imageCards .image-card').filter({ hasText: 'La cucina' });
+    const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASsJTYQAAAAASUVORK5CYII=', 'base64');
+    await card.locator('input[type="file"]').setInputFiles({
+      name: 'nf-playwright-gallery-food.png',
+      mimeType: 'image/png',
+      buffer: png
+    });
+    await expect(card.getByRole('button', { name: 'Sostituisci immagine' })).toBeEnabled();
+    await card.getByRole('button', { name: 'Sostituisci immagine' }).click();
+    await expect(card.getByRole('button', { name: 'Sostituzione completata' })).toBeVisible({ timeout: 45000 });
+    expect(uploadedPath, 'Il file deve essere caricato nello Storage Test').toMatch(/^gallery_food\\//);
+
+    const updatedRow = await page.evaluate(async ({ supabaseUrl, publicKey }) => {
       const storageKey = Object.keys(localStorage).find(key => key.endsWith('-auth-token'));
-      if (!storageKey) return { ok: false, reason: 'sessione Supabase non trovata per il cleanup' };
       const session = JSON.parse(localStorage.getItem(storageKey) || '{}');
-      if (!session.access_token) return { ok: false, reason: 'access token non disponibile per il cleanup' };
-      const headers = {
-        apikey: publicKey,
-        Authorization: 'Bearer ' + session.access_token,
-        'Content-Type': 'application/json'
-      };
-      const dbResponse = await fetch(supabaseUrl + '/rest/v1/site_images?image_key=eq.gallery_food', {
-        method: 'PATCH',
-        headers: { ...headers, Prefer: 'return=minimal' },
-        body: JSON.stringify({
-          image_path: original.image_path,
-          focal_x: original.focal_x,
-          focal_y: original.focal_y,
-          focal_zoom: original.focal_zoom
-        })
+      const response = await fetch(supabaseUrl + '/rest/v1/site_images?select=image_key,image_path&image_key=eq.gallery_food', {
+        headers: { apikey: publicKey, Authorization: 'Bearer ' + session.access_token, Accept: 'application/json' }
       });
-      let storageResponse = { ok: true, status: 204 };
-      if (paths.length) {
-        const response = await fetch(supabaseUrl + '/storage/v1/object/site-media', {
-          method: 'DELETE',
-          headers,
-          body: JSON.stringify({ prefixes: paths })
+      if (!response.ok) throw new Error('Verifica database non riuscita: ' + response.status);
+      return (await response.json())[0];
+    }, { supabaseUrl: SUPABASE_URL, publicKey: SUPABASE_PUBLIC_KEY });
+    expect(updatedRow.image_path).toBe(uploadedPath);
+
+    const publicImage = SUPABASE_URL + '/storage/v1/object/public/site-media/' +
+      uploadedPath.split('/').map(encodeURIComponent).join('/');
+    const imageResponse = await page.request.get(publicImage);
+    expect(imageResponse.status(), 'L’immagine caricata deve essere leggibile dallo Storage Test').toBe(200);
+    uploadVerified = true;
+  } finally {
+    if (originalRow) {
+      cleanupResult = await page.evaluate(async ({ path, original, publicKey, supabaseUrl }) => {
+        const storageKey = Object.keys(localStorage).find(key => key.endsWith('-auth-token'));
+        if (!storageKey) return { ok: false, reason: 'sessione Supabase non trovata per il cleanup' };
+        const session = JSON.parse(localStorage.getItem(storageKey) || '{}');
+        if (!session.access_token) return { ok: false, reason: 'access token non disponibile per il cleanup' };
+        const headers = {
+          apikey: publicKey,
+          Authorization: 'Bearer ' + session.access_token,
+          'Content-Type': 'application/json'
+        };
+        const read = await fetch(supabaseUrl + '/rest/v1/site_images?select=image_path&image_key=eq.gallery_food', {
+          headers: { ...headers, Accept: 'application/json' }
         });
-        storageResponse = { ok: response.ok, status: response.status, body: response.ok ? '' : await response.text() };
-      }
-      return {
-        ok: dbResponse.ok && storageResponse.ok,
-        database: dbResponse.status,
-        storage: storageResponse
-      };
-    }, { paths, original: originalRow, publicKey: SUPABASE_PUBLIC_KEY, supabaseUrl: SUPABASE_URL });
-  } catch (error) {
-    cleanupResult = { ok: false, reason: error.message };
+        if (!read.ok) return { ok: false, reason: 'lettura per cleanup fallita: ' + read.status };
+        const current = (await read.json())[0];
+        const objectPath = path || (current?.image_path && current.image_path !== original.image_path ? current.image_path : null);
+        const dbResponse = await fetch(supabaseUrl + '/rest/v1/site_images?image_key=eq.gallery_food', {
+          method: 'PATCH',
+          headers: { ...headers, Prefer: 'return=minimal' },
+          body: JSON.stringify({
+            image_path: original.image_path,
+            focal_x: original.focal_x,
+            focal_y: original.focal_y,
+            focal_zoom: original.focal_zoom
+          })
+        });
+        let storageResponse = { ok: true, status: 204 };
+        if (objectPath) {
+          const response = await fetch(supabaseUrl + '/storage/v1/object/site-media', {
+            method: 'DELETE',
+            headers,
+            body: JSON.stringify({ prefixes: [objectPath] })
+          });
+          storageResponse = { ok: response.ok, status: response.status, body: response.ok ? '' : await response.text() };
+        }
+        return {
+          ok: dbResponse.ok && storageResponse.ok,
+          database: dbResponse.status,
+          storage: storageResponse,
+          restoredPath: objectPath
+        };
+      }, { path: uploadedPath, original: originalRow, publicKey: SUPABASE_PUBLIC_KEY, supabaseUrl: SUPABASE_URL });
+    }
   }
 
+  expect(uploadVerified, 'Upload, collegamento database e lettura pubblica devono riuscire').toBe(true);
   expect(cleanupResult && cleanupResult.ok,
     'Il record e il file temporaneo devono essere ripristinati/rimossi da Supabase Test').toBe(true);
   expect(pageErrors, 'Errori JavaScript non gestiti nella gestione immagini').toEqual([]);
