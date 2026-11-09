@@ -13,7 +13,7 @@ test.beforeAll(async () => {
 test('collega l’ottimizzatore alla sezione immagini e popup dell’Admin', async () => {
   expect(adminSource).toContain("import{mountStorageOptimizer}from'./storage-optimizer.js';");
   expect(adminSource).toContain('id="storageOptimizerMount"');
-  expect(adminSource).toContain('mountStorageOptimizer({db,root:$(\\'storageOptimizerMount\\'),readOnly:PREVIEW_READ_ONLY})');
+  expect(adminSource).toContain("mountStorageOptimizer({db,root:$('storageOptimizerMount'),readOnly:PREVIEW_READ_ONLY})");
 });
 
 test('analizza Storage e controlla i riferimenti senza modificare il database', async () => {
