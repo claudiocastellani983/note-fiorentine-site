@@ -76,7 +76,7 @@ jobs:
           retention-days: 14
 
   playwright-live-previews:
-    if: (github.event_name == 'workflow_dispatch' && github.event.inputs.site_preview_url != '' && github.event.inputs.admin_preview_url != '') || github.event_name == 'push'
+    if: (github.event_name == 'workflow_dispatch' && github.event.inputs.site_preview_url != '' && github.event.inputs.admin_preview_url != '') || (github.event_name == 'push' && github.ref == 'refs/heads/release/integrated-preview-2026-11')
     name: Preview Vercel reali (${{ matrix.browser }})
     runs-on: ubuntu-latest
     strategy:
@@ -117,7 +117,7 @@ jobs:
 
   playwright-admin-authenticated:
     name: Admin autenticato e upload Supabase Test
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/release/integrated-preview-2026-11')
     runs-on: ubuntu-latest
     env:
       ADMIN_PREVIEW_URL: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.admin_preview_url || 'https://note-fiorentine-admin-6hg4duoqi-claudiocastellani983-5675.vercel.app/' }}
