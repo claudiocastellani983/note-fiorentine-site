@@ -21,7 +21,7 @@ permissions:
 
 jobs:
   playwright-local:
-    name: Test locali (${ matrix.browser })
+    name: Test locali (${{ matrix.browser }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -58,31 +58,31 @@ jobs:
           exit 1
 
       - name: Install Playwright browser
-        run: npx playwright install --with-deps ${ matrix.browser }
+        run: npx playwright install --with-deps ${{ matrix.browser }}
 
       - name: Run local Playwright tests
-        run: npx playwright test --project=${ matrix.browser } --ignore-snapshots
+        run: npx playwright test --project=${{ matrix.browser }} --ignore-snapshots
 
       - name: Upload local HTML report and failure evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-local-${ matrix.browser }
+          name: playwright-local-${{ matrix.browser }}
           path: |
             playwright-report/
             test-results/
           retention-days: 14
 
   playwright-live-previews:
-    name: Preview Vercel reali (${ matrix.browser })
+    name: Preview Vercel reali (${{ matrix.browser }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         browser: [chromium, firefox, webkit]
     env:
-      SITE_PREVIEW_URL: ${ github.event.inputs.site_preview_url || 'https://note-fiorentine-dv1e625mo-claudiocastellani983-5675.vercel.app/' }
-      ADMIN_PREVIEW_URL: ${ github.event.inputs.admin_preview_url || 'https://note-fiorentine-admin-nb5f8lyif-claudiocastellani983-5675.vercel.app/src/index.html' }
+      SITE_PREVIEW_URL: ${{ github.event.inputs.site_preview_url || 'https://note-fiorentine-dv1e625mo-claudiocastellani983-5675.vercel.app/' }}
+      ADMIN_PREVIEW_URL: ${{ github.event.inputs.admin_preview_url || 'https://note-fiorentine-admin-nb5f8lyif-claudiocastellani983-5675.vercel.app/src/index.html' }}
 
     steps:
       - name: Checkout repository
@@ -97,16 +97,16 @@ jobs:
         run: npm install --no-audit --no-fund
 
       - name: Install Playwright browser
-        run: npx playwright install --with-deps ${ matrix.browser }
+        run: npx playwright install --with-deps ${{ matrix.browser }}
 
       - name: Test live Vercel previews
-        run: npx playwright test tests/live-previews.spec.js --project=${ matrix.browser }
+        run: npx playwright test tests/live-previews.spec.js --project=${{ matrix.browser }}
 
       - name: Upload live preview report and failure evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-live-${ matrix.browser }
+          name: playwright-live-${{ matrix.browser }}
           path: |
             playwright-report/
             test-results/
