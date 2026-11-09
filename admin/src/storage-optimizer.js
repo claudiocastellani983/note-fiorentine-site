@@ -131,27 +131,34 @@ export function mountStorageOptimizer({ db, root, readOnly }) {
 
   async function updateReferences(file, newPath, newUrl, references) {
     const changes = [];
-    for (const ref of references) {
-      let nextValue, count = 0;
-      if (ref.type === 'text') {
-        if (!pathMatches(ref.oldValue, file.path)) continue;
-        nextValue = /^https?:\/\//i.test(ref.oldValue) ? newUrl : newPath;
-        count = 1;
-      } else {
-        const replaced = replaceNested(ref.oldValue, file.path, newPath, newUrl);
-        nextValue = replaced.value;
-        count = replaced.count;
+    try {
+      for (const ref of references) {
+        let nextValue, count = 0;
+        if (ref.type === 'text') {
+          if (!pathMatches(ref.oldValue, file.path)) continue;
+          nextValue = /^https?:\\/\\//i.test(ref.oldValue) ? newUrl : newPath;
+          count = 1;
+        } else {
+          const replaced = replaceNested(ref.oldValue, file.path, newPath, newUrl);
+          nextValue = replaced.value;
+          count = replaced.count;
+        }
+        if (!count) continue;
+        const result = await db.from(ref.table).update({ [ref.column]: nextValue })
+          .eq(ref.key, ref.keyValue).select(ref.key);
+        if (result.error) throw new Error('Aggiornamento ' + ref.table + ': ' + result.error.message);
+        if (!result.data || result.data.length !== 1) {
+          throw new Error('Aggiornamento non verificato in ' + ref.table + ' per il riferimento ' + file.path);
+        }
+        changes.push({ ...ref, newValue: nextValue });
       }
-      if (!count) continue;
-      const payload = { [ref.column]: nextValue };
-      const result = await db.from(ref.table).update(payload).eq(ref.key, ref.keyValue).select(ref.key);
-      if (result.error) throw new Error('Aggiornamento ' + ref.table + ': ' + result.error.message);
-      if (!result.data || result.data.length !== 1) {
-        throw new Error('Aggiornamento non verificato in ' + ref.table + ' per il riferimento ' + file.path);
-      }
-      changes.push({ ...ref, newValue: nextValue });
+      return changes;
+    } catch (error) {
+      const rollbackErrors = await rollback(changes);
+      if (rollbackErrors.length) throw new Error((error.message || String(error)) +
+        ' Ripristino parziale: ' + rollbackErrors.join('; '));
+      throw error;
     }
-    return changes;
   }
 
   async function rollback(changes) {
