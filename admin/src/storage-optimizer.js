@@ -99,11 +99,18 @@ export function mountStorageOptimizer({ db, root, readOnly }) {
 
   async function collectReferences() {
     const references = [];
+    const pageSize = 500;
     for (const spec of tables) {
-      const result = await db.from(spec.table).select(spec.key + ',' + spec.column);
-      if (result.error) throw new Error('Lettura riferimenti ' + spec.table + ': ' + result.error.message);
-      for (const row of result.data || []) {
-        references.push({ ...spec, keyValue: row[spec.key], oldValue: row[spec.column] });
+      for (let offset = 0; ; offset += pageSize) {
+        const result = await db.from(spec.table)
+          .select(spec.key + ',' + spec.column)
+          .range(offset, offset + pageSize - 1);
+        if (result.error) throw new Error('Lettura riferimenti ' + spec.table + ': ' + result.error.message);
+        const rows = result.data || [];
+        for (const row of rows) {
+          references.push({ ...spec, keyValue: row[spec.key], oldValue: row[spec.column] });
+        }
+        if (rows.length < pageSize) break;
       }
     }
     return references;
