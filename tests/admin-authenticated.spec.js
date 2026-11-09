@@ -58,8 +58,12 @@ test('Admin: login autorizzato, ottimizzazione WebP reale e originali integri su
     await expect(page.locator('#logout')).toBeVisible();
     await expect(page.locator('#login')).toBeHidden();
 
+    await expect(page.locator('#tabs button').first()).toBeVisible({ timeout: 45000 });
     const tabNames = await page.locator('#tabs button').allTextContents();
     expect(tabNames.length, 'Le schede amministrative devono essere caricate').toBeGreaterThan(0);
+    // Attendere che il caricamento iniziale della scheda Piatti sia terminato:
+    // evita che la sua risposta asincrona sovrascriva la scheda Immagini appena aperta.
+    await expect(page.locator('#items article.item').first()).toBeVisible({ timeout: 45000 });
 
     await page.locator('#openImagesTab').click();
     await expect(page.locator('#storageOptimizer')).toBeVisible({ timeout: 30000 });
