@@ -79,7 +79,14 @@ test('carica un campione >1 MB su Test e prepara una copia WebP verificabile', a
           if (bucket !== 'site-media') throw new Error('Bucket inatteso: ' + bucket);
           return {
             async list(prefix) {
-              if (!prefix) return { data: [{ name: 'optimizer-input', id: null, metadata: null }], error: null };
+              if (!prefix) return { data: [
+                { name: 'optimizer-input', id: null, metadata: null },
+                { name: 'hero', id: null, metadata: null }
+              ], error: null };
+              if (prefix === 'hero') return {
+                data: [{ name: 'small.webp', id: 'hero-id', metadata: { mimetype: 'image/webp', size: 180000 } }],
+                error: null
+              };
               if (prefix === 'optimizer-input' && samplePath) return {
                 data: [{ name: samplePath.split('/').pop(), id: 'sample-id', metadata: { mimetype: 'image/png', size: original.size } }],
                 error: null
@@ -101,8 +108,11 @@ test('carica un campione >1 MB su Test e prepara una copia WebP verificabile', a
           };
         }
       },
-      from() {
-        return { select: async () => ({ data: [], error: null }) };
+      from(table) {
+        return { select: async () => ({
+          data: table === 'site_images' ? [{ image_path: 'hero/small.webp' }] : [],
+          error: null
+        }) };
       }
     };
 
@@ -119,7 +129,11 @@ test('carica un campione >1 MB su Test e prepara una copia WebP verificabile', a
   });
 
   await page.getByRole('button', { name: 'Carica campioni grezzi su Test' }).click();
+  await expect(page.locator('#optimizerSummary')).toContainText('2 immagini totali rilevate');
   await expect(page.locator('#optimizerSummary')).toContainText('1 oltre 1 MB');
+  await expect(page.locator('#optimizerSummary')).toContainText('1 con riferimenti individuati nel database');
+  await expect(page.locator('#optimizerResults')).toContainText('hero/small.webp');
+  await expect(page.locator('#optimizerResults')).toContainText('riferimento DB individuato');
   await page.getByRole('button', { name: '2 · Prepara copie ottimizzate' }).click();
   await expect(page.locator('#optimizerStatus')).toContainText('Completato: 1 copie create', { timeout: 20000 });
   await expect(page.locator('#optimizerResults')).toContainText('WebP ottimizzata');
