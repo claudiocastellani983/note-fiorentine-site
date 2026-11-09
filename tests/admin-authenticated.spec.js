@@ -66,7 +66,7 @@ test('Admin: login autorizzato, ottimizzazione WebP reale e originali integri su
     // evita che la sua risposta asincrona sovrascriva la scheda Immagini appena aperta.
     await expect(page.locator('#items article.item').first()).toBeVisible({ timeout: 45000 });
 
-    await page.locator('#openImagesTab').click();
+    await page.locator('#tabs button[data-tab="Immagini e popup"]').click();
     await expect(page.locator('#storageOptimizer')).toBeVisible({ timeout: 30000 });
     await expect(page.locator('#optimizerSamples')).toBeVisible();
     await expect(page.locator('#optimizerUploadSamples')).toBeVisible();
@@ -203,4 +203,129 @@ test('Admin: login autorizzato, ottimizzazione WebP reale e originali integri su
   expect(cleanupResult && cleanupResult.ok,
     'Campione e copia WebP temporanei devono essere rimossi da Supabase Test').toBe(true);
   expect(pageErrors, 'Errori JavaScript non gestiti nel pannello Admin').toEqual([]);
+});
+
+
+test('Admin: gestione immagini intuitiva, upload reale su Supabase Test e ripristino', async ({ page }) => {
+  test.skip(!ADMIN_PREVIEW_URL || !ADMIN_EMAIL || !ADMIN_PASSWORD,
+    'Test autenticato eseguito soltanto nel job CI con credenziali di test.');
+
+  test.setTimeout(180000);
+  const managerUrl = new URL('/gestione-immagini.html', ADMIN_PREVIEW_URL).toString();
+  const pageErrors = [];
+  let uploadedPath = null;
+  let originalRow = null;
+  let cleanupResult = null;
+
+  page.on('pageerror', error => pageErrors.push(error.message));
+  page.on('request', request => {
+    const url = new URL(request.url());
+    if (url.hostname === 'iuxskknbopboynjlsxbk.supabase.co' &&
+        request.method().toUpperCase() === 'POST' &&
+        url.pathname.includes('/storage/v1/object/site-media/')) {
+      uploadedPath = decodeURIComponent(url.pathname.split('/storage/v1/object/site-media/')[1]);
+    }
+  });
+
+  await page.goto(managerUrl, { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#loginPanel')).toBeVisible();
+  expect(await page.content()).toContain(SUPABASE_URL);
+  expect(await page.content()).not.toContain('nculgrwlzjitggjcgbpp');
+
+  await page.locator('#email').fill(ADMIN_EMAIL);
+  await page.locator('#password').fill(ADMIN_PASSWORD);
+  await page.locator('#loginBtn').click();
+  await expect(page.locator('#manager')).toBeVisible({ timeout: 45000 });
+  await expect(page.locator('#imageCards .image-card')).toHaveCount(9, { timeout: 45000 });
+
+  const requiredLabels = ['Immagine principale', 'Musica dal vivo', 'Il ristorante', 'La cucina', 'L’atmosfera'];
+  const managerText = await page.locator('#imageCards').innerText();
+  for (const label of requiredLabels) expect(managerText).toContain(label);
+
+  originalRow = await page.evaluate(async ({ supabaseUrl, publicKey }) => {
+    const storageKey = Object.keys(localStorage).find(key => key.endsWith('-auth-token'));
+    if (!storageKey) throw new Error('Sessione Supabase non trovata.');
+    const session = JSON.parse(localStorage.getItem(storageKey) || '{}');
+    if (!session.access_token) throw new Error('Access token non disponibile.');
+    const response = await fetch(supabaseUrl + '/rest/v1/site_images?select=image_key,image_path,focal_x,focal_y,focal_zoom&image_key=eq.gallery_food', {
+      headers: { apikey: publicKey, Authorization: 'Bearer ' + session.access_token, Accept: 'application/json' }
+    });
+    if (!response.ok) throw new Error('Lettura record di test non riuscita: ' + response.status + ' ' + await response.text());
+    const rows = await response.json();
+    if (!rows.length) throw new Error('Slot gallery_food non inizializzato in Supabase Test.');
+    return rows[0];
+  }, { supabaseUrl: SUPABASE_URL, publicKey: SUPABASE_PUBLIC_KEY });
+
+  const card = page.locator('#imageCards .image-card').filter({ hasText: 'La cucina' });
+  const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/pXcAAAAASUVORK5CYII=', 'base64');
+  await card.locator('input[type="file"]').setInputFiles({
+    name: 'nf-playwright-gallery-food.png',
+    mimeType: 'image/png',
+    buffer: png
+  });
+  await expect(card.getByRole('button', { name: 'Sostituisci immagine' })).toBeEnabled();
+  await card.getByRole('button', { name: 'Sostituisci immagine' }).click();
+  await expect(card.getByRole('button', { name: 'Sostituzione completata' })).toBeVisible({ timeout: 45000 });
+  expect(uploadedPath, 'Il file deve essere caricato nello Storage Test').toMatch(/^gallery_food\//);
+
+  const updatedRow = await page.evaluate(async ({ supabaseUrl, publicKey }) => {
+    const storageKey = Object.keys(localStorage).find(key => key.endsWith('-auth-token'));
+    const session = JSON.parse(localStorage.getItem(storageKey) || '{}');
+    const response = await fetch(supabaseUrl + '/rest/v1/site_images?select=image_key,image_path&image_key=eq.gallery_food', {
+      headers: { apikey: publicKey, Authorization: 'Bearer ' + session.access_token, Accept: 'application/json' }
+    });
+    if (!response.ok) throw new Error('Verifica database non riuscita: ' + response.status);
+    return (await response.json())[0];
+  }, { supabaseUrl: SUPABASE_URL, publicKey: SUPABASE_PUBLIC_KEY });
+  expect(updatedRow.image_path).toBe(uploadedPath);
+
+  const publicImage = SUPABASE_URL + '/storage/v1/object/public/site-media/' +
+    uploadedPath.split('/').map(encodeURIComponent).join('/');
+  const imageResponse = await page.request.get(publicImage);
+  expect(imageResponse.status(), 'L’immagine caricata deve essere leggibile dallo Storage Test').toBe(200);
+
+  try {
+    const paths = uploadedPath ? [uploadedPath] : [];
+    cleanupResult = await page.evaluate(async ({ paths, original, publicKey, supabaseUrl }) => {
+      const storageKey = Object.keys(localStorage).find(key => key.endsWith('-auth-token'));
+      if (!storageKey) return { ok: false, reason: 'sessione Supabase non trovata per il cleanup' };
+      const session = JSON.parse(localStorage.getItem(storageKey) || '{}');
+      if (!session.access_token) return { ok: false, reason: 'access token non disponibile per il cleanup' };
+      const headers = {
+        apikey: publicKey,
+        Authorization: 'Bearer ' + session.access_token,
+        'Content-Type': 'application/json'
+      };
+      const dbResponse = await fetch(supabaseUrl + '/rest/v1/site_images?image_key=eq.gallery_food', {
+        method: 'PATCH',
+        headers: { ...headers, Prefer: 'return=minimal' },
+        body: JSON.stringify({
+          image_path: original.image_path,
+          focal_x: original.focal_x,
+          focal_y: original.focal_y,
+          focal_zoom: original.focal_zoom
+        })
+      });
+      let storageResponse = { ok: true, status: 204 };
+      if (paths.length) {
+        const response = await fetch(supabaseUrl + '/storage/v1/object/site-media', {
+          method: 'DELETE',
+          headers,
+          body: JSON.stringify({ prefixes: paths })
+        });
+        storageResponse = { ok: response.ok, status: response.status, body: response.ok ? '' : await response.text() };
+      }
+      return {
+        ok: dbResponse.ok && storageResponse.ok,
+        database: dbResponse.status,
+        storage: storageResponse
+      };
+    }, { paths, original: originalRow, publicKey: SUPABASE_PUBLIC_KEY, supabaseUrl: SUPABASE_URL });
+  } catch (error) {
+    cleanupResult = { ok: false, reason: error.message };
+  }
+
+  expect(cleanupResult && cleanupResult.ok,
+    'Il record e il file temporaneo devono essere ripristinati/rimossi da Supabase Test').toBe(true);
+  expect(pageErrors, 'Errori JavaScript non gestiti nella gestione immagini').toEqual([]);
 });
