@@ -121,6 +121,16 @@ test('Admin: login autorizzato, ottimizzazione WebP reale e originali integri su
     await expect(sampleCard.locator('img[alt="Immagine originale"]')).toBeVisible();
     await expect(sampleCard.locator('img[alt="Copia WebP ottimizzata"]')).toBeVisible();
 
+    await sampleCard.scrollIntoViewIfNeeded();
+    await expect.poll(async () => {
+      const images = await sampleCard.locator('img').evaluateAll(nodes => nodes.map(image => ({
+        complete: image.complete,
+        width: image.naturalWidth,
+        height: image.naturalHeight
+      })));
+      return images.length === 2 && images.every(image => image.complete && image.width > 0 && image.height > 0);
+    }, { timeout: 30000 }).toBe(true);
+
     const visual = await sampleCard.locator('img').evaluateAll(images => images.map(image => ({
       alt: image.alt,
       complete: image.complete,
