@@ -17,9 +17,8 @@ test.describe('Funzioni pubbliche delle preview reali', () => {
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
 
-    // Attendere il completamento delle richieste asincrone prima di cambiare
-    // lingua: WebKit può classificare come "access control" le fetch abortite
-    // dalla navigazione successiva, anche quando il server ha risposto 200.
+    // Attendere le fetch asincrone prima di cambiare lingua: WebKit può
+    // segnalare come access-control le richieste abortite dalla navigazione.
     await page.goto(SITE_PREVIEW_URL, { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('networkidle');
     const switcher = page.locator('nav.language-switch').first();
@@ -29,7 +28,7 @@ test.describe('Funzioni pubbliche delle preview reali', () => {
       await page.goto(new URL(`?lang=${queryLang}`, SITE_PREVIEW_URL).toString(), { waitUntil: 'domcontentloaded' });
       await page.waitForLoadState('networkidle');
       await expect(page.locator('html')).toHaveAttribute('lang', documentLang);
-      await expect(page.locator(`nav.language-switch a[data-lang="${queryLang}"].active`)).toHaveCount(1);
+      await expect(switcher.locator(`a[data-lang="${queryLang}"].active`)).toHaveCount(1);
     }
 
     const menuLink = page.locator('a[href*="/menu.html"]').first();
