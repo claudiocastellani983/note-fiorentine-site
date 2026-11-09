@@ -231,14 +231,21 @@ export function mountStorageOptimizer({ db, root, readOnly }) {
     host.innerHTML = rows.map(file => {
       const candidate = state.candidates.find(item => item.path === file.path);
       const url = db.storage.from('site-media').getPublicUrl(file.path).data.publicUrl;
+      const comparison = candidate?.outputUrl
+        ? '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">' +
+          '<div><p class="media-note">Originale</p><img class="media-preview" loading="lazy" src="' + esc(url) +
+          '" alt="Immagine originale" style="max-width:100%;max-height:110px;object-fit:contain"></div>' +
+          '<div><p class="media-note">WebP ottimizzata</p><img class="media-preview" loading="lazy" src="' +
+          esc(candidate.outputUrl) + '" alt="Copia WebP ottimizzata" style="max-width:100%;max-height:110px;object-fit:contain"></div></div>'
+        : '<img class="media-preview" loading="lazy" src="' + esc(url) + '" alt="Anteprima originale">';
       const result = candidate?.outputUrl
-        ? '<p class="media-note">Copia: ' + esc(formatBytes(candidate.outputSize)) +
+        ? '<p class="media-note">Copia: ' + formatBytes(candidate.outputSize) +
           ' · risparmio ' + Math.round(candidate.savings * 100) + '% · ' +
           candidate.outputWidth + '×' + candidate.outputHeight + '</p><a href="' + esc(candidate.outputUrl) +
           '" target="_blank" rel="noopener" style="color:var(--gold)">Apri copia WebP</a>'
         : candidate?.skipped ? '<p class="media-note">' + esc(candidate.reason) + '</p>' : '';
-      return '<article class="media-card"><img class="media-preview" loading="lazy" src="' + esc(url) +
-        '" alt=""><b>' + esc(file.path) + '</b><p class="media-note">' + formatBytes(file.size) +
+      return '<article class="media-card">' + comparison + '<b>' + esc(file.path) +
+        '</b><p class="media-note">' + formatBytes(file.size) +
         ' · ' + (file.referenced ? 'riferimento DB individuato' : 'nessun riferimento DB individuato') +
         '</p>' + result + '</article>';
     }).join('') || (state.scanned ? '<p class="media-note">Nessun file da mostrare.</p>' : '');

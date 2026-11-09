@@ -43,7 +43,9 @@ test('crea soltanto copie WebP in cartella di revisione e conserva gli originali
 });
 
 
-test('ottimizza un’immagine di prova in WebP senza sovrascrivere l’originale', async ({ page }) => {
+
+
+test('carica un campione >1 MB su Test e prepara una copia WebP verificabile', async ({ page }) => {
   const adminBaseUrl = process.env.ADMIN_BASE_URL;
   test.skip(!adminBaseUrl, 'ADMIN_BASE_URL non configurato');
 
@@ -70,6 +72,7 @@ test('ottimizza un’immagine di prova in WebP senza sovrascrivere l’originale
     if (!original || original.size <= 1024 * 1024) throw new Error('Il campione generato non supera 1 MB.');
 
     const uploads = [];
+    let samplePath = null;
     const db = {
       storage: {
         from(bucket) {
@@ -77,18 +80,19 @@ test('ottimizza un’immagine di prova in WebP senza sovrascrivere l’originale
           return {
             async list(prefix) {
               if (!prefix) return { data: [{ name: 'optimizer-input', id: null, metadata: null }], error: null };
-              if (prefix === 'optimizer-input') return {
-                data: [{ name: 'sample.png', id: 'sample-id', metadata: { mimetype: 'image/png', size: original.size } }],
+              if (prefix === 'optimizer-input' && samplePath) return {
+                data: [{ name: samplePath.split('/').pop(), id: 'sample-id', metadata: { mimetype: 'image/png', size: original.size } }],
                 error: null
               };
               return { data: [], error: null };
             },
             async download(path) {
-              if (path !== 'optimizer-input/sample.png') throw new Error('Percorso download inatteso: ' + path);
+              if (path !== samplePath) throw new Error('Percorso download inatteso: ' + path);
               return { data: original, error: null };
             },
             async upload(path, blob, options) {
               uploads.push({ path, size: blob.size, contentType: options.contentType, upsert: options.upsert, originalSize: original.size });
+              if (path.startsWith('optimizer-input/')) samplePath = path;
               return { data: { path }, error: null };
             },
             getPublicUrl(path) {
@@ -108,17 +112,25 @@ test('ottimizza un’immagine di prova in WebP senza sovrascrivere l’originale
     document.body.appendChild(root);
     window.__nfOptimizerUploads = uploads;
     module.mountStorageOptimizer({ db, root, readOnly: false });
+
+    const transfer = new DataTransfer();
+    transfer.items.add(new File([original], 'sample.png', { type: 'image/png' }));
+    root.querySelector('#optimizerSamples').files = transfer.files;
   });
 
-  await page.getByRole('button', { name: '1 · Analizza archivio' }).click();
+  await page.getByRole('button', { name: 'Carica campioni grezzi su Test' }).click();
   await expect(page.locator('#optimizerSummary')).toContainText('1 oltre 1 MB');
   await page.getByRole('button', { name: '2 · Prepara copie ottimizzate' }).click();
   await expect(page.locator('#optimizerStatus')).toContainText('Completato: 1 copie create', { timeout: 20000 });
+  await expect(page.locator('#optimizerResults')).toContainText('WebP ottimizzata');
 
   const uploads = await page.evaluate(() => window.__nfOptimizerUploads);
-  expect(uploads).toHaveLength(1);
-  expect(uploads[0].path).toBe('optimization-review/optimizer-input/sample.png.webp');
-  expect(uploads[0].contentType).toBe('image/webp');
+  expect(uploads).toHaveLength(2);
+  expect(uploads[0].path).toMatch(/^optimizer-input\//);
+  expect(uploads[0].contentType).toBe('image/png');
   expect(uploads[0].upsert).toBe(false);
-  expect(uploads[0].size).toBeLessThan(uploads[0].originalSize);
+  expect(uploads[1].path).toBe('optimization-review/' + uploads[0].path + '.webp');
+  expect(uploads[1].contentType).toBe('image/webp');
+  expect(uploads[1].upsert).toBe(false);
+  expect(uploads[1].size).toBeLessThan(uploads[1].originalSize);
 });
