@@ -98,18 +98,30 @@ jobs:
             // A workflow-only commit does not trigger a new Vercel build.
             // In that case, validate the previews against the immediately
             // preceding source commit instead of incorrectly skipping every live test.
-            const currentCommit = await github.rest.repos.getCommit({
+            let sourceCommit = await github.rest.repos.getCommit({
               owner, repo, ref: context.sha
             });
-            const changedFiles = currentCommit.data.files || [];
-            const appChanged = changedFiles.some(file =>
-              file.filename.startsWith("src/src/") ||
-              file.filename.startsWith("admin/")
-            );
-            const deploymentSha = appChanged
-              ? context.sha
-              : (currentCommit.data.parents?.[0]?.sha || context.sha);
-            core.info("Commit verificato per Vercel: " + deploymentSha);
+            let deploymentSha = context.sha;
+            // Walk back over workflow/config-only commits until the latest
+            // commit that actually changed Home or Admin source files.
+            for (let depth = 0; depth < 20; depth++) {
+              const files = sourceCommit.data.files || [];
+              const appChanged = files.some(file =>
+                file.filename.startsWith("src/src/") ||
+                file.filename.startsWith("admin/")
+              );
+              if (appChanged) {
+                deploymentSha = sourceCommit.data.sha;
+                break;
+              }
+              const parentSha = sourceCommit.data.parents?.[0]?.sha;
+              if (!parentSha) break;
+              deploymentSha = parentSha;
+              sourceCommit = await github.rest.repos.getCommit({
+                owner, repo, ref: parentSha
+              });
+            }
+            core.info("Commit sorgente verificato per Vercel: " + deploymentSha);
 
             for (let attempt = 0; attempt < 15; attempt++) {
               const branchRef = await github.rest.git.getRef({
