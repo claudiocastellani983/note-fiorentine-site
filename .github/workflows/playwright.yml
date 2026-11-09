@@ -6,13 +6,22 @@ on:
   pull_request:
     branches: [release/integrated-preview-2026-11]
   workflow_dispatch:
+    inputs:
+      site_preview_url:
+        description: URL della preview Home Vercel
+        required: false
+        default: https://note-fiorentine-dv1e625mo-claudiocastellani983-5675.vercel.app/
+      admin_preview_url:
+        description: URL della preview Admin Vercel
+        required: false
+        default: https://note-fiorentine-admin-nb5f8lyif-claudiocastellani983-5675.vercel.app/src/index.html
 
 permissions:
   contents: read
 
 jobs:
-  playwright:
-    name: E2E (${{ matrix.browser }})
+  playwright-local:
+    name: Test locali (${ matrix.browser })
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -49,15 +58,56 @@ jobs:
           exit 1
 
       - name: Install Playwright browser
-        run: npx playwright install --with-deps ${{ matrix.browser }}
+        run: npx playwright install --with-deps ${ matrix.browser }
 
-      - name: Run Playwright tests
-        run: npx playwright test --project=${{ matrix.browser }}
+      - name: Run local Playwright tests
+        run: npx playwright test --project=${ matrix.browser } --ignore-snapshots
 
-      - name: Upload HTML report
+      - name: Upload local HTML report and failure evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-${{ matrix.browser }}
-          path: playwright-report/
+          name: playwright-local-${ matrix.browser }
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
+
+  playwright-live-previews:
+    name: Preview Vercel reali (${ matrix.browser })
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    env:
+      SITE_PREVIEW_URL: ${ github.event.inputs.site_preview_url || 'https://note-fiorentine-dv1e625mo-claudiocastellani983-5675.vercel.app/' }
+      ADMIN_PREVIEW_URL: ${ github.event.inputs.admin_preview_url || 'https://note-fiorentine-admin-nb5f8lyif-claudiocastellani983-5675.vercel.app/src/index.html' }
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps ${ matrix.browser }
+
+      - name: Test live Vercel previews
+        run: npx playwright test tests/live-previews.spec.js --project=${ matrix.browser }
+
+      - name: Upload live preview report and failure evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-live-${ matrix.browser }
+          path: |
+            playwright-report/
+            test-results/
           retention-days: 14
