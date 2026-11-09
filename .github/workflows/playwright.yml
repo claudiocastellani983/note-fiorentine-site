@@ -61,7 +61,7 @@ jobs:
         run: npx playwright install --with-deps ${{ matrix.browser }}
 
       - name: Run local Playwright tests
-        run: npx playwright test --project=${{ matrix.browser }} --ignore-snapshots --grep-invert "Preview Vercel reali"
+        run: npx playwright test --project=${{ matrix.browser }} --ignore-snapshots --grep-invert "Preview Vercel reali|Funzioni pubbliche delle preview reali"
 
       - name: Upload local HTML report and failure evidence
         if: always()

@@ -18,7 +18,7 @@ test.describe('Funzioni pubbliche delle preview reali', () => {
     page.on('pageerror', error => errors.push(error.message));
 
     await page.goto(SITE_PREVIEW_URL, { waitUntil: 'domcontentloaded' });
-    const switcher = page.locator('.language-switch');
+    const switcher = page.locator('nav.language-switch').first();
     await expect(switcher).toBeVisible();
 
     for (const [queryLang, documentLang] of LANGUAGES) {
