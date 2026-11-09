@@ -108,7 +108,7 @@ jobs:
             );
             const deploymentSha = appChanged
               ? context.sha
-              : (context.payload.before || context.sha);
+              : (currentCommit.data.parents?.[0]?.sha || context.sha);
             core.info("Commit verificato per Vercel: " + deploymentSha);
 
             for (let attempt = 0; attempt < 15; attempt++) {
