@@ -80,8 +80,8 @@ jobs:
       matrix:
         browser: [chromium, firefox, webkit]
     env:
-      SITE_PREVIEW_URL: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.site_preview_url || 'https://note-fiorentine-git-release-in-47d382-claudiocastellani983-5675.vercel.app/' }}
-      ADMIN_PREVIEW_URL: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.admin_preview_url || 'https://note-fiorentine-admin-git-rele-890dc9-claudiocastellani983-5675.vercel.app/' }}
+      SITE_PREVIEW_URL: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.site_preview_url || 'https://note-fiorentine-resok3n32-claudiocastellani983-5675.vercel.app/' }}
+      ADMIN_PREVIEW_URL: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.admin_preview_url || 'https://note-fiorentine-admin-ap9lm0q68-claudiocastellani983-5675.vercel.app/' }}
 
     steps:
       - name: Checkout repository
@@ -116,7 +116,7 @@ jobs:
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     env:
-      ADMIN_PREVIEW_URL: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.admin_preview_url || 'https://note-fiorentine-admin-git-rele-890dc9-claudiocastellani983-5675.vercel.app/' }}
+      ADMIN_PREVIEW_URL: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.admin_preview_url || 'https://note-fiorentine-admin-ap9lm0q68-claudiocastellani983-5675.vercel.app/' }}
       NF_TEST_ADMIN_EMAIL: ${{ secrets.NF_TEST_ADMIN_EMAIL }}
       NF_TEST_ADMIN_PASSWORD: ${{ secrets.NF_TEST_ADMIN_PASSWORD }}
     steps:
