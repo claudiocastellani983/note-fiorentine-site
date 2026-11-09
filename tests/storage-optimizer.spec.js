@@ -41,3 +41,84 @@ test('crea soltanto copie WebP in cartella di revisione e conserva gli originali
   expect(optimizerSource).not.toContain('.remove(');
   expect(optimizerSource).not.toMatch(/db\.from\([^)]*\)\.(?:insert|update|upsert|delete)\s*\(/);
 });
+
+
+test('ottimizza un’immagine di prova in WebP senza sovrascrivere l’originale', async ({ page }) => {
+  const adminBaseUrl = process.env.ADMIN_BASE_URL;
+  test.skip(!adminBaseUrl, 'ADMIN_BASE_URL non configurato');
+
+  await page.goto(new URL('/src/index.html', adminBaseUrl).toString(), { waitUntil: 'domcontentloaded' });
+
+  await page.evaluate(async () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1024;
+    canvas.height = 768;
+    const context = canvas.getContext('2d');
+    const pixels = context.createImageData(canvas.width, canvas.height);
+    const random = new Uint8Array(pixels.data.length);
+    for (let offset = 0; offset < random.length; offset += 65536) {
+      crypto.getRandomValues(random.subarray(offset, Math.min(offset + 65536, random.length)));
+    }
+    for (let index = 0; index < pixels.data.length; index += 4) {
+      pixels.data[index] = random[index];
+      pixels.data[index + 1] = random[index + 1];
+      pixels.data[index + 2] = random[index + 2];
+      pixels.data[index + 3] = 255;
+    }
+    context.putImageData(pixels, 0, 0);
+    const original = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    if (!original || original.size <= 1024 * 1024) throw new Error('Il campione generato non supera 1 MB.');
+
+    const uploads = [];
+    const db = {
+      storage: {
+        from(bucket) {
+          if (bucket !== 'site-media') throw new Error('Bucket inatteso: ' + bucket);
+          return {
+            async list(prefix) {
+              if (!prefix) return { data: [{ name: 'optimizer-input', id: null, metadata: null }], error: null };
+              if (prefix === 'optimizer-input') return {
+                data: [{ name: 'sample.png', id: 'sample-id', metadata: { mimetype: 'image/png', size: original.size } }],
+                error: null
+              };
+              return { data: [], error: null };
+            },
+            async download(path) {
+              if (path !== 'optimizer-input/sample.png') throw new Error('Percorso download inatteso: ' + path);
+              return { data: original, error: null };
+            },
+            async upload(path, blob, options) {
+              uploads.push({ path, size: blob.size, contentType: options.contentType, upsert: options.upsert, originalSize: original.size });
+              return { data: { path }, error: null };
+            },
+            getPublicUrl(path) {
+              return { data: { publicUrl: 'https://test.invalid/' + path } };
+            }
+          };
+        }
+      },
+      from() {
+        return { select: async () => ({ data: [], error: null }) };
+      }
+    };
+
+    const module = await import('/src/storage-optimizer.js');
+    const root = document.createElement('div');
+    root.id = 'optimizer-functional-test';
+    document.body.appendChild(root);
+    window.__nfOptimizerUploads = uploads;
+    module.mountStorageOptimizer({ db, root, readOnly: false });
+  });
+
+  await page.getByRole('button', { name: '1 · Analizza archivio' }).click();
+  await expect(page.locator('#optimizerSummary')).toContainText('1 oltre 1 MB');
+  await page.getByRole('button', { name: '2 · Prepara copie ottimizzate' }).click();
+  await expect(page.locator('#optimizerStatus')).toContainText('Completato: 1 copie create', { timeout: 20000 });
+
+  const uploads = await page.evaluate(() => window.__nfOptimizerUploads);
+  expect(uploads).toHaveLength(1);
+  expect(uploads[0].path).toBe('optimization-review/optimizer-input/sample.png.webp');
+  expect(uploads[0].contentType).toBe('image/webp');
+  expect(uploads[0].upsert).toBe(false);
+  expect(uploads[0].size).toBeLessThan(uploads[0].originalSize);
+});
