@@ -305,31 +305,39 @@ test('Admin: gestione immagini intuitiva, upload reale su Supabase Test e ripris
         });
         if (!read.ok) return { ok: false, reason: 'lettura per cleanup fallita: ' + read.status };
         const current = (await read.json())[0];
-        const objectPath = path || (current?.image_path && current.image_path !== original.image_path ? current.image_path : null);
+        const knownStalePaths = [
+          'gallery_food/1794252936615-2mj9h4.png',
+          'gallery_food/1794252928014-i3iu69.png'
+        ];
+        const objectPaths = [...new Set([
+          path,
+          ...knownStalePaths
+        ].filter(Boolean))];
+        const restorePath = knownStalePaths.includes(original.image_path) ? null : original.image_path;
         const dbResponse = await fetch(supabaseUrl + '/rest/v1/site_images?image_key=eq.gallery_food', {
           method: 'PATCH',
           headers: { ...headers, Prefer: 'return=minimal' },
           body: JSON.stringify({
-            image_path: original.image_path,
+            image_path: restorePath,
             focal_x: original.focal_x,
             focal_y: original.focal_y,
             focal_zoom: original.focal_zoom
           })
         });
-        let storageResponse = { ok: true, status: 204 };
-        if (objectPath) {
+        let storageResponse = { ok: true, status: 204, deleted: [] };
+        if (objectPaths.length) {
           const response = await fetch(supabaseUrl + '/storage/v1/object/site-media', {
             method: 'DELETE',
             headers,
-            body: JSON.stringify({ prefixes: [objectPath] })
+            body: JSON.stringify({ prefixes: objectPaths })
           });
-          storageResponse = { ok: response.ok, status: response.status, body: response.ok ? '' : await response.text() };
+          storageResponse = { ok: response.ok, status: response.status, body: response.ok ? '' : await response.text(), deleted: objectPaths };
         }
         return {
           ok: dbResponse.ok && storageResponse.ok,
           database: dbResponse.status,
           storage: storageResponse,
-          restoredPath: objectPath
+          restoredPath: restorePath
         };
       }, { path: uploadedPath, original: originalRow, publicKey: SUPABASE_PUBLIC_KEY, supabaseUrl: SUPABASE_URL });
     }
