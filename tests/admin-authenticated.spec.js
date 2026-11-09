@@ -185,12 +185,44 @@ test('Admin: ottimizzazione WebP reale su Supabase Test, riferimento aggiornato 
       });
       if (!rowDelete.ok) return { ok: false, reason: 'rimozione riga fixture fallita: ' + rowDelete.status + ' ' + await rowDelete.text() };
 
-      const prefixes = [...new Set([fixturePath, currentPath].filter(Boolean))];
-      if (prefixes.length) {
+      const prefixes = new Set([fixturePath, currentPath].filter(Boolean));
+      // Se l’upload WebP è riuscito ma l’aggiornamento DB è fallito,
+      // individua anche l’eventuale copia orfana generata da questa esecuzione.
+      const reviewList = await fetch(supabaseUrl + '/storage/v1/object/list/site-media', {
+        method: 'POST',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prefix: 'optimization-review/optimizer-input',
+          limit: 100,
+          offset: 0,
+          search: 'playwright-' + id
+        })
+      });
+      if (reviewList.ok) {
+        const entries = await reviewList.json();
+        for (const entry of entries) {
+          if (new RegExp('^playwright-' + id + '\\.png\\.\\d+\\.webp        if (!storageDelete.ok) return { ok: false, reason: 'rimozione oggetti temporanei fallita: ' + storageDelete.status + ' ' + await storageDelete.text() };
+      }
+      return { ok: true, removedPaths: cleanupPaths };
+    }, { id: fixtureId, fixturePath, publicKey: SUPABASE_PUBLIC_KEY, supabaseUrl: SUPABASE_URL }).catch(error => ({ ok: false, reason: error.message }));
+  }
+
+  expect(fixtureCreated, 'Il campione temporaneo deve essere stato creato').toBe(true);
+  expect(cleanupResult && cleanupResult.ok,
+    'Riga e file temporanei del test devono essere rimossi da Supabase Test').toBe(true);
+  expect(errors, 'Errori JavaScript non gestiti nel pannello Admin').toEqual([]);
+});
+).test(entry.name || '')) {
+            prefixes.add('optimization-review/optimizer-input/' + entry.name);
+          }
+        }
+      }
+      const cleanupPaths = [...prefixes];
+      if (cleanupPaths.length) {
         const storageDelete = await fetch(supabaseUrl + '/storage/v1/object/site-media', {
           method: 'DELETE',
           headers: { ...headers, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prefixes })
+          body: JSON.stringify({ prefixes: cleanupPaths })
         });
         if (!storageDelete.ok) return { ok: false, reason: 'rimozione oggetti temporanei fallita: ' + storageDelete.status + ' ' + await storageDelete.text() };
       }
