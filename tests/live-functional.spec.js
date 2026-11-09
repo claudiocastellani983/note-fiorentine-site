@@ -24,7 +24,7 @@ test.describe('Funzioni pubbliche delle preview reali', () => {
     for (const [queryLang, documentLang] of LANGUAGES) {
       await page.goto(new URL(`?lang=${queryLang}`, SITE_PREVIEW_URL).toString(), { waitUntil: 'domcontentloaded' });
       await expect(page.locator('html')).toHaveAttribute('lang', documentLang);
-      await expect(page.locator(`.language-switch a[data-lang="${queryLang}"].active`)).toHaveCount(1);
+      await expect(switcher.locator(`a[data-lang="${queryLang}"].active`)).toHaveCount(1);
     }
 
     const menuLink = page.locator('a[href*="/menu.html"]').first();

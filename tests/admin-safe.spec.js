@@ -10,7 +10,7 @@ test('admin: login e diagnostica si caricano senza toccare Supabase', async ({ p
   const pageErrors = [];
 
   // Isolamento assoluto: nessuna richiesta raggiunge il progetto Supabase reale.
-  await page.route('https://nculgrwlzjitggjcgbpp.supabase.co/**', async route => {
+  await page.route(/^https:\/\/(nculgrwlzjitggjcgbpp|iuxskknbopboynjlsxbk)\.supabase\.co\//, async route => {
     supabaseRequests.push({
       method: route.request().method(),
       url: route.request().url()
@@ -48,8 +48,10 @@ test('admin: login e diagnostica si caricano senza toccare Supabase', async ({ p
   expect(adminHtml).toContain('Release in preparazione');
   expect(adminHtml).toContain('Esporta pacchetto');
   expect(adminHtml).not.toContain('Pubblica modifiche del sito');
-  expect(adminHtml).toContain("const PREVIEW_WRITE_HOSTS=new Set(['note-fiorentine-admin.vercel.app','www.notefiorentine.it','notefiorentine.it'])");
-  expect(adminHtml).toContain("const PREVIEW_READ_ONLY=!PREVIEW_WRITE_HOSTS.has(location.hostname)");
+  expect(adminHtml).toContain("https://iuxskknbopboynjlsxbk.supabase.co");
+  expect(adminHtml).not.toContain("https://nculgrwlzjitggjcgbpp.supabase.co");
+  expect(adminHtml).toContain("const PREVIEW_READ_ONLY=!(location.hostname.startsWith('note-fiorentine-admin-')");
+  expect(adminHtml).toContain("location.hostname!=='note-fiorentine-admin.vercel.app'");
   expect(adminHtml).toContain("if(PREVIEW_READ_ONLY&&['insert','update','upsert','delete'].includes(String(key)))");
 
 
