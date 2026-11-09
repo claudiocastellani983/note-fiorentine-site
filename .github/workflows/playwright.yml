@@ -100,7 +100,7 @@ jobs:
         run: npx playwright install --with-deps ${{ matrix.browser }}
 
       - name: Test live Vercel previews
-        run: npx playwright test tests/live-previews.spec.js --project=${{ matrix.browser }}
+        run: npx playwright test tests/live-previews.spec.js tests/live-functional.spec.js --project=${{ matrix.browser }}
 
       - name: Upload live preview report and failure evidence
         if: always()
