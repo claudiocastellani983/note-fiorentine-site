@@ -144,13 +144,13 @@ export function mountStorageOptimizer({ db, root, readOnly }) {
           count = replaced.count;
         }
         if (!count) continue;
+        changes.push({ ...ref, newValue: nextValue });
         const result = await db.from(ref.table).update({ [ref.column]: nextValue })
           .eq(ref.key, ref.keyValue).select(ref.key);
         if (result.error) throw new Error('Aggiornamento ' + ref.table + ': ' + result.error.message);
         if (!result.data || result.data.length !== 1) {
           throw new Error('Aggiornamento non verificato in ' + ref.table + ' per il riferimento ' + file.path);
         }
-        changes.push({ ...ref, newValue: nextValue });
       }
       return changes;
     } catch (error) {
@@ -282,7 +282,8 @@ export function mountStorageOptimizer({ db, root, readOnly }) {
       ).join('');
       status('Operazione conclusa. ' + replaced + ' immagini sostituite; originali intatti.');
     } catch (error) {
-      $('optimizerSummary').textContent = 'Operazione interrotta. Le immagini originali non vengono eliminate. ' +
+      $('optimizerSummary').textContent = 'Operazione interrotta. ' + replaced +
+        ' immagini già sostituite prima dell’errore; le immagini originali restano conservate. ' +
         (created.length ? created.length + ' copie WebP di sicurezza restano in optimization-review.' : '');
       status('Errore: ' + (error.message || String(error)));
     } finally {
