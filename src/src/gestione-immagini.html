@@ -129,7 +129,7 @@
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const rawSupabase=createClient('https://nculgrwlzjitggjcgbpp.supabase.co','sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0');
-const NF_WRITE_HOSTS=new Set(['www.notefiorentine.it','notefiorentine.it','note-fiorentine-admin.vercel.app']);
+const NF_WRITE_HOSTS=new Set(['www.notefiorentine.it','notefiorentine.it']);
 const NF_PREVIEW_READ_ONLY=!NF_WRITE_HOSTS.has(location.hostname);
 const nfBlockedWrite=()=>{throw new Error('Anteprima protetta: le modifiche a database e Storage sono disabilitate. Le operazioni sono disponibili solo sul dominio di produzione autorizzato.')};
 const nfGuardQuery=q=>new Proxy(q,{get(target,key){if(NF_PREVIEW_READ_ONLY&&['insert','update','upsert','delete'].includes(String(key)))return nfBlockedWrite;const value=Reflect.get(target,key,target);return typeof value==='function'?value.bind(target):value;}});
