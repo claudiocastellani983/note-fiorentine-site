@@ -219,15 +219,6 @@ test('Admin: gestione immagini intuitiva, upload reale su Supabase Test e ripris
   let uploadVerified = false;
 
   page.on('pageerror', error => pageErrors.push(error.message));
-  page.on('request', request => {
-    const url = new URL(request.url());
-    const marker = '/storage/v1/object/site-media/';
-    if (url.hostname === 'iuxskknbopboynjlsxbk.supabase.co' &&
-        request.method().toUpperCase() === 'POST' &&
-        url.pathname.includes(marker)) {
-      uploadedPath = decodeURIComponent(url.pathname.slice(url.pathname.indexOf(marker) + marker.length));
-    }
-  });
 
   await page.goto(managerUrl, { waitUntil: 'domcontentloaded' });
   await expect(page.locator('#loginPanel')).toBeVisible();
@@ -267,20 +258,30 @@ test('Admin: gestione immagini intuitiva, upload reale su Supabase Test e ripris
       buffer: png
     });
     await expect(card.getByRole('button', { name: 'Sostituisci immagine' })).toBeEnabled();
+    const uploadResponsePromise = page.waitForResponse(response => {
+      const url = new URL(response.url());
+      return url.hostname === 'iuxskknbopboynjlsxbk.supabase.co' &&
+        url.pathname.includes('/storage/v1/object/site-media/gallery_food/') &&
+        ['POST', 'PUT'].includes(response.request().method().toUpperCase());
+    }, { timeout: 45000 });
     await card.getByRole('button', { name: 'Sostituisci immagine' }).click();
-    await expect(page.locator('#managerStatus')).toContainText('Pronto.', { timeout: 45000 });
+    const uploadResponse = await uploadResponsePromise;
+    expect(uploadResponse.ok(), 'Upload file nello Storage Test').toBe(true);
+    const marker = '/storage/v1/object/site-media/';
+    const uploadPathname = new URL(uploadResponse.url()).pathname;
+    uploadedPath = decodeURIComponent(uploadPathname.slice(uploadPathname.indexOf(marker) + marker.length));
     expect(uploadedPath, 'Il file deve essere caricato nello Storage Test').toMatch(/^gallery_food\//);
 
-    const updatedRow = await page.evaluate(async ({ supabaseUrl, publicKey }) => {
+    await expect.poll(async () => page.evaluate(async ({ supabaseUrl, publicKey }) => {
       const storageKey = Object.keys(localStorage).find(key => key.endsWith('-auth-token'));
       const session = JSON.parse(localStorage.getItem(storageKey) || '{}');
       const response = await fetch(supabaseUrl + '/rest/v1/site_images?select=image_key,image_path&image_key=eq.gallery_food', {
         headers: { apikey: publicKey, Authorization: 'Bearer ' + session.access_token, Accept: 'application/json' }
       });
       if (!response.ok) throw new Error('Verifica database non riuscita: ' + response.status);
-      return (await response.json())[0];
-    }, { supabaseUrl: SUPABASE_URL, publicKey: SUPABASE_PUBLIC_KEY });
-    expect(updatedRow.image_path).toBe(uploadedPath);
+      return (await response.json())[0]?.image_path ?? null;
+    }, { supabaseUrl: SUPABASE_URL, publicKey: SUPABASE_PUBLIC_KEY }), { timeout: 45000 }).toBe(uploadedPath);
+    uploadVerified = true;
 
     const publicImage = SUPABASE_URL + '/storage/v1/object/public/site-media/' +
       uploadedPath.split('/').map(encodeURIComponent).join('/');
