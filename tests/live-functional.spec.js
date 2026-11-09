@@ -17,14 +17,19 @@ test.describe('Funzioni pubbliche delle preview reali', () => {
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
 
+    // Attendere il completamento delle richieste asincrone prima di cambiare
+    // lingua: WebKit può classificare come "access control" le fetch abortite
+    // dalla navigazione successiva, anche quando il server ha risposto 200.
     await page.goto(SITE_PREVIEW_URL, { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('networkidle');
     const switcher = page.locator('nav.language-switch').first();
     await expect(switcher).toBeVisible();
 
     for (const [queryLang, documentLang] of LANGUAGES) {
       await page.goto(new URL(`?lang=${queryLang}`, SITE_PREVIEW_URL).toString(), { waitUntil: 'domcontentloaded' });
+      await page.waitForLoadState('networkidle');
       await expect(page.locator('html')).toHaveAttribute('lang', documentLang);
-      await expect(switcher.locator(`a[data-lang="${queryLang}"].active`)).toHaveCount(1);
+      await expect(page.locator(`nav.language-switch a[data-lang="${queryLang}"].active`)).toHaveCount(1);
     }
 
     const menuLink = page.locator('a[href*="/menu.html"]').first();
@@ -41,6 +46,7 @@ test.describe('Funzioni pubbliche delle preview reali', () => {
 
     const response = await page.goto(menuUrl, { waitUntil: 'domcontentloaded' });
     expect(response && response.status()).toBe(200);
+    await page.waitForLoadState('networkidle');
     await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
     await expect(page.locator('.language-switch a[data-lang="zh"].active')).toHaveCount(1);
 
@@ -57,12 +63,14 @@ test.describe('Funzioni pubbliche delle preview reali', () => {
     expect(ADMIN_PREVIEW_URL).toBeTruthy();
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(SITE_PREVIEW_URL, { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('networkidle');
     const homeOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 2);
     expect(homeOverflow, 'La Home non deve avere overflow orizzontale a 390px').toBe(false);
 
     await page.goto(ADMIN_PREVIEW_URL, { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('networkidle');
     await expect(page.locator('#loginForm')).toBeVisible();
     const adminOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 2);
-    expect(adminOverflow, 'Il login Admin non deve avere overflow orizzontale a 390px').toBe(false);
+    expect(adminOverflow, 'L’Admin non deve avere overflow orizzontale a 390px').toBe(false);
   });
 });
