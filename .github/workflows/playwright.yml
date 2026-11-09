@@ -95,6 +95,22 @@ jobs:
             core.setOutput("all_ready", "false");
             let lastReason = "Vercel non ha ancora pubblicato gli status del commit.";
 
+            // A workflow-only commit does not trigger a new Vercel build.
+            // In that case, validate the previews against the immediately
+            // preceding source commit instead of incorrectly skipping every live test.
+            const currentCommit = await github.rest.repos.getCommit({
+              owner, repo, ref: context.sha
+            });
+            const changedFiles = currentCommit.data.files || [];
+            const appChanged = changedFiles.some(file =>
+              file.filename.startsWith("src/src/") ||
+              file.filename.startsWith("admin/")
+            );
+            const deploymentSha = appChanged
+              ? context.sha
+              : (context.payload.before || context.sha);
+            core.info("Commit verificato per Vercel: " + deploymentSha);
+
             for (let attempt = 0; attempt < 15; attempt++) {
               const branchRef = await github.rest.git.getRef({
                 owner, repo, ref: "heads/" + branch
@@ -106,7 +122,7 @@ jobs:
               }
 
               const response = await github.rest.repos.listCommitStatusesForRef({
-                owner, repo, ref: context.sha, per_page: 100
+                owner, repo, ref: deploymentSha, per_page: 100
               });
               const latest = new Map();
               for (const status of [...response.data].sort(
@@ -132,7 +148,7 @@ jobs:
                 return;
               }
 
-              lastReason = "Commit " + context.sha.slice(0, 12) +
+              lastReason = "Commit Vercel " + deploymentSha.slice(0, 12) +
                 " — Home: " + (home?.state || "in attesa") +
                 "; Admin: " + (admin?.state || "in attesa");
               if (home?.state === "failure" || home?.state === "error") {
