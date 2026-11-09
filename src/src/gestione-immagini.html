@@ -128,7 +128,13 @@
 <div class="foot">Note Fiorentine · Ristorante Toscano & Live Music</div></main>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-const supabase=createClient('https://nculgrwlzjitggjcgbpp.supabase.co','sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0');
+const rawSupabase=createClient('https://nculgrwlzjitggjcgbpp.supabase.co','sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0');
+const NF_WRITE_HOSTS=new Set(['www.notefiorentine.it','notefiorentine.it','note-fiorentine-admin.vercel.app']);
+const NF_PREVIEW_READ_ONLY=!NF_WRITE_HOSTS.has(location.hostname);
+const nfBlockedWrite=()=>{throw new Error('Anteprima protetta: le modifiche a database e Storage sono disabilitate. Le operazioni sono disponibili solo sul dominio di produzione autorizzato.')};
+const nfGuardQuery=q=>new Proxy(q,{get(target,key){if(NF_PREVIEW_READ_ONLY&&['insert','update','upsert','delete'].includes(String(key)))return nfBlockedWrite;const value=Reflect.get(target,key,target);return typeof value==='function'?value.bind(target):value;}});
+const nfGuardBucket=b=>new Proxy(b,{get(target,key){if(NF_PREVIEW_READ_ONLY&&['upload','remove','update','move','copy'].includes(String(key)))return nfBlockedWrite;const value=Reflect.get(target,key,target);return typeof value==='function'?value.bind(target):value;}});
+const supabase=new Proxy(rawSupabase,{get(target,key){if(key==='from')return table=>nfGuardQuery(target.from(table));if(key==='storage')return new Proxy(target.storage,{get(storage,key2){if(key2==='from')return name=>nfGuardBucket(storage.from(name));const value=Reflect.get(storage,key2,storage);return typeof value==='function'?value.bind(storage):value;}});const value=Reflect.get(target,key,target);return typeof value==='function'?value.bind(target):value;}});
 const $=id=>document.getElementById(id);
 const slots=[
  {key:'hero',label:'Immagine principale',category:'Homepage',desc:'Riquadro principale della homepage.',desktopRatio:'1.12 / 1',mobileRatio:'0.89 / 1'},
