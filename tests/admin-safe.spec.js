@@ -48,6 +48,10 @@ test('admin: login e diagnostica si caricano senza toccare Supabase', async ({ p
   expect(adminHtml).toContain('Release in preparazione');
   expect(adminHtml).toContain('Esporta pacchetto');
   expect(adminHtml).not.toContain('Pubblica modifiche del sito');
+  expect(adminHtml).toContain("const PREVIEW_WRITE_HOSTS=new Set(['note-fiorentine-admin.vercel.app','www.notefiorentine.it','notefiorentine.it'])");
+  expect(adminHtml).toContain("const PREVIEW_READ_ONLY=!PREVIEW_WRITE_HOSTS.has(location.hostname)");
+  expect(adminHtml).toContain("if(PREVIEW_READ_ONLY&&['insert','update','upsert','delete'].includes(String(key)))");
+
 
   const draftManagerSource = require('node:fs').readFileSync(require('node:path').join(__dirname, '..', 'admin/src/draft-manager.js'), 'utf8');
   expect(draftManagerSource).toContain("status:'pending-review'");
