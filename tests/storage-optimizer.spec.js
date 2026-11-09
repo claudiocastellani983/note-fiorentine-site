@@ -61,7 +61,7 @@ test('esegue con un clic la sostituzione verificata e conserva l’originale', a
   const adminBaseUrl = process.env.ADMIN_BASE_URL;
   test.skip(!adminBaseUrl, 'ADMIN_BASE_URL non configurato');
 
-  await page.goto(new URL('/storage-optimizer.js', adminBaseUrl).toString(), { waitUntil: 'domcontentloaded' });
+  await page.goto(new URL('/src/storage-optimizer.js', adminBaseUrl).toString(), { waitUntil: 'domcontentloaded' });
 
   await page.evaluate(async () => {
     const canvas = document.createElement('canvas');
@@ -141,7 +141,7 @@ test('esegue con un clic la sostituzione verificata e conserva l’originale', a
       }
     };
 
-    const module = await import('/storage-optimizer.js');
+    const module = await import('/src/storage-optimizer.js');
     const root = document.createElement('div');
     root.id = 'optimizer-one-click-test';
     document.body.appendChild(root);
