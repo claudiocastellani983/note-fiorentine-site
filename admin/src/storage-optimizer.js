@@ -131,6 +131,7 @@ export function mountStorageOptimizer({ db, root, readOnly }) {
       const context = canvas.getContext('2d');
       if (!context) throw new Error('Canvas non disponibile.');
       context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      let outputWidth = canvas.width, outputHeight = canvas.height;
       let result = await new Promise(resolve => canvas.toBlob(resolve, 'image/webp', 0.82));
       if (!result) throw new Error('Conversione WebP non riuscita.');
       if (result.size >= blob.size * 0.97) {
@@ -142,9 +143,9 @@ export function mountStorageOptimizer({ db, root, readOnly }) {
         if (!ctx) throw new Error('Canvas ridotto non disponibile.');
         ctx.drawImage(bitmap, 0, 0, smaller.width, smaller.height);
         const reduced = await new Promise(resolve => smaller.toBlob(resolve, 'image/webp', 0.72));
-        if (reduced && reduced.size < result.size) result = reduced;
+        if (reduced && reduced.size < result.size) { result = reduced; outputWidth = smaller.width; outputHeight = smaller.height; }
       }
-      return { blob: result, width: canvas.width, height: canvas.height,
+      return { blob: result, width: outputWidth, height: outputHeight,
         savings: Math.max(0, 1 - result.size / blob.size) };
     } finally { bitmap?.close?.(); }
   }
