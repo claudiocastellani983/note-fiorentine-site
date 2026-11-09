@@ -34,6 +34,9 @@ test('crea soltanto copie WebP in cartella di revisione e conserva gli originali
   expect(optimizerSource).toContain("const outputPath = 'optimization-review/' + file.path + '.webp'");
   expect(optimizerSource).toContain("contentType: 'image/webp', upsert: false");
   expect(optimizerSource).toContain("if (readOnly) return status(");
+  expect(optimizerSource).toContain("const path = 'optimizer-input/' + crypto.randomUUID() + '-' + safeName");
+  expect(optimizerSource).toContain("if (file.size <= 1024 * 1024) throw new Error('Ogni campione deve superare 1 MB: ' + file.name)");
+  expect(optimizerSource).toContain("$('optimizerUploadSamples').disabled = true");
   expect(optimizerSource).toContain('Originali e collegamenti non modificati.');
   expect(optimizerSource).not.toContain('.remove(');
   expect(optimizerSource).not.toMatch(/db\.from\([^)]*\)\.(?:insert|update|upsert|delete)\s*\(/);
