@@ -268,7 +268,7 @@ test('Admin: gestione immagini intuitiva, upload reale su Supabase Test e ripris
     });
     await expect(card.getByRole('button', { name: 'Sostituisci immagine' })).toBeEnabled();
     await card.getByRole('button', { name: 'Sostituisci immagine' }).click();
-    await expect(card.getByRole('button', { name: 'Sostituzione completata' })).toBeVisible({ timeout: 45000 });
+    await expect(page.locator('#managerStatus')).toContainText('Pronto.', { timeout: 45000 });
     expect(uploadedPath, 'Il file deve essere caricato nello Storage Test').toMatch(/^gallery_food\\//);
 
     const updatedRow = await page.evaluate(async ({ supabaseUrl, publicKey }) => {
