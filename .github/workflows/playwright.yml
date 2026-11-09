@@ -32,7 +32,7 @@ jobs:
           node-version: 24
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       - name: Start local static previews from the PR source
         run: |
