@@ -1,4 +1,5 @@
-# Playwright checks use the verified alias of the current integrated Home deployment.
+# Live checks are gated by Vercel commit statuses so an older branch alias
+# can never produce a false-green result for a newer commit.
 name: Playwright E2E
 
 on:
@@ -7,16 +8,10 @@ on:
   pull_request:
     branches: [release/integrated-preview-2026-11]
   workflow_dispatch:
-    inputs:
-      site_preview_url:
-        description: URL della preview Home Vercel
-        required: false
-      admin_preview_url:
-        description: URL della preview Admin Vercel
-        required: false
 
 permissions:
   contents: read
+  statuses: read
 
 jobs:
   playwright-local:
@@ -72,8 +67,95 @@ jobs:
             test-results/
           retention-days: 14
 
+  resolve-current-previews:
+    name: Verifica che le preview appartengano al commit corrente
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/release/integrated-preview-2026-11') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/release/integrated-preview-2026-11')
+    runs-on: ubuntu-latest
+    outputs:
+      admin_ready: ${{ steps.resolve.outputs.admin_ready }}
+      all_ready: ${{ steps.resolve.outputs.all_ready }}
+      admin_url: ${{ steps.resolve.outputs.admin_url }}
+      site_url: ${{ steps.resolve.outputs.site_url }}
+      reason: ${{ steps.resolve.outputs.reason }}
+    steps:
+      - name: Resolve Vercel status for this exact commit
+        id: resolve
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const branch = "release/integrated-preview-2026-11";
+            const siteUrl = "https://note-fiorentine-git-release-in-47d382-claudiocastellani983-5675.vercel.app/";
+            const adminUrl = "https://note-fiorentine-admin-git-rele-890dc9-claudiocastellani983-5675.vercel.app/";
+            const homeContext = "Vercel – note-fiorentine";
+            const adminContext = "Vercel – note-fiorentine-admin";
+            const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+            core.setOutput("admin_ready", "false");
+            core.setOutput("all_ready", "false");
+            let lastReason = "Vercel non ha ancora pubblicato gli status del commit.";
+
+            for (let attempt = 0; attempt < 15; attempt++) {
+              const branchRef = await github.rest.git.getRef({
+                owner, repo, ref: "heads/" + branch
+              });
+              if (branchRef.data.object.sha !== context.sha) {
+                lastReason = "Il ramo è avanzato a un commit più recente; i test live di questo run vengono saltati.";
+                core.setOutput("reason", lastReason);
+                return;
+              }
+
+              const response = await github.rest.repos.listCommitStatusesForRef({
+                owner, repo, ref: context.sha, per_page: 100
+              });
+              const latest = new Map();
+              for (const status of [...response.data].sort(
+                (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)
+              )) {
+                if (!latest.has(status.context)) latest.set(status.context, status);
+              }
+
+              const home = latest.get(homeContext);
+              const admin = latest.get(adminContext);
+              const adminReady = admin?.state === "success";
+              const allReady = adminReady && home?.state === "success";
+
+              if (adminReady) {
+                core.setOutput("admin_ready", "true");
+                core.setOutput("admin_url", adminUrl);
+              }
+              if (allReady) {
+                core.setOutput("all_ready", "true");
+                core.setOutput("site_url", siteUrl);
+                core.setOutput("reason", "");
+                core.info("Entrambe le preview Vercel risultano READY sul commit " + context.sha);
+                return;
+              }
+
+              lastReason = "Commit " + context.sha.slice(0, 12) +
+                " — Home: " + (home?.state || "in attesa") +
+                "; Admin: " + (admin?.state || "in attesa");
+              if (home?.state === "failure" || home?.state === "error") {
+                lastReason += "; Vercel segnala un errore di build per Home.";
+                if (adminReady) {
+                  core.setOutput("reason", lastReason);
+                  return;
+                }
+              }
+              if (admin?.state === "failure" || admin?.state === "error") {
+                lastReason += "; Vercel segnala un errore di build per Admin.";
+                core.setOutput("reason", lastReason);
+                return;
+              }
+              if (attempt < 14) await sleep(20000);
+            }
+
+            core.setOutput("reason", "Timeout in attesa delle preview aggiornate. " + lastReason);
+            core.warning("Test live saltati: " + lastReason);
+
   playwright-live-previews:
-    if: (github.event_name == 'workflow_dispatch' && github.event.inputs.site_preview_url != '' && github.event.inputs.admin_preview_url != '') || github.event_name == 'push'
+    needs: resolve-current-previews
+    if: needs.resolve-current-previews.outputs.all_ready == 'true'
     name: Preview Vercel reali (${{ matrix.browser }})
     runs-on: ubuntu-latest
     strategy:
@@ -81,8 +163,8 @@ jobs:
       matrix:
         browser: [chromium, firefox, webkit]
     env:
-      SITE_PREVIEW_URL: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.site_preview_url || 'https://note-fiorentine-git-release-in-47d382-claudiocastellani983-5675.vercel.app/' }}
-      ADMIN_PREVIEW_URL: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.admin_preview_url || 'https://note-fiorentine-admin-ap9lm0q68-claudiocastellani983-5675.vercel.app/' }}
+      SITE_PREVIEW_URL: ${{ needs.resolve-current-previews.outputs.site_url }}
+      ADMIN_PREVIEW_URL: ${{ needs.resolve-current-previews.outputs.admin_url }}
 
     steps:
       - name: Checkout repository
@@ -113,11 +195,12 @@ jobs:
           retention-days: 14
 
   playwright-admin-authenticated:
+    needs: resolve-current-previews
+    if: needs.resolve-current-previews.outputs.admin_ready == 'true'
     name: Admin autenticato e upload Supabase Test
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     env:
-      ADMIN_PREVIEW_URL: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.admin_preview_url || 'https://note-fiorentine-admin-ap9lm0q68-claudiocastellani983-5675.vercel.app/' }}
+      ADMIN_PREVIEW_URL: ${{ needs.resolve-current-previews.outputs.admin_url }}
       NF_TEST_ADMIN_EMAIL: ${{ secrets.NF_TEST_ADMIN_EMAIL }}
       NF_TEST_ADMIN_PASSWORD: ${{ secrets.NF_TEST_ADMIN_PASSWORD }}
     steps:
