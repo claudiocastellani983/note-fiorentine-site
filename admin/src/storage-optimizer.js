@@ -136,7 +136,7 @@ export function mountStorageOptimizer({ db, root, readOnly }) {
         let nextValue, count = 0;
         if (ref.type === 'text') {
           if (!pathMatches(ref.oldValue, file.path)) continue;
-          nextValue = /^https?:\\/\\//i.test(ref.oldValue) ? newUrl : newPath;
+          nextValue = /^https?:\/\//i.test(ref.oldValue) ? newUrl : newPath;
           count = 1;
         } else {
           const replaced = replaceNested(ref.oldValue, file.path, newPath, newUrl);
