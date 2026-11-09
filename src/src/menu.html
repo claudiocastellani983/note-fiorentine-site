@@ -104,6 +104,7 @@ section { scroll-margin-top:80px; }
 .menu-category-button.active { background:#8F2928; color:#FFF9F0; border-color:#8F2928; box-shadow:0 4px 12px rgba(75,35,29,.16); }
 .menu-items { max-width:1050px; margin:0 auto; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; text-align:left; }
 .menu-item-card { min-width:0; padding:22px 24px; border:1px solid var(--line); background:rgba(255,255,255,.42); box-shadow:0 5px 18px rgba(44,33,29,.04); }
+.menu-item-image{display:block;width:100%;max-height:230px;aspect-ratio:16/9;object-fit:cover;border-radius:2px;margin:0 0 18px;background:#E8DCC9}
 .menu-item-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; }
 .menu-item-card h3 { margin:0; color:#6F3929; font:25px var(--site-font-heading); }
 .menu-item-price { flex:0 0 auto; color:#8F2928; font:600 17px Arial,sans-serif; white-space:nowrap; }
@@ -828,14 +829,14 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
 (async function loadDatabaseMenu(){
  const categoriesBox=document.getElementById('menuCategories'),itemsBox=document.getElementById('menuItems');
  if(!categoriesBox||!itemsBox)return;
- const base='https://nculgrwlzjitggjcgbpp.supabase.co/rest/v1',key='sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0',headers={apikey:key,Accept:'application/json'};
+ const base='https://iuxskknbopboynjlsxbk.supabase.co/rest/v1',key='sb_publishable_GTGiyYl8pZsY6letaozS2Q_dmh9vrRc',headers={apikey:key,Accept:'application/json'};
  const lang=new URLSearchParams(location.search).get('lang')||'it';
  const make=(tag,cls,value)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(value!==undefined&&value!==null)el.textContent=String(value);return el};
  const money=value=>value===null||value===undefined||value===''?'':new Intl.NumberFormat(({it:'it-IT',en:'en-GB',de:'de-DE',fr:'fr-FR',es:'es-ES'})[lang]||'it-IT',{style:'currency',currency:'EUR'}).format(Number(value));
  try{
   const [cr,ir]=await Promise.all([
    fetch(base+'/menu_categories?select=id,name,description,translations,sort_order,created_at&is_published=eq.true&order=sort_order.asc,created_at.asc',{headers,cache:'no-store'}),
-   fetch(base+'/menu_items?select=id,category_id,name,description,price,allergens,translations,sort_order,created_at&is_published=eq.true&order=sort_order.asc,created_at.asc',{headers,cache:'no-store'})
+   fetch(base+'/menu_items?select=id,category_id,name,description,price,allergens,image_path,translations,sort_order,created_at&is_published=eq.true&order=sort_order.asc,created_at.asc',{headers,cache:'no-store'})
   ]);
   if(!cr.ok)throw Error('Categorie HTTP '+cr.status);if(!ir.ok)throw Error('Piatti HTTP '+ir.status);
   const [categories,items]=await Promise.all([cr.json(),ir.json()]);
@@ -851,6 +852,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
    if(!matching.length){itemsBox.append(make('p','menu-empty','Non ci sono ancora piatti pubblicati in questa categoria.'));return}
    matching.forEach(item=>{
     const card=make('article','menu-item-card'),heading=make('div','menu-item-heading');
+    if(item.image_path){const photo=make('img','menu-item-image');photo.src='https://iuxskknbopboynjlsxbk.supabase.co/storage/v1/object/public/site-media/'+String(item.image_path).split('/').map(encodeURIComponent).join('/');photo.alt=item.translations?.[lang]?.name||item.name||'Note Fiorentine';photo.loading='lazy';photo.decoding='async';card.append(photo);}
     heading.append(make('h3','',item.translations?.[lang]?.name||item.name||''));const price=money(item.price);if(price)heading.append(make('span','menu-item-price',price));card.append(heading);
     if(item.description)card.append(make('p','menu-item-description',item.translations?.[lang]?.description||item.description));
     if(Array.isArray(item.allergens)&&item.allergens.length)card.append(make('p','menu-item-allergens',({it:'Allergeni:',en:'Allergens:',de:'Allergene:',fr:'Allergènes :',es:'Alérgenos:'})[lang]+' '+item.allergens.join(', ')));
