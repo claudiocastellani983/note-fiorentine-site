@@ -7,49 +7,30 @@ const ADMIN_PASSWORD = process.env.NF_TEST_ADMIN_PASSWORD;
 const SUPABASE_URL = 'https://iuxskknbopboynjlsxbk.supabase.co';
 const SUPABASE_PUBLIC_KEY = 'sb_publishable_GTGiyYl8pZsY6letaozS2Q_dmh9vrRc';
 
-test('Admin: login autorizzato, ottimizzazione WebP reale e originali integri su Supabase Test', async ({ page }) => {
+test('Admin: ottimizzazione WebP reale su Supabase Test, riferimento aggiornato e originale integro', async ({ page }) => {
   test.skip(!ADMIN_PREVIEW_URL || !ADMIN_EMAIL || !ADMIN_PASSWORD,
     'Test autenticato eseguito soltanto nel job CI con credenziali di test.');
 
-  test.setTimeout(180000);
+  test.setTimeout(240000);
 
-  const previewHost = new URL(ADMIN_PREVIEW_URL).hostname;
-  expect(previewHost).toMatch(/^note-fiorentine-admin-.+\.vercel\.app$/);
+  const host = new URL(ADMIN_PREVIEW_URL).hostname;
+  expect(host).toMatch(/^note-fiorentine-admin-.+\.vercel\.app$/);
   expect(SUPABASE_URL).toContain('iuxskknbopboynjlsxbk');
 
-  const pageErrors = [];
-  const databaseMutations = [];
-  let samplePath = null;
+  const errors = [];
+  const fixtureId = randomUUID();
+  const fixturePath = 'optimizer-input/playwright-' + fixtureId + '.png';
+  let fixtureCreated = false;
   let outputPath = null;
   let cleanupResult = null;
-
-  page.on('pageerror', error => pageErrors.push(error.message));
-  page.on('request', request => {
-    const url = new URL(request.url());
-    const method = request.method().toUpperCase();
-    if (url.hostname === 'iuxskknbopboynjlsxbk.supabase.co' &&
-        url.pathname.includes('/rest/v1/') &&
-        !url.pathname.endsWith('/rpc/is_admin') &&
-        !['GET', 'HEAD', 'OPTIONS'].includes(method)) {
-      databaseMutations.push(method + ' ' + url.pathname);
-    }
-    const storageMarker = '/storage/v1/object/site-media/';
-    if (url.hostname === 'iuxskknbopboynjlsxbk.supabase.co' &&
-        ['POST', 'PUT'].includes(method) &&
-        url.pathname.includes(storageMarker)) {
-      const path = decodeURIComponent(url.pathname.slice(url.pathname.indexOf(storageMarker) + storageMarker.length));
-      if (path.startsWith('optimizer-input/')) samplePath = path;
-      if (path.startsWith('optimization-review/')) outputPath = path;
-    }
-  });
-
-  const sampleName = 'nf-playwright-' + randomUUID() + '.png';
   let originalMeta = null;
 
+  page.on('pageerror', error => errors.push(error.message));
+
   try {
-    await page.goto(ADMIN_PREVIEW_URL, { waitUntil: 'domcontentloaded' });
+    const response = await page.goto(ADMIN_PREVIEW_URL, { waitUntil: 'domcontentloaded' });
+    expect(response && response.status()).toBe(200);
     await expect(page.locator('#loginForm')).toBeVisible();
-    expect(await page.content()).toContain(SUPABASE_URL);
 
     await page.locator('#email').fill(ADMIN_EMAIL);
     await page.locator('#password').fill(ADMIN_PASSWORD);
@@ -59,148 +40,166 @@ test('Admin: login autorizzato, ottimizzazione WebP reale e originali integri su
     await expect(page.locator('#logout')).toBeVisible();
     await expect(page.locator('#login')).toBeHidden();
 
-    await expect(page.locator('#tabs button').first()).toBeVisible({ timeout: 45000 });
-    const tabNames = await page.locator('#tabs button').allTextContents();
-    expect(tabNames.length, 'Le schede amministrative devono essere caricate').toBeGreaterThan(0);
-    // Attendere che il caricamento iniziale della scheda Piatti sia terminato:
-    // evita che la sua risposta asincrona sovrascriva la scheda Immagini appena aperta.
-    await expect(page.locator('#items article.item').first()).toBeVisible({ timeout: 45000 });
+    // Il campione è un PNG >1 MB con rumore deterministico: deve consentire
+    // una riduzione WebP misurabile e non usa file o dati di produzione.
+    const fixture = await page.evaluate(async ({ path, publicKey, supabaseUrl, id }) => {
+      const storageKey = Object.keys(localStorage).find(key => key.endsWith('-auth-token'));
+      if (!storageKey) throw new Error('Sessione Supabase autenticata non trovata.');
+      const session = JSON.parse(localStorage.getItem(storageKey) || '{}');
+      if (!session.access_token) throw new Error('Access token Supabase assente.');
 
-    await page.locator('#openImagesTab').click();
-    await expect(page.locator('#storageOptimizer')).toBeVisible({ timeout: 30000 });
-    await expect(page.locator('#optimizerSamples')).toBeVisible();
-    await expect(page.locator('#optimizerUploadSamples')).toBeVisible();
-
-    originalMeta = await page.evaluate(async name => {
+      const width = 1200, height = 900;
       const canvas = document.createElement('canvas');
-      canvas.width = 1024;
-      canvas.height = 768;
+      canvas.width = width;
+      canvas.height = height;
       const context = canvas.getContext('2d');
       if (!context) throw new Error('Canvas non disponibile.');
-      const pixels = context.createImageData(canvas.width, canvas.height);
-      const random = new Uint8Array(pixels.data.length);
-      for (let offset = 0; offset < random.length; offset += 65536) {
-        crypto.getRandomValues(random.subarray(offset, Math.min(offset + 65536, random.length)));
-      }
+      const pixels = context.createImageData(width, height);
+      let seed = 0x4e465031;
       for (let index = 0; index < pixels.data.length; index += 4) {
-        pixels.data[index] = random[index];
-        pixels.data[index + 1] = random[index + 1];
-        pixels.data[index + 2] = random[index + 2];
+        seed = (1664525 * seed + 1013904223) >>> 0;
+        pixels.data[index] = seed >>> 24;
+        seed = (1664525 * seed + 1013904223) >>> 0;
+        pixels.data[index + 1] = seed >>> 24;
+        seed = (1664525 * seed + 1013904223) >>> 0;
+        pixels.data[index + 2] = seed >>> 24;
         pixels.data[index + 3] = 255;
       }
       context.putImageData(pixels, 0, 0);
       const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-      if (!blob || blob.size <= 1024 * 1024) throw new Error('Il campione PNG non supera 1 MB.');
-      if (blob.size > 15 * 1024 * 1024) throw new Error('Il campione PNG supera il limite di 15 MB.');
+      if (!blob || blob.size <= 1024 * 1024) throw new Error('Il PNG campione non supera 1 MB.');
+      if (blob.size > 12 * 1024 * 1024) throw new Error('Il PNG campione supera 12 MB.');
+
       const bytes = await blob.arrayBuffer();
       const digest = await crypto.subtle.digest('SHA-256', bytes);
       const sha256 = [...new Uint8Array(digest)].map(value => value.toString(16).padStart(2, '0')).join('');
-      const transfer = new DataTransfer();
-      transfer.items.add(new File([blob], name, { type: 'image/png', lastModified: Date.now() }));
-      const input = document.querySelector('#optimizerSamples');
-      input.files = transfer.files;
-      input.dispatchEvent(new Event('change', { bubbles: true }));
-      return { size: blob.size, sha256 };
-    }, sampleName);
 
-    expect(originalMeta.size).toBeGreaterThan(1024 * 1024);
-    await page.locator('#optimizerUploadSamples').click();
-    await expect(page.locator('#optimizerStatus')).toContainText('Analisi completata.', { timeout: 90000 });
-    await expect(page.locator('#optimizerSummary')).toContainText('oltre 1 MB');
-    
-    const sampleCard = page.locator('#optimizerResults .media-card').filter({ hasText: sampleName });
-    await expect(sampleCard).toHaveCount(1, { timeout: 30000 });
-    if (!samplePath) {
-      const displayedPath = (await sampleCard.locator('b').first().textContent())?.trim();
-      if (displayedPath?.startsWith('optimizer-input/')) samplePath = displayedPath;
-    }
-    expect(samplePath, 'Il campione originale deve essere caricato nella cartella optimizer-input').toMatch(/^optimizer-input\//);
+      const upload = await fetch(supabaseUrl + '/storage/v1/object/site-media/' + path, {
+        method: 'POST',
+        headers: {
+          apikey: publicKey,
+          Authorization: 'Bearer ' + session.access_token,
+          'Content-Type': 'image/png',
+          'x-upsert': 'false'
+        },
+        body: blob
+      });
+      if (!upload.ok) throw new Error('Upload campione su Supabase Test fallito: ' + upload.status + ' ' + await upload.text());
 
-    await page.locator('#optimizerPrepare').click();
-    await expect(page.locator('#optimizerStatus')).toContainText('Completato:', { timeout: 120000 });
-    await expect(page.locator('#optimizerStatus')).toContainText('Originali e collegamenti non modificati.');
-    await expect(sampleCard.locator('img[alt="Immagine originale"]')).toBeVisible();
-    await expect(sampleCard.locator('img[alt="Copia WebP ottimizzata"]')).toBeVisible();
+      const record = {
+        id,
+        image_key: 'playwright_' + id.replace(/-/g, ''),
+        label: 'Playwright test fixture',
+        category: 'playwright-test',
+        image_path: path,
+        alt_text: 'Temporary automated test image',
+        sort_order: 999999,
+        is_active: false,
+        focal_x: 50,
+        focal_y: 50,
+        focal_zoom: 1
+      };
+      const insert = await fetch(supabaseUrl + '/rest/v1/site_images', {
+        method: 'POST',
+        headers: {
+          apikey: publicKey,
+          Authorization: 'Bearer ' + session.access_token,
+          'Content-Type': 'application/json',
+          Prefer: 'return=representation'
+        },
+        body: JSON.stringify(record)
+      });
+      if (!insert.ok) throw new Error('Creazione riferimento temporaneo site_images fallita: ' + insert.status + ' ' + await insert.text());
+      return { path, size: blob.size, sha256, row: await insert.json() };
+    }, { path: fixturePath, publicKey: SUPABASE_PUBLIC_KEY, supabaseUrl: SUPABASE_URL, id: fixtureId });
 
-    await sampleCard.scrollIntoViewIfNeeded();
-    await expect.poll(async () => {
-      const images = await sampleCard.locator('img').evaluateAll(nodes => nodes.map(image => ({
-        complete: image.complete,
-        width: image.naturalWidth,
-        height: image.naturalHeight
-      })));
-      return images.length === 2 && images.every(image => image.complete && image.width > 0 && image.height > 0);
-    }, { timeout: 30000 }).toBe(true);
+    fixtureCreated = true;
+    originalMeta = { size: fixture.size, sha256: fixture.sha256 };
+    expect(fixture.row).toHaveLength(1);
+    expect(fixture.row[0].image_path).toBe(fixturePath);
 
-    const visual = await sampleCard.locator('img').evaluateAll(images => images.map(image => ({
-      alt: image.alt,
-      complete: image.complete,
-      width: image.naturalWidth,
-      height: image.naturalHeight,
-      src: image.src
-    })));
-    expect(visual).toHaveLength(2);
-    expect(visual.every(image => image.complete && image.width > 0 && image.height > 0),
-      'Confronto visivo: entrambe le anteprime devono essere caricate').toBe(true);
-    expect(visual[0].src).not.toBe(visual[1].src);
+    await page.locator('#openImagesTab').click();
+    await expect(page.locator('#storageOptimizer')).toBeVisible({ timeout: 45000 });
+    const runButton = page.locator('#optimizerRun');
+    await expect(runButton).toBeVisible();
+    await expect(runButton).toBeEnabled();
 
-    const originalUrl = visual.find(image => image.alt === 'Immagine originale').src;
-    const webpLink = sampleCard.locator('a', { hasText: 'Apri copia WebP' });
-    await expect(webpLink).toBeVisible();
-    const webpUrl = await webpLink.getAttribute('href');
-    expect(webpUrl).toBeTruthy();
+    await runButton.click();
+    await expect(page.locator('#optimizerStatus')).toContainText('Operazione conclusa', { timeout: 150000 });
+    await expect(page.locator('#optimizerSummary')).toContainText('1 sostituite');
 
-    if (!outputPath) {
-      const outputUrl = new URL(webpUrl);
-      const marker = '/storage/v1/object/public/site-media/';
-      const index = outputUrl.pathname.indexOf(marker);
-      if (index >= 0) outputPath = decodeURIComponent(outputUrl.pathname.slice(index + marker.length));
-    }
-    expect(outputPath).toBe('optimization-review/' + samplePath + '.webp');
+    const databaseState = await page.evaluate(async ({ id, publicKey, supabaseUrl }) => {
+      const storageKey = Object.keys(localStorage).find(key => key.endsWith('-auth-token'));
+      const session = JSON.parse(localStorage.getItem(storageKey) || '{}');
+      const response = await fetch(supabaseUrl + '/rest/v1/site_images?select=id,image_path&id=eq.' + id, {
+        headers: { apikey: publicKey, Authorization: 'Bearer ' + session.access_token }
+      });
+      if (!response.ok) throw new Error('Verifica riferimento DB fallita: ' + response.status + ' ' + await response.text());
+      return await response.json();
+    }, { id: fixtureId, publicKey: SUPABASE_PUBLIC_KEY, supabaseUrl: SUPABASE_URL });
 
+    expect(databaseState).toHaveLength(1);
+    outputPath = databaseState[0].image_path;
+    expect(outputPath).toMatch(/^optimization-review\/optimizer-input\/playwright-.+\.png\.\d+\.webp$/);
+    expect(outputPath).not.toBe(fixturePath);
+
+    const originalUrl = SUPABASE_URL + '/storage/v1/object/public/site-media/' + fixturePath;
+    const optimizedUrl = SUPABASE_URL + '/storage/v1/object/public/site-media/' + outputPath;
     const originalResponse = await page.request.get(originalUrl);
-    expect(originalResponse.status(), 'L’originale deve restare leggibile dopo la conversione').toBe(200);
+    expect(originalResponse.status(), 'L’originale deve restare disponibile dopo la sostituzione').toBe(200);
     expect((originalResponse.headers()['content-type'] || '').toLowerCase()).toContain('image/png');
     const originalBytes = await originalResponse.body();
     expect(originalBytes.length).toBe(originalMeta.size);
     expect(createHash('sha256').update(originalBytes).digest('hex')).toBe(originalMeta.sha256);
 
-    const webpResponse = await page.request.get(webpUrl);
-    expect(webpResponse.status(), 'La copia WebP deve essere leggibile dalla cartella di revisione').toBe(200);
-    expect((webpResponse.headers()['content-type'] || '').toLowerCase()).toContain('image/webp');
-    const webpBytes = await webpResponse.body();
-    expect(webpBytes.length).toBeLessThan(originalBytes.length);
-    expect(webpBytes.subarray(0, 4).toString('ascii')).toBe('RIFF');
-    expect(webpBytes.subarray(8, 12).toString('ascii')).toBe('WEBP');
-    expect(databaseMutations, 'L’ottimizzatore non deve modificare le tabelle o i riferimenti del sito').toEqual([]);
+    const optimizedResponse = await page.request.get(optimizedUrl);
+    expect(optimizedResponse.status(), 'La copia WebP deve essere scaricabile').toBe(200);
+    expect((optimizedResponse.headers()['content-type'] || '').toLowerCase()).toContain('image/webp');
+    const optimizedBytes = await optimizedResponse.body();
+    expect(optimizedBytes.length).toBeLessThan(originalBytes.length);
+    expect(optimizedBytes.subarray(0, 4).toString('ascii')).toBe('RIFF');
+    expect(optimizedBytes.subarray(8, 12).toString('ascii')).toBe('WEBP');
+    expect(optimizedBytes.length / originalBytes.length).toBeLessThan(0.97);
   } finally {
-    if (samplePath && !outputPath) outputPath = 'optimization-review/' + samplePath + '.webp';
-    const paths = [...new Set([samplePath, outputPath].filter(Boolean))];
-    if (paths.length) {
-      cleanupResult = await page.evaluate(async ({ paths, publicKey, supabaseUrl }) => {
-        const storageKey = Object.keys(localStorage).find(key => key.endsWith('-auth-token'));
-        if (!storageKey) return { ok: false, reason: 'sessione Supabase non trovata per il cleanup' };
-        let session;
-        try { session = JSON.parse(localStorage.getItem(storageKey) || '{}'); }
-        catch { return { ok: false, reason: 'sessione Supabase non leggibile' }; }
-        if (!session.access_token) return { ok: false, reason: 'access token non disponibile per il cleanup' };
-        const response = await fetch(supabaseUrl + '/storage/v1/object/site-media', {
+    // Rimuove esclusivamente la riga e i due oggetti creati da questo test.
+    // Non tocca mai file preesistenti o tabelle/dati diversi dal fixture UUID.
+    cleanupResult = await page.evaluate(async ({ id, fixturePath, publicKey, supabaseUrl }) => {
+      const storageKey = Object.keys(localStorage).find(key => key.endsWith('-auth-token'));
+      if (!storageKey) return { ok: false, reason: 'sessione Supabase assente durante il cleanup' };
+      let session;
+      try { session = JSON.parse(localStorage.getItem(storageKey) || '{}'); }
+      catch { return { ok: false, reason: 'sessione Supabase non leggibile durante il cleanup' }; }
+      if (!session.access_token) return { ok: false, reason: 'access token assente durante il cleanup' };
+
+      const headers = { apikey: publicKey, Authorization: 'Bearer ' + session.access_token };
+      let currentPath = null;
+      const lookup = await fetch(supabaseUrl + '/rest/v1/site_images?select=image_path&id=eq.' + id, { headers });
+      if (lookup.ok) {
+        const rows = await lookup.json();
+        currentPath = rows[0]?.image_path || null;
+      }
+
+      const rowDelete = await fetch(supabaseUrl + '/rest/v1/site_images?id=eq.' + id, {
+        method: 'DELETE',
+        headers: { ...headers, Prefer: 'return=minimal' }
+      });
+      if (!rowDelete.ok) return { ok: false, reason: 'rimozione riga fixture fallita: ' + rowDelete.status + ' ' + await rowDelete.text() };
+
+      const prefixes = [...new Set([fixturePath, currentPath].filter(Boolean))];
+      if (prefixes.length) {
+        const storageDelete = await fetch(supabaseUrl + '/storage/v1/object/site-media', {
           method: 'DELETE',
-          headers: {
-            apikey: publicKey,
-            Authorization: 'Bearer ' + session.access_token,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ prefixes: paths })
+          headers: { ...headers, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prefixes })
         });
-        return { ok: response.ok, status: response.status, body: response.ok ? '' : await response.text() };
-      }, { paths, publicKey: SUPABASE_PUBLIC_KEY, supabaseUrl: SUPABASE_URL });
-    }
+        if (!storageDelete.ok) return { ok: false, reason: 'rimozione oggetti temporanei fallita: ' + storageDelete.status + ' ' + await storageDelete.text() };
+      }
+      return { ok: true, removedPaths: prefixes };
+    }, { id: fixtureId, fixturePath, publicKey: SUPABASE_PUBLIC_KEY, supabaseUrl: SUPABASE_URL }).catch(error => ({ ok: false, reason: error.message }));
   }
 
-  expect(samplePath, 'Il campione di test deve essere tracciato').toBeTruthy();
-  expect(outputPath, 'La copia WebP di revisione deve essere tracciata').toBeTruthy();
+  expect(fixtureCreated, 'Il campione temporaneo deve essere stato creato').toBe(true);
   expect(cleanupResult && cleanupResult.ok,
-    'Campione e copia WebP temporanei devono essere rimossi da Supabase Test').toBe(true);
-  expect(pageErrors, 'Errori JavaScript non gestiti nel pannello Admin').toEqual([]);
+    'Riga e file temporanei del test devono essere rimossi da Supabase Test').toBe(true);
+  expect(errors, 'Errori JavaScript non gestiti nel pannello Admin').toEqual([]);
 });
