@@ -49,9 +49,11 @@ test('admin: login e diagnostica si caricano senza toccare Supabase', async ({ p
   expect(adminHtml).toContain('Esporta pacchetto');
   expect(adminHtml).not.toContain('Pubblica modifiche del sito');
   expect(adminHtml).toContain("https://iuxskknbopboynjlsxbk.supabase.co");
-  expect(adminHtml).not.toContain("https://nculgrwlzjitggjcgbpp.supabase.co");
-  expect(adminHtml).toContain("const PREVIEW_READ_ONLY=!(location.hostname.startsWith('note-fiorentine-admin-')");
-  expect(adminHtml).toContain("location.hostname!=='note-fiorentine-admin.vercel.app'");
+  expect(adminHtml).toContain("https://nculgrwlzjitggjcgbpp.supabase.co");
+  expect(adminHtml).toContain("const ADMIN_PRODUCTION=ADMIN_HOST==='note-fiorentine-admin.vercel.app'");
+  expect(adminHtml).toContain("const ADMIN_PREVIEW=ADMIN_HOST.startsWith('note-fiorentine-admin-')");
+  expect(adminHtml).toContain("const PREVIEW_READ_ONLY=!(ADMIN_PRODUCTION||ADMIN_PREVIEW);");
+  expect(adminHtml).toContain("createClient(window.NF_SUPABASE_CONFIG.url,window.NF_SUPABASE_CONFIG.key)");
   expect(adminHtml).toContain("if(PREVIEW_READ_ONLY&&['insert','update','upsert','delete'].includes(String(key)))");
 
 

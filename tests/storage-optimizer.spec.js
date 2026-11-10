@@ -10,12 +10,13 @@ test.beforeAll(async () => {
   optimizerSource = await fs.readFile(path.join(__dirname, '..', 'admin', 'src', 'storage-optimizer.js'), 'utf8');
 });
 
-test('collega l’ottimizzatore all’Admin Test e al progetto Supabase Test', async () => {
+test('collega l’ottimizzatore al database previsto per l’ambiente Admin', async () => {
   expect(adminSource).toContain("import{mountStorageOptimizer}from'./storage-optimizer.js';");
   expect(adminSource).toContain('id="storageOptimizerMount"');
-  expect(adminSource).toContain("mountStorageOptimizer({db,root:$('storageOptimizerMount'),readOnly:PREVIEW_READ_ONLY})");
+  expect(adminSource).toContain("mountStorageOptimizer({db,root:$('storageOptimizerMount'),readOnly:!ADMIN_PREVIEW,environment:window.NF_SUPABASE_CONFIG.environment})");
   expect(adminSource).toContain('https://iuxskknbopboynjlsxbk.supabase.co');
-  expect(adminSource).toContain("location.hostname.startsWith('note-fiorentine-admin-')");
+  expect(adminSource).toContain("const ADMIN_PREVIEW=ADMIN_HOST.startsWith('note-fiorentine-admin-')");
+  expect(adminSource).toContain("https://nculgrwlzjitggjcgbpp.supabase.co");
 });
 
 test('espone un solo comando che esegue analisi, conversione, verifica e sostituzione', async () => {

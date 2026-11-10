@@ -168,9 +168,11 @@ test('accoda eliminazione e cambio pubblicazione senza eseguirli', async ({ page
 
 test('mantiene il blocco di tutte le scritture al database e allo Storage in anteprima', async () => {
   expect(adminSource).toContain("https://iuxskknbopboynjlsxbk.supabase.co");
-  expect(adminSource).not.toContain("https://nculgrwlzjitggjcgbpp.supabase.co");
-  expect(adminSource).toContain("const PREVIEW_READ_ONLY=!(location.hostname.startsWith('note-fiorentine-admin-')");
-  expect(adminSource).toContain("location.hostname!=='note-fiorentine-admin.vercel.app'");
+  expect(adminSource).toContain("https://nculgrwlzjitggjcgbpp.supabase.co");
+  expect(adminSource).toContain("const ADMIN_PRODUCTION=ADMIN_HOST==='note-fiorentine-admin.vercel.app'");
+  expect(adminSource).toContain("const ADMIN_PREVIEW=ADMIN_HOST.startsWith('note-fiorentine-admin-')");
+  expect(adminSource).toContain("const PREVIEW_READ_ONLY=!(ADMIN_PRODUCTION||ADMIN_PREVIEW);");
+  expect(adminSource).toContain("createClient(window.NF_SUPABASE_CONFIG.url,window.NF_SUPABASE_CONFIG.key)");
   expect(adminSource).toContain("if(PREVIEW_READ_ONLY&&['insert','update','upsert','delete'].includes(String(key)))return blockedWrite");
   expect(adminSource).toContain("if(PREVIEW_READ_ONLY&&['upload','remove','update','move','copy'].includes(String(key)))return blockedWrite");
   expect(adminSource).toContain('<script src="./draft-manager.js"></script>');
