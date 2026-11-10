@@ -1618,33 +1618,37 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
     if(!response.ok) throw new Error('Popup API HTTP '+response.status);
     const rows=await response.json(), data=Array.isArray(rows)?rows[0]:null;
     if(!data || data.active!==true) return;
-    const lang=new URLSearchParams(location.search).get('lang')||'it';
-    const english=lang==='en';
-    const contactLabel=lang==='it'?(data.button_label_it||'CONTATTACI'):(data.translations?.[lang]?.contact||(lang==='en'?'CONTACT US':({de:'KONTAKT',fr:'CONTACTEZ-NOUS',es:'CONTÁCTANOS'})[lang]));
+    const lang=({it:'it',en:'en',de:'de',fr:'fr',es:'es',zh:'zh'})[new URLSearchParams(location.search).get('lang')]||'it';
+    const localized=data.translations?.[lang]||{};
+    const popupTitle=lang==='it'?data.title_it:lang==='en'?data.title_en:localized.title;
+    const popupBody=lang==='it'?data.body_it:lang==='en'?data.body_en:localized.body;
+    if(lang!=='it'&&(!popupTitle||!popupBody)) return;
+    const labels={it:{contact:'CONTATTACI',close:'Chiudi popup',subject:'Informazioni - Note Fiorentine',menu:'MENU'},en:{contact:'CONTACT US',close:'Close popup',subject:'Information - Note Fiorentine',menu:'MENU'},de:{contact:'KONTAKT',close:'Popup schließen',subject:'Informationen - Note Fiorentine',menu:'SPEISEKARTE'},fr:{contact:'CONTACT',close:'Fermer la fenêtre',subject:'Informations - Note Fiorentine',menu:'MENU'},es:{contact:'CONTACTO',close:'Cerrar ventana',subject:'Información - Note Fiorentine',menu:'CARTA'},zh:{contact:'联系我们',close:'关闭弹窗',subject:'咨询 - Note Fiorentine',menu:'菜单'}}[lang];
+    const contactLabel=lang==='it'?(data.button_label_it||labels.contact):lang==='en'?(data.button_label_en||labels.contact):(localized.contact||localized.button_label||labels.contact);
     const email=String(data.contact_email||'notefiorentine.firenze@gmail.com').trim();
     const shade=document.createElement('div'); shade.id='nf-popup-shade'; shade.setAttribute('role','presentation');
     const box=document.createElement('section'); box.id='nf-popup-box'; box.setAttribute('role','dialog'); box.setAttribute('aria-modal','true'); box.setAttribute('aria-labelledby','nf-popup-title');
-    const close=document.createElement('button'); close.id='nf-popup-close'; close.type='button'; close.textContent='×'; close.setAttribute('aria-label',english?'Close popup':'Chiudi popup');
+    const close=document.createElement('button'); close.id='nf-popup-close'; close.type='button'; close.textContent='×'; close.setAttribute('aria-label',labels.close);
     const kicker=document.createElement('p'); kicker.id='nf-popup-kicker'; kicker.textContent='Note Fiorentine';
     const heading=document.createElement('h2'); heading.id='nf-popup-title'; heading.textContent='Ristorante Toscano & Live Music';
     const rule=document.createElement('div'); rule.id='nf-popup-rule';
     box.append(close,kicker,heading,rule);
-    const copy=document.createElement('p');copy.id='nf-popup-body';copy.textContent='Menu di Capodanno';box.append(copy);
+    const copy=document.createElement('p');copy.id='nf-popup-body';copy.textContent=popupTitle||labels.menu;box.append(copy);if(popupBody){const description=document.createElement('p');description.id='nf-popup-description';description.textContent=popupBody;box.append(description)}
     const actions=document.createElement('div');actions.className='nf-popup-actions';
     
     if(email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-      const contact=document.createElement('a');contact.className='nf-popup-action nf-popup-contact';contact.href='mailto:'+email+'?subject='+encodeURIComponent(english?'Information - Note Fiorentine':'Informazioni - Note Fiorentine');contact.textContent=contactLabel;actions.append(contact);
+      const contact=document.createElement('a');contact.className='nf-popup-action nf-popup-contact';contact.href='mailto:'+email+'?subject='+encodeURIComponent(labels.subject);contact.textContent=contactLabel;actions.append(contact);
     }
     box.append(actions);
     const media=Array.isArray(data.media_files)?data.media_files:[];
     const images=media.filter(x=>x&&x.type&&String(x.type).startsWith('image/')&&typeof x.url==='string'&&x.url.startsWith('https://'));
     if(images.length){
       const gallery=document.createElement('div');gallery.className='nf-popup-media';
-      images.forEach(item=>{const img=document.createElement('img');img.className='nf-popup-thumb';img.src=item.url;img.alt=item.name||'Note Fiorentine';img.loading='lazy';img.addEventListener('click',()=>{const light=document.createElement('div');light.id='nf-popup-lightbox';const large=document.createElement('img');large.src=item.url;large.alt=img.alt;light.append(large);light.addEventListener('click',()=>light.remove());document.body.append(light)});gallery.append(img)});
+      images.forEach(item=>{const img=document.createElement('img');img.className='nf-popup-thumb';img.src=item.url;img.alt=item.translations?.[lang]?.name||(lang==='it'?(item.name||'Note Fiorentine'):'Note Fiorentine');img.loading='lazy';img.addEventListener('click',()=>{const light=document.createElement('div');light.id='nf-popup-lightbox';const large=document.createElement('img');large.src=item.url;large.alt=img.alt;light.append(large);light.addEventListener('click',()=>light.remove());document.body.append(light)});gallery.append(img)});
       box.append(gallery);
     }
     const pdfs=media.filter(x=>x&&typeof x.url==='string'&&x.url.startsWith('https://')&&(x.type==='application/pdf'||/\.pdf(?:$|\?)/i.test(x.url)));
-    pdfs.forEach(item=>{const link=document.createElement('a');link.className='nf-popup-action nf-popup-file';link.href=item.url;link.target='_blank';link.rel='noopener noreferrer';link.textContent=english?'MENU':'MENU';actions.insertBefore(link,actions.firstChild)});
+    pdfs.forEach(item=>{const link=document.createElement('a');link.className='nf-popup-action nf-popup-file';link.href=item.url;link.target='_blank';link.rel='noopener noreferrer';link.textContent=labels.menu;actions.insertBefore(link,actions.firstChild)});
     function dismiss(){shade.remove();try{sessionStorage.setItem('nf-home-popup-dismissed','1')}catch(e){}}
     close.addEventListener('click',dismiss);shade.addEventListener('click',e=>{if(e.target===shade)dismiss()});
     document.addEventListener('keydown',function esc(e){if(e.key==='Escape'&&document.getElementById('nf-popup-shade')){dismiss();document.removeEventListener('keydown',esc)}});
