@@ -198,6 +198,19 @@ async function loadSiteEditor(){
  siteCurrent=q.data?.content_value&&typeof q.data.content_value==='object'?q.data.content_value:{};
  $('items').innerHTML='<form id="siteEditorForm" class="site-editor">'+siteGroups.map(g=>'<section class="site-group"><h3>'+esc(g.title)+'</h3><div class="site-grid">'+g.fields.map(f=>siteControl(f,siteCurrent)+siteEnglishControl(f,siteCurrent)).join('')+'</div></section>').join('')+'<div class="site-savebar"><button class="primary" type="submit">Salva bozza release</button><a href="https://www.notefiorentine.it/" target="_blank" rel="noopener">Apri il sito pubblico ↗</a></div><p class="site-help">Le modifiche vengono salvate come bozza locale. Esporta il pacchetto dalla sezione “Release in preparazione” per la revisione; nessuna modifica viene pubblicata automaticamente.</p></form>';
  const form=$('siteEditorForm');
+ // L'editor Testi e grafica è deliberatamente in sola lettura: nessun salvataggio o modifica da questa schermata.
+ const readOnlyNotice=document.createElement('p');
+ readOnlyNotice.className='site-help';
+ readOnlyNotice.setAttribute('role','status');
+ readOnlyNotice.textContent='Modalità sola lettura: i contenuti sono consultabili ma non modificabili da questo pannello.';
+ form.prepend(readOnlyNotice);
+ form.querySelectorAll('input,textarea').forEach(el=>{el.readOnly=true;el.setAttribute('aria-readonly','true');});
+ form.querySelectorAll('select,button[type="submit"]').forEach(el=>el.disabled=true);
+ form.querySelectorAll('input[type="file"]').forEach(el=>el.disabled=true);
+ const saveBar=form.querySelector('.site-savebar');
+ if(saveBar){const submit=saveBar.querySelector('button[type="submit"]');if(submit)submit.remove();}
+ form.onsubmit=e=>{e.preventDefault();return false;};
+ return;
  form.querySelectorAll('[data-site-image]').forEach(input=>input.addEventListener('change',()=>{
    const file=input.files?.[0];if(!file)return;
    let img=form.querySelector('[data-preview="'+input.dataset.siteImage+'"]');
