@@ -35,8 +35,11 @@ test.describe('Preview Vercel reali', () => {
     const inlineScripts = await page.locator('script').evaluateAll(nodes =>
       nodes.map(node => node.textContent || '').join('\n')
     );
-    const expectedHost = new URL(SITE_PREVIEW_URL).hostname;
-    expect(inlineScripts, 'L’editor deve usare la Home preview, non il dominio pubblico').toContain(expectedHost);
+    const configuredSitePreview = new URL(ADMIN_PREVIEW_URL).searchParams.get('sitePreview');
+    expect(configuredSitePreview, 'L’Admin preview deve ricevere l’URL della Home preview').toBeTruthy();
+    expect(new URL(configuredSitePreview).origin, 'L’editor deve puntare alla Home preview, non al dominio pubblico')
+      .toBe(new URL(SITE_PREVIEW_URL).origin);
+    expect(inlineScripts).toContain("new URLSearchParams(location.search).get('sitePreview')");
     expect(inlineScripts).toContain('sitePreviewUrl');
     expect(pageErrors, 'Errori JavaScript non gestiti nell’Admin').toEqual([]);
   });

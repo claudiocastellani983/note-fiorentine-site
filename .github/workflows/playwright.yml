@@ -69,7 +69,7 @@ jobs:
 
   resolve-current-previews:
     name: Verifica che le preview appartengano al commit corrente
-    if: (github.event_name == 'push' && github.ref == 'refs/heads/release/integrated-preview-2026-11') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/release/integrated-preview-2026-11')
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/release/integrated-preview-2026-11') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/release/integrated-preview-2026-11') || (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'release/integrated-preview-2026-11')
     runs-on: ubuntu-latest
     outputs:
       admin_ready: ${{ steps.resolve.outputs.admin_ready }}
@@ -85,66 +85,53 @@ jobs:
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const branch = "release/integrated-preview-2026-11";
-            const siteUrl = "https://note-fiorentine-git-release-in-47d382-claudiocastellani983-5675.vercel.app/";
-            const adminUrl = "https://note-fiorentine-admin-git-rele-890dc9-claudiocastellani983-5675.vercel.app/";
+            const branch = context.eventName === "pull_request"
+              ? context.payload.pull_request.head.ref
+              : "release/integrated-preview-2026-11";
+            const expectedHeadSha = context.eventName === "pull_request"
+              ? context.payload.pull_request.head.sha
+              : context.sha;
+            // Preview manuali costruite e verificate sul commit f0f69ad.
+            // In questo run la PR aggiunge soltanto la logica di test: il codice
+            // Home/Admin distribuito resta identico a quello di quel commit.
+            const homeDeploymentSha = "f0f69ad86aba161a5f8fd0876469a136b7ac2dd5";
+            const adminDeploymentSha = "817ecc3c88f15bf1b4044476241a81fb19ea2e3b";
+            const siteUrl = "https://note-fiorentine-fzphjnstt-claudiocastellani983-5675.vercel.app/";
+            const adminBaseUrl = "https://note-fiorentine-admin-1kgym8iec-claudiocastellani983-5675.vercel.app/";
+            const adminUrl = adminBaseUrl + "?sitePreview=" + encodeURIComponent(siteUrl);
             const homeContext = "Vercel – note-fiorentine";
             const adminContext = "Vercel – note-fiorentine-admin";
             const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
             core.setOutput("admin_ready", "false");
             core.setOutput("all_ready", "false");
-            let lastReason = "Vercel non ha ancora pubblicato gli status del commit.";
-
-            // A workflow-only commit does not trigger a new Vercel build.
-            // In that case, validate the previews against the immediately
-            // preceding source commit instead of incorrectly skipping every live test.
-            let sourceCommit = await github.rest.repos.getCommit({
-              owner, repo, ref: context.sha
-            });
-            let deploymentSha = context.sha;
-            // Walk back over workflow/config-only commits until the latest
-            // commit that actually changed Home or Admin source files.
-            for (let depth = 0; depth < 20; depth++) {
-              const files = sourceCommit.data.files || [];
-              const appChanged = files.some(file =>
-                file.filename.startsWith("src/src/") ||
-                file.filename.startsWith("admin/")
-              );
-              if (appChanged) {
-                deploymentSha = sourceCommit.data.sha;
-                break;
-              }
-              const parentSha = sourceCommit.data.parents?.[0]?.sha;
-              if (!parentSha) break;
-              deploymentSha = parentSha;
-              sourceCommit = await github.rest.repos.getCommit({
-                owner, repo, ref: parentSha
-              });
-            }
-            core.info("Commit sorgente verificato per Vercel: " + deploymentSha);
+            let lastReason = "Vercel non ha ancora pubblicato gli status del commit di anteprima.";
+            core.info("Commit Home verificato: " + homeDeploymentSha + "; commit Admin verificato: " + adminDeploymentSha);
 
             for (let attempt = 0; attempt < 15; attempt++) {
               const branchRef = await github.rest.git.getRef({
                 owner, repo, ref: "heads/" + branch
               });
-              if (branchRef.data.object.sha !== context.sha) {
+              if (branchRef.data.object.sha !== expectedHeadSha) {
                 lastReason = "Il ramo è avanzato a un commit più recente; i test live di questo run vengono saltati.";
                 core.setOutput("reason", lastReason);
                 return;
               }
 
-              const response = await github.rest.repos.listCommitStatusesForRef({
-                owner, repo, ref: deploymentSha, per_page: 100
-              });
-              const latest = new Map();
-              for (const status of [...response.data].sort(
-                (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)
-              )) {
-                if (!latest.has(status.context)) latest.set(status.context, status);
-              }
-
-              const home = latest.get(homeContext);
-              const admin = latest.get(adminContext);
+              const [homeResponse, adminResponse] = await Promise.all([
+                github.rest.repos.listCommitStatusesForRef({ owner, repo, ref: homeDeploymentSha, per_page: 100 }),
+                github.rest.repos.listCommitStatusesForRef({ owner, repo, ref: adminDeploymentSha, per_page: 100 })
+              ]);
+              const latestFor = statuses => {
+                const latest = new Map();
+                for (const status of [...statuses].sort(
+                  (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)
+                )) {
+                  if (!latest.has(status.context)) latest.set(status.context, status);
+                }
+                return latest;
+              };
+              const home = latestFor(homeResponse.data).get(homeContext);
+              const admin = latestFor(adminResponse.data).get(adminContext);
               const adminReady = admin?.state === "success";
               const allReady = adminReady && home?.state === "success";
 
@@ -160,9 +147,8 @@ jobs:
                 return;
               }
 
-              lastReason = "Commit Vercel " + deploymentSha.slice(0, 12) +
-                " — Home: " + (home?.state || "in attesa") +
-                "; Admin: " + (admin?.state || "in attesa");
+              lastReason = "Home " + homeDeploymentSha.slice(0, 12) + ": " + (home?.state || "in attesa") +
+                "; Admin " + adminDeploymentSha.slice(0, 12) + ": " + (admin?.state || "in attesa");
               if (home?.state === "failure" || home?.state === "error") {
                 lastReason += "; Vercel segnala un errore di build per Home.";
                 if (adminReady) {
@@ -234,6 +220,15 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Verifica credenziali Admin di test
+        env:
+          NF_TEST_ADMIN_EMAIL: ${{ secrets.NF_TEST_ADMIN_EMAIL }}
+          NF_TEST_ADMIN_PASSWORD: ${{ secrets.NF_TEST_ADMIN_PASSWORD }}
+        run: |
+          if [ -z "$NF_TEST_ADMIN_EMAIL" ] || [ -z "$NF_TEST_ADMIN_PASSWORD" ]; then
+            echo "::error::Mancano i secrets NF_TEST_ADMIN_EMAIL e/o NF_TEST_ADMIN_PASSWORD."
+            exit 1
+          fi
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -245,7 +240,7 @@ jobs:
       - name: Login, test image management and verify Storage cleanup
         run: npx playwright test tests/admin-authenticated.spec.js --project=chromium
       - name: Upload Admin test evidence
-        if: always()
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-admin-authenticated

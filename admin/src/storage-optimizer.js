@@ -1,31 +1,37 @@
-// Archivio immagini: analisi e copie ottimizzate non distruttive.
-// Non modifica mai i riferimenti del sito e non elimina gli originali.
+// Ottimizzatore archivio immagini: un solo comando, sostituzione verificata e originali conservati.
 export function mountStorageOptimizer({ db, root, readOnly }) {
   if (!root || root.dataset.optimizerMounted === '1') return;
   root.dataset.optimizerMounted = '1';
+
   const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   })[char]);
   const formatBytes = bytes => {
-    if (!Number.isFinite(Number(bytes))) return '—';
     const value = Number(bytes);
+    if (!Number.isFinite(value)) return '—';
     return value >= 1048576 ? (value / 1048576).toFixed(2) + ' MB' : (value / 1024).toFixed(0) + ' KB';
   };
   const eligible = file => /^image\/(jpeg|png|webp)$/i.test(file.mime || '') ||
     /\.(jpe?g|png|webp)$/i.test(file.name || '');
-  const state = { files: [], heavyFiles: [], candidates: [], scanned: false };
+  const tables = [
+    { table: 'site_images', key: 'id', column: 'image_path', type: 'text' },
+    { table: 'gallery_images', key: 'id', column: 'image_path', type: 'text' },
+    { table: 'artist_images', key: 'id', column: 'image_path', type: 'text' },
+    { table: 'events', key: 'id', column: 'image_path', type: 'text' },
+    { table: 'homepage_popup', key: 'id', column: 'media_files', type: 'json' },
+    { table: 'site_content', key: 'content_key', column: 'content_value', type: 'json' }
+  ];
+  const state = { files: [], candidates: [], scanned: false, busy: false };
 
   root.innerHTML = '<section class="site-group" id="storageOptimizer">' +
     '<h3>Ottimizzazione archivio immagini</h3>' +
-    '<p class="media-note">Analizza le immagini già presenti in Storage, individua quelle pesanti e prepara copie WebP in una cartella separata. Gli originali e i collegamenti del sito restano invariati.</p>' +
-    '<p class="media-note"><strong>Ambiente:</strong> progetto collegato all’Admin di test. Questa procedura non accede all’archivio di produzione.</p>' +
-    '<div class="site-savebar"><input type="file" id="optimizerSamples" accept="image/jpeg,image/png,image/webp" multiple style="max-width:360px"><button type="button" id="optimizerUploadSamples">Carica campioni grezzi su Test</button></div>' +
-    '<p class="media-note">Per provare l’intero flusso, carica qui immagini di test originali superiori a 1 MB. I campioni vengono salvati soltanto nel bucket Test, nella cartella optimizer-input.</p>' +
-    '<div class="site-savebar"><button type="button" id="optimizerScan" class="primary">1 · Analizza archivio</button>' +
-    '<button type="button" id="optimizerPrepare" disabled>2 · Prepara copie ottimizzate</button>' +
+    '<p class="media-note">Un solo clic: individua le immagini collegate al sito che superano 1 MB, crea copie WebP, le verifica e aggiorna i riferimenti nel database. Gli originali restano conservati come backup.</p>' +
+    '<p class="media-note"><strong>Ambiente:</strong> Supabase Test. La procedura è disabilitata fuori dalle anteprime Admin autorizzate.</p>' +
+    '<div class="site-savebar"><button type="button" id="optimizerRun" class="primary">Ottimizza e sostituisci immagini</button>' +
     '<span id="optimizerStatus" class="status" role="status" aria-live="polite"></span></div>' +
     '<div id="optimizerSummary" class="media-note" style="margin-top:12px"></div>' +
     '<div id="optimizerResults" class="media-grid"></div></section>';
+
   const $ = id => root.querySelector('#' + id);
   const status = message => { $('optimizerStatus').textContent = message; };
 
@@ -47,8 +53,7 @@ export function mountStorageOptimizer({ db, root, readOnly }) {
         }
         const mime = entry.metadata?.mimetype || entry.metadata?.contentType || '';
         if (mime.startsWith('image/') || /\.(jpe?g|png|webp|gif|svg)$/i.test(entry.name)) {
-          output.push({ name: entry.name, path, mime, size: Number(entry.metadata?.size || 0),
-            createdAt: entry.created_at || entry.updated_at || '' });
+          output.push({ name: entry.name, path, mime, size: Number(entry.metadata?.size || 0) });
         }
       }
       if (entries.length < 100) break;
@@ -56,97 +61,59 @@ export function mountStorageOptimizer({ db, root, readOnly }) {
     return output;
   }
 
-  async function collectReferences() {
-    const refs = new Set();
-    const addValue = value => {
-      if (value == null) return;
-      if (typeof value === 'string') {
-        refs.add(value);
-        try {
-          const url = new URL(value);
-          refs.add(decodeURIComponent(url.pathname.split('/').slice(-2).join('/')));
-          refs.add(decodeURIComponent(url.pathname.split('/').slice(-1)[0]));
-        } catch (_) {}
-      } else if (Array.isArray(value)) value.forEach(addValue);
-      else if (typeof value === 'object') Object.values(value).forEach(addValue);
-    };
-    const queries = [
-      ['gallery_images', 'image_path'], ['site_images', 'image_path'],
-      ['artist_images', 'image_path'], ['events', 'image_path'],
-      ['homepage_popup', 'media_files'], ['site_content', 'content_value']
-    ];
-    for (const [table, column] of queries) {
-      const result = await db.from(table).select(column);
-      if (result.error) throw new Error('Lettura riferimenti ' + table + ': ' + result.error.message);
-      for (const row of result.data || []) addValue(row[column]);
-    }
-    return refs;
+  function pathMatches(value, path) {
+    if (typeof value !== 'string') return false;
+    let decoded = value;
+    try { decoded = decodeURIComponent(value); } catch (_) {}
+    return decoded === path || decoded.endsWith('/' + path) ||
+      decoded.includes('/' + path + '?') || decoded.includes('/' + path + '#');
   }
 
-  function isReferenced(path, refs) {
-    if (refs.has(path)) return true;
-    for (const ref of refs) {
-      if (typeof ref === 'string' && (ref.endsWith('/' + path) || ref.includes('/' + path + '?'))) return true;
+  function replaceNested(value, oldPath, newPath, newUrl) {
+    if (typeof value === 'string') {
+      if (!pathMatches(value, oldPath)) return { value, count: 0 };
+      const isUrl = /^https?:\/\//i.test(value);
+      return { value: isUrl ? newUrl : newPath, count: 1 };
     }
-    return false;
-  }
-
-  async function uploadSamples() {
-    if (readOnly) return status('Modalità sola lettura: caricamento campioni disabilitato.');
-    const input = $('optimizerSamples'), button = $('optimizerUploadSamples');
-    const files = [...(input.files || [])];
-    if (!files.length) return status('Seleziona almeno un’immagine di prova.');
-    button.disabled = true;
-    try {
-      let uploaded = 0;
-      for (const file of files) {
-        if (!/^image\/(jpeg|png|webp)$/i.test(file.type)) throw new Error('Formato non supportato: ' + file.name);
-        if (file.size <= 1024 * 1024) throw new Error('Ogni campione deve superare 1 MB: ' + file.name);
-        if (file.size > 15 * 1024 * 1024) throw new Error('File oltre il limite di 15 MB: ' + file.name);
-        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '-');
-        const path = 'optimizer-input/' + crypto.randomUUID() + '-' + safeName;
-        const result = await db.storage.from('site-media').upload(path, file, {
-          contentType: file.type, upsert: false, cacheControl: '31536000'
-        });
-        if (result.error) throw new Error('Upload campione ' + file.name + ': ' + result.error.message);
-        uploaded++;
+    if (Array.isArray(value)) {
+      let count = 0;
+      const next = value.map(item => {
+        const result = replaceNested(item, oldPath, newPath, newUrl);
+        count += result.count;
+        return result.value;
+      });
+      return { value: next, count };
+    }
+    if (value && typeof value === 'object') {
+      let count = 0;
+      const next = {};
+      for (const [key, item] of Object.entries(value)) {
+        const result = replaceNested(item, oldPath, newPath, newUrl);
+        next[key] = result.value;
+        count += result.count;
       }
-      input.value = '';
-      status(uploaded + ' campioni originali caricati nel solo progetto Test. Avvio nuova analisi…');
-      await scan();
-    } catch (error) {
-      status('Caricamento campioni interrotto: ' + (error.message || String(error)) + '. Gli eventuali campioni già caricati restano nel progetto Test.');
-    } finally { button.disabled = false; }
+      return { value: next, count };
+    }
+    return { value, count: 0 };
   }
 
-  async function scan() {
-    const button = $('optimizerScan');
-    button.disabled = true;
-    $('optimizerPrepare').disabled = true;
-    status('Lettura file e riferimenti nel database…');
-    $('optimizerResults').innerHTML = '';
-    $('optimizerSummary').textContent = '';
-    try {
-      const [files, refs] = await Promise.all([listFolder(), collectReferences()]);
-      state.files = files.filter(file => eligible(file))
-        .map(file => ({ ...file, referenced: isReferenced(file.path, refs) }))
-        .sort((a, b) => b.size - a.size);
-      state.heavyFiles = state.files.filter(file => file.size > 1024 * 1024);
-      state.candidates = [];
-      state.scanned = true;
-      const total = state.heavyFiles.reduce((sum, file) => sum + file.size, 0);
-      const linked = state.files.filter(file => file.referenced).length;
-      $('optimizerSummary').textContent = state.files.length + ' immagini totali rilevate · ' +
-        state.heavyFiles.length + ' oltre 1 MB (' + formatBytes(total) + ') · ' +
-        linked + ' con riferimenti individuati nel database. I file senza riferimenti non vengono eliminati.';
-      $('optimizerPrepare').disabled = readOnly || state.heavyFiles.length === 0;
-      render();
-      status(state.heavyFiles.length ? 'Analisi completata.' : 'Nessuna immagine oltre 1 MB: i file rilevati sono già sotto la soglia di ottimizzazione.');
-    } catch (error) {
-      status('Analisi non riuscita: ' + (error.message || String(error)));
-    } finally {
-      button.disabled = false;
+  async function collectReferences() {
+    const references = [];
+    const pageSize = 500;
+    for (const spec of tables) {
+      for (let offset = 0; ; offset += pageSize) {
+        const result = await db.from(spec.table)
+          .select(spec.key + ',' + spec.column)
+          .range(offset, offset + pageSize - 1);
+        if (result.error) throw new Error('Lettura riferimenti ' + spec.table + ': ' + result.error.message);
+        const rows = result.data || [];
+        for (const row of rows) {
+          references.push({ ...spec, keyValue: row[spec.key], oldValue: row[spec.column] });
+        }
+        if (rows.length < pageSize) break;
+      }
     }
+    return references;
   }
 
   async function optimize(blob) {
@@ -162,103 +129,179 @@ export function mountStorageOptimizer({ db, root, readOnly }) {
       const context = canvas.getContext('2d');
       if (!context) throw new Error('Canvas non disponibile.');
       context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-      let outputWidth = canvas.width, outputHeight = canvas.height;
-      let result = await new Promise(resolve => canvas.toBlob(resolve, 'image/webp', 0.82));
+      const result = await new Promise(resolve => canvas.toBlob(resolve, 'image/webp', 0.82));
       if (!result) throw new Error('Conversione WebP non riuscita.');
-      if (result.size >= blob.size * 0.97) {
-        const smaller = document.createElement('canvas');
-        const scaleDown = Math.min(1, 1500 / width, 1500 / height);
-        smaller.width = Math.max(1, Math.round(width * scaleDown));
-        smaller.height = Math.max(1, Math.round(height * scaleDown));
-        const ctx = smaller.getContext('2d');
-        if (!ctx) throw new Error('Canvas ridotto non disponibile.');
-        ctx.drawImage(bitmap, 0, 0, smaller.width, smaller.height);
-        const reduced = await new Promise(resolve => smaller.toBlob(resolve, 'image/webp', 0.72));
-        if (reduced && reduced.size < result.size) { result = reduced; outputWidth = smaller.width; outputHeight = smaller.height; }
-      }
-      return { blob: result, width: outputWidth, height: outputHeight,
+      return { blob: result, width: canvas.width, height: canvas.height,
         savings: Math.max(0, 1 - result.size / blob.size) };
     } finally { bitmap?.close?.(); }
   }
 
-  async function prepare() {
-    if (readOnly) return status('Modalità sola lettura: copie non consentite in questo ambiente.');
-    if (!state.scanned) return status('Esegui prima l’analisi.');
-    const button = $('optimizerPrepare');
-    button.disabled = true;
-    state.candidates = [];
-    let completed = 0;
-    const total = state.heavyFiles.length;
+  async function updateReferences(file, newPath, newUrl, references) {
+    const changes = [];
     try {
-      for (const file of state.heavyFiles) {
-        completed++;
-        status('Preparazione ' + completed + '/' + total + ': ' + file.name);
+      for (const ref of references) {
+        let nextValue, count = 0;
+        if (ref.type === 'text') {
+          if (!pathMatches(ref.oldValue, file.path)) continue;
+          nextValue = /^https?:\/\//i.test(ref.oldValue) ? newUrl : newPath;
+          count = 1;
+        } else {
+          const replaced = replaceNested(ref.oldValue, file.path, newPath, newUrl);
+          nextValue = replaced.value;
+          count = replaced.count;
+        }
+        if (!count) continue;
+        changes.push({ ...ref, newValue: nextValue });
+        const result = await db.from(ref.table).update({ [ref.column]: nextValue })
+          .eq(ref.key, ref.keyValue).select(ref.key);
+        if (result.error) throw new Error('Aggiornamento ' + ref.table + ': ' + result.error.message);
+        if (!result.data || result.data.length !== 1) {
+          throw new Error('Aggiornamento non verificato in ' + ref.table + ' per il riferimento ' + file.path);
+        }
+      }
+      return changes;
+    } catch (error) {
+      const rollbackErrors = await rollback(changes);
+      if (rollbackErrors.length) throw new Error((error.message || String(error)) +
+        ' Ripristino parziale: ' + rollbackErrors.join('; '));
+      throw error;
+    }
+  }
+
+  async function rollback(changes) {
+    const errors = [];
+    for (const change of [...changes].reverse()) {
+      const result = await db.from(change.table).update({ [change.column]: change.oldValue })
+        .eq(change.key, change.keyValue).select(change.key);
+      if (result.error || !result.data || result.data.length !== 1) {
+        errors.push(change.table + '/' + change.keyValue + ': ' + (result.error?.message || 'verifica fallita'));
+      }
+    }
+    return errors;
+  }
+
+  async function verifyReferences(file, references) {
+    for (const ref of references) {
+      const result = await db.from(ref.table).select(ref.key + ',' + ref.column).eq(ref.key, ref.keyValue);
+      if (result.error) throw new Error('Verifica riferimenti ' + ref.table + ': ' + result.error.message);
+      const row = result.data?.[0];
+      if (!row) throw new Error('Riga non più disponibile in ' + ref.table);
+      const value = row[ref.column];
+      if (ref.type === 'text' ? pathMatches(value, file.path) :
+        replaceNested(value, file.path, '', '').count > 0) {
+        throw new Error('Riferimento originale ancora presente in ' + ref.table);
+      }
+    }
+  }
+
+  async function run() {
+    if (readOnly) return status('Sola lettura: funzione non disponibile in questo ambiente.');
+    if (state.busy) return;
+    state.busy = true;
+    const button = $('optimizerRun');
+    button.disabled = true;
+    $('optimizerResults').innerHTML = '';
+    $('optimizerSummary').textContent = '';
+    const created = [];
+    let replaced = 0, skipped = 0, savedBytes = 0;
+    try {
+      status('1/5 · Analisi archivio e riferimenti nel database Test…');
+      const [allFiles, references] = await Promise.all([listFolder(), collectReferences()]);
+      const files = allFiles.filter(file => eligible(file) && file.size > 1024 * 1024);
+      const candidates = files.map(file => ({
+        ...file,
+        refs: references.filter(ref => ref.type === 'text'
+          ? pathMatches(ref.oldValue, file.path)
+          : replaceNested(ref.oldValue, file.path, '', '').count > 0)
+      })).filter(file => file.refs.length > 0);
+      state.files = candidates;
+      if (!candidates.length) {
+        $('optimizerSummary').textContent = allFiles.length + ' immagini rilevate · ' +
+          files.length + ' oltre 1 MB · 0 collegate al database. Nessuna modifica eseguita.';
+        status('Nessuna immagine collegata da ottimizzare.');
+        return;
+      }
+
+      for (let index = 0; index < candidates.length; index++) {
+        const file = candidates[index];
+        status('2/5 · Ottimizzazione ' + (index + 1) + '/' + candidates.length + ': ' + file.path);
+        if (file.size > 25 * 1024 * 1024) {
+          skipped++;
+          file.result = 'Saltata: file oltre 25 MB, richiede controllo dedicato.';
+          continue;
+        }
         const downloaded = await db.storage.from('site-media').download(file.path);
         if (downloaded.error) throw new Error('Download ' + file.path + ': ' + downloaded.error.message);
         const converted = await optimize(downloaded.data);
         if (converted.blob.size >= file.size * 0.97) {
-          state.candidates.push({ ...file, skipped: true, reason: 'Risparmio inferiore al 3%' });
+          skipped++;
+          file.result = 'Saltata: risparmio inferiore al 3%.';
           continue;
         }
-        const outputPath = 'optimization-review/' + file.path + '.webp';
-        const upload = await db.storage.from('site-media').upload(outputPath, converted.blob, {
+
+        const newPath = 'optimization-review/' + file.path + '.' + Date.now() + '.webp';
+        status('3/5 · Caricamento e verifica della nuova immagine…');
+        const uploaded = await db.storage.from('site-media').upload(newPath, converted.blob, {
           contentType: 'image/webp', upsert: false, cacheControl: '31536000'
         });
-        if (upload.error) {
-          if (/already exists|duplicate/i.test(upload.error.message || '')) {
-            state.candidates.push({ ...file, outputPath, skipped: true, reason: 'Copia già presente' });
-            continue;
-          }
-          throw new Error('Upload copia ' + outputPath + ': ' + upload.error.message);
+        if (uploaded.error) throw new Error('Upload WebP ' + newPath + ': ' + uploaded.error.message);
+        created.push(newPath);
+
+        const checked = await db.storage.from('site-media').download(newPath);
+        if (checked.error || !checked.data) throw new Error('La copia WebP non è scaricabile: ' + newPath);
+        if (checked.data.type && checked.data.type !== 'image/webp') throw new Error('La copia caricata non è WebP.');
+        let checkBitmap;
+        try {
+          checkBitmap = await createImageBitmap(checked.data);
+          if (!checkBitmap.width || !checkBitmap.height) throw new Error('La copia WebP non è decodificabile.');
+        } finally { checkBitmap?.close?.(); }
+        if (checked.data.size >= file.size * 0.97) throw new Error('La copia verificata non è sufficientemente più leggera.');
+
+        const newUrl = db.storage.from('site-media').getPublicUrl(newPath).data.publicUrl;
+        status('4/5 · Aggiornamento riferimenti nel database Test…');
+        const changes = await updateReferences(file, newPath, newUrl, file.refs);
+        if (!changes.length) throw new Error('Nessun riferimento aggiornato: sostituzione annullata.');
+        try {
+          await verifyReferences(file, changes);
+        } catch (error) {
+          const rollbackErrors = await rollback(changes);
+          if (rollbackErrors.length) throw new Error(error.message + ' Ripristino incompleto: ' + rollbackErrors.join('; '));
+          throw error;
         }
-        state.candidates.push({ ...file, outputPath, outputSize: converted.blob.size,
-          outputWidth: converted.width, outputHeight: converted.height, savings: converted.savings,
-          outputUrl: db.storage.from('site-media').getPublicUrl(outputPath).data.publicUrl });
-        render();
+        file.newPath = newPath;
+        file.outputSize = checked.data.size;
+        file.savings = 1 - checked.data.size / file.size;
+        file.result = 'Sostituita · ' + changes.length + ' riferimenti aggiornati';
+        replaced++;
+        savedBytes += file.size - checked.data.size;
       }
-      render();
-      status('Completato: ' + state.candidates.filter(item => item.outputPath && !item.skipped).length +
-        ' copie create. Originali e collegamenti non modificati.');
+
+      status('5/5 · Controllo finale completato.');
+      $('optimizerSummary').textContent = allFiles.length + ' immagini totali · ' + files.length +
+        ' oltre 1 MB · ' + replaced + ' sostituite · ' + skipped + ' saltate · risparmio ' +
+        formatBytes(savedBytes) + '. Originali conservati come backup.';
+      $('optimizerResults').innerHTML = candidates.map(file =>
+        '<article class="media-card"><b>' + esc(file.path) + '</b><p class="media-note">' +
+        formatBytes(file.size) + ' · ' + esc(file.result || 'Non elaborata') +
+        (file.newPath ? '<br>Nuovo file: ' + esc(file.newPath) + '<br>Riduzione: ' +
+          Math.round(file.savings * 100) + '% · ' + formatBytes(file.outputSize) : '') +
+        '</p></article>'
+      ).join('');
+      status('Operazione conclusa. ' + replaced + ' immagini sostituite; originali intatti.');
     } catch (error) {
-      render();
-      status('Interrotto: ' + (error.message || String(error)) +
-        '. Le copie già create sono rimaste nella cartella optimization-review; nessun originale è stato toccato.');
-    } finally { button.disabled = false; }
+      $('optimizerSummary').textContent = 'Operazione interrotta. ' + replaced +
+        ' immagini già sostituite prima dell’errore; le immagini originali restano conservate. ' +
+        (created.length ? created.length + ' copie WebP di sicurezza restano in optimization-review.' : '');
+      status('Errore: ' + (error.message || String(error)));
+    } finally {
+      state.busy = false;
+      button.disabled = false;
+    }
   }
 
-  function render() {
-    const host = $('optimizerResults');
-    const rows = state.scanned ? state.files : [];
-    host.innerHTML = rows.map(file => {
-      const candidate = state.candidates.find(item => item.path === file.path);
-      const url = db.storage.from('site-media').getPublicUrl(file.path).data.publicUrl;
-      const comparison = candidate?.outputUrl
-        ? '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">' +
-          '<div><p class="media-note">Originale</p><img class="media-preview" loading="lazy" src="' + esc(url) +
-          '" alt="Immagine originale" style="max-width:100%;max-height:110px;object-fit:contain"></div>' +
-          '<div><p class="media-note">WebP ottimizzata</p><img class="media-preview" loading="lazy" src="' +
-          esc(candidate.outputUrl) + '" alt="Copia WebP ottimizzata" style="max-width:100%;max-height:110px;object-fit:contain"></div></div>'
-        : '<img class="media-preview" loading="lazy" src="' + esc(url) + '" alt="Anteprima originale">';
-      const result = candidate?.outputUrl
-        ? '<p class="media-note">Copia: ' + formatBytes(candidate.outputSize) +
-          ' · risparmio ' + Math.round(candidate.savings * 100) + '% · ' +
-          candidate.outputWidth + '×' + candidate.outputHeight + '</p><a href="' + esc(candidate.outputUrl) +
-          '" target="_blank" rel="noopener" style="color:var(--gold)">Apri copia WebP</a>'
-        : candidate?.skipped ? '<p class="media-note">' + esc(candidate.reason) + '</p>'
-        : file.size <= 1024 * 1024 ? '<p class="media-note">Sotto soglia 1 MB · non richiede ottimizzazione.</p>'
-        : '<p class="media-note">Supera 1 MB · pronto per la preparazione WebP.</p>';
-      return '<article class="media-card">' + comparison + '<b>' + esc(file.path) +
-        '</b><p class="media-note">' + formatBytes(file.size) +
-        ' · ' + (file.referenced ? 'riferimento DB individuato' : 'nessun riferimento DB individuato') +
-        '</p>' + result + '</article>';
-    }).join('') || (state.scanned ? '<p class="media-note">Nessun file da mostrare.</p>' : '');
-  }
-
-  $('optimizerScan').addEventListener('click', scan);
-  $('optimizerPrepare').addEventListener('click', prepare);
-  $('optimizerUploadSamples').addEventListener('click', uploadSamples);
+  $('optimizerRun').addEventListener('click', run);
   if (readOnly) {
-    $('optimizerPrepare').title = 'Disponibile solo nelle anteprime Admin abilitate alla scrittura sul progetto Test.';
-    $('optimizerUploadSamples').disabled = true;
+    $('optimizerRun').disabled = true;
+    $('optimizerRun').title = 'Disponibile solo nella preview Admin collegata a Supabase Test.';
   }
 }
