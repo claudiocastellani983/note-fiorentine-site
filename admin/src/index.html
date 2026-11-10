@@ -495,6 +495,8 @@ $('editForm').onsubmit=async e=>{
    if(!obj.button_label)obj.button_label='Scopri l’evento';
   }
   if(current==='Musica dal vivo'){
+   // Supabase has no updated_at trigger on this table: set the timestamp explicitly on every edit.
+   obj.updated_at=new Date().toISOString();
    const file=$('fields').querySelector('[name=video_file]')?.files?.[0];
    if(file){
     if(file.size>104857600)throw Error('Video oltre il limite di 100 MB.');
