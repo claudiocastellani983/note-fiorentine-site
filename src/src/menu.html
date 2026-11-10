@@ -885,7 +885,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
  const base=window.NF_SUPABASE_CONFIG.url+'/rest/v1',key=window.NF_SUPABASE_CONFIG.key,headers={apikey:key,Accept:'application/json'};
  const lang=new URLSearchParams(location.search).get('lang')||'it';
  const make=(tag,cls,value)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(value!==undefined&&value!==null)el.textContent=String(value);return el};
- const money=value=>value===null||value===undefined||value===''?'':new Intl.NumberFormat(({it:'it-IT',en:'en-GB',de:'de-DE',fr:'fr-FR',es:'es-ES'})[lang]||'it-IT',{style:'currency',currency:'EUR'}).format(Number(value));
+ const money=value=>value===null||value===undefined||value===''?'':new Intl.NumberFormat(({it:'it-IT',en:'en-GB',de:'de-DE',fr:'fr-FR',es:'es-ES',zh:'zh-CN'})[lang]||'it-IT',{style:'currency',currency:'EUR'}).format(Number(value));
  try{
   const [cr,ir]=await Promise.all([
    fetch(base+'/menu_categories?select=id,name,description,translations,sort_order,created_at&is_published=eq.true&order=sort_order.asc,created_at.asc',{headers,cache:'no-store'}),
@@ -908,7 +908,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
     if(item.image_path){const photo=make('img','menu-item-image');photo.src=window.NF_SUPABASE_CONFIG.url+'/storage/v1/object/public/site-media/'+String(item.image_path).split('/').map(encodeURIComponent).join('/');photo.alt=item.translations?.[lang]?.name||item.name||'Note Fiorentine';photo.loading='lazy';photo.decoding='async';card.append(photo);}
     heading.append(make('h3','',item.translations?.[lang]?.name||item.name||''));const price=money(item.price);if(price)heading.append(make('span','menu-item-price',price));card.append(heading);
     if(item.description)card.append(make('p','menu-item-description',item.translations?.[lang]?.description||item.description));
-    if(Array.isArray(item.allergens)&&item.allergens.length)card.append(make('p','menu-item-allergens',({it:'Allergeni:',en:'Allergens:',de:'Allergene:',fr:'Allergènes :',es:'Alérgenos:'})[lang]+' '+item.allergens.join(', ')));
+    if(Array.isArray(item.allergens)&&item.allergens.length)card.append(make('p','menu-item-allergens',({it:'Allergeni:',en:'Allergens:',de:'Allergene:',fr:'Allergènes :',es:'Alérgenos:',zh:'过敏原：'})[lang]+' '+item.allergens.join(', ')));
     itemsBox.append(card);
    });
   }
