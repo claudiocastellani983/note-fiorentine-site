@@ -526,8 +526,16 @@ saveForm.querySelector('[type=submit]')?.addEventListener('click',()=>{
  say(detail);
  window.__NF_DEBUG?.add('SAVE_CLICK',detail);
 });
-saveForm.addEventListener('submit',()=>{
+const SAVE_DIAGNOSTIC_ONLY=new URLSearchParams(location.search).get('saveDiag')==='1';
+saveForm.addEventListener('submit',e=>{
  window.__NF_DEBUG?.add('FORM_SUBMIT','Evento submit ricevuto dal modulo.');
+ if(SAVE_DIAGNOSTIC_ONLY){
+  e.preventDefault();
+  e.stopImmediatePropagation();
+  const detail='Diagnostica completata: submit intercettato. Invio al database bloccato; nessun dato modificato.';
+  say(detail);
+  window.__NF_DEBUG?.add('SAVE_DIAGNOSTIC_ONLY',detail);
+ }
 },true);
 async function remove(r){if(!confirm('Eliminare definitivamente questo elemento?'))return;try{let key=current==='Testi sito'?'content_key':'id',x=await db.from(cfg[current].table).delete().eq(key,r[key]);if(x.error)throw x.error;if(current==='Musica dal vivo'&&r.video_path){let s=await db.storage.from('performance-videos').remove([r.video_path]);say(s.error?'Record eliminato, file non rimosso: '+s.error.message:'Elemento e file eliminati')}else say('Elemento eliminato');await load()}catch(e){say('ERRORE: '+e.message)}}
 async function publish(r){if(current==='Testi sito')return;try{let x=await db.from(cfg[current].table).update({is_published:r.is_published===false}).eq('id',r.id);if(x.error)throw x.error;say('Stato di pubblicazione aggiornato');await load()}catch(e){say('ERRORE: '+e.message)}}
