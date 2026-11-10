@@ -72,6 +72,53 @@ const guardQuery=q=>new Proxy(q,{get(target,key){if(PREVIEW_READ_ONLY&&['insert'
 const guardBucket=b=>new Proxy(b,{get(target,key){if(PREVIEW_READ_ONLY&&['upload','remove','update','move','copy'].includes(String(key)))return blockedWrite;const v=Reflect.get(target,key,target);return typeof v==='function'?v.bind(target):v;}});
 const db=new Proxy(rawDb,{get(target,key){if(key==='from')return table=>guardQuery(target.from(table));if(key==='storage')return new Proxy(target.storage,{get(storage,key2){if(key2==='from')return name=>guardBucket(storage.from(name));const v=Reflect.get(storage,key2,storage);return typeof v==='function'?v.bind(storage):v;}});const v=Reflect.get(target,key,target);return typeof v==='function'?v.bind(target):v;}});
 const $=id=>document.getElementById(id);
+window.__NF_PUBLISH_EVENT_DRAFT = async draft => {
+  if (PREVIEW_READ_ONLY) throw new Error('Pubblicazione consentita soltanto nella preview Admin collegata a Supabase Test.');
+  if (!draft || draft.section !== 'Eventi') throw new Error('Questa azione è riservata alle bozze della sezione Eventi.');
+  const payload = draft.payload || {};
+  if (draft.type === 'toggle-publish') {
+    const id = payload.recordId;
+    if (!id) throw new Error('ID evento mancante: aggiorna l’elenco e riprova.');
+    const current = await db.from('events').select('id,is_published').eq('id', id).single();
+    if (current.error) throw current.error;
+    const result = await db.from('events').update({
+      is_published: !current.data.is_published,
+      updated_at: new Date().toISOString()
+    }).eq('id', id).select('id,title,is_published').single();
+    if (result.error) throw result.error;
+    if (!result.data) throw new Error('Aggiornamento evento non verificato.');
+    return result.data;
+  }
+  if (draft.type !== 'record') throw new Error('Tipo di bozza evento non supportato.');
+  const fields = payload.fields || {};
+  const title = String(fields.title || '').trim();
+  if (!title) throw new Error('La bozza non contiene il titolo dell’evento.');
+  let startsAt = null;
+  if (fields.starts_at) {
+    const parsed = new Date(fields.starts_at);
+    if (Number.isNaN(parsed.getTime())) throw new Error('Data e ora dell’evento non valide.');
+    startsAt = parsed.toISOString();
+  }
+  const record = {
+    title,
+    description: String(fields.description || '').trim() || null,
+    starts_at: startsAt,
+    image_path: String(fields.image_path || '').trim() || null,
+    external_url: String(fields.external_url || '').trim() || null,
+    button_label: String(fields.button_label || '').trim() || 'Scopri l’evento',
+    is_published: true,
+    updated_at: new Date().toISOString()
+  };
+  if (fields._translations) record.translations = fields._translations;
+  const query = payload.recordId
+    ? db.from('events').update(record).eq('id', payload.recordId)
+    : db.from('events').insert(record);
+  const result = await query.select('id,title,is_published,starts_at').single();
+  if (result.error) throw result.error;
+  if (!result.data || result.data.is_published !== true) throw new Error('Pubblicazione non verificata: l’evento risulta ancora in bozza.');
+  return result.data;
+};
+
 async function optimizeImageFile(file){
  if(!file||!/^image\/(jpeg|png|webp)$/i.test(file.type))return file;
  let source=null,bitmap=null,objectUrl=null;
