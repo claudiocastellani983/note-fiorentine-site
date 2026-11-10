@@ -1610,18 +1610,21 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
    categoriesBox.querySelectorAll('.menu-category-button').forEach(b=>{const active=b===button;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});
    itemsBox.style.display='';
    itemsBox.replaceChildren();
-   if(category.description)itemsBox.append(make('p','menu-category-description',category.translations?.[lang]?.description||category.description));
+   const categoryDescription=lang==='it'?category.description:category.translations?.[lang]?.description;if(categoryDescription)itemsBox.append(make('p','menu-category-description',categoryDescription));
    const matching=publishedItems.filter(item=>item.category_id===category.id);
    if(!matching.length){itemsBox.append(make('p','menu-empty','Non ci sono ancora piatti pubblicati in questa categoria.'));return}
-   matching.forEach(item=>{
+   let renderedItems=0;matching.forEach(item=>{
+    const itemName=lang==='it'?item.name:item.translations?.[lang]?.name;if(!itemName)return;
+    const itemDescription=lang==='it'?item.description:item.translations?.[lang]?.description;
     const card=make('article','menu-item-card'),heading=make('div','menu-item-heading');
-    heading.append(make('h3','',item.translations?.[lang]?.name||item.name||''));const price=money(item.price);if(price)heading.append(make('span','menu-item-price',price));card.append(heading);
-    if(item.description)card.append(make('p','menu-item-description',item.translations?.[lang]?.description||item.description));
-    if(Array.isArray(item.allergens)&&item.allergens.length)card.append(make('p','menu-item-allergens',({it:'Allergeni:',en:'Allergens:',de:'Allergene:',fr:'Allergènes :',es:'Alérgenos:'})[lang]+' '+item.allergens.join(', ')));
-    itemsBox.append(card);
+    heading.append(make('h3','',itemName));const price=money(item.price);if(price)heading.append(make('span','menu-item-price',price));card.append(heading);
+    if(itemDescription)card.append(make('p','menu-item-description',itemDescription));
+    if(Array.isArray(item.allergens)&&item.allergens.length)card.append(make('p','menu-item-allergens',({it:'Allergeni:',en:'Allergens:',de:'Allergene:',fr:'Allergènes :',es:'Alérgenos:',zh:'过敏原：'})[lang]+' '+item.allergens.join(', ')));
+    itemsBox.append(card);renderedItems++;
    });
+   if(!renderedItems)itemsBox.append(make('p','menu-empty',lang==='it'?'Non ci sono ancora piatti pubblicati in questa categoria.':({en:'No dishes are available in this language yet.',de:'In dieser Sprache sind noch keine Gerichte verfügbar.',fr:'Aucun plat n’est encore disponible dans cette langue.',es:'Todavía no hay platos disponibles en este idioma.',zh:'此语言暂时没有可显示的菜品。'})[lang]));
   }
-  categories.forEach(category=>{const button=make('button','menu-category-button',category.translations?.[lang]?.name||category.name||'Categoria');button.type='button';button.setAttribute('aria-pressed','false');button.addEventListener('click',()=>showCategory(category,button));categoriesBox.append(button)});
+  categories.forEach(category=>{const categoryName=lang==='it'?category.name:category.translations?.[lang]?.name;if(!categoryName)return;const button=make('button','menu-category-button',categoryName);button.type='button';button.setAttribute('aria-pressed','false');button.addEventListener('click',()=>showCategory(category,button));categoriesBox.append(button)});
  }catch(error){console.error('Menu dinamico non caricato:',error);categoriesBox.replaceChildren(make('p','menu-error','Non è stato possibile caricare le categorie del menu. Riprova più tardi.'));itemsBox.replaceChildren();itemsBox.style.display='none'}
 })();
 </script>
