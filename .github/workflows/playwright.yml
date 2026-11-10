@@ -234,6 +234,15 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Verifica credenziali Admin di test
+        env:
+          NF_TEST_ADMIN_EMAIL: ${{ secrets.NF_TEST_ADMIN_EMAIL }}
+          NF_TEST_ADMIN_PASSWORD: ${{ secrets.NF_TEST_ADMIN_PASSWORD }}
+        run: |
+          if [ -z "$NF_TEST_ADMIN_EMAIL" ] || [ -z "$NF_TEST_ADMIN_PASSWORD" ]; then
+            echo "::error::Mancano i secrets NF_TEST_ADMIN_EMAIL e/o NF_TEST_ADMIN_PASSWORD."
+            exit 1
+          fi
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -245,7 +254,7 @@ jobs:
       - name: Login, test image management and verify Storage cleanup
         run: npx playwright test tests/admin-authenticated.spec.js --project=chromium
       - name: Upload Admin test evidence
-        if: always()
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-admin-authenticated
