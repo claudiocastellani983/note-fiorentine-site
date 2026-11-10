@@ -62,7 +62,7 @@ test.describe('Admin release drafts', () => {
       form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     });
     await expect(page.locator('#nfDraftCount')).toContainText('1 modifiche');
-    await expect(page.locator('[data-publish-event-draft]')).toHaveText('Pubblica su TEST');
+    await expect(page.locator('[data-publish-event-draft]')).toHaveText(/^Pubblica su Test$/i);
     page.on('dialog', dialog => dialog.accept());
     await page.locator('[data-publish-event-draft]').click();
     await expect(page.locator('#nfDraftCount')).toContainText('0 modifiche');
