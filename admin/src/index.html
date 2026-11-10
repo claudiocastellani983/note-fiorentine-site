@@ -513,6 +513,22 @@ $('editForm').onsubmit=async e=>{
   say('ERRORE ['+stage+']: '+(err.message||String(err)));
  }finally{btn.disabled=false}
 };
+// Diagnostica del click e della validazione nativa: distingue click, blocco HTML e submit JS.
+const saveForm=$('editForm');
+saveForm.addEventListener('invalid',e=>{
+ const el=e.target;
+ const detail='Salvataggio bloccato dal browser: '+(el?.name||el?.id||el?.tagName||'campo')+'. '+(el?.validationMessage||'Controlla il campo evidenziato.');
+ say(detail);
+ window.__NF_DEBUG?.add('FORM_INVALID',detail);
+},true);
+saveForm.querySelector('[type=submit]')?.addEventListener('click',()=>{
+ const detail='Pulsante Salva premuto. Controllo dei campi in corso…';
+ say(detail);
+ window.__NF_DEBUG?.add('SAVE_CLICK',detail);
+});
+saveForm.addEventListener('submit',()=>{
+ window.__NF_DEBUG?.add('FORM_SUBMIT','Evento submit ricevuto dal modulo.');
+},true);
 async function remove(r){if(!confirm('Eliminare definitivamente questo elemento?'))return;try{let key=current==='Testi sito'?'content_key':'id',x=await db.from(cfg[current].table).delete().eq(key,r[key]);if(x.error)throw x.error;if(current==='Musica dal vivo'&&r.video_path){let s=await db.storage.from('performance-videos').remove([r.video_path]);say(s.error?'Record eliminato, file non rimosso: '+s.error.message:'Elemento e file eliminati')}else say('Elemento eliminato');await load()}catch(e){say('ERRORE: '+e.message)}}
 async function publish(r){if(current==='Testi sito')return;try{let x=await db.from(cfg[current].table).update({is_published:r.is_published===false}).eq('id',r.id);if(x.error)throw x.error;say('Stato di pubblicazione aggiornato');await load()}catch(e){say('ERRORE: '+e.message)}}
 async function enter(){ $('login').classList.add('hidden');$('app').classList.remove('hidden');$('logout').classList.remove('hidden');let a=await db.rpc('is_admin');if(a.error||a.data!==true){await db.auth.signOut();$('app').classList.add('hidden');$('login').classList.remove('hidden');$('logout').classList.add('hidden');$('loginStatus').textContent='Account non autorizzato o verifica amministratore non riuscita.';return}tabs();try{await load()}catch(e){say('Errore caricamento: '+e.message)}}
