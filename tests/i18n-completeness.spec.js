@@ -52,7 +52,7 @@ const categoryTranslations = {
 };
 
 test('Home: all six languages translate artist gallery labels and accessibility text', async ({ page }) => {
-  await page.route(/\\/rest\\/v1\\/site_images\\?/, async route => {
+  await page.route('**/rest/v1/site_images*', async route => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
