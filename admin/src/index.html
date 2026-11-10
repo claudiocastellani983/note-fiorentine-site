@@ -69,6 +69,33 @@
   document.getElementById("nf-debug-toggle").addEventListener("click",()=>{const p=document.getElementById("nf-debug-panel");p.style.display=p.style.display==="block"?"none":"block";render()});
   document.getElementById("nf-debug-refresh").addEventListener("click",render);
   document.getElementById("nf-debug-close").addEventListener("click",()=>document.getElementById("nf-debug-panel").style.display="none");
+  // Diagnostica globale: resta attiva anche se il modulo amministrativo non parte.
+  document.addEventListener("click",e=>{
+   const button=e.target?.closest?.("#editForm button[type=submit]");
+   if(!button)return;
+   const detail="CLICK SALVA rilevato dal browser (listener globale, indipendente dal modulo).";
+   add("SAVE_CLICK_GLOBAL",detail);
+   const status=document.getElementById("status");
+   if(status)status.textContent=detail;
+  },true);
+  document.addEventListener("submit",e=>{
+   if(e.target?.id!=="editForm")return;
+   add("FORM_SUBMIT_GLOBAL","Evento submit rilevato dal listener globale.");
+   const status=document.getElementById("status");
+   if(status)status.textContent="Submit rilevato. Diagnostica senza scritture attiva.";
+   if(new URLSearchParams(location.search).get("saveDiag")==="1"){
+    e.preventDefault();
+    e.stopImmediatePropagation();
+   }
+  },true);
+  document.addEventListener("invalid",e=>{
+   if(!e.target?.form||e.target.form.id!=="editForm")return;
+   const detail="VALIDAZIONE HTML: "+(e.target.name||e.target.id||e.target.tagName)+" · "+(e.target.validationMessage||"campo non valido");
+   add("FORM_INVALID_GLOBAL",detail);
+   const status=document.getElementById("status");
+   if(status)status.textContent=detail;
+  },true);
+  add("INFO","Diagnostica globale attiva: click, submit e validazione sono rilevati anche se il modulo amministrativo non si avvia.");
   add("INFO","Diagnostica attiva. Non vengono registrate password o token.");
  });
 })();
