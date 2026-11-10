@@ -159,6 +159,10 @@ jobs:
                 core.info("Entrambe le preview Vercel risultano READY sul commit " + context.sha);
                 return;
               }
+              if (adminReady && !home) {
+                core.setOutput("reason", "Preview Admin verificata e pronta; nessuna preview Home sul commit dei soli test. Proseguo con il collaudo autenticato Admin.");
+                return;
+              }
 
               lastReason = "Home " + homeDeploymentSha.slice(0, 12) + ": " + (home?.state || "in attesa") +
                 "; Admin " + adminDeploymentSha.slice(0, 12) + ": " + (admin?.state || "in attesa");
