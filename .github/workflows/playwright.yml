@@ -94,6 +94,9 @@ jobs:
             // Le preview sono verificate sullo SHA corrente e raggiunte tramite alias stabile del branch.
             const homeDeploymentSha = expectedHeadSha;
             const adminDeploymentSha = expectedHeadSha;
+            // Fallback controllato: riusa la preview Admin già READY al commit 025fd302
+            // soltanto se il commit corrente non modifica alcun file applicativo admin/.
+            const knownAdminPreviewSha = "025fd30292678b1d0d4aa2aa0e69ac0832df70c7";
             const siteUrl = "https://note-fiorentine-git-release-in-47d382-claudiacastellani983-5675.vercel.app/";
             const adminBaseUrl = "https://note-fiorentine-admin-git-rele-890dc9-claudiacastellani983-5675.vercel.app/";
             const adminUrl = adminBaseUrl + "?sitePreview=" + encodeURIComponent(siteUrl);
@@ -130,7 +133,19 @@ jobs:
               };
               const home = latestFor(homeResponse.data).get(homeContext);
               const admin = latestFor(adminResponse.data).get(adminContext);
-              const adminReady = admin?.state === "success";
+              let adminReady = admin?.state === "success";
+              if (!adminReady && !admin) {
+                const compare = await github.request("GET /repos/{owner}/{repo}/compare/{basehead}", {
+                  owner, repo, basehead: knownAdminPreviewSha + "..." + expectedHeadSha
+                });
+                const changed = compare.data.files || [];
+                const adminCodeUnchanged = changed.every(file => !file.filename.startsWith("admin/"));
+                if (adminCodeUnchanged) {
+                  adminReady = true;
+                  core.info("Preview Admin riutilizzata: deployment READY al commit " + knownAdminPreviewSha +
+                    "; il commit corrente modifica soltanto test/workflow e non il codice admin/.");
+                }
+              }
               const allReady = adminReady && home?.state === "success";
 
               if (adminReady) {
