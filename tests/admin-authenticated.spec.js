@@ -252,7 +252,7 @@ test('Admin: CRUD completo dei video musicali su Supabase Test', async ({ page }
     'Test CRUD autenticato eseguito soltanto nel job CI con credenziali di test.');
   test.setTimeout(180000);
   const host = new URL(ADMIN_PREVIEW_URL).hostname;
-  expect(host).toMatch(/^note-fiorentine-admin-.+\\.vercel\\.app$/);
+  expect(host).toMatch(/^note-fiorentine-admin-.+\.vercel\.app$/);
   const errors = [];
   const fixtureTitle = 'PLAYWRIGHT CRUD ' + randomUUID();
   let fixtureId = null;
