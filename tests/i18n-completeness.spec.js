@@ -123,6 +123,7 @@ test('Home: all six languages translate artist gallery labels and accessibility 
     await page.locator('[data-env-choice="photos"]').click();
     await expect(page.locator('#nfGalleryTitle')).toHaveText(galleryExpected[lang].title);
     await expect(page.locator('#nfGalleryStage img.nf-gallery-photo')).toHaveAttribute('alt', galleryExpected[lang].alt);
+    await page.locator('#nfGalleryClose').click();
     await page.locator('[data-artist-gallery="images"]').click();
     await expect(page.locator('#nfArtistsViewer')).toHaveClass(/open/);
     await expect(page.locator('#nfArtistsViewerStage img.nf-artists-gallery-photo')).toHaveAttribute('alt', artistPhotoAlt[lang]);
