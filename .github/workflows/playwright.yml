@@ -94,16 +94,18 @@ jobs:
             // Preview manuali costruite e verificate sul commit f0f69ad.
             // In questo run la PR aggiunge soltanto la logica di test: il codice
             // Home/Admin distribuito resta identico a quello di quel commit.
-            const deploymentSha = "f0f69ad86aba161a5f8fd0876469a136b7ac2dd5";
+            const homeDeploymentSha = "f0f69ad86aba161a5f8fd0876469a136b7ac2dd5";
+            const adminDeploymentSha = "817ecc3c88f15bf1b4044476241a81fb19ea2e3b";
             const siteUrl = "https://note-fiorentine-fzphjnstt-claudiocastellani983-5675.vercel.app/";
-            const adminUrl = "https://note-fiorentine-admin-oxjs2hs3d-claudiocastellani983-5675.vercel.app/?sitePreview=" + encodeURIComponent(siteUrl);
+            const adminBaseUrl = "https://note-fiorentine-admin-1kgym8iec-claudiocastellani983-5675.vercel.app/";
+            const adminUrl = adminBaseUrl + "?sitePreview=" + encodeURIComponent(siteUrl);
             const homeContext = "Vercel – note-fiorentine";
             const adminContext = "Vercel – note-fiorentine-admin";
             const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
             core.setOutput("admin_ready", "false");
             core.setOutput("all_ready", "false");
             let lastReason = "Vercel non ha ancora pubblicato gli status del commit di anteprima.";
-            core.info("Commit di anteprima verificato: " + deploymentSha);
+            core.info("Commit Home verificato: " + homeDeploymentSha + "; commit Admin verificato: " + adminDeploymentSha);
 
             for (let attempt = 0; attempt < 15; attempt++) {
               const branchRef = await github.rest.git.getRef({
@@ -115,18 +117,21 @@ jobs:
                 return;
               }
 
-              const response = await github.rest.repos.listCommitStatusesForRef({
-                owner, repo, ref: deploymentSha, per_page: 100
-              });
-              const latest = new Map();
-              for (const status of [...response.data].sort(
-                (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)
-              )) {
-                if (!latest.has(status.context)) latest.set(status.context, status);
-              }
-
-              const home = latest.get(homeContext);
-              const admin = latest.get(adminContext);
+              const [homeResponse, adminResponse] = await Promise.all([
+                github.rest.repos.listCommitStatusesForRef({ owner, repo, ref: homeDeploymentSha, per_page: 100 }),
+                github.rest.repos.listCommitStatusesForRef({ owner, repo, ref: adminDeploymentSha, per_page: 100 })
+              ]);
+              const latestFor = statuses => {
+                const latest = new Map();
+                for (const status of [...statuses].sort(
+                  (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)
+                )) {
+                  if (!latest.has(status.context)) latest.set(status.context, status);
+                }
+                return latest;
+              };
+              const home = latestFor(homeResponse.data).get(homeContext);
+              const admin = latestFor(adminResponse.data).get(adminContext);
               const adminReady = admin?.state === "success";
               const allReady = adminReady && home?.state === "success";
 
@@ -142,9 +147,8 @@ jobs:
                 return;
               }
 
-              lastReason = "Commit Vercel " + deploymentSha.slice(0, 12) +
-                " — Home: " + (home?.state || "in attesa") +
-                "; Admin: " + (admin?.state || "in attesa");
+              lastReason = "Home " + homeDeploymentSha.slice(0, 12) + ": " + (home?.state || "in attesa") +
+                "; Admin " + adminDeploymentSha.slice(0, 12) + ": " + (admin?.state || "in attesa");
               if (home?.state === "failure" || home?.state === "error") {
                 lastReason += "; Vercel segnala un errore di build per Home.";
                 if (adminReady) {
