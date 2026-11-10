@@ -1228,6 +1228,23 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
  }
 }
 </style>
+<script id="nf-supabase-environment">
+(()=> {
+  const host=location.hostname.toLowerCase();
+  const productionHosts=new Set([
+    'www.notefiorentine.it','notefiorentine.it','note-fiorentine.vercel.app',
+    'note-fiorentine-n8y0wjydb-claudiacastellani983-5675.vercel.app',
+    'note-fiorentine-admin.vercel.app',
+    'note-fiorentine-admin-dhv0f1t1z-claudiacastellani983-5675.vercel.app'
+  ]);
+  const production=productionHosts.has(host);
+  window.NF_SUPABASE_CONFIG=Object.freeze({
+    url:production?'https://nculgrwlzjitggjcgbpp.supabase.co':'https://iuxskknbopboynjlsxbk.supabase.co',
+    key:production?'sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0':'sb_publishable_GTGiyYl8pZsY6letaozS2Q_dmh9vrRc',
+    environment:production?'Production':'Test'
+  });
+})();
+</script>
 </head>
 <body>
 <div id="app">
@@ -1369,8 +1386,8 @@ links.querySelectorAll('a').forEach(link => link.addEventListener('click', () =>
 // Carica gli eventi pubblicati dal pannello amministrativo.
 (async function loadPublishedEvents(){
  const container=document.getElementById('eventList');if(!container)return;
- const base='https://iuxskknbopboynjlsxbk.supabase.co';
- const key='sb_publishable_GTGiyYl8pZsY6letaozS2Q_dmh9vrRc';
+ const base=window.NF_SUPABASE_CONFIG.url;
+ const key=window.NF_SUPABASE_CONFIG.key;
  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  try{
   const res=await fetch(base+'/rest/v1/events?select=id,title,description,starts_at,image_path,external_url,button_label,is_published,translations&is_published=eq.true',{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});
@@ -1395,8 +1412,8 @@ links.querySelectorAll('a').forEach(link => link.addEventListener('click', () =>
 (async function loadPerformanceVideos() {
   const container = document.getElementById('performanceVideos');
   if (!container) return;
-  const supabaseUrl = 'https://iuxskknbopboynjlsxbk.supabase.co';
-  const supabaseKey = 'sb_publishable_GTGiyYl8pZsY6letaozS2Q_dmh9vrRc';
+  const supabaseUrl = window.NF_SUPABASE_CONFIG.url;
+  const supabaseKey = window.NF_SUPABASE_CONFIG.key;
   const endpoint = supabaseUrl + '/rest/v1/performance_videos?select=id,video_path,sort_order,created_at&is_published=eq.true&order=sort_order.asc,created_at.desc';
   const makeText = (tag, value, className) => {
     const node = document.createElement(tag);
@@ -1443,8 +1460,8 @@ links.querySelectorAll('a').forEach(link => link.addEventListener('click', () =>
 
 <script>
 (()=>{
- const api='https://iuxskknbopboynjlsxbk.supabase.co/rest/v1/site_content?select=content_value&content_key=eq.public_site';
- const key='sb_publishable_GTGiyYl8pZsY6letaozS2Q_dmh9vrRc';let active=null;
+ const api=window.NF_SUPABASE_CONFIG.url+'/rest/v1/site_content?select=content_value&content_key=eq.public_site';
+ const key=window.NF_SUPABASE_CONFIG.key;let active=null;
  function selector(el){if(el.id)return '#'+CSS.escape(el.id);const parts=[];while(el&&el.nodeType===1&&el!==document.body){let part=el.tagName.toLowerCase();if(el.parentElement){const same=[...el.parentElement.children].filter(x=>x.tagName===el.tagName);if(same.length>1)part+=':nth-of-type('+(same.indexOf(el)+1)+')'}parts.unshift(part);el=el.parentElement}return 'body>'+parts.join('>')}
  function apply(sel,p){let el;try{el=document.querySelector(sel)}catch{}if(!el||!p)return;if((['it','en','de','fr','es','zh'].includes((new URLSearchParams(location.search).get('lang')||'it').toLowerCase())?(new URLSearchParams(location.search).get('lang')||'it').toLowerCase():'it')==='it'&&typeof p.text==='string'){el.textContent=p.text;el.style.whiteSpace=/[\\r\\n]/.test(p.text)?'pre-wrap':''}if(p.fontSize)el.style.fontSize=p.fontSize;if(typeof p.fontFamily==='string'&&p.fontFamily.trim())el.style.fontFamily=p.fontFamily;if(['left','center','right','justify'].includes(p.textAlign))el.style.textAlign=p.textAlign;if(p.width)el.style.width=p.width;if(p.maxWidth)el.style.maxWidth=p.maxWidth;if(p.display)el.style.display=p.display;if(p.marginLeft)el.style.marginLeft=p.marginLeft;if(p.marginRight)el.style.marginRight=p.marginRight;if(['cover','contain'].includes(p.objectFit))el.style.objectFit=p.objectFit}
  async function load(){try{const r=await fetch(api,{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});if(!r.ok)return;const rows=await r.json(),styles=rows?.[0]?.content_value?._visual_styles||{};delete styles['body>div>main>section:nth-of-type(4)>div:nth-of-type(1)'];Object.entries(styles).forEach(([sel,p])=>apply(sel,p))}catch(e){console.warn('Stili visuali non caricati',e)}}
@@ -1476,7 +1493,7 @@ links.querySelectorAll('a').forEach(link => link.addEventListener('click', () =>
 @media(max-width:420px){#nf-popup-box{padding:36px 16px 24px}#nf-popup-title{font-size:11px;letter-spacing:.055em}}
 </style>
 <script>(async()=>{
-const api='https://iuxskknbopboynjlsxbk.supabase.co/rest/v1/site_content?select=content_value&content_key=eq.public_site',key='sb_publishable_GTGiyYl8pZsY6letaozS2Q_dmh9vrRc',lang=(()=>{const v=new URLSearchParams(location.search).get('lang')||'it';return ['it','en','de','fr','es','zh'].includes(v)?v:'it'})();
+const api=window.NF_SUPABASE_CONFIG.url+'/rest/v1/site_content?select=content_value&content_key=eq.public_site',key=window.NF_SUPABASE_CONFIG.key,lang=(()=>{const v=new URLSearchParams(location.search).get('lang')||'it';return ['it','en','de','fr','es','zh'].includes(v)?v:'it'})();
 const setText=(el,v)=>{if(!el||v==null||String(v)==='')return;el.replaceChildren();String(v).split(/\n/).forEach((p,i)=>{if(i)el.appendChild(document.createElement('br'));el.appendChild(document.createTextNode(p))})};
 try{
 const r=await fetch(api,{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});if(!r.ok)throw Error('site_content '+r.status);
@@ -1517,7 +1534,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
 (async function loadDatabaseMenu(){
  const categoriesBox=document.getElementById('menuCategories'),itemsBox=document.getElementById('menuItems');
  if(!categoriesBox||!itemsBox)return;
- const base='https://iuxskknbopboynjlsxbk.supabase.co/rest/v1',key='sb_publishable_GTGiyYl8pZsY6letaozS2Q_dmh9vrRc',headers={apikey:key,Accept:'application/json'};
+ const base=window.NF_SUPABASE_CONFIG.url+'/rest/v1',key=window.NF_SUPABASE_CONFIG.key,headers={apikey:key,Accept:'application/json'};
  const lang=new URLSearchParams(location.search).get('lang')||'it';
  const make=(tag,cls,value)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(value!==undefined&&value!==null)el.textContent=String(value);return el};
  const money=value=>value===null||value===undefined||value===''?'':new Intl.NumberFormat(({it:'it-IT',en:'en-GB',de:'de-DE',fr:'fr-FR',es:'es-ES'})[lang]||'it-IT',{style:'currency',currency:'EUR'}).format(Number(value));
@@ -1556,8 +1573,8 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
   try {
     if(sessionStorage.getItem('nf-home-popup-dismissed')==='1') return;
   } catch(e) {}
-  const base='https://iuxskknbopboynjlsxbk.supabase.co';
-  const key='sb_publishable_GTGiyYl8pZsY6letaozS2Q_dmh9vrRc';
+  const base=window.NF_SUPABASE_CONFIG.url;
+  const key=window.NF_SUPABASE_CONFIG.key;
   try {
     const response=await fetch(base+'/rest/v1/homepage_popup?select=active,title_it,title_en,body_it,body_en,button_label_it,button_label_en,translations,contact_email,media_files&active=eq.true&limit=1',{
       headers:{apikey:key,Accept:'application/json'},cache:'no-store'
@@ -1768,7 +1785,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
 </style>
 <script id="nf-site-images-runtime">
 (async function(){
- const api='https://iuxskknbopboynjlsxbk.supabase.co',key='sb_publishable_GTGiyYl8pZsY6letaozS2Q_dmh9vrRc';
+ const api=window.NF_SUPABASE_CONFIG.url,key=window.NF_SUPABASE_CONFIG.key;
  const log=(...args)=>{if(window.console)console.warn('[Note Fiorentine immagini]',...args)};
  const publicUrl=path=>api+'/storage/v1/object/public/site-media/'+String(path).split('/').map(encodeURIComponent).join('/');
 
@@ -1804,7 +1821,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
 </script>
 <script id="nf-multiple-gallery-runtime">
 (async function(){
- const api='https://iuxskknbopboynjlsxbk.supabase.co',key='sb_publishable_GTGiyYl8pZsY6letaozS2Q_dmh9vrRc';
+ const api=window.NF_SUPABASE_CONFIG.url,key=window.NF_SUPABASE_CONFIG.key;
  const labels={restaurant:'Il ristorante',kitchen:'La cucina',music:'L’atmosfera'};
  const viewer=document.getElementById('nfGalleryViewer'),stage=document.getElementById('nfGalleryStage'),title=document.getElementById('nfGalleryTitle'),counter=document.getElementById('nfGalleryCounter');
  if(!viewer||!stage)return;
@@ -1918,7 +1935,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
 </style>
 <script id="nf-artists-media-runtime">
 (async function(){
- const api='https://iuxskknbopboynjlsxbk.supabase.co',key='sb_publishable_GTGiyYl8pZsY6letaozS2Q_dmh9vrRc';
+ const api=window.NF_SUPABASE_CONFIG.url,key=window.NF_SUPABASE_CONFIG.key;
  const viewer=document.getElementById('nfArtistsViewer'),stage=document.getElementById('nfArtistsViewerStage'),title=document.getElementById('nfArtistsViewerTitle'),count=document.getElementById('nfArtistsViewerCount');
  const diagnostic=document.getElementById('nfArtistsVideoDiagnostic');
  if(!viewer||!stage)return;

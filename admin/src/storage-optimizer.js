@@ -1,5 +1,5 @@
 // Ottimizzatore archivio immagini: un solo comando, sostituzione verificata e originali conservati.
-export function mountStorageOptimizer({ db, root, readOnly }) {
+export function mountStorageOptimizer({ db, root, readOnly, environment = 'configurato' }) {
   if (!root || root.dataset.optimizerMounted === '1') return;
   root.dataset.optimizerMounted = '1';
 
@@ -26,7 +26,7 @@ export function mountStorageOptimizer({ db, root, readOnly }) {
   root.innerHTML = '<section class="site-group" id="storageOptimizer">' +
     '<h3>Ottimizzazione archivio immagini</h3>' +
     '<p class="media-note">Un solo clic: individua le immagini collegate al sito che superano 1 MB, crea copie WebP, le verifica e aggiorna i riferimenti nel database. Gli originali restano conservati come backup.</p>' +
-    '<p class="media-note"><strong>Ambiente:</strong> Supabase Test. La procedura è disabilitata fuori dalle anteprime Admin autorizzate.</p>' +
+    '<p class="media-note"><strong>Ambiente:</strong> Supabase ' + esc(environment) + '. L’ottimizzazione automatica resta disabilitata in produzione; inventario e gestione archivio restano disponibili.</p>' +
     '<div class="site-savebar"><button type="button" id="optimizerRun" class="primary">Ottimizza e sostituisci immagini</button>' +
     '<span id="optimizerStatus" class="status" role="status" aria-live="polite"></span></div>' +
     '<div id="optimizerSummary" class="media-note" style="margin-top:12px"></div>' +
@@ -302,6 +302,6 @@ export function mountStorageOptimizer({ db, root, readOnly }) {
   $('optimizerRun').addEventListener('click', run);
   if (readOnly) {
     $('optimizerRun').disabled = true;
-    $('optimizerRun').title = 'Disponibile solo nella preview Admin collegata a Supabase Test.';
+    $('optimizerRun').title = 'Ottimizzazione automatica disabilitata in questo ambiente.';
   }
 }

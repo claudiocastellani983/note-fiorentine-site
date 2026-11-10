@@ -67,6 +67,23 @@
 #eventAdminPanel .event-admin-preview{width:100%;max-height:160px;object-fit:cover;margin-top:8px}
 @media(max-width:620px){#eventAdminPanel .event-admin-form{grid-template-columns:1fr}#eventAdminPanel .event-admin-wide{grid-column:auto}#eventAdminPanel .event-admin-item{grid-template-columns:1fr}#eventAdminPanel .event-admin-actions{justify-content:flex-start}}
 </style>
+<script id="nf-supabase-environment">
+(()=> {
+  const host=location.hostname.toLowerCase();
+  const productionHosts=new Set([
+    'www.notefiorentine.it','notefiorentine.it','note-fiorentine.vercel.app',
+    'note-fiorentine-n8y0wjydb-claudiacastellani983-5675.vercel.app',
+    'note-fiorentine-admin.vercel.app',
+    'note-fiorentine-admin-dhv0f1t1z-claudiacastellani983-5675.vercel.app'
+  ]);
+  const production=productionHosts.has(host);
+  window.NF_SUPABASE_CONFIG=Object.freeze({
+    url:production?'https://nculgrwlzjitggjcgbpp.supabase.co':'https://iuxskknbopboynjlsxbk.supabase.co',
+    key:production?'sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0':'sb_publishable_GTGiyYl8pZsY6letaozS2Q_dmh9vrRc',
+    environment:production?'Production':'Test'
+  });
+})();
+</script>
 </head><body><div class="top"></div><header><div class="fleur">⚜</div><h1>NOTE FIORENTINE</h1><p>Gestione immagini · Area riservata</p></header>
 <main class="wrap">
 <section class="panel" id="loginPanel"><h2>Accesso amministratore</h2><p class="muted">Accedi con le credenziali del tuo account amministratore del sito.</p><label class="field" for="email">Email</label><input id="email" type="email" autocomplete="username" value="claudiocastellani983@gmail.com"><label class="field" for="password">Password</label><input id="password" type="password" autocomplete="current-password"><div class="actions"><button id="loginBtn">Accedi</button></div><div class="status hidden" id="loginStatus" role="status"></div></section>
@@ -130,11 +147,13 @@
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { mountStorageOptimizer } from './src/storage-optimizer.js';
-const rawSupabase=createClient('https://iuxskknbopboynjlsxbk.supabase.co','sb_publishable_GTGiyYl8pZsY6letaozS2Q_dmh9vrRc');
-// Questa pagina Admin usa esclusivamente Supabase Test. Le scritture sono abilitate sulle preview Vercel Admin e mai sul sito pubblico o sull'Admin canonico.
-const NF_TEST_WRITE_ENABLED=location.hostname.startsWith('note-fiorentine-admin-')&&location.hostname.endsWith('.vercel.app')&&location.hostname!=='note-fiorentine-admin.vercel.app';
-const NF_PREVIEW_READ_ONLY=!NF_TEST_WRITE_ENABLED;
-const nfBlockedWrite=()=>{throw new Error('Scritture disabilitate: apri questa pagina dalla preview Admin Vercel. Il database di produzione non viene utilizzato.')};
+const NF_ADMIN_HOST=location.hostname.toLowerCase();
+const NF_ADMIN_PRODUCTION=NF_ADMIN_HOST==='note-fiorentine-admin.vercel.app'||NF_ADMIN_HOST==='note-fiorentine-admin-dhv0f1t1z-claudiacastellani983-5675.vercel.app';
+const NF_ADMIN_PREVIEW=NF_ADMIN_HOST.startsWith('note-fiorentine-admin-')&&NF_ADMIN_HOST.endsWith('.vercel.app')&&!NF_ADMIN_PRODUCTION;
+const rawSupabase=createClient(window.NF_SUPABASE_CONFIG.url,window.NF_SUPABASE_CONFIG.key);
+const NF_ADMIN_WRITE_ENABLED=NF_ADMIN_PRODUCTION||NF_ADMIN_PREVIEW;
+const NF_PREVIEW_READ_ONLY=!NF_ADMIN_WRITE_ENABLED;
+const nfBlockedWrite=()=>{throw new Error('Scritture disabilitate: apri il pannello Admin ufficiale o una preview autorizzata.')};
 const nfGuardQuery=q=>new Proxy(q,{get(target,key){if(NF_PREVIEW_READ_ONLY&&['insert','update','upsert','delete'].includes(String(key)))return nfBlockedWrite;const value=Reflect.get(target,key,target);return typeof value==='function'?value.bind(target):value;}});
 const nfGuardBucket=b=>new Proxy(b,{get(target,key){if(NF_PREVIEW_READ_ONLY&&['upload','remove','update','move','copy'].includes(String(key)))return nfBlockedWrite;const value=Reflect.get(target,key,target);return typeof value==='function'?value.bind(target):value;}});
 const supabase=new Proxy(rawSupabase,{get(target,key){if(key==='from')return table=>nfGuardQuery(target.from(table));if(key==='storage')return new Proxy(target.storage,{get(storage,key2){if(key2==='from')return name=>nfGuardBucket(storage.from(name));const value=Reflect.get(storage,key2,storage);return typeof value==='function'?value.bind(storage):value;}});const value=Reflect.get(target,key,target);return typeof value==='function'?value.bind(target):value;}});
@@ -159,7 +178,7 @@ async function checkSession(){
  const {data:admin,error}=await supabase.from('admin_users').select('user_id').eq('user_id',session.user.id).maybeSingle();
  if(error||!admin){await supabase.auth.signOut();$('loginPanel').classList.remove('hidden');$('manager').classList.add('hidden');loginStatus('Questo account non risulta abilitato come amministratore.');return}
  currentUser=session.user;$('loginPanel').classList.add('hidden');$('manager').classList.remove('hidden');await loadImages();await loadGalleryAdmin();await loadArtistMediaAdmin();await loadRestaurantVideosAdmin();await loadEventsAdmin();
- await loadPopup();mountStorageOptimizer({db:supabase,root:$('storageOptimizerMount'),readOnly:NF_PREVIEW_READ_ONLY});
+ await loadPopup();mountStorageOptimizer({db:supabase,root:$('storageOptimizerMount'),readOnly:!NF_ADMIN_PREVIEW,environment:window.NF_SUPABASE_CONFIG.environment});
 }
 async function loadPopup(){
  const status=document.getElementById('popupVisibilityStatus'),btn=document.getElementById('popupVisibilityBtn');if(!status||!btn)return;
