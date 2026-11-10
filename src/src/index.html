@@ -1145,6 +1145,32 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
 .nf-environments-gallery .nf-artists-viewer-stage img,.nf-environments-gallery .nf-artists-viewer-stage video{background:#E8DCC9!important}
 .nf-environments-gallery .nf-artists-viewer-empty{color:#6F5B4B!important}
 </style>
+
+<style id="nf-gallery-auto-orientation-v2">
+/* Preserva il rapporto intrinseco delle foto: niente crop automatico */
+.nf-gallery-stage,.nf-artists-viewer-stage{
+ display:grid!important;place-items:center!important;width:100%!important;
+ height:min(72vh,760px)!important;max-width:100%!important;max-height:none!important;
+ min-height:0!important;aspect-ratio:auto!important;flex:0 1 auto!important;
+ overflow:hidden!important;margin:0 auto!important;background:#E8DCC9!important;
+}
+.nf-gallery-stage.nf-gallery-portrait,.nf-artists-viewer-stage.nf-artists-portrait{width:100%!important;aspect-ratio:auto!important}
+.nf-gallery-photo,.nf-artists-viewer-stage .nf-artists-gallery-photo,.nf-artists-viewer-stage img{
+ display:block!important;width:auto!important;height:auto!important;max-width:100%!important;
+ max-height:100%!important;object-fit:contain!important;object-position:center!important;
+ transform:none!important;box-shadow:none;
+}
+/* I video locali seguono le dimensioni reali del file */
+.nf-artists-viewer-stage:has(video){width:min(100%,1120px)!important;height:auto!important;max-height:72vh!important;aspect-ratio:auto!important;overflow:visible!important}
+.nf-artists-viewer-stage video{display:block!important;width:100%!important;height:auto!important;max-width:100%!important;max-height:72vh!important;aspect-ratio:auto!important;object-fit:contain!important}
+/* YouTube: 16:9 standard, 9:16 per Shorts */
+.nf-artists-viewer-stage.nf-youtube-landscape{width:min(100%,1120px)!important;height:auto!important;aspect-ratio:16/9!important;background:#100D0B!important}
+.nf-artists-viewer-stage.nf-youtube-portrait{width:min(100%,calc(min(72vh,760px)*9/16))!important;height:auto!important;aspect-ratio:9/16!important;background:#100D0B!important}
+.nf-artist-youtube-placeholder{width:100%!important;height:100%!important;min-height:0!important;aspect-ratio:16/9!important}
+.nf-artist-youtube-placeholder.nf-artist-youtube-portrait{aspect-ratio:9/16!important}
+.nf-artist-youtube-frame{display:block!important;width:100%!important;height:100%!important;aspect-ratio:auto!important;border:0!important}
+@media(max-width:640px){.nf-gallery-stage,.nf-artists-viewer-stage{height:68vh!important}.nf-artists-viewer-stage.nf-youtube-portrait{width:min(100%,calc(68vh*9/16))!important}}
+</style>
 </head>
 <body>
 <div id="app">
@@ -1810,14 +1836,15 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
   }catch{return null}
  }
  function render(){
-  stage.replaceChildren();stage.classList.remove('nf-artists-portrait');
+  stage.replaceChildren();stage.classList.remove('nf-artists-portrait','nf-youtube-portrait','nf-youtube-landscape');
   if(!items.length){const empty=document.createElement('div');empty.className='nf-artists-viewer-empty';empty.textContent=kind==='images'?'Le fotografie degli artisti saranno disponibili a breve.':kind==='restaurant-videos'?'I video degli ambienti saranno disponibili a breve.':'I video degli artisti saranno disponibili a breve.';stage.append(empty);count.textContent='0 ELEMENTI';document.getElementById('nfArtistsViewerPrev').disabled=true;document.getElementById('nfArtistsViewerNext').disabled=true;return}
-  const item=items[index],youtubeId=(kind==='videos'||kind==='restaurant-videos')?(item.youtubeId||extractYouTubeId(kind==='restaurant-videos'?item.youtube_url:item.video_path)):null,media=kind==='images'?document.createElement('img'):document.createElement('video');
+  const item=items[index],youtubeSource=kind==='restaurant-videos'?item.youtube_url:item.video_path,youtubeId=(kind==='videos'||kind==='restaurant-videos')?(item.youtubeId||extractYouTubeId(youtubeSource)):null,youtubeShort=!!youtubeId&&(()=>{try{return /\\/shorts\\//i.test(new URL(String(youtubeSource||'')).pathname)}catch{return false}})(),media=kind==='images'?document.createElement('img'):document.createElement('video');
   if((kind==='videos'||kind==='restaurant-videos') && youtubeId){
+   stage.classList.add(youtubeShort?'nf-youtube-portrait':'nf-youtube-landscape');
    if(diagnostic)diagnostic.hidden=true;
    const placeholder=document.createElement('button');
    placeholder.type='button';
-   placeholder.className='nf-artist-youtube-placeholder';
+   placeholder.className='nf-artist-youtube-placeholder'+(youtubeShort?' nf-artist-youtube-portrait':'');
    placeholder.style.backgroundImage='linear-gradient(rgba(20,14,11,.24),rgba(20,14,11,.55)),url("https://i.ytimg.com/vi/'+encodeURIComponent(youtubeId)+'/hqdefault.jpg")';
    placeholder.setAttribute('aria-label','Anteprima video: '+(item.title||'Note Fiorentine')+'. Tocca per riprodurre');
    const play=document.createElement('span');
@@ -1831,7 +1858,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
    placeholder.append(play,label,hint);
    placeholder.addEventListener('click',()=>{
     const frame=document.createElement('iframe');
-    frame.className='nf-artist-youtube-frame';
+    frame.className='nf-artist-youtube-frame'+(youtubeShort?' nf-artist-youtube-portrait':'');
     frame.title=item.title||'Video Note Fiorentine su YouTube';
     frame.loading='lazy';
     frame.referrerPolicy='strict-origin-when-cross-origin';
