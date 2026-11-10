@@ -862,6 +862,14 @@ es:{"L'atmosfera delle nostre serate":"El ambiente de nuestras veladas","La musi
 zh:{"L'atmosfera delle nostre serate":"我们的夜晚氛围","La musica prende vita.":"音乐焕发生机。","Il menu":"菜单","Foto degli ambienti":"餐厅照片","Piatti e specialità":"菜品与特色美食","L’atmosfera":"氛围","Dettagli e accoglienza":"细节与热情款待","Il ristorante":"餐厅"}
 };
 Object.keys(menuSpecific).forEach(language=>Object.assign(dictionaries[language],menuSpecific[language]));
+const finalLabels={
+en:{"Musica dal vivo 7 giorni su 7":"Live music 7 days a week","Dalle 19:30 alle 21:30":"From 7:30 pm to 9:30 pm","Tutte le sere":"Every evening","Musica inclusa nella cena":"Live music included with dinner","La cucina":"The Kitchen","La musica":"The Music","CHIUDI ×":"CLOSE ×"},
+de:{"Musica dal vivo 7 giorni su 7":"Live-Musik an 7 Tagen pro Woche","Dalle 19:30 alle 21:30":"Von 19:30 bis 21:30 Uhr","Tutte le sere":"Jeden Abend","Musica inclusa nella cena":"Live-Musik im Abendessen inbegriffen","La cucina":"Die Küche","La musica":"Die Musik","CHIUDI ×":"SCHLIESSEN ×"},
+fr:{"Musica dal vivo 7 giorni su 7":"Musique live 7 jours sur 7","Dalle 19:30 alle 21:30":"De 19 h 30 à 21 h 30","Tutte le sere":"Tous les soirs","Musica inclusa nella cena":"Musique live incluse dans le dîner","La cucina":"La cuisine","La musica":"La musique","CHIUDI ×":"FERMER ×"},
+es:{"Musica dal vivo 7 giorni su 7":"Música en vivo los 7 días de la semana","Dalle 19:30 alle 21:30":"De 19:30 a 21:30","Tutte le sere":"Todas las noches","Musica inclusa nella cena":"Música en vivo incluida con la cena","La cucina":"La cocina","La musica":"La música","CHIUDI ×":"CERRAR ×"},
+zh:{"Musica dal vivo 7 giorni su 7":"每周七天现场音乐","Dalle 19:30 alle 21:30":"19:30 至 21:30","Tutte le sere":"每晚","Musica inclusa nella cena":"晚餐包含现场音乐","La cucina":"厨房","La musica":"音乐","CHIUDI ×":"关闭 ×"}
+};
+Object.keys(finalLabels).forEach(language=>Object.assign(dictionaries[language],finalLabels[language]));
 const map=dictionaries[lang]||{};
 const protectedSelectors='.brand-mini strong,.art-name,footer h2,.language-switch';
 function translateNode(node){if(!node||node.nodeType!==Node.TEXT_NODE)return;const parent=node.parentElement;if(!parent||parent.closest(protectedSelectors)||parent.closest('script,style,noscript,svg,code,[translate="no"]'))return;const raw=node.nodeValue||'',key=raw.trim(),translated=map[key];if(translated&&translated!==key){const lead=raw.match(/^\s*/)?.[0]||'',tail=raw.match(/\s*$/)?.[0]||'';node.nodeValue=lead+translated+tail;}}
