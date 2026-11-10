@@ -258,7 +258,7 @@ export function mountStorageOptimizer({ db, root, readOnly, environment = 'confi
         if (checked.data.size >= file.size * 0.97) throw new Error('La copia verificata non è sufficientemente più leggera.');
 
         const newUrl = db.storage.from('site-media').getPublicUrl(newPath).data.publicUrl;
-        status('4/5 · Aggiornamento riferimenti nel database Test…');
+        status('4/5 · Aggiornamento riferimenti nel database '+esc(environment)+'…');
         const changes = await updateReferences(file, newPath, newUrl, file.refs);
         if (!changes.length) throw new Error('Nessun riferimento aggiornato: sostituzione annullata.');
         try {
