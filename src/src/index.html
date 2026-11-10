@@ -1972,6 +1972,15 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
 <script id="nf-artists-media-runtime">
 (async function(){
  const api=window.NF_SUPABASE_CONFIG.url,key=window.NF_SUPABASE_CONFIG.key;
+ const lang=({it:'it',en:'en',de:'de',fr:'fr',es:'es',zh:'zh'})[new URLSearchParams(location.search).get('lang')]||'it';
+ const ui={
+ it:{photoTitle:'Gli artisti · Fotografie',environmentVideoTitle:'Gli ambienti · Video',artistVideoTitle:'Gli artisti · Video',noPhotos:'Le fotografie degli artisti saranno disponibili a breve.',noEnvironmentVideos:'I video degli ambienti saranno disponibili a breve.',noArtistVideos:'I video degli artisti saranno disponibili a breve.',zeroItems:'0 ELEMENTI',preview:'Anteprima video: ',tapPlay:'. Tocca per riprodurre',tapLoad:'Tocca per caricare il video',videoDefault:'Video Note Fiorentine',youtubeDefault:'Video Note Fiorentine su YouTube',artistAlt:'Artisti Note Fiorentine',videoAria:'Video delle serate Note Fiorentine',diagnosticLoading:'Diagnostica video: caricamento…',loadError:'Non è stato possibile caricare i contenuti. Riprova tra poco.',video:'Video',status:'stato',ready:'pronto',network:'rete',duration:'durata',position:'posizione',error:'errore'},
+ en:{photoTitle:'Artists · Photos',environmentVideoTitle:'Restaurant · Videos',artistVideoTitle:'Artists · Videos',noPhotos:'Artists’ photos will be available soon.',noEnvironmentVideos:'Restaurant videos will be available soon.',noArtistVideos:'Artists’ videos will be available soon.',zeroItems:'0 ITEMS',preview:'Video preview: ',tapPlay:'. Tap to play',tapLoad:'Tap to load the video',videoDefault:'Note Fiorentine video',youtubeDefault:'Note Fiorentine video on YouTube',artistAlt:'Note Fiorentine artists',videoAria:'Note Fiorentine live music videos',diagnosticLoading:'Video diagnostics: loading…',loadError:'The content could not be loaded. Please try again shortly.',video:'Video',status:'status',ready:'ready',network:'network',duration:'duration',position:'position',error:'error'},
+ de:{photoTitle:'Künstler · Fotos',environmentVideoTitle:'Restaurant · Videos',artistVideoTitle:'Künstler · Videos',noPhotos:'Fotos der Künstler sind in Kürze verfügbar.',noEnvironmentVideos:'Restaurantvideos sind in Kürze verfügbar.',noArtistVideos:'Videos der Künstler sind in Kürze verfügbar.',zeroItems:'0 ELEMENTE',preview:'Videovorschau: ',tapPlay:'. Zum Abspielen tippen',tapLoad:'Tippen, um das Video zu laden',videoDefault:'Note Fiorentine Video',youtubeDefault:'Note Fiorentine Video auf YouTube',artistAlt:'Künstler von Note Fiorentine',videoAria:'Live-Musikvideos von Note Fiorentine',diagnosticLoading:'Videodiagnose: wird geladen…',loadError:'Die Inhalte konnten nicht geladen werden. Bitte versuchen Sie es erneut.',video:'Video',status:'Status',ready:'bereit',network:'Netzwerk',duration:'Dauer',position:'Position',error:'Fehler'},
+ fr:{photoTitle:'Artistes · Photos',environmentVideoTitle:'Restaurant · Vidéos',artistVideoTitle:'Artistes · Vidéos',noPhotos:'Les photos des artistes seront bientôt disponibles.',noEnvironmentVideos:'Les vidéos du restaurant seront bientôt disponibles.',noArtistVideos:'Les vidéos des artistes seront bientôt disponibles.',zeroItems:'0 ÉLÉMENTS',preview:'Aperçu vidéo : ',tapPlay:'. Appuyez pour lire',tapLoad:'Appuyez pour charger la vidéo',videoDefault:'Vidéo Note Fiorentine',youtubeDefault:'Vidéo Note Fiorentine sur YouTube',artistAlt:'Artistes de Note Fiorentine',videoAria:'Vidéos des soirées Note Fiorentine',diagnosticLoading:'Diagnostic vidéo : chargement…',loadError:'Impossible de charger le contenu. Veuillez réessayer.',video:'Vidéo',status:'état',ready:'prêt',network:'réseau',duration:'durée',position:'position',error:'erreur'},
+ es:{photoTitle:'Artistas · Fotos',environmentVideoTitle:'Restaurante · Vídeos',artistVideoTitle:'Artistas · Vídeos',noPhotos:'Las fotos de los artistas estarán disponibles próximamente.',noEnvironmentVideos:'Los vídeos del restaurante estarán disponibles próximamente.',noArtistVideos:'Los vídeos de los artistas estarán disponibles próximamente.',zeroItems:'0 ELEMENTOS',preview:'Vista previa del vídeo: ',tapPlay:'. Toca para reproducir',tapLoad:'Toca para cargar el vídeo',videoDefault:'Vídeo de Note Fiorentine',youtubeDefault:'Vídeo de Note Fiorentine en YouTube',artistAlt:'Artistas de Note Fiorentine',videoAria:'Vídeos de las veladas de Note Fiorentine',diagnosticLoading:'Diagnóstico de vídeo: cargando…',loadError:'No se ha podido cargar el contenido. Inténtalo de nuevo.',video:'Vídeo',status:'estado',ready:'listo',network:'red',duration:'duración',position:'posición',error:'error'},
+ zh:{photoTitle:'艺术家 · 照片',environmentVideoTitle:'餐厅 · 视频',artistVideoTitle:'艺术家 · 视频',noPhotos:'艺术家照片即将上线。',noEnvironmentVideos:'餐厅视频即将上线。',noArtistVideos:'艺术家视频即将上线。',zeroItems:'0 项',preview:'视频预览：',tapPlay:'。点击播放',tapLoad:'点击加载视频',videoDefault:'Note Fiorentine 视频',youtubeDefault:'YouTube 上的 Note Fiorentine 视频',artistAlt:'Note Fiorentine 艺术家',videoAria:'Note Fiorentine 现场演出视频',diagnosticLoading:'视频诊断：正在加载…',loadError:'无法加载内容，请稍后重试。',video:'视频',status:'状态',ready:'就绪',network:'网络',duration:'时长',position:'位置',error:'错误'}
+ }[lang];
  const viewer=document.getElementById('nfArtistsViewer'),stage=document.getElementById('nfArtistsViewerStage'),title=document.getElementById('nfArtistsViewerTitle'),count=document.getElementById('nfArtistsViewerCount');
  const diagnostic=document.getElementById('nfArtistsVideoDiagnostic');
  if(!viewer||!stage)return;
@@ -1987,7 +1996,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
  }
  function render(){
   stage.replaceChildren();stage.classList.remove('nf-artists-portrait','nf-artists-photo-portrait','nf-artists-photo-landscape','nf-youtube-portrait','nf-youtube-landscape');stage.style.removeProperty('--nf-photo-ratio');stage.style.removeProperty('width');
-  if(!items.length){const empty=document.createElement('div');empty.className='nf-artists-viewer-empty';empty.textContent=kind==='images'?'Le fotografie degli artisti saranno disponibili a breve.':kind==='restaurant-videos'?'I video degli ambienti saranno disponibili a breve.':'I video degli artisti saranno disponibili a breve.';stage.append(empty);count.textContent='0 ELEMENTI';document.getElementById('nfArtistsViewerPrev').disabled=true;document.getElementById('nfArtistsViewerNext').disabled=true;return}
+  if(!items.length){const empty=document.createElement('div');empty.className='nf-artists-viewer-empty';empty.textContent=kind==='images'?ui.noPhotos:kind==='restaurant-videos'?ui.noEnvironmentVideos:ui.noArtistVideos;stage.append(empty);count.textContent=ui.zeroItems;document.getElementById('nfArtistsViewerPrev').disabled=true;document.getElementById('nfArtistsViewerNext').disabled=true;return}
   const item=items[index],youtubeSource=kind==='restaurant-videos'?item.youtube_url:item.video_path,youtubeId=(kind==='videos'||kind==='restaurant-videos')?(item.youtubeId||extractYouTubeId(youtubeSource)):null,youtubeShort=!!youtubeId&&(item.video_orientation==='portrait'||(()=>{try{return /\/shorts\//i.test(new URL(String(youtubeSource||'')).pathname)}catch{return false}})()),media=kind==='images'?document.createElement('img'):document.createElement('video');
   if((kind==='videos'||kind==='restaurant-videos') && youtubeId){
    stage.classList.add(youtubeShort?'nf-youtube-portrait':'nf-youtube-landscape');
@@ -1996,20 +2005,20 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
    placeholder.type='button';
    placeholder.className='nf-artist-youtube-placeholder'+(youtubeShort?' nf-artist-youtube-portrait':'');
    placeholder.style.backgroundImage='linear-gradient(rgba(20,14,11,.24),rgba(20,14,11,.55)),url("https://i.ytimg.com/vi/'+encodeURIComponent(youtubeId)+'/hqdefault.jpg")';
-   placeholder.setAttribute('aria-label','Anteprima video: '+(item.title||'Note Fiorentine')+'. Tocca per riprodurre');
+   placeholder.setAttribute('aria-label',ui.preview+(item.title||'Note Fiorentine')+ui.tapPlay);
    const play=document.createElement('span');
    play.className='nf-artist-youtube-play';
    play.setAttribute('aria-hidden','true');
    play.textContent='▶';
    const label=document.createElement('strong');
-   label.textContent=item.title||'Video Note Fiorentine';
+   label.textContent=item.title||ui.videoDefault;
    const hint=document.createElement('small');
-   hint.textContent='Tocca per caricare il video';
+   hint.textContent=ui.tapLoad;
    placeholder.append(play,label,hint);
    placeholder.addEventListener('click',()=>{
     const frame=document.createElement('iframe');
     frame.className='nf-artist-youtube-frame'+(youtubeShort?' nf-artist-youtube-portrait':'');
-    frame.title=item.title||'Video Note Fiorentine su YouTube';
+    frame.title=item.title||ui.youtubeDefault;
     frame.loading='lazy';
     frame.referrerPolicy='strict-origin-when-cross-origin';
     frame.allow='encrypted-media; picture-in-picture; web-share';
@@ -2024,11 +2033,11 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
    return;
   }
   if(kind==='images'){
-   media.className='nf-artists-gallery-photo';media.alt=item.title||'Artisti Note Fiorentine';media.draggable=false;media.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';media.style.transform='scale('+(item.focal_zoom??1)+')';
+   media.className='nf-artists-gallery-photo';media.alt=item.title||ui.artistAlt;media.draggable=false;media.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';media.style.transform='scale('+(item.focal_zoom??1)+')';
    media.addEventListener('load',()=>{const w=media.naturalWidth||1,h=media.naturalHeight||1,ratio=w/h,portrait=h>w;stage.classList.toggle('nf-artists-portrait',portrait);stage.classList.toggle('nf-artists-photo-portrait',portrait);stage.classList.toggle('nf-artists-photo-landscape',!portrait);stage.style.setProperty('--nf-photo-ratio',String(ratio));},{once:true});
    media.src=publicUrl('site-media',item.image_path);
   }else{
-   media.src=publicUrl('performance-videos',item.video_path);media.controls=true;media.playsInline=true;media.preload='none';media.setAttribute('aria-label',item.title||'Video artisti Note Fiorentine');
+   media.src=publicUrl('performance-videos',item.video_path);media.controls=true;media.playsInline=true;media.preload='none';media.setAttribute('aria-label',item.title||ui.videoAria);
    if(diagnostic){
     diagnostic.hidden=false;
     const report=(eventName)=>{
@@ -2036,7 +2045,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
      const errorText=err?' · errore '+err.code+(err.message?' ('+err.message+')':''):'';
      const duration=Number.isFinite(media.duration)?media.duration.toFixed(1)+'s':'n/d';
      const current=Number.isFinite(media.currentTime)?media.currentTime.toFixed(1)+'s':'0.0s';
-     diagnostic.textContent='Video '+(index+1)+'/'+items.length+' · '+eventName+' · pronto '+media.readyState+'/4 · rete '+media.networkState+'/3 · durata '+duration+' · posizione '+current+errorText;
+     diagnostic.textContent=ui.video+' '+(index+1)+'/'+items.length+' · '+ui.status+' · '+ui.ready+' '+media.readyState+'/4 · '+ui.network+' '+media.networkState+'/3 · '+ui.duration+' '+duration+' · '+ui.position+' '+current+(err?' · '+ui.error+' '+err.code:'');
      console.info('[NF video diagnostica]',{event:eventName,src:media.currentSrc||media.src,readyState:media.readyState,networkState:media.networkState,duration:media.duration,currentTime:media.currentTime,error:err?{code:err.code,message:err.message}:null});
     };
     ['loadstart','loadedmetadata','loadeddata','canplay','canplaythrough','playing','waiting','stalled','suspend','abort','emptied','ended','error'].forEach(name=>media.addEventListener(name,()=>report(name)));
@@ -2076,7 +2085,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
  async function move(step){if(!items.length||fading)return;fading=true;await fadeOutCurrent();index=(index+step+items.length)%items.length;render();fading=false}
  async function close(){if(fading)return;fading=true;await fadeOutCurrent();viewer.classList.remove('open');viewer.setAttribute('aria-hidden','true');document.body.style.overflow='';stage.replaceChildren();if(lastFocus)lastFocus.focus();fading=false}
  async function open(kindValue,button){
-  kind=kindValue;lastFocus=button;index=0;viewer.classList.toggle('nf-environments-gallery',kind==='restaurant-videos');if(diagnostic){diagnostic.hidden=kind!=='videos';diagnostic.textContent=kind==='videos'?'Diagnostica video: caricamento…':'';}title.textContent=kind==='images'?'Gli artisti · Fotografie':kind==='restaurant-videos'?'Gli ambienti · Video':'Gli artisti · Video';viewer.classList.add('open');viewer.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';stage.innerHTML='<div class="nf-artists-viewer-empty">Caricamento…</div>';count.textContent='';
+  kind=kindValue;lastFocus=button;index=0;viewer.classList.toggle('nf-environments-gallery',kind==='restaurant-videos');if(diagnostic){diagnostic.hidden=kind!=='videos';diagnostic.textContent=kind==='videos'?ui.diagnosticLoading:'';}title.textContent=kind==='images'?ui.photoTitle:kind==='restaurant-videos'?ui.environmentVideoTitle:ui.artistVideoTitle;viewer.classList.add('open');viewer.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';stage.innerHTML='<div class="nf-artists-viewer-empty">Caricamento…</div>';count.textContent='';
   try{
    const table=kind==='images'?'artist_images':kind==='restaurant-videos'?'restaurant_videos':'performance_videos';
    const columns=kind==='images'?'id,title,image_path,focal_x,focal_y,focal_zoom':kind==='restaurant-videos'?'id,title,youtube_url,video_orientation':'id,title,video_path';
@@ -2085,7 +2094,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
    items=await response.json();
 render();
   }catch(e){
-   stage.innerHTML='<div class="nf-artists-viewer-empty">Non è stato possibile caricare i contenuti. Riprova tra poco.</div>';
+   stage.replaceChildren(Object.assign(document.createElement('div'),{className:'nf-artists-viewer-empty',textContent:ui.loadError}));
    count.textContent='';
    if(diagnostic){diagnostic.hidden=kind!=='videos';diagnostic.textContent='Errore caricamento video: '+(e.message||String(e))}
    console.warn('[Note Fiorentine artisti]',e)
