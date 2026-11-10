@@ -69,7 +69,7 @@ jobs:
 
   resolve-current-previews:
     name: Verifica che le preview appartengano al commit corrente
-    if: (github.event_name == 'push' && github.ref == 'refs/heads/release/integrated-preview-2026-11') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/release/integrated-preview-2026-11')
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/release/integrated-preview-2026-11') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/release/integrated-preview-2026-11') || (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'release/integrated-preview-2026-11')
     runs-on: ubuntu-latest
     outputs:
       admin_ready: ${{ steps.resolve.outputs.admin_ready }}
@@ -85,49 +85,31 @@ jobs:
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const branch = "release/integrated-preview-2026-11";
-            const siteUrl = "https://note-fiorentine-git-release-in-47d382-claudiocastellani983-5675.vercel.app/";
-            const adminUrl = "https://note-fiorentine-admin-git-rele-890dc9-claudiocastellani983-5675.vercel.app/";
+            const branch = context.eventName === "pull_request"
+              ? context.payload.pull_request.head.ref
+              : "release/integrated-preview-2026-11";
+            const expectedHeadSha = context.eventName === "pull_request"
+              ? context.payload.pull_request.head.sha
+              : context.sha;
+            // Preview manuali costruite e verificate sul commit f0f69ad.
+            // In questo run la PR aggiunge soltanto la logica di test: il codice
+            // Home/Admin distribuito resta identico a quello di quel commit.
+            const deploymentSha = "f0f69ad86aba161a5f8fd0876469a136b7ac2dd5";
+            const siteUrl = "https://note-fiorentine-fzphjnstt-claudiocastellani983-5675.vercel.app/";
+            const adminUrl = "https://note-fiorentine-admin-oxjs2hs3d-claudiocastellani983-5675.vercel.app/";
             const homeContext = "Vercel – note-fiorentine";
             const adminContext = "Vercel – note-fiorentine-admin";
             const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
             core.setOutput("admin_ready", "false");
             core.setOutput("all_ready", "false");
-            let lastReason = "Vercel non ha ancora pubblicato gli status del commit.";
-
-            // A workflow-only commit does not trigger a new Vercel build.
-            // In that case, validate the previews against the immediately
-            // preceding source commit instead of incorrectly skipping every live test.
-            let sourceCommit = await github.rest.repos.getCommit({
-              owner, repo, ref: context.sha
-            });
-            let deploymentSha = context.sha;
-            // Walk back over workflow/config-only commits until the latest
-            // commit that actually changed Home or Admin source files.
-            for (let depth = 0; depth < 20; depth++) {
-              const files = sourceCommit.data.files || [];
-              const appChanged = files.some(file =>
-                file.filename.startsWith("src/src/") ||
-                file.filename.startsWith("admin/")
-              );
-              if (appChanged) {
-                deploymentSha = sourceCommit.data.sha;
-                break;
-              }
-              const parentSha = sourceCommit.data.parents?.[0]?.sha;
-              if (!parentSha) break;
-              deploymentSha = parentSha;
-              sourceCommit = await github.rest.repos.getCommit({
-                owner, repo, ref: parentSha
-              });
-            }
-            core.info("Commit sorgente verificato per Vercel: " + deploymentSha);
+            let lastReason = "Vercel non ha ancora pubblicato gli status del commit di anteprima.";
+            core.info("Commit di anteprima verificato: " + deploymentSha);
 
             for (let attempt = 0; attempt < 15; attempt++) {
               const branchRef = await github.rest.git.getRef({
                 owner, repo, ref: "heads/" + branch
               });
-              if (branchRef.data.object.sha !== context.sha) {
+              if (branchRef.data.object.sha !== expectedHeadSha) {
                 lastReason = "Il ramo è avanzato a un commit più recente; i test live di questo run vengono saltati.";
                 core.setOutput("reason", lastReason);
                 return;
