@@ -66,6 +66,9 @@ test('Home: all six languages translate artist gallery labels and accessibility 
       }])
     });
   });
+  await page.route('**/storage/v1/object/public/site-media/hero/preview.webp', async route => {
+    await route.fulfill({ status: 200, contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg" width="2" height="2"></svg>' });
+  });
   for (const [lang, expected] of Object.entries(languages)) {
     await page.goto(`${siteUrl}/?lang=${lang}`, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('html')).toHaveAttribute('lang', lang === 'zh' ? 'zh-CN' : lang);
