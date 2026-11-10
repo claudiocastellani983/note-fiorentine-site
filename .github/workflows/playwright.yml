@@ -91,11 +91,11 @@ jobs:
             const expectedHeadSha = context.eventName === "pull_request"
               ? context.payload.pull_request.head.sha
               : context.sha;
-            // Preview aggiornate sul commit integrato 44b4e1f.
-            const homeDeploymentSha = "44b4e1fdcd27d284b8024f3bb5506a404b8ba73c";
-            const adminDeploymentSha = "44b4e1fdcd27d284b8024f3bb5506a404b8ba73c";
-            const siteUrl = "https://note-fiorentine-n4eatf42u-claudiocastellani983-5675.vercel.app/";
-            const adminBaseUrl = "https://note-fiorentine-admin-trixyezd3-claudiocastellani983-5675.vercel.app/";
+            // Le preview sono verificate sullo SHA corrente e raggiunte tramite alias stabile del branch.
+            const homeDeploymentSha = expectedHeadSha;
+            const adminDeploymentSha = expectedHeadSha;
+            const siteUrl = "https://note-fiorentine-git-release-in-47d382-claudiacastellani983-5675.vercel.app/";
+            const adminBaseUrl = "https://note-fiorentine-admin-git-rele-890dc9-claudiacastellani983-5675.vercel.app/";
             const adminUrl = adminBaseUrl + "?sitePreview=" + encodeURIComponent(siteUrl);
             const homeContext = "Vercel – note-fiorentine";
             const adminContext = "Vercel – note-fiorentine-admin";
