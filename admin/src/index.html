@@ -79,16 +79,9 @@
    const status=document.getElementById("status");
    if(status)status.textContent=detail;
    if(new URLSearchParams(location.search).get("saveDiag")==="1"){
-    // Evita l'invio nativo e riproduce il submit in modo controllato.
-    // Il listener submit globale lo blocca prima del gestore Admin: zero scritture.
-    e.preventDefault();
-    queueMicrotask(()=>{
-     try{
-      if(!form||!form.isConnected){add("SAVE_DIAG_ERROR","Il pulsante non ha un modulo proprietario collegato al DOM.");return;}
-      form.requestSubmit(button);
-      add("SAVE_REQUEST_SUBMIT_CALLED","requestSubmit eseguito; eventuale submit/invalid è riportato sopra.");
-     }catch(err){add("SAVE_DIAG_ERROR",err?.message||String(err));}
-    });
+    // Non bloccare il click: lasciamo al browser il submit nativo.
+    // Il listener submit globale intercetta e blocca l'evento prima del gestore Admin.
+    add("SAVE_DIAG_NATIVE","Click lasciato al comportamento nativo; nessuna scrittura consentita dalla diagnostica.");
    }
   },true);
   document.addEventListener("submit",e=>{
