@@ -870,6 +870,8 @@ es:{"Musica dal vivo 7 giorni su 7":"Música en vivo los 7 días de la semana","
 zh:{"Musica dal vivo 7 giorni su 7":"每周七天现场音乐","Dalle 19:30 alle 21:30":"19:30 至 21:30","Tutte le sere":"每晚","Musica inclusa nella cena":"晚餐包含现场音乐","La cucina":"厨房","La musica":"音乐","CHIUDI ×":"关闭 ×"}
 };
 Object.keys(finalLabels).forEach(language=>Object.assign(dictionaries[language],finalLabels[language]));
+const menuAccessibility={en:{"Categorie del menu":"Menu categories"},de:{"Categorie del menu":"Speisekartenkategorien"},fr:{"Categorie del menu":"Catégories du menu"},es:{"Categorie del menu":"Categorías del menú"},zh:{"Categorie del menu":"菜单类别"}};
+Object.keys(menuAccessibility).forEach(language=>Object.assign(dictionaries[language],menuAccessibility[language]));
 const map=dictionaries[lang]||{};
 const protectedSelectors='.brand-mini strong,.art-name,footer h2,.language-switch';
 function translateNode(node){if(!node||node.nodeType!==Node.TEXT_NODE)return;const parent=node.parentElement;if(!parent||parent.closest(protectedSelectors)||parent.closest('script,style,noscript,svg,code,[translate="no"]'))return;const raw=node.nodeValue||'',key=raw.trim(),translated=map[key];if(translated&&translated!==key){const lead=raw.match(/^\s*/)?.[0]||'',tail=raw.match(/\s*$/)?.[0]||'';node.nodeValue=lead+translated+tail;}}
