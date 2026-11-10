@@ -1171,6 +1171,29 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
 .nf-artist-youtube-frame{display:block!important;width:100%!important;height:100%!important;aspect-ratio:auto!important;border:0!important}
 @media(max-width:640px){.nf-gallery-stage,.nf-artists-viewer-stage{height:68vh!important}.nf-artists-viewer-stage.nf-youtube-portrait{width:min(100%,calc(68vh*9/16))!important}}
 </style>
+<style id="nf-artists-photo-orientation-v4">
+/* La cornice della galleria segue il rapporto reale di ogni fotografia */
+.nf-artists-viewer-stage.nf-artists-photo-portrait,
+.nf-artists-viewer-stage.nf-artists-photo-landscape{
+ height:min(72vh,760px)!important;
+ width:min(100%,calc(min(72vh,760px)*var(--nf-photo-ratio,1)))!important;
+ max-width:100%!important;
+ margin-inline:auto!important;
+}
+.nf-artists-viewer-stage.nf-artists-photo-portrait img,
+.nf-artists-viewer-stage.nf-artists-photo-landscape img{
+ max-width:100%!important;max-height:100%!important;
+ width:auto!important;height:auto!important;
+ object-fit:contain!important;object-position:center!important;
+}
+@media(max-width:640px){
+ .nf-artists-viewer-stage.nf-artists-photo-portrait,
+ .nf-artists-viewer-stage.nf-artists-photo-landscape{
+  height:68vh!important;
+  width:min(100%,calc(68vh*var(--nf-photo-ratio,1)))!important;
+ }
+}
+</style>
 </head>
 <body>
 <div id="app">
@@ -1876,7 +1899,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
   }catch{return null}
  }
  function render(){
-  stage.replaceChildren();stage.classList.remove('nf-artists-portrait','nf-youtube-portrait','nf-youtube-landscape');
+  stage.replaceChildren();stage.classList.remove('nf-artists-portrait','nf-artists-photo-portrait','nf-artists-photo-landscape','nf-youtube-portrait','nf-youtube-landscape');stage.style.removeProperty('--nf-photo-ratio');stage.style.removeProperty('width');
   if(!items.length){const empty=document.createElement('div');empty.className='nf-artists-viewer-empty';empty.textContent=kind==='images'?'Le fotografie degli artisti saranno disponibili a breve.':kind==='restaurant-videos'?'I video degli ambienti saranno disponibili a breve.':'I video degli artisti saranno disponibili a breve.';stage.append(empty);count.textContent='0 ELEMENTI';document.getElementById('nfArtistsViewerPrev').disabled=true;document.getElementById('nfArtistsViewerNext').disabled=true;return}
   const item=items[index],youtubeSource=kind==='restaurant-videos'?item.youtube_url:item.video_path,youtubeId=(kind==='videos'||kind==='restaurant-videos')?(item.youtubeId||extractYouTubeId(youtubeSource)):null,youtubeShort=!!youtubeId&&(item.video_orientation==='portrait'||(()=>{try{return /\/shorts\//i.test(new URL(String(youtubeSource||'')).pathname)}catch{return false}})()),media=kind==='images'?document.createElement('img'):document.createElement('video');
   if((kind==='videos'||kind==='restaurant-videos') && youtubeId){
@@ -1915,7 +1938,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
   }
   if(kind==='images'){
    media.className='nf-artists-gallery-photo';media.alt=item.title||'Artisti Note Fiorentine';media.draggable=false;media.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';media.style.transform='scale('+(item.focal_zoom??1)+')';
-   media.addEventListener('load',()=>{stage.classList.toggle('nf-artists-portrait',media.naturalHeight>media.naturalWidth)},{once:true});
+   media.addEventListener('load',()=>{const w=media.naturalWidth||1,h=media.naturalHeight||1,ratio=w/h,portrait=h>w;stage.classList.toggle('nf-artists-portrait',portrait);stage.classList.toggle('nf-artists-photo-portrait',portrait);stage.classList.toggle('nf-artists-photo-landscape',!portrait);stage.style.setProperty('--nf-photo-ratio',String(ratio));},{once:true});
    media.src=publicUrl('site-media',item.image_path);
   }else{
    media.src=publicUrl('performance-videos',item.video_path);media.controls=true;media.playsInline=true;media.preload='none';media.setAttribute('aria-label',item.title||'Video artisti Note Fiorentine');
