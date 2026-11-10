@@ -1862,7 +1862,20 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
 <script id="nf-multiple-gallery-runtime">
 (async function(){
  const api=window.NF_SUPABASE_CONFIG.url,key=window.NF_SUPABASE_CONFIG.key;
- const labels={restaurant:'Il ristorante',kitchen:'La cucina',music:'L’atmosfera'};
+ const lang=({it:'it',en:'en',de:'de',fr:'fr',es:'es',zh:'zh'})[new URLSearchParams(location.search).get('lang')]||'it';
+ const labels={
+  it:{restaurant:'Il ristorante',kitchen:'La cucina',music:'L’atmosfera'},
+  en:{restaurant:'The Restaurant',kitchen:'The Cuisine',music:'The Atmosphere'},
+  de:{restaurant:'Das Restaurant',kitchen:'Die Küche',music:'Die Atmosphäre'},
+  fr:{restaurant:'Le restaurant',kitchen:'La cuisine',music:'L’atmosphère'},
+  es:{restaurant:'El restaurante',kitchen:'La cocina',music:'El ambiente'},
+  zh:{restaurant:'餐厅',kitchen:'美食',music:'氛围'}
+ };
+ const photoAlt={
+  restaurant:{it:'Gli ambienti del ristorante Note Fiorentine a Firenze',en:'The interiors of Note Fiorentine in Florence',de:'Die Räumlichkeiten des Restaurants Note Fiorentine in Florenz',fr:'Les espaces du restaurant Note Fiorentine à Florence',es:'Los espacios del restaurante Note Fiorentine en Florencia',zh:'Note Fiorentine 餐厅空间，位于佛罗伦萨'},
+  kitchen:{it:'Piatti della cucina toscana e italiana di Note Fiorentine',en:'Tuscan and Italian dishes at Note Fiorentine',de:'Toskanische und italienische Gerichte von Note Fiorentine',fr:'Plats de cuisine toscane et italienne de Note Fiorentine',es:'Platos de cocina toscana e italiana de Note Fiorentine',zh:'Note Fiorentine 的托斯卡纳与意大利菜肴'},
+  music:{it:'Atmosfera delle serate con musica dal vivo da Note Fiorentine',en:'The atmosphere of live music evenings at Note Fiorentine',de:'Die Atmosphäre der Live-Musik-Abende im Note Fiorentine',fr:'L’atmosphère des soirées avec musique live chez Note Fiorentine',es:'El ambiente de las veladas con música en vivo de Note Fiorentine',zh:'Note Fiorentine 现场音乐之夜的氛围'}
+ };
  const viewer=document.getElementById('nfGalleryViewer'),stage=document.getElementById('nfGalleryStage'),title=document.getElementById('nfGalleryTitle'),counter=document.getElementById('nfGalleryCounter');
  if(!viewer||!stage)return;
  let photos=[],position=0,touchStart=0,lastFocus=null,selectingRestaurantPhotos=false;
@@ -1879,7 +1892,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
  function render(){
   stage.replaceChildren();
   if(!photos.length){const empty=document.createElement('div');empty.className='nf-gallery-empty';empty.textContent='Le fotografie di questa galleria saranno disponibili a breve.';stage.append(empty);counter.textContent='0 FOTO';document.getElementById('nfGalleryPrev').disabled=true;document.getElementById('nfGalleryNext').disabled=true;return}
-  const item=photos[position],img=document.createElement('img');img.className='nf-gallery-photo';img.addEventListener('load',()=>{stage.classList.toggle('nf-gallery-portrait',img.naturalHeight>img.naturalWidth)},{once:true});img.src=publicUrl(item.image_path);img.alt=item.title||labels[viewer.dataset.category]||'Fotografia Note Fiorentine';img.draggable=false;img.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';img.style.transform='scale('+(item.focal_zoom??1)+')';stage.append(img);
+  const item=photos[position],img=document.createElement('img');img.className='nf-gallery-photo';img.addEventListener('load',()=>{stage.classList.toggle('nf-gallery-portrait',img.naturalHeight>img.naturalWidth)},{once:true});img.src=publicUrl(item.image_path);const rawTitle=String(item.title||'').trim(),category=viewer.dataset.category;img.alt=rawTitle&&!/^\\d+$/.test(rawTitle)?rawTitle:(photoAlt[lang]?.[category]||'Note Fiorentine photo');img.draggable=false;img.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';img.style.transform='scale('+(item.focal_zoom??1)+')';stage.append(img);
   counter.textContent=(position+1)+' / '+photos.length;
   document.getElementById('nfGalleryPrev').disabled=photos.length<2;document.getElementById('nfGalleryNext').disabled=photos.length<2;
  }
@@ -1888,7 +1901,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
  async function openGallery(category,button){
   viewer.classList.toggle('nf-environments-gallery',category==='restaurant');
   if(category==='restaurant'&&!selectingRestaurantPhotos){openEnvironmentChooser(button);return}
-  lastFocus=button;viewer.dataset.category=category;title.textContent=labels[category]||'La galleria';viewer.classList.add('open');viewer.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';stage.innerHTML='<div class="nf-gallery-empty">Caricamento fotografie…</div>';counter.textContent='';
+  lastFocus=button;viewer.dataset.category=category;title.textContent=labels[lang]?.[category]||labels.it[category]||'La galleria';viewer.classList.add('open');viewer.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';stage.innerHTML='<div class="nf-gallery-empty">Caricamento fotografie…</div>';counter.textContent='';
   try{
    const url=api+'/rest/v1/gallery_images?select=id,title,image_path,sort_order,focal_x,focal_y,focal_zoom&category=eq.'+encodeURIComponent(category)+'&is_published=eq.true&order=sort_order.asc,created_at.asc';
    const response=await fetch(url,{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});
