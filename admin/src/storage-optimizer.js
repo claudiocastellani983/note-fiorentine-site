@@ -205,7 +205,7 @@ export function mountStorageOptimizer({ db, root, readOnly, environment = 'confi
     const created = [];
     let replaced = 0, skipped = 0, savedBytes = 0;
     try {
-      status('1/5 · Analisi archivio e riferimenti nel database Test…');
+      status('1/5 · Analisi archivio e riferimenti nel database '+esc(environment)+'…');
       const [allFiles, references] = await Promise.all([listFolder(), collectReferences()]);
       const files = allFiles.filter(file => eligible(file) && file.size > 1024 * 1024);
       const candidates = files.map(file => ({

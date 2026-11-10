@@ -73,7 +73,7 @@
   const productionHosts=new Set([
     'www.notefiorentine.it','notefiorentine.it','note-fiorentine.vercel.app',
     'note-fiorentine-n8y0wjydb-claudiacastellani983-5675.vercel.app',
-    'note-fiorentine-admin.vercel.app',
+    'note-fiorentine-admin.vercel.app','note-fiorentine-admin-claudiacastellani983-5675.vercel.app',
     'note-fiorentine-admin-dhv0f1t1z-claudiacastellani983-5675.vercel.app'
   ]);
   const production=productionHosts.has(host);
@@ -148,7 +148,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { mountStorageOptimizer } from './src/storage-optimizer.js';
 const NF_ADMIN_HOST=location.hostname.toLowerCase();
-const NF_ADMIN_PRODUCTION=NF_ADMIN_HOST==='note-fiorentine-admin.vercel.app'||NF_ADMIN_HOST==='note-fiorentine-admin-dhv0f1t1z-claudiacastellani983-5675.vercel.app';
+const NF_ADMIN_PRODUCTION=NF_ADMIN_HOST==='note-fiorentine-admin.vercel.app'||NF_ADMIN_HOST==='note-fiorentine-admin-claudiacastellani983-5675.vercel.app'||NF_ADMIN_HOST==='note-fiorentine-admin-dhv0f1t1z-claudiacastellani983-5675.vercel.app';
 const NF_ADMIN_PREVIEW=NF_ADMIN_HOST.startsWith('note-fiorentine-admin-')&&NF_ADMIN_HOST.endsWith('.vercel.app')&&!NF_ADMIN_PRODUCTION;
 const rawSupabase=createClient(window.NF_SUPABASE_CONFIG.url,window.NF_SUPABASE_CONFIG.key);
 const NF_ADMIN_WRITE_ENABLED=NF_ADMIN_PRODUCTION||NF_ADMIN_PREVIEW;

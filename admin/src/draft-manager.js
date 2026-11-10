@@ -2,6 +2,7 @@
 'use strict';
 const KEY='nf-release-drafts-v1',VISUAL_KEY='nf-visual-draft-v1',DB='nf-release-assets-v1',STORE='assets';
 const $=id=>document.getElementById(id);
+const envName=()=>window.NF_SUPABASE_CONFIG?.environment||'configurato';
 let drafts=readDrafts(),dbPromise=null;
 function readDrafts(){try{const v=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(v)?v:[]}catch(_){return[]}}
 function openDb(){if(dbPromise)return dbPromise;dbPromise=new Promise((resolve,reject)=>{if(!indexedDB){reject(Error('Archivio allegati non supportato dal browser.'));return}const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(STORE))r.result.createObjectStore(STORE)};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});return dbPromise}
@@ -12,14 +13,15 @@ async function captureFiles(files,max=15*1024*1024,allowed=null){const out=[];fo
 function visualDraft(){try{const d=JSON.parse(localStorage.getItem(VISUAL_KEY)||'null');return d&&d.visualStyles&&typeof d.visualStyles==='object'?d:null}catch(_){return null}}
 function snapshot(){const out=drafts.slice(),v=visualDraft();if(v&&Object.keys(v.visualStyles).length)out.push({id:'visual-editor-draft',type:'visual-editor',section:'Editor visuale',createdAt:v.updatedAt||new Date().toISOString(),payload:{visualStyles:v.visualStyles}});return out}
 function say(s){const el=$('status');if(el)el.textContent=s;window.__NF_DEBUG?.setStatus?.(s)}
-function render(){const app=$('app');if(!app)return;let p=$('nfDraftPanel');if(!p){p=document.createElement('section');p.id='nfDraftPanel';p.className='panel';p.style.cssText='border-color:#c5a16b';const top=app.querySelector('.panel');if(top)top.insertAdjacentElement('afterend',p);else app.prepend(p)}const n=snapshot().length;p.innerHTML='<div style="display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap"><div><strong style="color:var(--gold)">Release in preparazione</strong><p class="muted" style="margin:5px 0">Le modifiche ai contenuti restano in bozza su questo dispositivo. Solo i campioni e le copie dell’ottimizzatore immagini vengono salvati nel bucket Supabase Test; nessuna modifica al sito pubblico.</p><span class="status" id="nfDraftCount">'+n+' modifiche in attesa di revisione</span></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" id="nfDraftExport" class="primary">Esporta pacchetto</button><button type="button" id="nfDraftReview">Rivedi bozze</button><button type="button" id="nfDraftClear" class="danger">Svuota bozze</button></div></div><p class="media-note" style="margin:10px 0 0">Il pacchetto comprende modifiche strutturate e file selezionati. È un dossier per la revisione, non una pubblicazione automatica.</p>';
+function render(){const app=$('app');if(!app)return;let p=$('nfDraftPanel');if(!p){p=document.createElement('section');p.id='nfDraftPanel';p.className='panel';p.style.cssText='border-color:#c5a16b';const top=app.querySelector('.panel');if(top)top.insertAdjacentElement('afterend',p);else app.prepend(p)}const n=snapshot().length,environment=envName();p.innerHTML='<div style="display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap"><div><strong style="color:var(--gold)">Release in preparazione</strong><p class="muted" style="margin:5px 0">Le modifiche ai contenuti restano in bozza su questo dispositivo. Le modifiche restano in bozza locale. Ambiente collegato: Supabase '+esc(environment)+'. La pubblicazione richiede conferma.</p><span class="status" id="nfDraftCount">'+n+' modifiche in attesa di revisione</span></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" id="nfDraftExport" class="primary">Esporta pacchetto</button><button type="button" id="nfDraftReview">Rivedi bozze</button><button type="button" id="nfDraftClear" class="danger">Svuota bozze</button></div></div><p class="media-note" style="margin:10px 0 0">Il pacchetto comprende modifiche strutturate e file selezionati. È un dossier per la revisione, non una pubblicazione automatica.</p>';
 const eventDrafts=drafts.filter(d=>d.section==='Eventi'&&['record','toggle-publish'].includes(d.type));
 if(eventDrafts.length){
  const host=document.createElement('section');
+ const environment=envName();
  host.id='nfEventDraftActions';
  host.style.cssText='margin-top:14px;padding:14px;border:1px solid #8f7048;border-radius:9px;background:rgba(197,161,107,.08)';
- host.innerHTML='<strong>Bozze eventi</strong><p class="muted" style="margin:5px 0 10px">Pubblica o aggiorna soltanto l’ambiente di test. La Home pubblica non viene modificata.</p>'+
- eventDrafts.map(d=>'<div style="display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:8px 0;border-top:1px solid rgba(197,161,107,.25)"><span>'+esc(d.payload?.fields?.title||d.payload?.label||'Evento')+'</span><button type="button" class="primary" data-publish-event-draft="'+esc(d.id)+'">'+(d.type==='toggle-publish'?'Applica stato su TEST':'Pubblica su TEST')+'</button></div>').join('');
+ host.innerHTML='<strong>Bozze eventi</strong><p class="muted" style="margin:5px 0 10px">Pubblica o aggiorna soltanto Supabase '+esc(environment)+'.</p>'+
+ eventDrafts.map(d=>'<div style="display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:8px 0;border-top:1px solid rgba(197,161,107,.25)"><span>'+esc(d.payload?.fields?.title||d.payload?.label||'Evento')+'</span><button type="button" class="primary" data-publish-event-draft="'+esc(d.id)+'">'+(d.type==='toggle-publish'?'Applica stato su '+esc(environment):'Pubblica su '+esc(environment))+'</button></div>').join('');
  p.appendChild(host);
 }
 $('nfDraftExport').onclick=exportPackage;$('nfDraftReview').onclick=review;$('nfDraftClear').onclick=clearDrafts}
@@ -43,13 +45,15 @@ document.addEventListener('click',async e=>{const b=e.target.closest?.('button')
  const id=b.getAttribute('data-publish-event-draft'),item=drafts.find(d=>d.id===id);
  if(!item)return;
  const title=item.payload?.fields?.title||item.payload?.label||'evento';
- if(!confirm('Procedere con la pubblicazione/aggiornamento di “'+title+'” soltanto su Supabase Test? Il sito pubblico resterà invariato.'))return;
+ const environment=envName();
+ const confirmMessage=environment==='Production'?'Confermi la pubblicazione di “'+title+'” su Supabase Production? Potrà diventare visibile sul sito ufficiale.':'Procedere con la pubblicazione/aggiornamento di “'+title+'” su Supabase '+environment+'?';
+ if(!confirm(confirmMessage))return;
  b.disabled=true;
  try{
   if(typeof window.__NF_PUBLISH_EVENT_DRAFT!=='function')throw Error('Funzione di pubblicazione non pronta: ricarica il pannello Admin.');
   await window.__NF_PUBLISH_EVENT_DRAFT(item);
   drafts=drafts.filter(d=>d.id!==id);persist();
-  say('Evento pubblicato/aggiornato su Supabase Test. La Home preview può ora mostrarlo; il sito pubblico non è stato modificato.');
+  say('Evento pubblicato/aggiornato su Supabase '+envName()+'. Verifica la visibilità nella Home dell’ambiente corrispondente.');
  }catch(err){b.disabled=false;say('Pubblicazione non riuscita: '+(err.message||err))}
  return;
 }if(b.matches('[data-del],[data-pub]')){e.preventDefault();e.stopImmediatePropagation();const row=b.closest('.item');try{stage(b.hasAttribute('data-del')?'delete-record':'toggle-publish',$('sectionTitle')?.textContent||'Contenuti',{recordId:row?.dataset.rowId||null,rowIndex:b.dataset.del??b.dataset.pub??null,label:row?.querySelector('strong')?.textContent||row?.innerText||'Elemento'})}catch(err){say('Bozza non salvata: '+err.message)}}},true);
