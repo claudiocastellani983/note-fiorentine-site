@@ -1194,6 +1194,40 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
  }
 }
 </style>
+<style id="nf-artists-gallery-never-crop-v5">
+/* Foto artisti: mostra sempre l'intero file originale, anche se il caricamento
+   delle dimensioni fallisce o le vecchie regole focal/4:3 sono ancora presenti. */
+#nfArtistsViewerStage:has(> img.nf-artists-gallery-photo){
+ display:grid!important;
+ place-items:center!important;
+ width:100%!important;
+ height:min(72vh,760px)!important;
+ max-width:100%!important;
+ max-height:72vh!important;
+ min-width:0!important;
+ min-height:0!important;
+ aspect-ratio:auto!important;
+ overflow:visible!important;
+ flex:1 1 auto!important;
+ margin-inline:auto!important;
+}
+#nfArtistsViewerStage > img.nf-artists-gallery-photo{
+ display:block!important;
+ width:auto!important;
+ height:auto!important;
+ max-width:100%!important;
+ max-height:100%!important;
+ object-fit:contain!important;
+ object-position:center!important;
+ transform:none!important;
+}
+@media(max-width:640px){
+ #nfArtistsViewerStage:has(> img.nf-artists-gallery-photo){
+  height:68vh!important;
+  max-height:68vh!important;
+ }
+}
+</style>
 </head>
 <body>
 <div id="app">
