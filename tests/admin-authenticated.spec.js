@@ -367,12 +367,22 @@ test('Admin: CRUD completo dei video musicali su Supabase Test', async ({ page }
         const listing = await fetch(supabaseUrl + '/storage/v1/object/list/performance-videos', {
           method: 'POST',
           headers: { ...headers, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prefix: '', limit: 1000, offset: 0, search: 'playwright-fixture.mp4' })
+          body: JSON.stringify({ prefix: '', limit: 1000, offset: 0 })
         });
         if (!listing.ok) throw new Error('Ricerca video temporanei fallita: ' + listing.status);
         const entries = await listing.json();
-        const paths = entries.map(entry => entry.name || '')
-          .filter(name => /^[0-9a-f-]+-playwright-fixture\.mp4$/i.test(name));
+        const knownFailedFixtures = [
+          '1eb2addc-d2aa-43d8-b335-1b5de9fd0ca5-playwright-fixture.mp4',
+          'cfd745ec-6ac5-4816-ac5a-606b3de1259f-playwright-fixture.mp4',
+          'fe8d8270-9db6-4cf2-b10d-2c5453d61ea5-playwright-fixture.mp4',
+          '468afeef-910d-485e-8a8e-505344cd75a9-playwright-fixture.mp4',
+          'e1a78f4c-5b30-4d45-98b0-b060ac407ba9-playwright-fixture.mp4',
+          'dcb8cd68-5689-46a4-9178-e71bb62dfeac-playwright-fixture.mp4'
+        ];
+        const paths = [...new Set([
+          ...knownFailedFixtures,
+          ...entries.map(entry => entry.name || '').filter(name => /^[0-9a-f-]+-playwright-fixture\.mp4$/i.test(name))
+        ])];
         if (paths.length) {
           const removed = await fetch(supabaseUrl + '/storage/v1/object/performance-videos', {
             method: 'DELETE',
