@@ -1,0 +1,49 @@
+name: Integrated Preview Validation
+
+on:
+  push:
+    branches: [release/integrated-preview-2026-11]
+    paths:
+      - ".github/workflows/integrated-preview-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: note-fiorentine-integrated-preview-validation
+  cancel-in-progress: true
+
+jobs:
+  live-preview:
+    name: Home + Admin preview (${{ matrix.browser }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    env:
+      SITE_PREVIEW_URL: https://note-fiorentine-git-fix-full-i-c8a79d-claudiacastellani983-5675.vercel.app/
+      ADMIN_PREVIEW_URL: https://note-fiorentine-admin-git-rele-890dc9-claudiacastellani983-5675.vercel.app/src/index.html?sitePreview=https%3A%2F%2Fnote-fiorentine-git-fix-full-i-c8a79d-claudiacastellani983-5675.vercel.app%2F
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Validate real Home and Admin previews
+        run: npx playwright test tests/live-previews.spec.js tests/live-functional.spec.js --project=${{ matrix.browser }}
+      - name: Upload preview test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integrated-preview-${{ matrix.browser }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
