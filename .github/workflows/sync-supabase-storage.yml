@@ -1,0 +1,137 @@
+name: Supabase Storage sync (TEST -> Production)
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_delete:
+        description: "Delete Production objects that do not exist in TEST (only after reviewing a previous dry run)"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  sync-storage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Supabase client
+        run: npm install --no-save @supabase/supabase-js
+
+      - name: Synchronize Storage objects
+        env:
+          SUPABASE_TEST_URL: https://iuxskknbopboynjlsxbk.supabase.co
+          SUPABASE_PROD_URL: https://nculgrwlzjitggjcgbpp.supabase.co
+          SUPABASE_TEST_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_TEST_SERVICE_ROLE_KEY }}
+          SUPABASE_PROD_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_PROD_SERVICE_ROLE_KEY }}
+          CONFIRM_DELETE: ${{ inputs.confirm_delete }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { createClient } from '@supabase/supabase-js';
+          import { createHash } from 'node:crypto';
+
+          const required = ['SUPABASE_TEST_SERVICE_ROLE_KEY', 'SUPABASE_PROD_SERVICE_ROLE_KEY'];
+          for (const key of required) {
+            if (!process.env[key]) throw new Error(`Missing GitHub Actions secret: ${key}`);
+          }
+
+          const source = createClient(process.env.SUPABASE_TEST_URL, process.env.SUPABASE_TEST_SERVICE_ROLE_KEY, {
+            auth: { persistSession: false, autoRefreshToken: false }
+          });
+          const target = createClient(process.env.SUPABASE_PROD_URL, process.env.SUPABASE_PROD_SERVICE_ROLE_KEY, {
+            auth: { persistSession: false, autoRefreshToken: false }
+          });
+
+          const buckets = ['site-media', 'performance-videos'];
+          const confirmDelete = process.env.CONFIRM_DELETE === 'true';
+
+          async function listAll(client, bucket) {
+            const found = [];
+            async function walk(prefix = '') {
+              let offset = 0;
+              while (true) {
+                const { data, error } = await client.storage.from(bucket).list(prefix, {
+                  limit: 1000, offset, sortBy: { column: 'name', order: 'asc' }
+                });
+                if (error) throw new Error(`List ${bucket}/${prefix}: ${error.message}`);
+                for (const item of data ?? []) {
+                  const path = prefix ? `${prefix}/${item.name}` : item.name;
+                  if (item.id === null) await walk(path);
+                  else found.push({ path, metadata: item.metadata ?? {} });
+                }
+                if (!data || data.length < 1000) break;
+                offset += data.length;
+              }
+            }
+            await walk();
+            return found;
+          }
+
+          const digest = async (blob) =>
+            createHash('sha256').update(Buffer.from(await blob.arrayBuffer())).digest('hex');
+
+          for (const bucket of buckets) {
+            console.log(`--- ${bucket} ---`);
+            const [srcObjects, prodObjects] = await Promise.all([
+              listAll(source, bucket), listAll(target, bucket)
+            ]);
+            const sourcePaths = new Set(srcObjects.map(x => x.path));
+            const stale = prodObjects.filter(x => !sourcePaths.has(x.path)).map(x => x.path);
+            console.log(`TEST objects: ${srcObjects.length}; Production before: ${prodObjects.length}; obsolete in Production: ${stale.length}`);
+
+            // Copy/overwrite every TEST object to Production and verify byte-for-byte.
+            for (const item of srcObjects) {
+              const { data: blob, error: downloadError } = await source.storage.from(bucket).download(item.path);
+              if (downloadError) throw new Error(`Download TEST ${bucket}/${item.path}: ${downloadError.message}`);
+              const options = {
+                upsert: true,
+                contentType: item.metadata.mimetype || 'application/octet-stream',
+                cacheControl: item.metadata.cacheControl || '3600'
+              };
+              const { error: uploadError } = await target.storage.from(bucket).upload(item.path, blob, options);
+              if (uploadError) throw new Error(`Upload Production ${bucket}/${item.path}: ${uploadError.message}`);
+              const { data: verifyBlob, error: verifyError } = await target.storage.from(bucket).download(item.path);
+              if (verifyError) throw new Error(`Verify Production ${bucket}/${item.path}: ${verifyError.message}`);
+              if (await digest(blob) !== await digest(verifyBlob)) {
+                throw new Error(`Checksum mismatch for ${bucket}/${item.path}`);
+              }
+              console.log(`Verified: ${bucket}/${item.path}`);
+            }
+
+            if (confirmDelete && stale.length) {
+              // Re-list after uploads and delete only objects absent from the TEST snapshot.
+              const currentProd = await listAll(target, bucket);
+              const toDelete = currentProd.filter(x => !sourcePaths.has(x.path)).map(x => x.path);
+              for (let i = 0; i < toDelete.length; i += 100) {
+                const batch = toDelete.slice(i, i + 100);
+                const { error } = await target.storage.from(bucket).remove(batch);
+                if (error) throw new Error(`Delete obsolete objects in ${bucket}: ${error.message}`);
+              }
+              console.log(`Deleted ${toDelete.length} obsolete Production objects from ${bucket}.`);
+            } else {
+              console.log(confirmDelete
+                ? 'No obsolete objects to delete.'
+                : `DRY RUN: deletion disabled. Obsolete object paths:\n${stale.join('\n')}`);
+            }
+
+            const finalObjects = await listAll(target, bucket);
+            const finalPaths = new Set(finalObjects.map(x => x.path));
+            const missing = srcObjects.filter(x => !finalPaths.has(x.path)).map(x => x.path);
+            const remainingExtra = finalObjects.filter(x => !sourcePaths.has(x.path)).map(x => x.path);
+            if (missing.length) throw new Error(`Missing TEST objects after sync in ${bucket}: ${missing.join(', ')}`);
+            if (confirmDelete && remainingExtra.length) {
+              throw new Error(`Obsolete objects remain in ${bucket}: ${remainingExtra.join(', ')}`);
+            }
+            console.log(`Final Production objects: ${finalObjects.length}; missing TEST objects: 0; extra Production objects: ${remainingExtra.length}`);
+          }
+          NODE
