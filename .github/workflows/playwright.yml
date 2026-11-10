@@ -96,7 +96,7 @@ jobs:
             // Home/Admin distribuito resta identico a quello di quel commit.
             const deploymentSha = "f0f69ad86aba161a5f8fd0876469a136b7ac2dd5";
             const siteUrl = "https://note-fiorentine-fzphjnstt-claudiocastellani983-5675.vercel.app/";
-            const adminUrl = "https://note-fiorentine-admin-oxjs2hs3d-claudiocastellani983-5675.vercel.app/";
+            const adminUrl = "https://note-fiorentine-admin-oxjs2hs3d-claudiocastellani983-5675.vercel.app/?sitePreview=" + encodeURIComponent(siteUrl);
             const homeContext = "Vercel – note-fiorentine";
             const adminContext = "Vercel – note-fiorentine-admin";
             const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
