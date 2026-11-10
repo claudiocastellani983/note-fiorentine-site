@@ -44,6 +44,15 @@ const galleryExpected = {
   zh: { title: '餐厅', alt: 'Note Fiorentine 餐厅空间，位于佛罗伦萨' }
 };
 
+const artistPhotoAlt = {
+  it: 'Artisti Note Fiorentine',
+  en: 'Note Fiorentine artists',
+  de: 'Künstler von Note Fiorentine',
+  fr: 'Artistes de Note Fiorentine',
+  es: 'Artistas de Note Fiorentine',
+  zh: 'Note Fiorentine 艺术家'
+};
+
 const itemTranslations = {
   en: { name: 'Tuscan crostini', description: 'Toasted bread with Tuscan chicken liver pâté' },
   de: { name: 'Toskanische Crostini', description: 'Geröstetes Brot mit toskanischer Hühnerleberpastete' },
@@ -91,6 +100,16 @@ test('Home: all six languages translate artist gallery labels and accessibility 
   await page.route('**/storage/v1/object/public/site-media/gallery/preview.webp', async route => {
     await route.fulfill({ status: 200, contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg" width="2" height="2"></svg>' });
   });
+  await page.route('**/rest/v1/artist_images*', async route => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify([{ id: 'artist-photo-test', title: '1000083883', image_path: 'artist-gallery/preview.webp', focal_x: 50, focal_y: 50, focal_zoom: 1 }])
+    });
+  });
+  await page.route('**/storage/v1/object/public/site-media/artist-gallery/preview.webp', async route => {
+    await route.fulfill({ status: 200, contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg" width="2" height="2"></svg>' });
+  });
   for (const [lang, expected] of Object.entries(languages)) {
     await page.goto(`${siteUrl}/?lang=${lang}`, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('html')).toHaveAttribute('lang', lang === 'zh' ? 'zh-CN' : lang);
@@ -104,6 +123,9 @@ test('Home: all six languages translate artist gallery labels and accessibility 
     await page.locator('[data-env-choice="photos"]').click();
     await expect(page.locator('#nfGalleryTitle')).toHaveText(galleryExpected[lang].title);
     await expect(page.locator('#nfGalleryStage img.nf-gallery-photo')).toHaveAttribute('alt', galleryExpected[lang].alt);
+    await page.locator('[data-artist-gallery="images"]').click();
+    await expect(page.locator('#nfArtistsViewer')).toHaveClass(/open/);
+    await expect(page.locator('#nfArtistsViewerStage img.nf-artists-gallery-photo')).toHaveAttribute('alt', artistPhotoAlt[lang]);
     await expect(page.locator('.hero-art img.nf-managed-image')).toHaveAttribute('alt', expected.heroAlt);
     if (lang !== 'it') {
       const visibleText = await page.locator('body').innerText();
