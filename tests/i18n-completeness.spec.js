@@ -59,7 +59,8 @@ test('Home: all six languages translate artist gallery labels and accessibility 
     await expect(page.locator('[data-artist-gallery="videos"] strong')).toHaveText(expected.video);
     await expect(page.locator('#nfArtistsViewerClose')).toHaveText(expected.close);
     await expect(page.locator('[data-artist-gallery="images"]')).toHaveAttribute('aria-label', expected.photoAria);
-    await expect(page.locator('[data-artist-gallery="videos"]')).toHaveAttribute('aria-label', expected.videoAria);\n    await expect(page.locator('.hero-art img.nf-managed-image')).toHaveAttribute('alt', expected.heroAlt);
+    await expect(page.locator('[data-artist-gallery="videos"]')).toHaveAttribute('aria-label', expected.videoAria);
+    await expect(page.locator('.hero-art img.nf-managed-image')).toHaveAttribute('alt', expected.heroAlt);
     if (lang !== 'it') {
       const visibleText = await page.locator('body').innerText();
       expect(visibleText).not.toContain('Galleria immagini');
