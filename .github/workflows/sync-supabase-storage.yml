@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       confirm_delete:
-        description: "Delete Production objects that do not exist in TEST (only after reviewing a previous dry run)"
+        description: "Delete Production objects absent from TEST (only after reviewing the previous sync report)"
         required: true
         type: boolean
         default: false
@@ -45,22 +45,41 @@ jobs:
           import { createClient } from '@supabase/supabase-js';
           import { createHash } from 'node:crypto';
 
-          const required = ['SUPABASE_TEST_SERVICE_ROLE_KEY', 'SUPABASE_PROD_SERVICE_ROLE_KEY'];
-          for (const key of required) {
-            if (!process.env[key]) throw new Error(`Missing GitHub Actions secret: ${key}`);
+          const testKey = process.env.SUPABASE_TEST_SERVICE_ROLE_KEY;
+          const prodKey = process.env.SUPABASE_PROD_SERVICE_ROLE_KEY;
+          if (!testKey || !prodKey) throw new Error('One or both Supabase GitHub secrets are missing.');
+
+          function makeAdminClient(url, key, label) {
+            const isSecretKey = key.startsWith('sb_secret_');
+            const isLegacyServiceRole = key.startsWith('eyJ');
+            if (!isSecretKey && !isLegacyServiceRole) {
+              throw new Error(`${label} key has an unsupported format. Expected sb_secret_... or legacy JWT service_role (eyJ...).`);
+            }
+            console.log(`${label} credential format: ${isSecretKey ? 'new secret API key' : 'legacy service_role JWT'}`);
+
+            // New sb_secret keys belong in apikey, never Authorization: Bearer.
+            // supabase-js may mirror its key into Authorization; strip only that
+            // SDK-generated bearer value while preserving apikey and all other headers.
+            const customFetch = async (input, init = {}) => {
+              const request = new Request(input, init);
+              if (isSecretKey && request.headers.get('Authorization') === `Bearer ${key}`) {
+                request.headers.delete('Authorization');
+              }
+              return fetch(request);
+            };
+
+            return createClient(url, key, {
+              auth: { persistSession: false, autoRefreshToken: false },
+              global: { fetch: customFetch }
+            });
           }
 
-          const source = createClient(process.env.SUPABASE_TEST_URL, process.env.SUPABASE_TEST_SERVICE_ROLE_KEY, {
-            auth: { persistSession: false, autoRefreshToken: false }
-          });
-          const target = createClient(process.env.SUPABASE_PROD_URL, process.env.SUPABASE_PROD_SERVICE_ROLE_KEY, {
-            auth: { persistSession: false, autoRefreshToken: false }
-          });
-
+          const source = makeAdminClient(process.env.SUPABASE_TEST_URL, testKey, 'TEST');
+          const target = makeAdminClient(process.env.SUPABASE_PROD_URL, prodKey, 'PRODUCTION');
           const buckets = ['site-media', 'performance-videos'];
           const confirmDelete = process.env.CONFIRM_DELETE === 'true';
 
-          async function listAll(client, bucket) {
+          async function listAll(client, bucket, label) {
             const found = [];
             async function walk(prefix = '') {
               let offset = 0;
@@ -68,7 +87,7 @@ jobs:
                 const { data, error } = await client.storage.from(bucket).list(prefix, {
                   limit: 1000, offset, sortBy: { column: 'name', order: 'asc' }
                 });
-                if (error) throw new Error(`List ${bucket}/${prefix}: ${error.message}`);
+                if (error) throw new Error(`List ${label} ${bucket}/${prefix}: ${error.message}`);
                 for (const item of data ?? []) {
                   const path = prefix ? `${prefix}/${item.name}` : item.name;
                   if (item.id === null) await walk(path);
@@ -85,11 +104,20 @@ jobs:
           const digest = async (blob) =>
             createHash('sha256').update(Buffer.from(await blob.arrayBuffer())).digest('hex');
 
+          // Preflight both projects and all buckets before the first Production write.
+          const snapshots = new Map();
           for (const bucket of buckets) {
-            console.log(`--- ${bucket} ---`);
-            const [srcObjects, prodObjects] = await Promise.all([
-              listAll(source, bucket), listAll(target, bucket)
-            ]);
+            console.log(`Preflight TEST: ${bucket}`);
+            const srcObjects = await listAll(source, bucket, 'TEST');
+            console.log(`Preflight PRODUCTION: ${bucket}`);
+            const prodObjects = await listAll(target, bucket, 'PRODUCTION');
+            snapshots.set(bucket, { srcObjects, prodObjects });
+            console.log(`Preflight OK ${bucket}: TEST=${srcObjects.length}, PRODUCTION=${prodObjects.length}`);
+          }
+
+          for (const bucket of buckets) {
+            console.log(`--- SYNC ${bucket} ---`);
+            const { srcObjects, prodObjects } = snapshots.get(bucket);
             const sourcePaths = new Set(srcObjects.map(x => x.path));
             const stale = prodObjects.filter(x => !sourcePaths.has(x.path)).map(x => x.path);
             console.log(`TEST objects: ${srcObjects.length}; Production before: ${prodObjects.length}; obsolete in Production: ${stale.length}`);
@@ -104,9 +132,9 @@ jobs:
                 cacheControl: item.metadata.cacheControl || '3600'
               };
               const { error: uploadError } = await target.storage.from(bucket).upload(item.path, blob, options);
-              if (uploadError) throw new Error(`Upload Production ${bucket}/${item.path}: ${uploadError.message}`);
+              if (uploadError) throw new Error(`Upload PRODUCTION ${bucket}/${item.path}: ${uploadError.message}`);
               const { data: verifyBlob, error: verifyError } = await target.storage.from(bucket).download(item.path);
-              if (verifyError) throw new Error(`Verify Production ${bucket}/${item.path}: ${verifyError.message}`);
+              if (verifyError) throw new Error(`Verify PRODUCTION ${bucket}/${item.path}: ${verifyError.message}`);
               if (await digest(blob) !== await digest(verifyBlob)) {
                 throw new Error(`Checksum mismatch for ${bucket}/${item.path}`);
               }
@@ -114,22 +142,20 @@ jobs:
             }
 
             if (confirmDelete && stale.length) {
-              // Re-list after uploads and delete only objects absent from the TEST snapshot.
-              const currentProd = await listAll(target, bucket);
+              const currentProd = await listAll(target, bucket, 'PRODUCTION');
               const toDelete = currentProd.filter(x => !sourcePaths.has(x.path)).map(x => x.path);
               for (let i = 0; i < toDelete.length; i += 100) {
-                const batch = toDelete.slice(i, i + 100);
-                const { error } = await target.storage.from(bucket).remove(batch);
+                const { error } = await target.storage.from(bucket).remove(toDelete.slice(i, i + 100));
                 if (error) throw new Error(`Delete obsolete objects in ${bucket}: ${error.message}`);
               }
               console.log(`Deleted ${toDelete.length} obsolete Production objects from ${bucket}.`);
             } else {
               console.log(confirmDelete
                 ? 'No obsolete objects to delete.'
-                : `DRY RUN: deletion disabled. Obsolete object paths:\n${stale.join('\n')}`);
+                : `Deletion disabled. Obsolete Production paths:\\n${stale.join('\\n')}`);
             }
 
-            const finalObjects = await listAll(target, bucket);
+            const finalObjects = await listAll(target, bucket, 'PRODUCTION');
             const finalPaths = new Set(finalObjects.map(x => x.path));
             const missing = srcObjects.filter(x => !finalPaths.has(x.path)).map(x => x.path);
             const remainingExtra = finalObjects.filter(x => !sourcePaths.has(x.path)).map(x => x.path);
