@@ -2122,7 +2122,7 @@ render();
   }catch(e){
    stage.replaceChildren(Object.assign(document.createElement('div'),{className:'nf-artists-viewer-empty',textContent:ui.loadError}));
    count.textContent='';
-   if(diagnostic){diagnostic.hidden=kind!=='videos';diagnostic.textContent=ui.videoLoadError+(e.message||String(e))}
+   if(diagnostic){diagnostic.hidden=kind!=='videos';diagnostic.textContent=ui.loadError}
    console.warn('[Note Fiorentine artisti]',e)
   }
   document.getElementById('nfArtistsViewerClose').focus();
