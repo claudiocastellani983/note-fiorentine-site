@@ -76,7 +76,7 @@ jobs:
           retention-days: 14
 
   playwright-live-previews:
-    if: (github.event_name == 'workflow_dispatch' && github.event.inputs.site_preview_url != '' && github.event.inputs.admin_preview_url != '') || (github.event_name == 'push' && github.ref == 'refs/heads/release/integrated-preview-2026-11')
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.site_preview_url != '' && github.event.inputs.admin_preview_url != ''
     name: Preview Vercel reali (${{ matrix.browser }})
     runs-on: ubuntu-latest
     strategy:
@@ -84,8 +84,8 @@ jobs:
       matrix:
         browser: [chromium, firefox, webkit]
     env:
-      SITE_PREVIEW_URL: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.site_preview_url || 'https://note-fiorentine-git-release-in-47d382-claudiocastellani983-5675.vercel.app/' }}
-      ADMIN_PREVIEW_URL: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.admin_preview_url || 'https://note-fiorentine-admin-6hg4duoqi-claudiocastellani983-5675.vercel.app/' }}
+      SITE_PREVIEW_URL: ${{ github.event.inputs.site_preview_url }}
+      ADMIN_PREVIEW_URL: ${{ github.event.inputs.admin_preview_url }}
 
     steps:
       - name: Checkout repository
@@ -117,10 +117,10 @@ jobs:
 
   playwright-admin-authenticated:
     name: Admin autenticato e upload Supabase Test
-    if: (github.event_name == 'workflow_dispatch' && github.event.inputs.admin_preview_url != '') || (github.event_name == 'push' && github.ref == 'refs/heads/release/integrated-preview-2026-11')
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.admin_preview_url != ''
     runs-on: ubuntu-latest
     env:
-      ADMIN_PREVIEW_URL: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.admin_preview_url || 'https://note-fiorentine-admin-6hg4duoqi-claudiocastellani983-5675.vercel.app/' }}
+      ADMIN_PREVIEW_URL: ${{ github.event.inputs.admin_preview_url }}
       NF_TEST_ADMIN_EMAIL: ${{ secrets.NF_TEST_ADMIN_EMAIL }}
       NF_TEST_ADMIN_PASSWORD: ${{ secrets.NF_TEST_ADMIN_PASSWORD }}
     steps:
