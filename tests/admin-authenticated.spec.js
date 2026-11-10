@@ -52,7 +52,7 @@ test('Admin: ottimizzazione WebP reale su Supabase Test, riferimento aggiornato 
       if (!lookup.ok) return { ok: false, reason: 'lettura fixture precedenti fallita: ' + lookup.status };
       const rows = await lookup.json();
       const paths = new Set(rows.map(row => row.image_path).filter(path =>
-        /^optimizer-input\\/playwright-[0-9a-f-]+\\.png$/i.test(path || '')
+        /^optimizer-input\/playwright-[0-9a-f-]+\.png$/i.test(path || '')
       ));
       for (const prefix of ['optimizer-input', 'optimization-review/optimizer-input']) {
         const listing = await fetch(supabaseUrl + '/storage/v1/object/list/site-media', {
@@ -62,7 +62,7 @@ test('Admin: ottimizzazione WebP reale su Supabase Test, riferimento aggiornato 
         if (!listing.ok) return { ok: false, reason: 'ricerca file temporanei fallita: ' + listing.status };
         for (const entry of await listing.json()) {
           const name = entry.name || '';
-          if (/^playwright-[0-9a-f-]+\\.png(?:\\.\\d+\\.webp)?$/i.test(name)) paths.add(prefix + '/' + name);
+          if (/^playwright-[0-9a-f-]+\.png(?:\.\d+\.webp)?$/i.test(name)) paths.add(prefix + '/' + name);
         }
       }
       for (const row of rows) {
