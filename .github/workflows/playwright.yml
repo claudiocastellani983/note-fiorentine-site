@@ -13,6 +13,11 @@ permissions:
   contents: read
   statuses: read
 
+# Evita che più run concorrenti cancellino le rispettive fixture temporanee Supabase Test.
+concurrency:
+  group: note-fiorentine-playwright-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   playwright-local:
     name: Test locali (${{ matrix.browser }})
@@ -255,7 +260,7 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Login, test image management and verify Storage cleanup
-        run: npx playwright test tests/admin-authenticated.spec.js --project=chromium
+        run: npx playwright test tests/admin-authenticated.spec.js --project=chromium --workers=1
       - name: Upload Admin test evidence
         if: success()
         uses: actions/upload-artifact@v4
