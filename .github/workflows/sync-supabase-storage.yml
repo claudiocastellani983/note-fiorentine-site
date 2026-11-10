@@ -1,6 +1,11 @@
 name: Supabase Storage sync (TEST -> Production)
 
 on:
+  push:
+    branches:
+      - ops/storage-sync-clean-2026-11
+    paths:
+      - .github/workflows/sync-supabase-storage.yml
   workflow_dispatch:
     inputs:
       confirm_delete:
@@ -34,7 +39,7 @@ jobs:
           SUPABASE_PROD_URL: https://nculgrwlzjitggjcgbpp.supabase.co
           SUPABASE_TEST_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_TEST_SERVICE_ROLE_KEY }}
           SUPABASE_PROD_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_PROD_SERVICE_ROLE_KEY }}
-          CONFIRM_DELETE: ${{ inputs.confirm_delete }}
+          CONFIRM_DELETE: ${{ github.event_name == 'workflow_dispatch' && inputs.confirm_delete || false }}
         run: |
           node --input-type=module <<'NODE'
           import { createClient } from '@supabase/supabase-js';
