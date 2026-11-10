@@ -6,32 +6,32 @@ const languages = {
   it: {
     photo: 'Galleria immagini', video: 'Galleria video', close: 'CHIUDI ×', heroAlt: 'Note Fiorentine, ristorante toscano nel centro storico di Firenze',
     photoAria: 'Apri la galleria fotografica degli artisti', videoAria: 'Apri la galleria video degli artisti',
-    category: 'Antipasti', dish: 'Crostini toscani', allergen: 'Allergeni:'
+    category: 'Antipasti', dish: 'Crostini toscani', allergen: 'Allergeni:', categoryDescription: 'Antipasti tradizionali toscani', dishDescription: 'Pane tostato con paté di fegatini'
   },
   en: {
     photo: 'Photo Gallery', video: 'Video Gallery', close: 'CLOSE ×', heroAlt: "Note Fiorentine, Tuscan restaurant in Florence's historic centre",
     photoAria: "Open the artists' photo gallery", videoAria: "Open the artists' video gallery",
-    category: 'Appetizers', dish: 'Tuscan crostini', allergen: 'Allergens:'
+    category: 'Appetizers', dish: 'Tuscan crostini', allergen: 'Allergens:', categoryDescription: 'Traditional Tuscan starters', dishDescription: 'Toasted bread with Tuscan chicken liver pâté'
   },
   de: {
     photo: 'Fotogalerie', video: 'Videogalerie', close: 'SCHLIESSEN ×', heroAlt: 'Note Fiorentine, toskanisches Restaurant im historischen Zentrum von Florenz',
     photoAria: 'Fotogalerie der Künstler öffnen', videoAria: 'Videogalerie der Künstler öffnen',
-    category: 'Vorspeisen', dish: 'Toskanische Crostini', allergen: 'Allergene:'
+    category: 'Vorspeisen', dish: 'Toskanische Crostini', allergen: 'Allergene:', categoryDescription: 'Traditionelle toskanische Vorspeisen', dishDescription: 'Geröstetes Brot mit toskanischer Hühnerleberpastete'
   },
   fr: {
     photo: 'Galerie photos', video: 'Galerie vidéo', close: 'FERMER ×', heroAlt: 'Note Fiorentine, restaurant toscan dans le centre historique de Florence',
     photoAria: 'Ouvrir la galerie photos des artistes', videoAria: 'Ouvrir la galerie vidéo des artistes',
-    category: 'Entrées', dish: 'Crostini toscans', allergen: 'Allergènes :'
+    category: 'Entrées', dish: 'Crostini toscans', allergen: 'Allergènes :', categoryDescription: 'Entrées traditionnelles toscanes', dishDescription: 'Pain grillé avec pâté de foies de volaille à la toscane'
   },
   es: {
     photo: 'Galería de imágenes', video: 'Galería de vídeos', close: 'CERRAR ×', heroAlt: 'Note Fiorentine, restaurante toscano en el centro histórico de Florencia',
     photoAria: 'Abrir la galería de fotos de los artistas', videoAria: 'Abrir la galería de vídeos de los artistas',
-    category: 'Entrantes', dish: 'Crostini toscanos', allergen: 'Alérgenos:'
+    category: 'Entrantes', dish: 'Crostini toscanos', allergen: 'Alérgenos:', categoryDescription: 'Entrantes tradicionales toscanos', dishDescription: 'Pan tostado con paté toscano de hígado de pollo'
   },
   zh: {
     photo: '图片集', video: '视频集', close: '关闭 ×', heroAlt: 'Note Fiorentine，位于佛罗伦萨历史中心的托斯卡纳餐厅',
     photoAria: '打开艺术家照片集', videoAria: '打开艺术家视频集',
-    category: '开胃菜', dish: '托斯卡纳烤面包片', allergen: '过敏原：'
+    category: '开胃菜', dish: '托斯卡纳烤面包片', allergen: '过敏原：', categoryDescription: '托斯卡纳传统开胃菜', dishDescription: '配托斯卡纳鸡肝酱的烤面包'
   }
 };
 
@@ -44,11 +44,11 @@ const itemTranslations = {
 };
 
 const categoryTranslations = {
-  en: { name: 'Appetizers' },
-  de: { name: 'Vorspeisen' },
-  fr: { name: 'Entrées' },
-  es: { name: 'Entrantes' },
-  zh: { name: '开胃菜' }
+  en: { name: 'Appetizers', description: 'Traditional Tuscan starters' },
+  de: { name: 'Vorspeisen', description: 'Traditionelle toskanische Vorspeisen' },
+  fr: { name: 'Entrées', description: 'Entrées traditionnelles toscanes' },
+  es: { name: 'Entrantes', description: 'Entrantes tradicionales toscanos' },
+  zh: { name: '开胃菜', description: '托斯卡纳传统开胃菜' }
 };
 
 test('Home: all six languages translate artist gallery labels and accessibility text', async ({ page }) => {
@@ -97,7 +97,7 @@ test('Menu: category, dish, description and allergen labels follow the selected 
       body: JSON.stringify([{
         id: 'i18n-category',
         name: 'Antipasti',
-        description: null,
+        description: 'Antipasti tradizionali toscani',
         translations: categoryTranslations,
         sort_order: 1,
         created_at: '2026-01-01T00:00:00Z'
@@ -128,7 +128,9 @@ test('Menu: category, dish, description and allergen labels follow the selected 
     const category = page.locator('#menuCategories .menu-category-button');
     await expect(category).toHaveText(expected.category);
     await category.click();
+    await expect(page.locator('#menuItems .menu-category-description')).toHaveText(expected.categoryDescription);
     await expect(page.locator('#menuItems h3')).toHaveText(expected.dish);
+    await expect(page.locator('#menuItems .menu-item-description')).toHaveText(expected.dishDescription);
     await expect(page.locator('#menuItems .menu-item-allergens')).toContainText(expected.allergen);
     if (lang !== 'it') {
       const visibleText = await page.locator('body').innerText();
