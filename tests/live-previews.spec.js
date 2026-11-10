@@ -45,8 +45,8 @@ test.describe('Preview Vercel reali', () => {
   });
 
   test('Home: la sezione Eventi è rimossa e restano disponibili le sei lingue', async ({ page }) => {
-    expect(SITE_PREVIEW_URL, 'SITE_PREVIEW_URL deve essere configurato').toBeTruthy();
-    await page.goto(SITE_PREVIEW_URL, { waitUntil: 'domcontentloaded' });
+    const siteUrl = SITE_PREVIEW_URL || process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:4173';
+    await page.goto(siteUrl, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('#eventi')).toHaveCount(0);
     await expect(page.locator('a[href="#eventi"]')).toHaveCount(0);
     await expect(page.locator('.language-switch a[data-lang]')).toHaveCount(6);
