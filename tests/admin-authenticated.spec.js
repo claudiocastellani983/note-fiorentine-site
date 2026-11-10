@@ -41,6 +41,50 @@ test('Admin: ottimizzazione WebP reale su Supabase Test, riferimento aggiornato 
     await expect(page.locator('#logout')).toBeVisible();
     await expect(page.locator('#login')).toBeHidden();
 
+    // Remove only stale fixtures created by this Playwright suite, never real media.
+    const staleCleanup = await page.evaluate(async ({ publicKey, supabaseUrl }) => {
+      const storageKey = Object.keys(localStorage).find(key => key.endsWith('-auth-token'));
+      if (!storageKey) return { ok: false, reason: 'sessione assente per pulizia fixture precedenti' };
+      const session = JSON.parse(localStorage.getItem(storageKey) || '{}');
+      if (!session.access_token) return { ok: false, reason: 'token assente per pulizia fixture precedenti' };
+      const headers = { apikey: publicKey, Authorization: 'Bearer ' + session.access_token };
+      const lookup = await fetch(supabaseUrl + '/rest/v1/site_images?select=id,image_path&category=eq.playwright-test', { headers });
+      if (!lookup.ok) return { ok: false, reason: 'lettura fixture precedenti fallita: ' + lookup.status };
+      const rows = await lookup.json();
+      const paths = new Set(rows.map(row => row.image_path).filter(path =>
+        /^optimizer-input\\/playwright-[0-9a-f-]+\\.png$/i.test(path || '')
+      ));
+      for (const prefix of ['optimizer-input', 'optimization-review/optimizer-input']) {
+        const listing = await fetch(supabaseUrl + '/storage/v1/object/list/site-media', {
+          method: 'POST', headers: { ...headers, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prefix, limit: 1000, offset: 0, search: 'playwright-' })
+        });
+        if (!listing.ok) return { ok: false, reason: 'ricerca file temporanei fallita: ' + listing.status };
+        for (const entry of await listing.json()) {
+          const name = entry.name || '';
+          if (/^playwright-[0-9a-f-]+\\.png(?:\\.\\d+\\.webp)?$/i.test(name)) paths.add(prefix + '/' + name);
+        }
+      }
+      for (const row of rows) {
+        const removed = await fetch(supabaseUrl + '/rest/v1/site_images?id=eq.' + row.id, {
+          method: 'DELETE', headers: { ...headers, Prefer: 'return=minimal' }
+        });
+        if (!removed.ok) return { ok: false, reason: 'rimozione fixture precedente fallita: ' + removed.status };
+      }
+      if (paths.size) {
+        const removed = await fetch(supabaseUrl + '/storage/v1/object/site-media', {
+          method: 'DELETE', headers: { ...headers, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prefixes: [...paths] })
+        });
+        if (!removed.ok) return { ok: false, reason: 'rimozione file fixture precedenti fallita: ' + removed.status };
+      }
+      const verify = await fetch(supabaseUrl + '/rest/v1/site_images?select=id&category=eq.playwright-test', { headers });
+      if (!verify.ok) return { ok: false, reason: 'verifica pulizia fixture fallita: ' + verify.status };
+      if ((await verify.json()).length) return { ok: false, reason: 'sono rimaste righe fixture precedenti' };
+      return { ok: true, removedRows: rows.length, removedObjects: paths.size };
+    }, { publicKey: SUPABASE_PUBLIC_KEY, supabaseUrl: SUPABASE_URL });
+    expect(staleCleanup.ok, 'Le fixture Playwright precedenti devono essere rimosse prima del test').toBe(true);
+
     const fixture = await page.evaluate(async ({ path, publicKey, supabaseUrl, id }) => {
       const storageKey = Object.keys(localStorage).find(key => key.endsWith('-auth-token'));
       if (!storageKey) throw new Error('Sessione Supabase autenticata non trovata.');
