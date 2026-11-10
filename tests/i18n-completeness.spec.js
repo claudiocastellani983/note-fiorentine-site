@@ -52,6 +52,20 @@ const categoryTranslations = {
 };
 
 test('Home: all six languages translate artist gallery labels and accessibility text', async ({ page }) => {
+  await page.route(/\\/rest\\/v1\\/site_images\\?/, async route => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify([{
+        image_key: 'hero',
+        image_path: 'hero/preview.webp',
+        alt_text: 'Note Fiorentine, ristorante toscano nel centro storico di Firenze',
+        focal_x: 50,
+        focal_y: 50,
+        focal_zoom: 1
+      }])
+    });
+  });
   for (const [lang, expected] of Object.entries(languages)) {
     await page.goto(`${siteUrl}/?lang=${lang}`, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('html')).toHaveAttribute('lang', lang === 'zh' ? 'zh-CN' : lang);
