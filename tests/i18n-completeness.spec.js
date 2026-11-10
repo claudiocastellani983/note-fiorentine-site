@@ -4,32 +4,32 @@ const siteUrl = process.env.SITE_PREVIEW_URL || process.env.PLAYWRIGHT_BASE_URL 
 
 const languages = {
   it: {
-    photo: 'Galleria immagini', video: 'Galleria video', close: 'CHIUDI ×',
+    photo: 'Galleria immagini', video: 'Galleria video', close: 'CHIUDI ×', heroAlt: 'Note Fiorentine, ristorante toscano nel centro storico di Firenze',
     photoAria: 'Apri la galleria fotografica degli artisti', videoAria: 'Apri la galleria video degli artisti',
     category: 'Antipasti', dish: 'Crostini toscani', allergen: 'Allergeni:'
   },
   en: {
-    photo: 'Photo Gallery', video: 'Video Gallery', close: 'CLOSE ×',
+    photo: 'Photo Gallery', video: 'Video Gallery', close: 'CLOSE ×', heroAlt: "Note Fiorentine, Tuscan restaurant in Florence's historic centre",
     photoAria: "Open the artists' photo gallery", videoAria: "Open the artists' video gallery",
     category: 'Appetizers', dish: 'Tuscan crostini', allergen: 'Allergens:'
   },
   de: {
-    photo: 'Fotogalerie', video: 'Videogalerie', close: 'SCHLIESSEN ×',
+    photo: 'Fotogalerie', video: 'Videogalerie', close: 'SCHLIESSEN ×', heroAlt: 'Note Fiorentine, toskanisches Restaurant im historischen Zentrum von Florenz',
     photoAria: 'Fotogalerie der Künstler öffnen', videoAria: 'Videogalerie der Künstler öffnen',
     category: 'Vorspeisen', dish: 'Toskanische Crostini', allergen: 'Allergene:'
   },
   fr: {
-    photo: 'Galerie photos', video: 'Galerie vidéo', close: 'FERMER ×',
+    photo: 'Galerie photos', video: 'Galerie vidéo', close: 'FERMER ×', heroAlt: 'Note Fiorentine, restaurant toscan dans le centre historique de Florence',
     photoAria: 'Ouvrir la galerie photos des artistes', videoAria: 'Ouvrir la galerie vidéo des artistes',
     category: 'Entrées', dish: 'Crostini toscans', allergen: 'Allergènes :'
   },
   es: {
-    photo: 'Galería de imágenes', video: 'Galería de vídeos', close: 'CERRAR ×',
+    photo: 'Galería de imágenes', video: 'Galería de vídeos', close: 'CERRAR ×', heroAlt: 'Note Fiorentine, restaurante toscano en el centro histórico de Florencia',
     photoAria: 'Abrir la galería de fotos de los artistas', videoAria: 'Abrir la galería de vídeos de los artistas',
     category: 'Entrantes', dish: 'Crostini toscanos', allergen: 'Alérgenos:'
   },
   zh: {
-    photo: '图片集', video: '视频集', close: '关闭 ×',
+    photo: '图片集', video: '视频集', close: '关闭 ×', heroAlt: 'Note Fiorentine，位于佛罗伦萨历史中心的托斯卡纳餐厅',
     photoAria: '打开艺术家照片集', videoAria: '打开艺术家视频集',
     category: '开胃菜', dish: '托斯卡纳烤面包片', allergen: '过敏原：'
   }
@@ -59,7 +59,7 @@ test('Home: all six languages translate artist gallery labels and accessibility 
     await expect(page.locator('[data-artist-gallery="videos"] strong')).toHaveText(expected.video);
     await expect(page.locator('#nfArtistsViewerClose')).toHaveText(expected.close);
     await expect(page.locator('[data-artist-gallery="images"]')).toHaveAttribute('aria-label', expected.photoAria);
-    await expect(page.locator('[data-artist-gallery="videos"]')).toHaveAttribute('aria-label', expected.videoAria);
+    await expect(page.locator('[data-artist-gallery="videos"]')).toHaveAttribute('aria-label', expected.videoAria);\n    await expect(page.locator('.hero-art img.nf-managed-image')).toHaveAttribute('alt', expected.heroAlt);
     if (lang !== 'it') {
       const visibleText = await page.locator('body').innerText();
       expect(visibleText).not.toContain('Galleria immagini');
