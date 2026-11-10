@@ -396,13 +396,15 @@ test('Admin: CRUD completo dei video musicali su Supabase Test', async ({ page }
           ...knownFailedFixtures,
           ...entries.map(entry => entry.name || '').filter(name => /^[0-9a-f-]+-playwright-fixture\.mp4$/i.test(name))
         ])];
-        for (const path of paths) {
-          const removed = await fetch(supabaseUrl + '/storage/v1/object/performance-videos/' + encodeURIComponent(path), {
-            method: 'DELETE', headers
+        if (paths.length) {
+          const removed = await fetch(supabaseUrl + '/storage/v1/object/performance-videos', {
+            method: 'DELETE',
+            headers: { ...headers, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prefixes: paths })
           });
           const body = await removed.text();
-          console.log('Cleanup video fixture', path, 'HTTP', removed.status, body.slice(0, 200));
-          if (!removed.ok) throw new Error('Rimozione video temporaneo fallita (' + removed.status + '): ' + path);
+          console.log('Cleanup video fixtures HTTP', removed.status, body.slice(0, 1200));
+          if (!removed.ok) throw new Error('Rimozione video temporanei fallita (' + removed.status + '): ' + body.slice(0, 300));
         }
         const verify = await fetch(supabaseUrl + '/storage/v1/object/list/performance-videos', {
           method: 'POST', headers: { ...headers, 'Content-Type': 'application/json' },
