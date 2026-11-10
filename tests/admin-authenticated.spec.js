@@ -344,9 +344,22 @@ test('Admin: CRUD completo dei video musicali su Supabase Test', async ({ page }
     updatedCard = page.locator('#items article').filter({ hasText: fixtureTitle });
     page.once('dialog', dialog => dialog.accept());
     await updatedCard.locator('[data-del]').click();
+    await expect(page.locator('#status')).toContainText('Elemento e file eliminati', { timeout: 15000 });
     await expect(page.locator('#items article').filter({ hasText: fixtureTitle })).toHaveCount(0);
     rows = await api('GET', 'performance_videos?select=id&id=eq.' + fixtureId);
     expect(rows).toHaveLength(0);
+    const storageListing = await page.evaluate(async ({ publicKey, supabaseUrl }) => {
+      const storageKey = Object.keys(localStorage).find(key => key.endsWith('-auth-token'));
+      const session = JSON.parse(localStorage.getItem(storageKey) || '{}');
+      const response = await fetch(supabaseUrl + '/storage/v1/object/list/performance-videos', {
+        method: 'POST',
+        headers: { apikey: publicKey, Authorization: 'Bearer ' + session.access_token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prefix: '', limit: 1000, offset: 0 })
+      });
+      if (!response.ok) throw new Error('Verifica Storage dopo eliminazione fallita: ' + response.status);
+      return (await response.json()).map(item => item.name || '');
+    }, { publicKey: SUPABASE_PUBLIC_KEY, supabaseUrl: SUPABASE_URL });
+    expect(storageListing).not.toContain(uploadedPath);
     fixtureId = null;
   } finally {
     if (fixtureId) {
@@ -383,14 +396,22 @@ test('Admin: CRUD completo dei video musicali su Supabase Test', async ({ page }
           ...knownFailedFixtures,
           ...entries.map(entry => entry.name || '').filter(name => /^[0-9a-f-]+-playwright-fixture\.mp4$/i.test(name))
         ])];
-        if (paths.length) {
-          const removed = await fetch(supabaseUrl + '/storage/v1/object/performance-videos', {
-            method: 'DELETE',
-            headers: { ...headers, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prefixes: paths })
+        for (const path of paths) {
+          const removed = await fetch(supabaseUrl + '/storage/v1/object/performance-videos/' + encodeURIComponent(path), {
+            method: 'DELETE', headers
           });
-          if (!removed.ok) throw new Error('Rimozione video temporanei fallita: ' + removed.status);
+          const body = await removed.text();
+          console.log('Cleanup video fixture', path, 'HTTP', removed.status, body.slice(0, 200));
+          if (!removed.ok) throw new Error('Rimozione video temporaneo fallita (' + removed.status + '): ' + path);
         }
+        const verify = await fetch(supabaseUrl + '/storage/v1/object/list/performance-videos', {
+          method: 'POST', headers: { ...headers, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prefix: '', limit: 1000, offset: 0 })
+        });
+        if (!verify.ok) throw new Error('Verifica finale Storage fallita: ' + verify.status);
+        const remaining = (await verify.json()).map(entry => entry.name || '')
+          .filter(name => /^[0-9a-f-]+-playwright-fixture\.mp4$/i.test(name));
+        if (remaining.length) throw new Error('Video temporanei ancora presenti: ' + remaining.join(', '));
       }, { publicKey: SUPABASE_PUBLIC_KEY, supabaseUrl: SUPABASE_URL });
     } catch (error) {
       errors.push('Cleanup Storage CRUD non riuscito: ' + error.message);
