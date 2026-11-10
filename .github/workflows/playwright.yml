@@ -101,7 +101,7 @@ jobs:
             const adminDeploymentSha = expectedHeadSha;
             // Fallback controllato: riusa la preview Admin già READY al commit 025fd302
             // soltanto se il commit corrente non modifica alcun file applicativo admin/.
-            const knownAdminPreviewSha = "025fd30292678b1d0d4aa2aa0e69ac0832df70c7";
+            const knownAdminPreviewSha = "8c7db36c378c4389b98af8745eb2324f0e23ffd6";
             const siteUrl = "https://note-fiorentine-git-release-in-47d382-claudiacastellani983-5675.vercel.app/";
             const adminBaseUrl = "https://note-fiorentine-admin-git-rele-890dc9-claudiacastellani983-5675.vercel.app/";
             const adminUrl = adminBaseUrl + "?sitePreview=" + encodeURIComponent(siteUrl);
