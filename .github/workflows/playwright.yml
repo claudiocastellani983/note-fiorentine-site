@@ -158,7 +158,7 @@ jobs:
 
   playwright-live-preview-validation:
     if: github.event_name == 'push' && github.ref == 'refs/heads/test/playwright-preview-validation-2026-11'
-    name: Collaudo Preview reali (\${{ matrix.browser }})
+    name: Collaudo Preview reali (${{ matrix.browser }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -166,7 +166,7 @@ jobs:
         browser: [chromium, firefox, webkit]
     env:
       SITE_PREVIEW_URL: https://note-fiorentine-btp0lizuy-claudiocastellani983-5675.vercel.app
-      ADMIN_PREVIEW_URL: https://note-fiorentine-admin-arbqhd4yf-claudiocastellani983-5675.vercel.app
+      ADMIN_PREVIEW_URL: https://note-fiorentine-admin-arbqhd4yf-claudiocastellani983-5675.vercel.app/?sitePreview=https%3A%2F%2Fnote-fiorentine-btp0lizuy-claudiocastellani983-5675.vercel.app%2F
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -177,14 +177,14 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: Install Playwright browser
-        run: npx playwright install --with-deps \${{ matrix.browser }}
+        run: npx playwright install --with-deps ${{ matrix.browser }}
       - name: Test Home e Admin sulle Preview Vercel reali
-        run: npx playwright test tests/live-previews.spec.js tests/live-functional.spec.js --project=\${{ matrix.browser }}
+        run: npx playwright test tests/live-previews.spec.js tests/live-functional.spec.js --project=${{ matrix.browser }}
       - name: Upload live preview report and failure evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-live-preview-\${{ matrix.browser }}
+          name: playwright-live-preview-${{ matrix.browser }}
           path: |
             playwright-report/
             test-results/
@@ -195,7 +195,7 @@ jobs:
     name: Admin autenticato e upload su Supabase TEST
     runs-on: ubuntu-latest
     env:
-      ADMIN_PREVIEW_URL: https://note-fiorentine-admin-arbqhd4yf-claudiocastellani983-5675.vercel.app
+      ADMIN_PREVIEW_URL: https://note-fiorentine-admin-arbqhd4yf-claudiocastellani983-5675.vercel.app/?sitePreview=https%3A%2F%2Fnote-fiorentine-btp0lizuy-claudiocastellani983-5675.vercel.app%2F
       NF_TEST_ADMIN_EMAIL: \${{ secrets.NF_TEST_ADMIN_EMAIL }}
       NF_TEST_ADMIN_PASSWORD: \${{ secrets.NF_TEST_ADMIN_PASSWORD }}
     steps:
