@@ -930,7 +930,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
     itemsBox.append(card);
    });
   }
-  categories.forEach(category=>{const button=make('button','menu-category-button',category.name||'Categoria');button.type='button';button.setAttribute('aria-pressed','false');button.addEventListener('click',()=>showCategory(category,button));categoriesBox.append(button)});
+  categories.forEach(category=>{const button=make('button','menu-category-button',category.translations?.[lang]?.name||category.name||'Categoria');button.type='button';button.setAttribute('aria-pressed','false');button.addEventListener('click',()=>showCategory(category,button));categoriesBox.append(button)});
  }catch(error){console.error('Menu dinamico non caricato:',error);categoriesBox.replaceChildren(make('p','menu-error','Non è stato possibile caricare le categorie del menu. Riprova più tardi.'));itemsBox.replaceChildren();itemsBox.style.display='none'}
 })();
 </script>
