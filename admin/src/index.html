@@ -73,10 +73,23 @@
   document.addEventListener("click",e=>{
    const button=e.target?.closest?.("#editForm button[type=submit]");
    if(!button)return;
-   const detail="CLICK SALVA rilevato dal browser (listener globale, indipendente dal modulo).";
+   const form=button.form;
+   const detail="CLICK SALVA rilevato. formOwner="+(form?.id||"NESSUNO")+", connected="+Boolean(form?.isConnected)+", validita="+(form?.checkValidity?.()??"n/d")+", defaultPrevented iniziale="+e.defaultPrevented;
    add("SAVE_CLICK_GLOBAL",detail);
    const status=document.getElementById("status");
    if(status)status.textContent=detail;
+   if(new URLSearchParams(location.search).get("saveDiag")==="1"){
+    // Evita l'invio nativo e riproduce il submit in modo controllato.
+    // Il listener submit globale lo blocca prima del gestore Admin: zero scritture.
+    e.preventDefault();
+    queueMicrotask(()=>{
+     try{
+      if(!form||!form.isConnected){add("SAVE_DIAG_ERROR","Il pulsante non ha un modulo proprietario collegato al DOM.");return;}
+      form.requestSubmit(button);
+      add("SAVE_REQUEST_SUBMIT_CALLED","requestSubmit eseguito; eventuale submit/invalid è riportato sopra.");
+     }catch(err){add("SAVE_DIAG_ERROR",err?.message||String(err));}
+    });
+   }
   },true);
   document.addEventListener("submit",e=>{
    if(e.target?.id!=="editForm")return;
