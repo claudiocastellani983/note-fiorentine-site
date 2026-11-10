@@ -1,4 +1,7 @@
 const { test, expect } = require('@playwright/test');
+
+// The login form contains test credentials: never store traces or screenshots for this test.
+test.use({ trace: 'off', screenshot: 'off' });
 const { createHash, randomUUID } = require('node:crypto');
 
 const ADMIN_PREVIEW_URL = process.env.ADMIN_PREVIEW_URL;
@@ -30,6 +33,10 @@ test('Admin: ottimizzazione WebP reale su Supabase Test, riferimento aggiornato 
     await page.locator('#email').fill(ADMIN_EMAIL);
     await page.locator('#password').fill(ADMIN_PASSWORD);
     await page.locator('#loginForm button').click();
+    // The submit handler captures both values synchronously before its first await.
+    // Clear them immediately so a failed assertion cannot expose credentials in artifacts.
+    await page.locator('#email').fill('');
+    await page.locator('#password').fill('');
     await expect(page.locator('#app')).toBeVisible({ timeout: 45000 });
     await expect(page.locator('#logout')).toBeVisible();
     await expect(page.locator('#login')).toBeHidden();

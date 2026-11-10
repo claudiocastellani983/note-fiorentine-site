@@ -145,7 +145,7 @@ jobs:
       - name: Login, test image management and verify Storage cleanup
         run: npx playwright test tests/admin-authenticated.spec.js --project=chromium
       - name: Upload Admin test evidence
-        if: always()
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-admin-authenticated
@@ -196,15 +196,15 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ADMIN_PREVIEW_URL: https://note-fiorentine-admin-arbqhd4yf-claudiocastellani983-5675.vercel.app/?sitePreview=https%3A%2F%2Fnote-fiorentine-btp0lizuy-claudiocastellani983-5675.vercel.app%2F
-      NF_TEST_ADMIN_EMAIL: \${{ secrets.NF_TEST_ADMIN_EMAIL }}
-      NF_TEST_ADMIN_PASSWORD: \${{ secrets.NF_TEST_ADMIN_PASSWORD }}
+      NF_TEST_ADMIN_EMAIL: ${{ secrets.NF_TEST_ADMIN_EMAIL }}
+      NF_TEST_ADMIN_PASSWORD: ${{ secrets.NF_TEST_ADMIN_PASSWORD }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Verifica credenziali Admin di test
         env:
-          NF_TEST_ADMIN_EMAIL: \${{ secrets.NF_TEST_ADMIN_EMAIL }}
-          NF_TEST_ADMIN_PASSWORD: \${{ secrets.NF_TEST_ADMIN_PASSWORD }}
+          NF_TEST_ADMIN_EMAIL: ${{ secrets.NF_TEST_ADMIN_EMAIL }}
+          NF_TEST_ADMIN_PASSWORD: ${{ secrets.NF_TEST_ADMIN_PASSWORD }}
         run: |
           if [ -z "$NF_TEST_ADMIN_EMAIL" ] || [ -z "$NF_TEST_ADMIN_PASSWORD" ]; then
             echo "::error::Mancano i secrets NF_TEST_ADMIN_EMAIL e/o NF_TEST_ADMIN_PASSWORD. Il test autenticato non può essere saltato silenziosamente."
@@ -221,7 +221,7 @@ jobs:
       - name: Login, test image management and verify Storage cleanup
         run: npx playwright test tests/admin-authenticated.spec.js --project=chromium
       - name: Upload Admin test evidence
-        if: always()
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-admin-authenticated-test-preview
