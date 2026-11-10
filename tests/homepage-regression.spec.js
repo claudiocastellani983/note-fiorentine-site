@@ -10,7 +10,8 @@ test('Home: la sezione Eventi è rimossa e restano disponibili le sei lingue', a
   await page.goto(siteUrl, { waitUntil: 'domcontentloaded' });
   await expect(page.locator('#eventi')).toHaveCount(0);
   await expect(page.locator('a[href="#eventi"]')).toHaveCount(0);
-  await expect(page.locator('.language-switch a[data-lang]')).toHaveCount(6);
+  const languages = await page.locator('.language-switch a[data-lang]').evaluateAll(nodes => [...new Set(nodes.map(node => node.dataset.lang))].sort());
+  expect(languages).toEqual(['de', 'en', 'es', 'fr', 'it', 'zh']);
   await expect(page.getByText('Eventi', { exact: true })).toHaveCount(0);
   expect(eventRequests).toEqual([]);
 });
