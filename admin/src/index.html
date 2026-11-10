@@ -158,7 +158,8 @@ const cfg={
 'Artisti':{table:'artist_images',fields:[['title','Nome artista / didascalia','text'],['image_path','Fotografia artista','image',1],['sort_order','Ordine galleria','number'],['is_published','Pubblicata','checkbox']]},
 'Testi sito':{table:'site_content',fields:[['content_key','Chiave contenuto','text',1],['content_value','Valore JSON','textarea',1]]},
 'Testi e grafica':{table:'site_content',fields:[]},
-'Musica dal vivo':{table:'performance_videos',fields:[['title','Titolo del video','text',1],['description','Descrizione','textarea'],['sort_order','Ordine','number'],['is_published','Pubblicato sul sito','checkbox']]}
+'Musica dal vivo':{table:'performance_videos',fields:[['title','Titolo del video','text',1],['description','Descrizione','textarea'],['sort_order','Ordine','number'],['is_published','Pubblicato sul sito','checkbox']]},
+'Video ambienti':{table:'restaurant_videos',fields:[['title','Titolo del video','text',1],['description','Descrizione','textarea'],['youtube_url','Link YouTube','url',1],['video_orientation','Formato del video','orientation',1],['sort_order','Ordine','number'],['is_published','Pubblicato sul sito','checkbox']]}
 };
 cfg['Popup']={table:'homepage_popup',fields:[]};
 cfg['Immagini e popup']={table:'site_images',fields:[]};
@@ -381,10 +382,11 @@ async function saveMedia(){
   console.error(e);st.textContent='ERRORE: '+(e.message||String(e))+(dbWritesStarted?' I file caricati sono stati conservati per evitare collegamenti interrotti.':'');
  }finally{btn.disabled=false;}
 }
-function field(f,v){let[k,l,t,req]=f;v=v??(t==='checkbox'?false:'');if(k==='starts_at')v=dateLocal(v);if(k==='allergens'&&Array.isArray(v))v=v.join(', ');if(k==='content_value')v=typeof v==='string'?v:JSON.stringify(v??{},null,2);
+function field(f,v){let[k,l,t,req]=f;v=v??(t==='checkbox'?false:'');if(t==='orientation')v=v||'landscape';if(k==='starts_at')v=dateLocal(v);if(k==='allergens'&&Array.isArray(v))v=v.join(', ');if(k==='content_value')v=typeof v==='string'?v:JSON.stringify(v??{},null,2);
 if(t==='image')return'<label for="f_'+k+'">'+esc(l)+' (JPG, PNG, WebP o GIF · max 10 MB)</label>'+(v?'<img class="site-image-preview" src="'+esc(mediaUrl(v))+'" alt="Anteprima '+esc(l)+'"><p class="site-help">Immagine attuale: '+esc(v)+'</p>':'<p class="site-help">Nessuna immagine caricata.</p>')+'<input name="'+k+'_file" id="f_'+k+'" type="file" accept="image/jpeg,image/png,image/webp,image/gif" '+(req&&!v?'required':'')+'>';
 if(t==='checkbox')return'<div class="checkrow"><input name="'+k+'" id="f_'+k+'" type="checkbox" '+(v?'checked':'')+'><label for="f_'+k+'">'+esc(l)+'</label></div>';
 if(t==='category')return'<label for="f_'+k+'">'+esc(l)+'</label><select name="'+k+'" id="f_'+k+'"><option value="">— Nessuna categoria —</option>'+categories.map(c=>'<option value="'+esc(c.id)+'" '+(String(v)===String(c.id)?'selected':'')+'>'+esc(c.name)+'</option>').join('')+'</select>';
+if(t==='orientation')return'<label for="f_'+k+'">'+esc(l)+'</label><select name="'+k+'" id="f_'+k+'"><option value="landscape" '+(v==='landscape'?'selected':'')+'>Orizzontale · 16:9</option><option value="portrait" '+(v==='portrait'?'selected':'')+'>Verticale · 9:16</option></select><p class="site-help">Scegli il formato del filmato, non quello del collegamento YouTube.</p>';
 if(t==='textarea')return'<label for="f_'+k+'">'+esc(l)+'</label><textarea name="'+k+'" id="f_'+k+'" '+(req?'required':'')+'>'+esc(v)+'</textarea>';
 return'<label for="f_'+k+'">'+esc(l)+'</label><input name="'+k+'" id="f_'+k+'" type="'+t+'" value="'+esc(v)+'" '+(req?'required':'')+(t==='number'?' step="any"':'')+'>'}
 function tabs(){$('tabs').innerHTML=Object.keys(cfg).map(k=>'<button type="button" class="tab '+(k===current?'active':'')+'" data-tab="'+esc(k)+'">'+esc(k)+'</button>').join('');$('tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{current=b.dataset.tab;editing=editingRow=null;$('editor').classList.add('hidden');tabs();load().catch(e=>say('Errore caricamento: '+e.message))})}
