@@ -91,13 +91,11 @@ jobs:
             const expectedHeadSha = context.eventName === "pull_request"
               ? context.payload.pull_request.head.sha
               : context.sha;
-            // Preview manuali costruite e verificate sul commit f0f69ad.
-            // In questo run la PR aggiunge soltanto la logica di test: il codice
-            // Home/Admin distribuito resta identico a quello di quel commit.
-            const homeDeploymentSha = "f0f69ad86aba161a5f8fd0876469a136b7ac2dd5";
-            const adminDeploymentSha = "817ecc3c88f15bf1b4044476241a81fb19ea2e3b";
-            const siteUrl = "https://note-fiorentine-fzphjnstt-claudiocastellani983-5675.vercel.app/";
-            const adminBaseUrl = "https://note-fiorentine-admin-1kgym8iec-claudiocastellani983-5675.vercel.app/";
+            // Preview manuali verificate sul commit di merge della release integrata.
+            const homeDeploymentSha = "050499294c3046da55033405e65284017dcdeefc";
+            const adminDeploymentSha = "050499294c3046da55033405e65284017dcdeefc";
+            const siteUrl = "https://note-fiorentine-8diq6t0sa-claudiocastellani983-5675.vercel.app/";
+            const adminBaseUrl = "https://note-fiorentine-admin-7dw7ypvtv-claudiocastellani983-5675.vercel.app/";
             const adminUrl = adminBaseUrl + "?sitePreview=" + encodeURIComponent(siteUrl);
             const homeContext = "Vercel – note-fiorentine";
             const adminContext = "Vercel – note-fiorentine-admin";
