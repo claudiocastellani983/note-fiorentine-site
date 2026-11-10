@@ -256,7 +256,7 @@ test('Admin: CRUD completo dei video musicali su Supabase Test', async ({ page }
   const errors = [];
   const fixtureTitle = 'PLAYWRIGHT CRUD ' + randomUUID();
   let fixtureId = null;
-  let sessionToken = null;
+  let uploadedPath = null;
   page.on('pageerror', error => errors.push(error.message));
 
   const api = async (method, path, body) => page.evaluate(async ({ method, path, body, publicKey, supabaseUrl }) => {
@@ -296,12 +296,21 @@ test('Admin: CRUD completo dei video musicali su Supabase Test', async ({ page }
     await page.locator('#fields [name="description"]').fill('Descrizione iniziale Playwright');
     await page.locator('#fields [name="sort_order"]').fill('999998');
     await page.locator('#fields [name="is_published"]').check();
+    // La sezione Musica dal vivo richiede un file video anche per un nuovo record.
+    // È un piccolo MP4 temporaneo, caricato solo nel bucket TEST e rimosso al cleanup.
+    await page.locator('#fields [name="video_file"]').setInputFiles({
+      name: 'playwright-fixture.mp4',
+      mimeType: 'video/mp4',
+      buffer: Buffer.from([0,0,0,24,0x66,0x74,0x79,0x70,0x69,0x73,0x6f,0x6d,0,0,2,0,0x69,0x73,0x6f,0x6d,0x69,0x73,0x6f,0x32])
+    });
     await page.locator('#editForm button[type="submit"]').click();
     const card = page.locator('#items article').filter({ hasText: fixtureTitle });
     await expect(card).toBeVisible({ timeout: 30000 });
-    let rows = await api('GET', 'performance_videos?select=id,title,description,sort_order,is_published&title=eq.' + encodeURIComponent(fixtureTitle));
+    let rows = await api('GET', 'performance_videos?select=id,title,description,video_path,sort_order,is_published&title=eq.' + encodeURIComponent(fixtureTitle));
     expect(rows).toHaveLength(1);
     fixtureId = rows[0].id;
+    uploadedPath = rows[0].video_path;
+    expect(uploadedPath).toMatch(/^[0-9a-f-]+-playwright-fixture\\.mp4$/i);
     expect(rows[0].description).toBe('Descrizione iniziale Playwright');
     expect(rows[0].is_published).toBe(true);
 
@@ -337,6 +346,20 @@ test('Admin: CRUD completo dei video musicali su Supabase Test', async ({ page }
     if (fixtureId) {
       try {
         await api('DELETE', 'performance_videos?id=eq.' + fixtureId);
+        if (uploadedPath) {
+          await page.evaluate(async ({ path, publicKey, supabaseUrl }) => {
+            const storageKey = Object.keys(localStorage).find(key => key.endsWith('-auth-token'));
+            const session = JSON.parse(localStorage.getItem(storageKey) || '{}');
+            if (!session.access_token) throw new Error('Sessione assente durante la rimozione del video temporaneo.');
+            const response = await fetch(supabaseUrl + '/storage/v1/object/performance-videos', {
+              method: 'DELETE',
+              headers: { apikey: publicKey, Authorization: 'Bearer ' + session.access_token,
+                'Content-Type': 'application/json' },
+              body: JSON.stringify({ prefixes: [path] })
+            });
+            if (!response.ok) throw new Error('Rimozione file video temporaneo fallita: ' + response.status);
+          }, { path: uploadedPath, publicKey: SUPABASE_PUBLIC_KEY, supabaseUrl: SUPABASE_URL });
+        }
       } catch (error) {
         errors.push('Cleanup fixture CRUD non riuscito: ' + error.message);
       }
