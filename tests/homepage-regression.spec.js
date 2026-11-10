@@ -23,7 +23,7 @@ test('Home: mostra gli eventi pubblicati e mantiene disponibili le sei lingue', 
   });
   await page.goto(siteUrl, { waitUntil: 'domcontentloaded' });
   await expect(page.locator('#eventi')).toHaveCount(1);
-  await expect(page.locator('header .navlinks a[href="#eventi"]')).toBeVisible();
+  await expect(page.locator('#navlinks > a[href="#eventi"]')).toBeVisible();
   await expect(page.locator('#eventList')).toContainText('Evento di prova');
   expect(requests.length).toBeGreaterThan(0);
   const languages = await page.locator('.language-switch a[data-lang]').evaluateAll(nodes => [...new Set(nodes.map(node => node.dataset.lang))].sort());
