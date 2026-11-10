@@ -2,12 +2,12 @@ const { test, expect } = require('@playwright/test');
 const fs = require('node:fs');
 const path = require('node:path');
 
-test('editor Testi e grafica è solo consultazione', async () => {
+test('editor Testi e grafica resta modificabile e offre controlli grafici', async () => {
   const source = fs.readFileSync(path.join(__dirname, '../admin/src/index.html'), 'utf8');
-  expect(source).toContain('Modalità sola lettura');
-  expect(source).toContain("el.readOnly=true");
-  expect(source).toContain("el.disabled=true");
-  expect(source).toContain("form.onsubmit=e=>{e.preventDefault();return false;}");
+  expect(source).toContain('siteEditorForm');
+  expect(source).toContain('id="veWidth"');
+  expect(source).toContain('id="veFit"');
+  expect(source).not.toContain('Modalità sola lettura');
 });
 
 test('CTA eventi centrata e immagini eventi ottimizzate prima dell’upload', async () => {
