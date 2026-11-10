@@ -372,7 +372,7 @@ test('Admin: CRUD completo dei video musicali su Supabase Test', async ({ page }
         if (!listing.ok) throw new Error('Ricerca video temporanei fallita: ' + listing.status);
         const entries = await listing.json();
         const paths = entries.map(entry => entry.name || '')
-          .filter(name => /^[0-9a-f-]+-playwright-fixture\\.mp4$/i.test(name));
+          .filter(name => /^[0-9a-f-]+-playwright-fixture\.mp4$/i.test(name));
         if (paths.length) {
           const removed = await fetch(supabaseUrl + '/storage/v1/object/performance-videos', {
             method: 'DELETE',
