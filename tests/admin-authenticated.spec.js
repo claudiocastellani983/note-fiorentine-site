@@ -310,7 +310,7 @@ test('Admin: CRUD completo dei video musicali su Supabase Test', async ({ page }
     expect(rows).toHaveLength(1);
     fixtureId = rows[0].id;
     uploadedPath = rows[0].video_path;
-    expect(uploadedPath).toMatch(/^[0-9a-f-]+-playwright-fixture\\.mp4$/i);
+    expect(uploadedPath).toMatch(/^[0-9a-f-]+-playwright-fixture\.mp4$/i);
     expect(rows[0].description).toBe('Descrizione iniziale Playwright');
     expect(rows[0].is_published).toBe(true);
 
