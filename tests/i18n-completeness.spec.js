@@ -72,6 +72,7 @@ test('Home: all six languages translate artist gallery labels and accessibility 
   for (const [lang, expected] of Object.entries(languages)) {
     await page.goto(`${siteUrl}/?lang=${lang}`, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('html')).toHaveAttribute('lang', lang === 'zh' ? 'zh-CN' : lang);
+    await expect(page.locator('.brand-wordmark small')).toHaveText('Ristorante Toscano & Live Music');
     await expect(page.locator('[data-artist-gallery="images"] strong')).toHaveText(expected.photo);
     await expect(page.locator('[data-artist-gallery="videos"] strong')).toHaveText(expected.video);
     await expect(page.locator('#nfArtistsViewerClose')).toHaveText(expected.close);
@@ -125,6 +126,7 @@ test('Menu: category, dish, description and allergen labels follow the selected 
 
   for (const [lang, expected] of Object.entries(languages)) {
     await page.goto(`${siteUrl}/menu.html?lang=${lang}`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('.brand-wordmark small')).toHaveText('Ristorante Toscano & Live Music');
     const category = page.locator('#menuCategories .menu-category-button');
     await expect(category).toHaveText(expected.category);
     await category.click();
