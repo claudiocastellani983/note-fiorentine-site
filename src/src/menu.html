@@ -924,11 +924,27 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
   categoriesBox.replaceChildren();itemsBox.replaceChildren();itemsBox.style.display='none';
   if(!Array.isArray(categories)||!categories.length){categoriesBox.append(make('p','menu-empty','Nessuna categoria del menu pubblicata al momento.'));return}
   const publishedItems=Array.isArray(items)?items:[];
-  function showCategory(category,button){
+  const localizedAllergens={
+ it:{'1':'cereali contenenti glutine','2':'crostacei','3':'uova','4':'pesce','7':'latte','8':'frutta a guscio','9':'sedano','12':'anidride solforosa e solfiti','14':'molluschi'},
+ en:{'1':'cereals containing gluten','2':'crustaceans','3':'eggs','4':'fish','7':'milk','8':'nuts','9':'celery','12':'sulphur dioxide and sulphites','14':'molluscs'},
+ de:{'1':'glutenhaltiges Getreide','2':'Krebstiere','3':'Eier','4':'Fisch','7':'Milch','8':'Schalenfrüchte','9':'Sellerie','12':'Schwefeldioxid und Sulfite','14':'Weichtiere'},
+ fr:{'1':'céréales contenant du gluten','2':'crustacés','3':'œufs','4':'poisson','7':'lait','8':'fruits à coque','9':'céleri','12':'dioxyde de soufre et sulfites','14':'mollusques'},
+ es:{'1':'cereales que contienen gluten','2':'crustáceos','3':'huevos','4':'pescado','7':'leche','8':'frutos de cáscara','9':'apio','12':'dióxido de azufre y sulfitos','14':'moluscos'},
+ zh:{'1':'含麸质谷物','2':'甲壳类','3':'蛋类','4':'鱼类','7':'乳类','8':'坚果','9':'芹菜','12':'二氧化硫和亚硫酸盐','14':'软体动物'}
+};
+const categoryDescriptionFallback={
+ it:{Antipasti:'I sapori per iniziare il pasto.',Primi:'Primi piatti e pasta fresca.',Secondo:'Secondi piatti di carne e pesce.',Bistecca:'La tradizionale bistecca alla fiorentina.',Contorni:'Contorni di stagione.',Insalate:'Insalate fresche.',Dolci:'I dolci della tradizione.'},
+ en:{Antipasti:'A selection of starters to begin your meal.',Primi:'First courses and fresh pasta.',Secondo:'Meat and fish main courses.',Bistecca:'Traditional Florentine steak.',Contorni:'Seasonal side dishes.',Insalate:'Fresh salads.',Dolci:'Traditional Italian desserts.'},
+ de:{Antipasti:'Eine Auswahl an Vorspeisen für den Beginn Ihres Essens.',Primi:'Erste Gänge und frische Pasta.',Secondo:'Hauptgerichte mit Fleisch und Fisch.',Bistecca:'Traditionelles Florentiner Steak.',Contorni:'Saisonale Beilagen.',Insalate:'Frische Salate.',Dolci:'Traditionelle italienische Desserts.'},
+ fr:{Antipasti:'Une sélection d’entrées pour commencer votre repas.',Primi:'Premiers plats et pâtes fraîches.',Secondo:'Plats principaux de viande et de poisson.',Bistecca:'La traditionnelle bistecca florentine.',Contorni:'Accompagnements de saison.',Insalate:'Salades fraîches.',Dolci:'Desserts traditionnels italiens.'},
+ es:{Antipasti:'Una selección de entrantes para comenzar la comida.',Primi:'Primeros platos y pasta fresca.',Secondo:'Platos principales de carne y pescado.',Bistecca:'La tradicional bistecca a la florentina.',Contorni:'Guarniciones de temporada.',Insalate:'Ensaladas frescas.',Dolci:'Postres tradicionales italianos.'},
+ zh:{Antipasti:'为用餐开启味蕾的精选前菜。',Primi:'意式第一道菜与手工鲜制意面。',Secondo:'肉类与鱼类主菜。',Bistecca:'佛罗伦萨传统牛排。',Contorni:'时令配菜。',Insalate:'新鲜沙拉。',Dolci:'意大利传统甜点。'}
+};
+function showCategory(category,button){
    categoriesBox.querySelectorAll('.menu-category-button').forEach(b=>{const active=b===button;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});
    itemsBox.style.display='';
    itemsBox.replaceChildren();
-   const categoryDescription=lang==='it'?category.description:category.translations?.[lang]?.description;if(categoryDescription)itemsBox.append(make('p','menu-category-description',categoryDescription));
+   const categoryDescription=(lang==='it'?category.description:category.translations?.[lang]?.description)||categoryDescriptionFallback[lang]?.[category.name];if(categoryDescription)itemsBox.append(make('p','menu-category-description',categoryDescription));
    const matching=publishedItems.filter(item=>item.category_id===category.id);
    if(!matching.length){itemsBox.append(make('p','menu-empty','Non ci sono ancora piatti pubblicati in questa categoria.'));return}
    let renderedItems=0;matching.forEach(item=>{
@@ -938,7 +954,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
     if(item.image_path){const photo=make('img','menu-item-image');photo.src=window.NF_SUPABASE_CONFIG.url+'/storage/v1/object/public/site-media/'+String(item.image_path).split('/').map(encodeURIComponent).join('/');photo.alt=lang==='it'?(item.name||'Note Fiorentine'):(item.translations?.[lang]?.name||'Note Fiorentine');photo.loading='lazy';photo.decoding='async';card.append(photo);}
     heading.append(make('h3','',itemName));const price=money(item.price);if(price)heading.append(make('span','menu-item-price',price));card.append(heading);
     if(itemDescription)card.append(make('p','menu-item-description',itemDescription));
-    if(Array.isArray(item.allergens)&&item.allergens.length)card.append(make('p','menu-item-allergens',({it:'Allergeni:',en:'Allergens:',de:'Allergene:',fr:'Allergènes :',es:'Alérgenos:',zh:'过敏原：'})[lang]+' '+item.allergens.join(', ')));
+    if(Array.isArray(item.allergens)&&item.allergens.length){const names=item.allergens.map(code=>localizedAllergens[lang]?.[String(code)]||String(code));card.append(make('p','menu-item-allergens',({it:'Allergeni:',en:'Allergens:',de:'Allergene:',fr:'Allergènes :',es:'Alérgenos:',zh:'过敏原：'})[lang]+' '+names.join(', ')));}
     itemsBox.append(card);renderedItems++;
    });
    if(!renderedItems)itemsBox.append(make('p','menu-empty',lang==='it'?'Non ci sono ancora piatti pubblicati in questa categoria.':({en:'No dishes are available in this language yet.',de:'In dieser Sprache sind noch keine Gerichte verfügbar.',fr:'Aucun plat n’est encore disponible dans cette langue.',es:'Todavía no hay platos disponibles en este idioma.',zh:'此语言暂时没有可显示的菜品。'})[lang]));
