@@ -327,12 +327,18 @@ test('Admin: CRUD completo dei video musicali su Supabase Test', async ({ page }
     // HIDE and republish through the actual list controls.
     let updatedCard = page.locator('#items article').filter({ hasText: fixtureTitle });
     await updatedCard.locator('[data-pub]').click();
-    rows = await api('GET', 'performance_videos?select=id,is_published&id=eq.' + fixtureId);
-    expect(rows[0].is_published).toBe(false);
+    await expect(page.locator('#status')).toContainText('Stato di pubblicazione aggiornato', { timeout: 15000 });
+    await expect.poll(async () => {
+      const current = await api('GET', 'performance_videos?select=id,is_published&id=eq.' + fixtureId);
+      return current[0]?.is_published;
+    }).toBe(false);
     updatedCard = page.locator('#items article').filter({ hasText: fixtureTitle });
     await updatedCard.locator('[data-pub]').click();
-    rows = await api('GET', 'performance_videos?select=id,is_published&id=eq.' + fixtureId);
-    expect(rows[0].is_published).toBe(true);
+    await expect(page.locator('#status')).toContainText('Stato di pubblicazione aggiornato', { timeout: 15000 });
+    await expect.poll(async () => {
+      const current = await api('GET', 'performance_videos?select=id,is_published&id=eq.' + fixtureId);
+      return current[0]?.is_published;
+    }).toBe(true);
 
     // DELETE only the uniquely named fixture created by this test.
     updatedCard = page.locator('#items article').filter({ hasText: fixtureTitle });
@@ -346,23 +352,38 @@ test('Admin: CRUD completo dei video musicali su Supabase Test', async ({ page }
     if (fixtureId) {
       try {
         await api('DELETE', 'performance_videos?id=eq.' + fixtureId);
-        if (uploadedPath) {
-          await page.evaluate(async ({ path, publicKey, supabaseUrl }) => {
-            const storageKey = Object.keys(localStorage).find(key => key.endsWith('-auth-token'));
-            const session = JSON.parse(localStorage.getItem(storageKey) || '{}');
-            if (!session.access_token) throw new Error('Sessione assente durante la rimozione del video temporaneo.');
-            const response = await fetch(supabaseUrl + '/storage/v1/object/performance-videos', {
-              method: 'DELETE',
-              headers: { apikey: publicKey, Authorization: 'Bearer ' + session.access_token,
-                'Content-Type': 'application/json' },
-              body: JSON.stringify({ prefixes: [path] })
-            });
-            if (!response.ok) throw new Error('Rimozione file video temporaneo fallita: ' + response.status);
-          }, { path: uploadedPath, publicKey: SUPABASE_PUBLIC_KEY, supabaseUrl: SUPABASE_URL });
-        }
       } catch (error) {
-        errors.push('Cleanup fixture CRUD non riuscito: ' + error.message);
+        errors.push('Cleanup record CRUD non riuscito: ' + error.message);
       }
+    }
+    // Rimuove esclusivamente i file MP4 temporanei creati da questa suite,
+    // inclusi eventuali residui di tentativi precedenti interrotti.
+    try {
+      await page.evaluate(async ({ publicKey, supabaseUrl }) => {
+        const storageKey = Object.keys(localStorage).find(key => key.endsWith('-auth-token'));
+        const session = JSON.parse(localStorage.getItem(storageKey) || '{}');
+        if (!session.access_token) throw new Error('Sessione assente durante il cleanup Storage.');
+        const headers = { apikey: publicKey, Authorization: 'Bearer ' + session.access_token };
+        const listing = await fetch(supabaseUrl + '/storage/v1/object/list/performance-videos', {
+          method: 'POST',
+          headers: { ...headers, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prefix: '', limit: 1000, offset: 0, search: 'playwright-fixture.mp4' })
+        });
+        if (!listing.ok) throw new Error('Ricerca video temporanei fallita: ' + listing.status);
+        const entries = await listing.json();
+        const paths = entries.map(entry => entry.name || '')
+          .filter(name => /^[0-9a-f-]+-playwright-fixture\\.mp4$/i.test(name));
+        if (paths.length) {
+          const removed = await fetch(supabaseUrl + '/storage/v1/object/performance-videos', {
+            method: 'DELETE',
+            headers: { ...headers, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prefixes: paths })
+          });
+          if (!removed.ok) throw new Error('Rimozione video temporanei fallita: ' + removed.status);
+        }
+      }, { publicKey: SUPABASE_PUBLIC_KEY, supabaseUrl: SUPABASE_URL });
+    } catch (error) {
+      errors.push('Cleanup Storage CRUD non riuscito: ' + error.message);
     }
   }
   expect(errors, 'Errori JavaScript o cleanup non gestito nel pannello Admin').toEqual([]);
