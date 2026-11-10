@@ -1819,6 +1819,46 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
 .nf-artist-youtube-placeholder small{font:11px Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#D9B88D}
 .nf-artist-youtube-frame{display:block;width:100%;aspect-ratio:4/3;height:auto;border:0;background:#100D0B}
 </style>
+
+/* Fix definitivo player YouTube: box con dimensioni reali e iframe che lo riempie */
+<style id="nf-youtube-player-fit-v3">
+.nf-artists-viewer-stage.nf-youtube-landscape{
+ display:block!important;position:relative!important;
+ width:min(100%,1120px)!important;height:auto!important;
+ aspect-ratio:16/9!important;max-height:72vh!important;
+ min-height:0!important;overflow:hidden!important;
+ margin:auto!important;background:#100D0B!important;
+}
+.nf-artists-viewer-stage.nf-youtube-portrait{
+ display:block!important;position:relative!important;
+ width:min(100%,calc(72vh * 9 / 16))!important;
+ height:auto!important;aspect-ratio:9/16!important;
+ max-height:72vh!important;min-height:0!important;
+ overflow:hidden!important;margin:auto!important;background:#100D0B!important;
+}
+.nf-artists-viewer-stage.nf-youtube-landscape .nf-artist-youtube-placeholder,
+.nf-artists-viewer-stage.nf-youtube-portrait .nf-artist-youtube-placeholder{
+ position:absolute!important;inset:0!important;
+ display:flex!important;width:100%!important;height:100%!important;
+ min-height:0!important;aspect-ratio:auto!important;padding:20px!important;
+}
+.nf-artists-viewer-stage.nf-youtube-landscape .nf-artist-youtube-frame,
+.nf-artists-viewer-stage.nf-youtube-portrait .nf-artist-youtube-frame{
+ position:absolute!important;inset:0!important;display:block!important;
+ width:100%!important;height:100%!important;min-height:0!important;
+ max-width:none!important;max-height:none!important;
+ aspect-ratio:auto!important;border:0!important;
+}
+@media(max-width:640px){
+ .nf-artists-viewer-stage.nf-youtube-landscape{
+  width:min(100%,calc(68vh * 16 / 9))!important;
+  max-height:68vh!important;
+ }
+ .nf-artists-viewer-stage.nf-youtube-portrait{
+  width:min(100%,calc(68vh * 9 / 16))!important;max-height:68vh!important;
+ }
+}
+</style>
 <script id="nf-artists-media-runtime">
 (async function(){
  const api='https://iuxskknbopboynjlsxbk.supabase.co',key='sb_publishable_GTGiyYl8pZsY6letaozS2Q_dmh9vrRc';
