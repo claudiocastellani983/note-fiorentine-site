@@ -2238,24 +2238,26 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 </body>
 </html><script async data-explicit-opt-in="true" data-deployment-id="dpl_7tHJ9DycmxR1TALK2u85APShiyVZ" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_EmRnWHsGMUkcJwHUQ7vz8FCmfTh6" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_E5nptDv68tSzPwNaRWjjuQBRJWLT" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_3kBEXjiEjcHv33v8JxwMth6Znb56" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_GbSb1nxg8uKN3nnLoyFhoPVdiZvt" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
 
-<style id="nf-intro-video-visibility-fix-v1">
-/* La sezione "Un'esperienza fiorentina" deve lasciare visibile il video sottostante. */
-#nf-cinematic-zone>.intro,
-#nf-cinematic-zone>.intro::before,
-#nf-cinematic-zone>.intro::after {
+<style id="nf-transparent-intro-and-menu-v2">
+/* Rimuove i fondali pieni dalle due sezioni richieste, superando le regole globali precedenti. */
+#app main #ristorante,
+#app main #ristorante::before,
+#app main #ristorante::after,
+#app main #menu,
+#app main #menu::before,
+#app main #menu::after {
   background: transparent !important;
   background-color: transparent !important;
   background-image: none !important;
-  opacity: 1 !important;
 }
-/* Riduce la velatura scura che copriva il filmato nella parte inferiore della Hero. */
-#nf-cinematic-zone>.nf-cinematic-backdrop>.nf-cinematic-shade {
-  background: linear-gradient(
-    180deg,
-    rgba(16,13,11,.12) 0%,
-    rgba(16,13,11,.18) 58%,
-    rgba(16,13,11,.24) 100%
-  ) !important;
-  opacity: 1 !important;
-}
+/* Mantiene leggibili i testi sopra il video nella sezione introduttiva. */
+#app main #ristorante { color:#F4EBDD !important; }
+#app main #ristorante h2 { color:#F4EBDD !important; }
+#app main #ristorante p { color:#F1E6D7 !important; }
+#app main #ristorante .section-kicker { color:#E4C49A !important; }
+/* La cucina resta fuori dall'area video, ma senza pannello di sfondo proprio. */
+#app main #menu { color:#F1E7D6 !important; }
+#app main #menu h2 { color:#E7D2AF !important; }
+#app main #menu .section-lead,
+#app main #menu .section-kicker { color:#D8BD91 !important; }
 </style>
