@@ -103,7 +103,7 @@ jobs:
             // Admin READY sul commit 631a74c5. Riutilizziamo ciascuna preview solo
             // se da quel commit non sono cambiati i rispettivi file applicativi.
             const knownHomePreviewSha = "21d8b4425e6f3db03a92e5f4389414c048d889a1";
-            const knownAdminPreviewSha = "631a74c535bb74be2a79389f609230a863307740";
+            const knownAdminPreviewSha = "fe0586baf570752164b4ebe94b1ddfe2140aa40a";
             const siteUrl = "https://note-fiorentine-git-release-i1-363e1b-claudiacastellani983-5675.vercel.app/";
             const adminBaseUrl = "https://note-fiorentine-admin-git-rele-1da2a5-claudiacastellani983-5675.vercel.app/";
             const adminUrl = adminBaseUrl + "?sitePreview=" + encodeURIComponent(siteUrl);
