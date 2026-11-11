@@ -1244,7 +1244,6 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
       <p>Note Fiorentine è un ristorante toscano nel centro storico di Firenze, dove la cucina incontra l'atmosfera della musica dal vivo. Un luogo per una cena romantica, una serata speciale o semplicemente il piacere di condividere un buon momento.</p>
       
     </section>
-    </div>
     <section class="content-section menu-section" id="menu">
       <div class="section-kicker">La nostra cucina</div>
       <h2>Il menù</h2>
@@ -1253,6 +1252,7 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
       <div class="menu-items" id="menuItems"><p class="menu-loading">Caricamento piatti…</p></div>
       <p style="text-align:center;margin:32px auto 0"><a class="button" href="/menu.html">Consulta il menù completo</a></p>
     </section>
+    </div>
     <section class="music-section" id="musica">
       
       <div class="music-copy">
@@ -2232,6 +2232,75 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 }
 </style>
 </style>
+
+<style id="nf-cinematic-extends-through-full-menu-v1">
+/* Il fondale video copre Hero, intro e l'intera sezione del menù. */
+#app>main>#nf-cinematic-zone{
+  position:relative!important;
+  isolation:isolate!important;
+  overflow:hidden!important;
+  background:#171512!important;
+}
+#nf-cinematic-zone>.nf-cinematic-backdrop{
+  position:absolute!important;
+  inset:0!important;
+  height:100%!important;
+  min-height:100%!important;
+}
+#nf-cinematic-zone>.menu-section,
+#app>main>#nf-cinematic-zone>#menu{
+  position:relative!important;
+  z-index:1!important;
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  color:#F1E7D6!important;
+}
+#nf-cinematic-zone>.menu-section h2,
+#nf-cinematic-zone>.menu-section .section-kicker,
+#nf-cinematic-zone>.menu-section .section-lead{
+  color:#F1E7D6!important;
+  text-shadow:0 2px 18px rgba(0,0,0,.55);
+}
+#nf-cinematic-zone>.menu-section .section-kicker{color:#D8BD91!important}
+#nf-cinematic-zone>.menu-section .menu-category-tabs{background:transparent!important}
+#nf-cinematic-zone>.menu-section .menu-category-button{
+  background:rgba(23,21,18,.72)!important;
+  color:#F1E7D6!important;
+  border-color:rgba(217,195,160,.58)!important;
+}
+#nf-cinematic-zone>.menu-section .menu-category-button.active{
+  background:#C6A16A!important;color:#17130F!important;border-color:#C6A16A!important;
+}
+#nf-cinematic-zone>.menu-section .menu-items{
+  background:rgba(19,16,14,.58)!important;
+  backdrop-filter:blur(7px);
+  -webkit-backdrop-filter:blur(7px);
+  border:1px solid rgba(217,195,160,.22)!important;
+  padding:20px!important;
+}
+#nf-cinematic-zone>.menu-section .menu-item-card{
+  background:rgba(33,29,24,.82)!important;
+  border-color:rgba(198,161,106,.42)!important;
+}
+#nf-cinematic-zone>.menu-section .menu-item-card h3,
+#nf-cinematic-zone>.menu-section .menu-item-description,
+#nf-cinematic-zone>.menu-section .menu-item-allergens,
+#nf-cinematic-zone>.menu-section .menu-loading,
+#nf-cinematic-zone>.menu-section .menu-empty,
+#nf-cinematic-zone>.menu-section .menu-error{
+  color:#F1E7D6!important;
+}
+#nf-cinematic-zone>.menu-section .menu-item-price{color:#D8BD91!important}
+#nf-cinematic-zone>.menu-section .button{
+  color:#F1E7D6!important;border-color:#C6A16A!important;
+  background:rgba(23,21,18,.72)!important;
+}
+@media(max-width:760px){
+  #nf-cinematic-zone>.menu-section .menu-items{padding:12px!important}
+}
+</style>
+
 </body>
 </html><script async data-explicit-opt-in="true" data-deployment-id="dpl_7tHJ9DycmxR1TALK2u85APShiyVZ" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_EmRnWHsGMUkcJwHUQ7vz8FCmfTh6" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_E5nptDv68tSzPwNaRWjjuQBRJWLT" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_3kBEXjiEjcHv33v8JxwMth6Znb56" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_GbSb1nxg8uKN3nnLoyFhoPVdiZvt" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
 
