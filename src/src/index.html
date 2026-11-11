@@ -1238,9 +1238,6 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
         </div>
       </div>
     </section>
-    <div class="music-strip">
-      <div class="music-inner"><span class="symbol">♫</span><strong>Musica dal vivo 7 giorni su 7</strong><span>Dalle 19:30 alle 21:30</span><span class="symbol">♫</span></div>
-    </div>
     <section class="intro" id="ristorante">
       <div class="section-kicker">Un'esperienza fiorentina</div>
       <h2>Il piacere di stare a tavola,<br>con una nota in più.</h2>
@@ -2238,26 +2235,25 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 </body>
 </html><script async data-explicit-opt-in="true" data-deployment-id="dpl_7tHJ9DycmxR1TALK2u85APShiyVZ" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_EmRnWHsGMUkcJwHUQ7vz8FCmfTh6" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_E5nptDv68tSzPwNaRWjjuQBRJWLT" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_3kBEXjiEjcHv33v8JxwMth6Znb56" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_GbSb1nxg8uKN3nnLoyFhoPVdiZvt" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
 
-<style id="nf-transparent-intro-and-menu-v2">
-/* Rimuove i fondali pieni dalle due sezioni richieste, superando le regole globali precedenti. */
-#app main #ristorante,
-#app main #ristorante::before,
-#app main #ristorante::after,
-#app main #menu,
-#app main #menu::before,
-#app main #menu::after {
+<style id="nf-transparent-intro-and-menu-v3">
+/* Nessun pannello di sfondo sulle sezioni introduttiva e cucina. */
+#app>main>#ristorante,
+#app>main>#ristorante::before,
+#app>main>#ristorante::after,
+#app>main>#menu,
+#app>main>#menu::before,
+#app>main>#menu::after {
   background: transparent !important;
   background-color: transparent !important;
   background-image: none !important;
+  box-shadow: none !important;
 }
-/* Mantiene leggibili i testi sopra il video nella sezione introduttiva. */
-#app main #ristorante { color:#F4EBDD !important; }
-#app main #ristorante h2 { color:#F4EBDD !important; }
-#app main #ristorante p { color:#F1E6D7 !important; }
-#app main #ristorante .section-kicker { color:#E4C49A !important; }
-/* La cucina resta fuori dall'area video, ma senza pannello di sfondo proprio. */
-#app main #menu { color:#F1E7D6 !important; }
-#app main #menu h2 { color:#E7D2AF !important; }
-#app main #menu .section-lead,
-#app main #menu .section-kicker { color:#D8BD91 !important; }
+#app>main>#menu {
+  color:#F1E7D6 !important;
+}
+#app>main>#menu .section-kicker { color:#D8BD91 !important; }
+#app>main>#menu h2 { color:#E7D2AF !important; }
+#app>main>#menu .section-lead { color:#C4B7A5 !important; }
+/* Rimuove completamente la vecchia fascia musicale. */
+#app>main>.music-strip { display:none !important; }
 </style>
