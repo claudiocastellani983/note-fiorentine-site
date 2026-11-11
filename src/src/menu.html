@@ -1046,7 +1046,25 @@ function showCategory(category,button){
 
 
 
-<script id="nf-site-images-runtime">(async function(){const base=window.NF_SUPABASE_CONFIG.url,key=window.NF_SUPABASE_CONFIG.key;try{const r=await fetch(base+'/rest/v1/site_images?select=image_key,image_path,alt_text,focal_x,focal_y&is_active=eq.true',{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});if(!r.ok)return;const rows=await r.json(),map=Object.fromEntries(rows.filter(x=>x.image_path).map(x=>[x.image_key,x]));const url=p=>base+'/storage/v1/object/public/site-media/'+p.split('/').map(encodeURIComponent).join('/');const apply=(el,row)=>{if(!el||!row)return;el.style.backgroundImage='linear-gradient(180deg,rgba(25,17,13,.10),rgba(25,17,13,.38)),url("'+url(row.image_path)+'")';el.style.backgroundSize='cover';el.style.backgroundPosition=(row.focal_x??50)+'% '+(row.focal_y??50)+'%';if(row.alt_text)el.setAttribute('aria-label',row.alt_text)};apply(document.querySelector('.hero-art'),map.hero);apply(document.querySelector('.music-art'),map.live_music);const tiles=[...document.querySelectorAll('.gallery-tile')];['gallery_restaurant','gallery_food','gallery_atmosphere'].forEach((k,i)=>apply(tiles[i],map[k]));}catch(e){console.warn('Immagini sito non caricate',e)}})();</script></body>
+<script id="nf-site-images-runtime">(async function(){const base=window.NF_SUPABASE_CONFIG.url,key=window.NF_SUPABASE_CONFIG.key;try{const r=await fetch(base+'/rest/v1/site_images?select=image_key,image_path,alt_text,focal_x,focal_y&is_active=eq.true',{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});if(!r.ok)return;const rows=await r.json(),map=Object.fromEntries(rows.filter(x=>x.image_path).map(x=>[x.image_key,x]));const url=p=>base+'/storage/v1/object/public/site-media/'+p.split('/').map(encodeURIComponent).join('/');const apply=(el,row)=>{if(!el||!row)return;el.style.backgroundImage='linear-gradient(180deg,rgba(25,17,13,.10),rgba(25,17,13,.38)),url("'+url(row.image_path)+'")';el.style.backgroundSize='cover';el.style.backgroundPosition=(row.focal_x??50)+'% '+(row.focal_y??50)+'%';if(row.alt_text)el.setAttribute('aria-label',row.alt_text)};apply(document.querySelector('.hero-art'),map.hero);apply(document.querySelector('.music-art'),map.live_music);const tiles=[...document.querySelectorAll('.gallery-tile')];['gallery_restaurant','gallery_food','gallery_atmosphere'].forEach((k,i)=>apply(tiles[i],map[k]));}catch(e){console.warn('Immagini sito non caricate',e)}})();</script>
+<style id="nf-auditore-palette-v1">
+/* Palette Auditore: avorio, cremisi, cuoio e pietra calda. */
+:root{--site-primary:#81201C!important;--site-on-primary:#F9F8F7!important;--site-secondary:#B29B89!important;--site-on-secondary:#2A1916!important;--site-background:#F9F8F7!important;--site-on-background:#2A1916!important;--nf-auditore-ivory:#F9F8F7;--nf-auditore-burgundy:#81201C;--nf-auditore-crimson:#B84A42;--nf-auditore-leather:#70574D;--nf-auditore-stone:#B29B89;--nf-auditore-parchment:#E8DCCB}
+#app>header,#app>footer{border-color:rgba(178,155,137,.55)!important}
+#app a.button,#app button.button,#app .btn-primary,#app [data-variant="primary"]{background:var(--nf-auditore-burgundy)!important;border-color:var(--nf-auditore-crimson)!important;color:var(--nf-auditore-ivory)!important}
+#app a.button:hover,#app button.button:hover,#app .btn-primary:hover{background:var(--nf-auditore-crimson)!important;border-color:var(--nf-auditore-stone)!important}
+#app .section-kicker{color:var(--nf-auditore-stone)!important}
+#app .menu-category-button{border-color:var(--nf-auditore-stone)!important}
+#app .menu-category-button.active{background:var(--nf-auditore-burgundy)!important;border-color:var(--nf-auditore-crimson)!important;color:var(--nf-auditore-ivory)!important}
+#app .menu-item-price{color:#D9A77D!important}
+#nf-cinematic-zone>.menu-section>h2,#app>main>#menu h1,#app>main>#menu h2{color:#D16A5E!important;text-shadow:0 2px 3px rgba(20,12,10,.95),0 0 18px rgba(20,12,10,.65)!important}
+#nf-cinematic-zone>.menu-section>.section-kicker{color:#D6BDAA!important}
+#app>main>#menu .menu-items{background:#211714!important;border-color:rgba(178,155,137,.62)!important}
+#app>main>#menu .menu-item-card{background:#2A1916!important;border-color:rgba(178,155,137,.42)!important}
+#app>main>#menu .menu-item-card h3,#app>main>#menu .menu-item-description{color:#F9F8F7!important}
+#app>main>#menu .menu-item-allergens{color:#D7C8BA!important}
+</style>
+</body>
 </html><script async data-explicit-opt-in="true" data-deployment-id="dpl_7tHJ9DycmxR1TALK2u85APShiyVZ" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_EmRnWHsGMUkcJwHUQ7vz8FCmfTh6" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_E5nptDv68tSzPwNaRWjjuQBRJWLT" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_3kBEXjiEjcHv33v8JxwMth6Znb56" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_GbSb1nxg8uKN3nnLoyFhoPVdiZvt" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
 
 <style id="nf-menu-readability-v1">
