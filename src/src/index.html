@@ -1280,7 +1280,7 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
         <div class="section-kicker">Ristorante Toscano & Live Music</div>
         <h2>Ogni sera,<br>la musica è di casa.</h2>
         <p>Ogni sera, sette giorni su sette, artisti e generi musicali variabili accompagnano la vostra cena. La musica dal vivo fa parte dell'esperienza Note Fiorentine.</p>
-        
+        <div class="music-art" role="img" aria-label="Fotografia della musica dal vivo"></div>
         <div class="time"><span style="font-size:25px">◷</span><div><strong>19:30 – 21:30</strong><small>Tutte le sere</small></div></div>
         <div class="included">Musica inclusa nella cena</div>
       </div>
@@ -1725,7 +1725,8 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
   });
   if(!response.ok){log('Lettura immagini non riuscita:',response.status,await response.text());return}
   const rows=await response.json(),map=Object.fromEntries(rows.map(row=>[row.image_key,row]));
-  // Immagine della sezione Musica rimossa dalla homepage.
+  const musicImage=map.live_music;
+  if(musicImage?.image_path){const section=document.querySelector("#musica");if(section)section.style.setProperty("--nf-live-music-image",'url("'+publicUrl(musicImage.image_path)+'")');}
   // Slot immagine Hero rimosso: la homepage usa esclusivamente il video cinematografico.
   mount(document.querySelector('.nf-artists-photo'),map.artists_gallery_cover);
   mount(document.querySelector('.nf-artists-video'),map.artists_video_cover);
@@ -2566,17 +2567,20 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
  #app>main>#musica .music-art{grid-column:1!important;grid-row:1!important;min-height:clamp(260px,72vw,420px)!important}
  #app>main>#musica .music-copy{grid-column:1!important;grid-row:2!important}
 }
-<style id="nf-remove-live-music-photo-v1">
-/* Rimozione definitiva del riquadro fotografico della sezione Musica dal vivo. */
-#app>main>#musica.music-section{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto!important}
-#app>main>#musica.music-section::before{content:none!important;display:none!important;background:none!important}
-#app>main>#musica .music-art{display:none!important}
-#app>main>#musica .music-copy{grid-column:1/-1!important;grid-row:1!important;width:100%!important}
+<style id="nf-live-music-photo-between-description-time-v1">
+/* Riquadro live music collocato tra descrizione e orario. */
+#app>main>#musica .music-art{
+ display:block!important;position:relative!important;isolation:isolate!important;
+ width:100%!important;min-height:clamp(230px,34vw,390px)!important;
+ margin:26px 0 28px!important;overflow:hidden!important;
+ background:linear-gradient(0deg,rgba(16,12,10,.28),rgba(16,12,10,.08)),var(--nf-live-music-image,linear-gradient(145deg,#38251F,#1E1715)) center/cover no-repeat!important;
+}
+#app>main>#musica .music-art:before{content:""!important;position:absolute!important;inset:18px!important;border:1px solid rgba(255,249,240,.55)!important;font-size:0!important;z-index:1!important}
+#app>main>#musica .music-art:after{content:""!important;position:absolute!important;inset:30px!important;border:1px solid rgba(255,249,240,.28)!important;z-index:1!important}
+#app>main>#musica .music-copy{grid-column:1/-1!important;grid-row:1!important}
 #app>main>#musica .music-videos{grid-column:1/-1!important;grid-row:2!important}
 @media(max-width:760px){
- #app>main>#musica.music-section{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto!important}
- #app>main>#musica .music-copy{grid-column:1!important;grid-row:1!important}
- #app>main>#musica .music-videos{grid-column:1!important;grid-row:2!important}
+ #app>main>#musica .music-art{min-height:clamp(210px,65vw,330px)!important;margin:22px 0 24px!important}
 }
 </style>
 </style>
