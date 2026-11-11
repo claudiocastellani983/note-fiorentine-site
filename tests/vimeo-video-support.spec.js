@@ -27,7 +27,7 @@ test.describe('Supporto Vimeo e YouTube nelle sezioni video', () => {
     expect(imageAdmin).toContain("url.protocol!=='https:'");
     expect(imageAdmin).toContain('https://player.vimeo.com/video/');
     expect(imageAdmin).toContain('Link Vimeo o YouTube');
-    expect(imageAdmin).toContain("select('id,title,video_path,video_url,sort_order,is_published,created_at')");
+    expect(imageAdmin).toContain("'id,title,video_path,video_url,sort_order,is_published,created_at'");
     expect(imageAdmin).toContain("video_url:youtubeUrl.value.trim()");
     expect(imageAdmin).toContain("video_url:url");
     expect(imageAdmin).toContain("externalVideoSource(videoSource)");
