@@ -1254,7 +1254,7 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
     </section>
     </div>
     <section class="music-section" id="musica">
-      
+      <div class="music-art" role="img" aria-label="Fotografia della musica dal vivo"></div>
       <div class="music-copy">
         <div class="section-kicker">Ristorante Toscano & Live Music</div>
         <h2>Ogni sera,<br>la musica è di casa.</h2>
@@ -2530,6 +2530,26 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 @media(max-width:760px){
  #app>header .language-switch{gap:4px!important}
  #app>header .language-switch a{width:32px!important;min-width:32px!important;height:32px!important}
+}
+</style>
+
+<style id="nf-auditore-menu-title-and-music-photo-v1">
+/* Titolo menù in cremisi Auditore, mantenuto leggibile sul video. */
+#nf-cinematic-zone>.menu-section>h2{
+ color:#D16A5E!important;
+ text-shadow:0 2px 3px rgba(20,12,10,.95),0 0 18px rgba(184,74,66,.38)!important;
+}
+/* La foto della musica segue il menù e precede visivamente l'orario 19:30–21:30. */
+#app>main>#musica .music-art{
+ display:grid!important;
+ min-height:clamp(300px,42vw,620px)!important;
+ grid-column:1!important;
+ grid-row:1!important;
+}
+#app>main>#musica .music-copy{grid-column:2!important;grid-row:1!important}
+@media(max-width:760px){
+ #app>main>#musica .music-art{grid-column:1!important;grid-row:1!important;min-height:clamp(260px,72vw,420px)!important}
+ #app>main>#musica .music-copy{grid-column:1!important;grid-row:2!important}
 }
 </style>
 </body>
