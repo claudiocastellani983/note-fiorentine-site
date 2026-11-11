@@ -4,9 +4,9 @@ name: Playwright E2E
 
 on:
   push:
-    branches: [release/integrated-preview-2026-11, 'fix/**']
+    branches: [release/integrated-preview-2026-11, 'fix/**', release/i18n-integrated-2026-11-10]
   pull_request:
-    branches: [release/integrated-preview-2026-11]
+    branches: [release/integrated-preview-2026-11, main]
   workflow_dispatch:
 
 permissions:
