@@ -551,7 +551,7 @@ async function loadRestaurantVideosAdmin(){
   const source=item.video_url||item.youtube_url,external=externalVideoSource(source),id=external?.provider==='youtube'?external.id:null,thumb=document.createElement('div');
   if(external){thumb.className='youtube-thumb';thumb.style.display='grid';thumb.style.placeItems='center';thumb.style.background='#392b24';thumb.style.color='#fff';thumb.style.fontWeight='700';thumb.style.cursor='pointer';thumb.textContent=id?'▶ YOUTUBE':'▶ VIMEO';thumb.setAttribute('role','button');thumb.setAttribute('tabindex','0');const openEmbed=()=>{const frame=document.createElement('iframe');frame.src=external.embed;frame.title=item.title||'Video ambiente';frame.loading='lazy';frame.allow='autoplay; fullscreen; picture-in-picture';frame.allowFullscreen=true;frame.style.cssText='width:100%;aspect-ratio:16/9;border:0';thumb.replaceWith(frame)};thumb.addEventListener('click',openEmbed);thumb.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openEmbed()}})}
   const title=document.createElement('p');title.textContent=item.title||'Video ambiente';title.style.cssText='margin:0 0 7px;font-weight:700;color:#392B24';
-  if(id)wrap.append(thumb);wrap.append(title);
+  if(external)wrap.append(thumb);wrap.append(title);
   const controls=document.createElement('div');controls.className='artist-order-controls';
   const position=document.createElement('span');position.className='artist-order-position';position.textContent=(i+1)+' / '+items.length;controls.append(position);
   for(const [label,delta,aria] of [['↑',-1,'Sposta in alto'],['↓',1,'Sposta in basso']]){
