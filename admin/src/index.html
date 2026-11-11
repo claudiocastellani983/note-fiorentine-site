@@ -513,6 +513,12 @@ $('editForm').onsubmit=async e=>{
    else if(editingRow?.video_path){obj.video_path=editingRow.video_path;obj.video_url=null;}
    else throw Error('Carica un file video oppure inserisci un link Vimeo/YouTube.');
   }
+  if(current==='Video ambienti'){
+   if(!obj.video_url)throw Error('Inserisci un link Vimeo o YouTube per il video dell’ambiente.');
+   // La tabella conserva youtube_url per i record storici: i nuovi salvataggi usano una sola fonte canonica.
+   obj.youtube_url=null;
+   obj.updated_at=new Date().toISOString();
+  }
   stage='payload_ready';
   diag(stage,{table:cfg[current].table,recordId:editing||null,fields:Object.keys(obj),descriptionLength:typeof obj.description==='string'?obj.description.length:null});
   say('Diagnostica: campi pronti. Invio richiesta al database…');
@@ -521,16 +527,20 @@ $('editForm').onsubmit=async e=>{
   stage='request_sent';
   diag(stage,{table,recordId:editing||null,fields:Object.keys(obj),descriptionLength:typeof obj.description==='string'?obj.description.length:null});
   say('Richiesta inviata a Supabase. Attendo conferma…');
-  let saved=current==='Musica dal vivo'?await q.select('id,title,description,video_path,video_url,updated_at,sort_order,is_published').single():await q;
+  const videoSection=current==='Musica dal vivo'||current==='Video ambienti';
+  const selectedFields=current==='Musica dal vivo'?'id,title,description,video_path,video_url,updated_at,sort_order,is_published':'id,title,description,youtube_url,video_url,video_orientation,updated_at,sort_order,is_published';
+  let saved=videoSection?await q.select(selectedFields).single():await q;
   if(saved.error)throw saved.error;
-  if(current==='Musica dal vivo'){
-   if(!saved.data||saved.data.id!==(editing||saved.data.id))throw Error('Salvataggio non verificato: nessun record aggiornato in performance_videos.');
+  if(videoSection){
+   if(!saved.data||saved.data.id!==(editing||saved.data.id))throw Error('Salvataggio non verificato: nessun record aggiornato in '+table+'.');
    stage='response_received';
    diag(stage,{table,recordId:saved.data.id,responseDescriptionLength:typeof saved.data.description==='string'?saved.data.description.length:null,updatedAt:saved.data.updated_at||null});
    say('Risposta ricevuta. Verifica indipendente del record…');
-   const verify=await db.from(table).select('id,title,description,video_path,video_url,updated_at,sort_order,is_published').eq('id',saved.data.id).single();
+   const verify=await db.from(table).select(selectedFields).eq('id',saved.data.id).single();
    if(verify.error)throw verify.error;
-   const fieldsToVerify=['title','description','video_path','video_url','sort_order','is_published'];
+   const fieldsToVerify=current==='Musica dal vivo'
+    ?['title','description','video_path','video_url','sort_order','is_published']
+    :['title','description','youtube_url','video_url','video_orientation','sort_order','is_published'];
    const mismatch=fieldsToVerify.filter(k=>(verify.data?.[k]??null)!==(obj[k]??null));
    if(mismatch.length)throw Error('Verifica successiva non corrispondente nei campi: '+mismatch.join(', '));
    stage='readback_verified';
@@ -541,7 +551,7 @@ $('editForm').onsubmit=async e=>{
    if(old.error)console.warn('File precedente non rimosso:',old.error.message);
   }
   $('editor').classList.add('hidden');editing=editingRow=null;
-  say(current==='Musica dal vivo'?'Contenuto musicale salvato e verificato nel database.':'Modifiche salvate correttamente.');
+  say(videoSection?'Video salvato e verificato nel database.':'Modifiche salvate correttamente.');
   await load();
  }catch(err){
   if(uploaded.length&&uploadedBucket)await db.storage.from(uploadedBucket).remove(uploaded);
