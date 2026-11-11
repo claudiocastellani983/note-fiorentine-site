@@ -1224,6 +1224,8 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
     </nav>
   </header>
   <main>
+    <div class="nf-cinematic-zone" id="nf-cinematic-zone">
+      <div class="nf-cinematic-backdrop" aria-hidden="true"><video class="nf-cinematic-video" autoplay muted loop playsinline webkit-playsinline preload="metadata"><source src="https://iuxskknbopboynjlsxbk.supabase.co/storage/v1/object/public/performance-videos/note-fiorentine-hero-montaggio.mp4" type="video/mp4"></video><div class="nf-cinematic-shade"></div></div>
     <section class="hero" id="inizio">
       <div class="hero-copy">
         <div class="eyebrow">Ristorante Toscano & Live Music</div>
@@ -1236,7 +1238,7 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
         </div>
       </div>
       <div class="hero-art" aria-label="Identità visiva Note Fiorentine">
-        <video class="nf-hero-video" autoplay muted loop playsinline webkit-playsinline preload="metadata" aria-hidden="true"><source src="https://iuxskknbopboynjlsxbk.supabase.co/storage/v1/object/public/performance-videos/note-fiorentine-hero-montaggio.mp4" type="video/mp4"></video>
+        
         <div class="art-glow"></div>
         <div class="art-content">
           <div class="art-fleur">⚜</div>
@@ -1264,6 +1266,7 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
       <div class="menu-items" id="menuItems"><p class="menu-loading">Caricamento piatti…</p></div>
       <p style="text-align:center;margin:32px auto 0"><a class="button" href="/menu.html">Consulta il menù completo</a></p>
     </section>
+    </div>
     <section class="music-section" id="musica">
       
       <div class="music-copy">
@@ -2037,31 +2040,47 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 </style>
 
 
-<style id="nf-auditore-hero-video-v1">
-/* Hero video — preview only; the existing visual identity remains the fallback */
-.hero-art{isolation:isolate;position:relative;overflow:hidden;background:#171512}
-.hero-art .nf-hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 46%;z-index:0;opacity:0;filter:brightness(.72) saturate(.82);transition:opacity .65s ease}
-.hero-art.nf-video-ready .nf-hero-video{opacity:1}
-.hero-art:before{z-index:3;pointer-events:none}
-.hero-art:after{z-index:2;pointer-events:none;background:linear-gradient(180deg,rgba(13,10,8,.12),rgba(13,10,8,.42))}
-.hero-art .art-glow{z-index:1;pointer-events:none}
-.hero-art .art-content{z-index:4;transition:opacity .45s ease}
-.hero-art.nf-video-ready .art-content{opacity:0;pointer-events:none}
-@media(max-width:760px){.hero-art .nf-hero-video{object-position:center 42%}}
-@media(prefers-reduced-motion:reduce){.hero-art .nf-hero-video{transition:none}}
+<style id="nf-auditore-hero-video-v2">
+/* Persistent cinematic backdrop: hero -> intro -> La nostra cucina */
+.nf-cinematic-zone{position:relative;isolation:isolate;overflow:clip;background:#171512}
+.nf-cinematic-backdrop{position:sticky;top:0;height:100svh;min-height:520px;margin-bottom:-100svh;z-index:0;overflow:hidden;pointer-events:none;background:#171512}
+.nf-cinematic-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 46%;opacity:0;filter:brightness(.53) saturate(.78);transition:opacity .8s ease}
+.nf-cinematic-zone.nf-video-ready .nf-cinematic-video{opacity:1}
+.nf-cinematic-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,12,10,.30),rgba(14,12,10,.48) 55%,rgba(14,12,10,.68));}
+.nf-cinematic-zone>.hero,.nf-cinematic-zone>.music-strip,.nf-cinematic-zone>.intro,.nf-cinematic-zone>.menu-section{position:relative;z-index:1;background:transparent!important}
+.nf-cinematic-zone>.hero{background:transparent!important}
+.nf-cinematic-zone>.hero .hero-copy{background:rgba(18,16,13,.30)!important;backdrop-filter:blur(1px)}
+.nf-cinematic-zone>.hero .hero-art{isolation:isolate;position:relative;overflow:hidden;background:transparent!important}
+.nf-cinematic-zone>.hero .hero-art:before{z-index:1}
+.nf-cinematic-zone>.hero .hero-art:after{z-index:1;background:linear-gradient(180deg,rgba(13,10,8,.10),rgba(13,10,8,.30))}
+.nf-cinematic-zone>.hero .hero-art .art-content{z-index:2}
+.nf-cinematic-zone>.intro,.nf-cinematic-zone>.menu-section{color:#F4EBDD}
+.nf-cinematic-zone>.intro h2,.nf-cinematic-zone>.menu-section h2,
+.nf-cinematic-zone>.intro p,.nf-cinematic-zone>.menu-section .section-lead,
+.nf-cinematic-zone>.intro .section-kicker,.nf-cinematic-zone>.menu-section .section-kicker{color:#F4EBDD!important}
+.nf-cinematic-zone>.intro p,.nf-cinematic-zone>.menu-section .section-lead{opacity:.9}
+.nf-cinematic-zone>.menu-section .menu-category-tabs,
+.nf-cinematic-zone>.menu-section .menu-items{background:rgba(22,19,15,.58);backdrop-filter:blur(5px)}
+.nf-cinematic-zone>.music-strip{background:rgba(198,161,106,.94)!important}
+@media(max-width:760px){
+ .nf-cinematic-backdrop{min-height:480px}
+ .nf-cinematic-video{object-position:center 42%}
+ .nf-cinematic-zone>.hero .hero-copy{background:rgba(18,16,13,.42)!important}
+}
+@media(prefers-reduced-motion:reduce){.nf-cinematic-video{transition:none}}
 </style>
-<script id="nf-auditore-hero-video-init">
+<script id="nf-auditore-hero-video-init-v2">
 (function(){
- const hero=document.querySelector('.hero-art');
- const video=hero&&hero.querySelector('.nf-hero-video');
- if(!hero||!video)return;
- const ready=()=>{if(video.readyState>=2)hero.classList.add('nf-video-ready')};
+ const zone=document.getElementById('nf-cinematic-zone');
+ const video=zone&&zone.querySelector('.nf-cinematic-video');
+ if(!zone||!video)return;
+ const ready=()=>{if(video.readyState>=2)zone.classList.add('nf-video-ready')};
  video.addEventListener('loadeddata',ready,{once:true});
  video.addEventListener('canplay',ready,{once:true});
- video.addEventListener('error',()=>{hero.classList.remove('nf-video-ready');console.warn('[Note Fiorentine] Video hero non disponibile: attivo il fallback grafico.')});
+ video.addEventListener('error',()=>{zone.classList.remove('nf-video-ready');console.warn('[Note Fiorentine] Video di sfondo non disponibile: resta attivo lo sfondo di riserva.')});
  if(video.readyState>=2)ready();
  const play=video.play();
- if(play&&typeof play.catch==='function')play.catch(()=>{hero.classList.remove('nf-video-ready')});
+ if(play&&typeof play.catch==='function')play.catch(()=>zone.classList.remove('nf-video-ready'));
 })();
 </script>
 
