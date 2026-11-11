@@ -902,11 +902,11 @@ function setNfSeo(lang,isMenu){
  languages.forEach(code=>{const link=document.createElement('link');link.rel='alternate';link.hreflang=code==='zh'?'zh-CN':code;link.href=urls[code];document.head.append(link)});
  const fallback=document.createElement('link');fallback.rel='alternate';fallback.hreflang='x-default';fallback.href=urls.it;document.head.append(fallback);
  const descriptions={
-  it:isMenu?'Menu di Note Fiorentine, ristorante toscano con musica dal vivo a Firenze. Scopri i piatti e vivi una serata con musica ogni sera.':'Note Fiorentine è un ristorante toscano con musica dal vivo a Firenze, ogni sera dalle 19:30 alle 21:30, inclusa nella cena.',
+  it:isMenu?'Menu Note Fiorentine: ristorante con musica dal vivo a Firenze e cucina toscana.':'Note Fiorentine: ristorante con musica dal vivo a Firenze e cucina toscana. Musica ogni sera dalle 19:30 alle 21:30, inclusa nella cena.',
   en:isMenu?'Explore the menu at Note Fiorentine, a Tuscan restaurant with live music in Florence every evening.':'Note Fiorentine is a Tuscan restaurant with live music in Florence every evening from 7:30 to 9:30 pm, included with dinner.',
-  de:isMenu?'Entdecken Sie die Speisekarte des toskanischen Restaurants Note Fiorentine mit Live-Musik in Florenz.':'Note Fiorentine ist ein toskanisches Restaurant mit Live-Musik in Florenz, jeden Abend von 19:30 bis 21:30 Uhr, beim Abendessen inklusive.',
-  fr:isMenu?'Découvrez la carte de Note Fiorentine, restaurant toscan avec musique live à Florence chaque soir.':'Note Fiorentine est un restaurant toscan avec musique live à Florence, tous les soirs de 19 h 30 à 21 h 30, incluse avec le dîner.',
-  es:isMenu?'Descubre la carta de Note Fiorentine, restaurante toscano con música en vivo en Florencia cada noche.':'Note Fiorentine es un restaurante toscano con música en vivo en Florencia, todas las noches de 19:30 a 21:30, incluida con la cena.',
+  de:isMenu?'Speisekarte des Note Fiorentine Restaurants mit Live-Musik in Florenz und toskanischer Küche.':'Note Fiorentine ist ein Restaurant mit Live-Musik in Florenz und toskanischer Küche, jeden Abend von 19:30 bis 21:30 Uhr, beim Abendessen inklusive.',
+  fr:isMenu?'Carte de Note Fiorentine : restaurant avec musique live à Florence et cuisine toscane.':'Note Fiorentine : restaurant avec musique live à Florence et cuisine toscane. Musique chaque soir de 19 h 30 à 21 h 30, incluse avec le dîner.',
+  es:isMenu?'Carta de Note Fiorentine: restaurante con música en vivo en Florencia y cocina toscana.':'Note Fiorentine: restaurante con música en vivo en Florencia y cocina toscana. Música cada noche de 19:30 a 21:30, incluida con la cena.',
   zh:isMenu?'查看 Note Fiorentine 菜单：位于佛罗伦萨的托斯卡纳餐厅，每晚都有现场音乐。':'Note Fiorentine 是佛罗伦萨的一家托斯卡纳餐厅，每晚 19:30 至 21:30 提供现场音乐，晚餐包含音乐体验。'
  };
  const meta=document.querySelector('meta[name="description"]');if(meta)meta.content=descriptions[lang]||descriptions.it;
@@ -918,7 +918,6 @@ function setNfSeo(lang,isMenu){
   url:base+'/',
   description:descriptions[lang]||descriptions.it,
   servesCuisine:['Tuscan','Italian'],
-  inLanguage:lang==='zh'?'zh-CN':lang,
   amenityFeature:{'@type':'LocationFeatureSpecification',name:'Live music',value:true},
   hasMenu:base+'/menu.html'+(lang==='it'?'':'?lang='+lang)
  };
