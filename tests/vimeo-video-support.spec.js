@@ -41,7 +41,9 @@ test.describe('Supporto Vimeo e YouTube nelle sezioni video', () => {
     expect(home).toContain("'id,title,youtube_url,video_url,video_orientation'");
     expect(home).toContain("extractVimeoId(videoSource)");
     expect(home).toContain('https://player.vimeo.com/video/');
-    expect(home).toContain("placeholder.addEventListener('click'");
+    expect(home).toContain("frame.loading='eager'");
+    expect(home).toContain("frame.src='https://player.vimeo.com/video/'");
+    expect(home).toContain("function close(){const activeMedia=stage.querySelector('video,iframe')");
     expect(home).toContain("if(kind==='restaurant-videos')");
     expect(home).toContain("Il collegamento di questo video non è valido o non è supportato.");
   });
