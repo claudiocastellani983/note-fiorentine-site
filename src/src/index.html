@@ -2093,5 +2093,30 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 })();
 </script>
 
+
+<style id="nf-language-row-above-cinematic-v1">
+/* La riga delle lingue è l'ultimo elemento dell'header: il fondale parte subito sotto. */
+#app>header>.nav{display:flex;flex-wrap:wrap;row-gap:14px}
+#app>header>.nav>.brand-mini{order:1}
+#app>header>.nav>.menu-toggle{order:2}
+#app>header>.nav>.navlinks{order:3}
+#app>header>.nav>.language-switch{
+  order:4;
+  flex:0 0 100%;
+  width:100%;
+  margin:0;
+  padding:2px 0 8px;
+  justify-content:center;
+}
+#app>main>.nf-cinematic-zone{margin-top:0;padding-top:0}
+#app>main>.nf-cinematic-zone>.nf-cinematic-backdrop{
+  margin-top:0;
+  top:0;
+}
+@media(max-width:760px){
+  #app>header>.nav{row-gap:12px}
+  #app>header>.nav>.language-switch{padding:4px 0 8px}
+}
+</style>
 </body>
 </html><script async data-explicit-opt-in="true" data-deployment-id="dpl_7tHJ9DycmxR1TALK2u85APShiyVZ" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_EmRnWHsGMUkcJwHUQ7vz8FCmfTh6" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_E5nptDv68tSzPwNaRWjjuQBRJWLT" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_3kBEXjiEjcHv33v8JxwMth6Znb56" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_GbSb1nxg8uKN3nnLoyFhoPVdiZvt" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
