@@ -4,9 +4,9 @@ name: Playwright E2E
 
 on:
   push:
-    branches: [release/integrated-preview-2026-11, 'fix/**']
+    branches: [release/integrated-preview-2026-11, 'fix/**', release/i18n-integrated-2026-11-10]
   pull_request:
-    branches: [release/integrated-preview-2026-11]
+    branches: [release/integrated-preview-2026-11, main]
   workflow_dispatch:
 
 permissions:
@@ -92,18 +92,20 @@ jobs:
             const repo = context.repo.repo;
             const branch = context.eventName === "pull_request"
               ? context.payload.pull_request.head.ref
-              : "release/integrated-preview-2026-11";
+              : (context.ref.startsWith("refs/heads/") ? context.ref.slice(11) : context.ref);
             const expectedHeadSha = context.eventName === "pull_request"
               ? context.payload.pull_request.head.sha
               : context.sha;
             // Le preview sono verificate sullo SHA corrente e raggiunte tramite alias stabile del branch.
             const homeDeploymentSha = expectedHeadSha;
             const adminDeploymentSha = expectedHeadSha;
-            // Fallback controllato: riusa la preview Admin già READY al commit 025fd302
-            // soltanto se il commit corrente non modifica alcun file applicativo admin/.
-            const knownAdminPreviewSha = "8c7db36c378c4389b98af8745eb2324f0e23ffd6";
-            const siteUrl = "https://note-fiorentine-git-release-in-47d382-claudiacastellani983-5675.vercel.app/";
-            const adminBaseUrl = "https://note-fiorentine-admin-git-rele-890dc9-claudiacastellani983-5675.vercel.app/";
+            // Fallback controllati: Home READY sul commit SEO integrato 21d8b442;
+            // Admin READY sul commit 631a74c5. Riutilizziamo ciascuna preview solo
+            // se da quel commit non sono cambiati i rispettivi file applicativi.
+            const knownHomePreviewSha = "20df7469511196c17b132799f623b9e445ea514b";
+            const knownAdminPreviewSha = "fe0586baf570752164b4ebe94b1ddfe2140aa40a";
+            const siteUrl = "https://note-fiorentine-git-release-i1-363e1b-claudiacastellani983-5675.vercel.app/";
+            const adminBaseUrl = "https://note-fiorentine-admin-git-rele-1da2a5-claudiacastellani983-5675.vercel.app/";
             const adminUrl = adminBaseUrl + "?sitePreview=" + encodeURIComponent(siteUrl);
             const homeContext = "Vercel – note-fiorentine";
             const adminContext = "Vercel – note-fiorentine-admin";
@@ -139,19 +141,38 @@ jobs:
               const home = latestFor(homeResponse.data).get(homeContext);
               const admin = latestFor(adminResponse.data).get(adminContext);
               let adminReady = admin?.state === "success";
-              if (!adminReady && !admin) {
-                const compare = await github.request("GET /repos/{owner}/{repo}/compare/{basehead}", {
-                  owner, repo, basehead: knownAdminPreviewSha + "..." + expectedHeadSha
-                });
-                const changed = compare.data.files || [];
-                const adminCodeUnchanged = changed.every(file => !file.filename.startsWith("admin/"));
-                if (adminCodeUnchanged) {
-                  adminReady = true;
-                  core.info("Preview Admin riutilizzata: deployment READY al commit " + knownAdminPreviewSha +
-                    "; il commit corrente modifica soltanto test/workflow e non il codice admin/.");
+              let homeReady = home?.state === "success";
+              if ((!adminReady && !admin) || (!homeReady && !home)) {
+                const [adminCompare, homeCompare] = await Promise.all([
+                  github.request("GET /repos/{owner}/{repo}/compare/{basehead}", {
+                    owner, repo, basehead: knownAdminPreviewSha + "..." + expectedHeadSha
+                  }),
+                  github.request("GET /repos/{owner}/{repo}/compare/{basehead}", {
+                    owner, repo, basehead: knownHomePreviewSha + "..." + expectedHeadSha
+                  })
+                ]);
+                const adminChanged = adminCompare.data.files || [];
+                const homeChanged = homeCompare.data.files || [];
+                if (!adminReady && !admin) {
+                  const adminCodeUnchanged = adminChanged.every(file => !file.filename.startsWith("admin/"));
+                  if (adminCodeUnchanged) {
+                    adminReady = true;
+                    core.info("Preview Admin riutilizzata: deployment READY al commit " + knownAdminPreviewSha +
+                      "; nessun file admin/ è cambiato dopo quel commit.");
+                  }
+                }
+                if (!homeReady && !home) {
+                  const homeCodeUnchanged = homeChanged.every(file =>
+                    !file.filename.startsWith("src/src/") && !file.filename.startsWith("recovered/site/")
+                  );
+                  if (homeCodeUnchanged) {
+                    homeReady = true;
+                    core.info("Preview Home riutilizzata: deployment READY al commit " + knownHomePreviewSha +
+                      "; nessun file Home/Menu è cambiato dopo quel commit.");
+                  }
                 }
               }
-              const allReady = adminReady && home?.state === "success";
+              const allReady = adminReady && homeReady;
 
               if (adminReady) {
                 core.setOutput("admin_ready", "true");
@@ -164,7 +185,7 @@ jobs:
                 core.info("Entrambe le preview Vercel risultano READY sul commit " + context.sha);
                 return;
               }
-              if (adminReady && !home) {
+              if (adminReady && !homeReady) {
                 core.setOutput("reason", "Preview Admin verificata e pronta; nessuna preview Home sul commit dei soli test. Proseguo con il collaudo autenticato Admin.");
                 return;
               }
