@@ -2123,7 +2123,15 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
   try{
    const table=kind==='images'?'artist_images':kind==='restaurant-videos'?'restaurant_videos':'performance_videos';
    const columns=kind==='images'?'id,title,image_path,focal_x,focal_y,focal_zoom':kind==='restaurant-videos'?'id,title,youtube_url,video_url,video_orientation':'id,title,video_path,video_url';
-   const response=await fetch(api+'/rest/v1/'+table+'?select='+columns+'&is_published=eq.true&order=sort_order.asc,created_at.asc',{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});
+   const endpoint=api+'/rest/v1/'+table+'?select='+columns+'&is_published=eq.true&order=sort_order.asc,created_at.asc';
+   let response=await fetch(endpoint,{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});
+   if(!response.ok&&kind==='restaurant-videos'&&response.status===400){
+    const detail=await response.clone().text();
+    if(/video_url|column|schema cache/i.test(detail)){
+     const legacyEndpoint=api+'/rest/v1/restaurant_videos?select=id,title,youtube_url,video_orientation&is_published=eq.true&order=sort_order.asc,created_at.asc';
+     response=await fetch(legacyEndpoint,{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});
+    }
+   }
    if(!response.ok)throw new Error('HTTP '+response.status);
    items=await response.json();
 if(!viewer.classList.contains('open')||kind!==kindValue)return;
