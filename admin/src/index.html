@@ -213,8 +213,8 @@ const cfg={
 'Artisti':{table:'artist_images',fields:[['title','Nome artista / didascalia','text'],['image_path','Fotografia artista','image',1],['sort_order','Ordine galleria','number'],['is_published','Pubblicata','checkbox']]},
 'Testi sito':{table:'site_content',fields:[['content_key','Chiave contenuto','text',1],['content_value','Valore JSON','textarea',1]]},
 'Testi e grafica':{table:'site_content',fields:[]},
-'Musica dal vivo':{table:'performance_videos',fields:[['title','Titolo del video','text',1],['description','Descrizione','textarea'],['sort_order','Ordine','number'],['is_published','Pubblicato sul sito','checkbox']]},
-'Video ambienti':{table:'restaurant_videos',fields:[['title','Titolo del video','text',1],['description','Descrizione','textarea'],['youtube_url','Link YouTube','url',1],['video_orientation','Formato del video','orientation',1],['sort_order','Ordine','number'],['is_published','Pubblicato sul sito','checkbox']]}
+'Musica dal vivo':{table:'performance_videos',fields:[['title','Titolo del video','text',1],['description','Descrizione','textarea'],['video_url','Link video Vimeo/YouTube (opzionale)','url'],['sort_order','Ordine','number'],['is_published','Pubblicato sul sito','checkbox']]},
+'Video ambienti':{table:'restaurant_videos',fields:[['title','Titolo del video','text',1],['description','Descrizione','textarea'],['video_url','Link video Vimeo/YouTube','url',1],['video_orientation','Formato del video','orientation',1],['sort_order','Ordine','number'],['is_published','Pubblicato sul sito','checkbox']]}
 };
 cfg['Popup']={table:'homepage_popup',fields:[]};
 cfg['Immagini e popup']={table:'site_images',fields:[]};
@@ -448,7 +448,7 @@ return'<label for="f_'+k+'">'+esc(l)+'</label><input name="'+k+'" id="f_'+k+'" t
 function tabs(){$('tabs').innerHTML=Object.keys(cfg).map(k=>'<button type="button" class="tab '+(k===current?'active':'')+'" data-tab="'+esc(k)+'">'+esc(k)+'</button>').join('');$('tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{current=b.dataset.tab;editing=editingRow=null;$('editor').classList.add('hidden');tabs();load().catch(e=>say('Errore caricamento: '+e.message))})}
 async function load(){let c=cfg[current];$('sectionTitle').textContent=current;$('items').textContent='Caricamento…';if(current==='Testi e grafica'){await loadSiteEditor();return}if(current==='Popup'){await loadPopupAdmin();return}if(current==='Immagini e popup'){await loadMediaPopup();return}$('add').classList.remove('hidden');if(current==='Piatti'){let x=await db.from('menu_categories').select('id,name').order('sort_order');if(x.error)throw x.error;categories=x.data||[]}let query=db.from(c.table).select('*');let x=await query.order(current==='Testi sito'?'content_key':'sort_order',{ascending:true});if(x.error)throw x.error;rows=x.data||[];const visibleRows=current==='Ristorante'?rows.filter(r=>!galleryFilter||r.category===galleryFilter):rows;const galleryToolbar=current==='Ristorante'?'<div class="tabs" id="galleryCategoryFilter"><button type="button" class="tab '+(galleryFilter==='restaurant'?'active':'')+'" data-gallery-filter="restaurant">Ristorante</button><button type="button" class="tab '+(galleryFilter==='kitchen'?'active':'')+'" data-gallery-filter="kitchen">Cucina</button><button type="button" class="tab '+(galleryFilter==='music'?'active':'')+'" data-gallery-filter="music">Atmosfera</button><button type="button" class="tab '+(!galleryFilter?'active':'')+'" data-gallery-filter="">Tutte</button></div>':'';$('items').innerHTML=galleryToolbar+(visibleRows.length?visibleRows.map(r=>{const i=rows.indexOf(r);return '<article class="media-card" data-row-id="'+esc(r.id||'')+'">'+(r.image_path?'<img class="media-preview" style="width:100%;max-width:320px;max-height:220px;object-fit:contain" src="'+esc(mediaUrl(r.image_path))+'" alt="'+esc(r.title||'')+'">':'')+'<strong>'+esc(r.title||'Fotografia')+'</strong><p>'+esc(({restaurant:'Ristorante',kitchen:'Cucina',music:'Atmosfera'})[r.category]||'Categoria non impostata')+' · '+(r.is_published===false?'Non pubblicata':'Pubblicata')+'</p><p>'+esc(r.description||'')+'</p><div class="item-actions"><button type="button" data-edit="'+i+'">Modifica</button><button type="button" data-pub="'+i+'">'+(r.is_published===false?'Pubblica':'Nascondi')+'</button><button type="button" class="danger" data-del="'+i+'">Elimina</button></div></article>'}).join():'<p class="muted">Nessuna fotografia in questa sezione. Usa “Aggiungi” per caricarne una.</p>');$('items').querySelectorAll('[data-gallery-filter]').forEach(b=>b.onclick=()=>{galleryFilter=b.dataset.galleryFilter;load().catch(e=>say('Errore caricamento: '+e.message))});
 $('items').querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>edit(rows[+b.dataset.edit]));$('items').querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>remove(rows[+b.dataset.del]));$('items').querySelectorAll('[data-pub]').forEach(b=>b.onclick=()=>publish(rows[+b.dataset.pub]))}
-function edit(r={}){editing=r.id||r.content_key||null;editingRow=r;$('editForm').dataset.rowId=editing||'';$('fields').innerHTML=(current==='Musica dal vivo'?'<label>File video (MP4, WebM o MOV · massimo 100 MB)</label><input name="video_file" type="file" accept="video/mp4,video/webm,video/quicktime">'+(r.video_path?'<p class="muted">Video attuale: '+esc(r.video_path)+'</p>':''):'')+cfg[current].fields.map(f=>field(f,r[f[0]])).join('');$('editor').classList.remove('hidden');$('editor').scrollIntoView({behavior:'smooth',block:'start'})}
+function edit(r={}){editing=r.id||r.content_key||null;editingRow=r;$('editForm').dataset.rowId=editing||'';$('fields').innerHTML=(current==='Musica dal vivo'?'<label>File video (MP4, WebM o MOV · massimo 100 MB; facoltativo se inserisci un link)</label><input name="video_file" type="file" accept="video/mp4,video/webm,video/quicktime">'+(r.video_path?'<p class="muted">File attuale: '+esc(r.video_path)+'</p>':''):'')+cfg[current].fields.map(f=>field(f,f[0]==='video_url'?(r.video_url||r.youtube_url||''):r[f[0]])).join('');$('editor').classList.remove('hidden');$('editor').scrollIntoView({behavior:'smooth',block:'start'})}
 $('add').onclick=()=>edit({});$('cancel').onclick=()=>{$('editor').classList.add('hidden');editing=editingRow=null};
 $('editForm').onsubmit=async e=>{
  e.preventDefault();
@@ -495,21 +495,23 @@ $('editForm').onsubmit=async e=>{
    if(!/^https?:\/\//i.test(obj.external_url))throw Error('Il link deve iniziare con https:// o http://');
    if(!obj.button_label)obj.button_label='Scopri l’evento';
   }
+  if(obj.video_url){
+   let parsed;try{parsed=new URL(obj.video_url)}catch{throw Error('Inserisci un link video valido.')}
+   const host=parsed.hostname.toLowerCase().replace(/^www[.]/,'');
+   if(!['vimeo.com','player.vimeo.com','youtube.com','m.youtube.com','youtu.be','youtube-nocookie.com'].includes(host)||parsed.protocol!=='https:')throw Error('Sono supportati soltanto link HTTPS Vimeo e YouTube.');
+  }
   if(current==='Musica dal vivo'){
-   // Supabase has no updated_at trigger on this table: set the timestamp explicitly on every edit.
    obj.updated_at=new Date().toISOString();
    const file=$('fields').querySelector('[name=video_file]')?.files?.[0];
    if(file){
     if(file.size>104857600)throw Error('Video oltre il limite di 100 MB.');
     if(!['video/mp4','video/webm','video/quicktime'].includes(file.type))throw Error('Formato non supportato. Usa MP4, WebM o MOV.');
-    say('Caricamento video…');
-    const videoPath=crypto.randomUUID()+'-'+file.name.replace(/[^a-zA-Z0-9._-]/g,'-');
-    uploadedBucket='performance-videos';
+    say('Caricamento video…');const videoPath=crypto.randomUUID()+'-'+file.name.replace(/[^a-zA-Z0-9._-]/g,'-');uploadedBucket='performance-videos';
     let u=await db.storage.from('performance-videos').upload(videoPath,file,{contentType:file.type,upsert:false,cacheControl:'31536000'});
-    if(u.error)throw Error('Upload Storage: '+u.error.message);
-    uploaded.push(videoPath);obj.video_path=videoPath;
-   }else if(editingRow?.video_path)obj.video_path=editingRow.video_path;
-   else throw Error('Seleziona prima un file video.');
+    if(u.error)throw Error('Upload Storage: '+u.error.message);uploaded.push(videoPath);obj.video_path=videoPath;obj.video_url=null;
+   }else if(obj.video_url){obj.video_path=null;}
+   else if(editingRow?.video_path){obj.video_path=editingRow.video_path;obj.video_url=null;}
+   else throw Error('Carica un file video oppure inserisci un link Vimeo/YouTube.');
   }
   stage='payload_ready';
   diag(stage,{table:cfg[current].table,recordId:editing||null,fields:Object.keys(obj),descriptionLength:typeof obj.description==='string'?obj.description.length:null});
@@ -534,7 +536,7 @@ $('editForm').onsubmit=async e=>{
    stage='readback_verified';
    diag(stage,{table,recordId:verify.data.id,descriptionLength:typeof verify.data.description==='string'?verify.data.description.length:null,updatedAt:verify.data.updated_at||null});
   }
-  if(current==='Musica dal vivo'&&editingRow?.video_path&&uploaded.length){
+  if(current==='Musica dal vivo'&&editingRow?.video_path&&(uploaded.length||obj.video_url)){
    let old=await db.storage.from('performance-videos').remove([editingRow.video_path]);
    if(old.error)console.warn('File precedente non rimosso:',old.error.message);
   }
