@@ -1248,7 +1248,7 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
   </header>
   <main>
     <div class="nf-cinematic-zone" id="nf-cinematic-zone">
-      <div class="nf-cinematic-backdrop"><video class="nf-cinematic-video" autoplay muted loop playsinline webkit-playsinline preload="auto" src="https://iuxskknbopboynjlsxbk.supabase.co/storage/v1/object/public/performance-videos/note-fiorentine-hero-montaggio.mp4" aria-label="Video d’atmosfera Note Fiorentine"></video><div class="nf-cinematic-shade" aria-hidden="true"></div></div>
+      <div class="nf-cinematic-backdrop"><video class="nf-cinematic-video" autoplay muted playsinline webkit-playsinline preload="auto" src="https://iuxskknbopboynjlsxbk.supabase.co/storage/v1/object/public/performance-videos/note-fiorentine-hero-montaggio.mp4" aria-label="Video d’atmosfera Note Fiorentine"></video><div class="nf-cinematic-shade" aria-hidden="true"></div></div>
     <section class="hero" id="inizio">
       <div class="hero-copy">
         <div class="eyebrow">Ristorante Toscano & Live Music</div>
@@ -2650,9 +2650,10 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
  if(!video)return;
  video.muted=true;
  video.defaultMuted=true;
+ video.loop=false;
  const startPlayback=()=>{const p=video.play();if(p&&typeof p.catch==="function")p.catch(()=>{});};
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",startPlayback,{once:true});else startPlayback();
- document.addEventListener("visibilitychange",()=>{if(!document.hidden&&video.paused)startPlayback();});
+ document.addEventListener("visibilitychange",()=>{if(!document.hidden&&video.paused&&!video.ended)startPlayback();});
 })();
 </script>
 <style id="nf-hero-video-deferred-style-v1">
