@@ -35,8 +35,8 @@ test.describe('Supporto Vimeo in tutte le sezioni video', () => {
   });
 
   test('La migrazione aggiunge video_url senza rimuovere i campi legacy', () => {
-    expect(migration).toMatch(/alter table public\\.performance_videos\\s+add column if not exists video_url text;/);
-    expect(migration).toMatch(/alter table public\\.restaurant_videos\\s+add column if not exists video_url text;/);
+    expect(migration).toMatch(/alter table public\.performance_videos\s+add column if not exists video_url text;/);
+    expect(migration).toMatch(/alter table public\.restaurant_videos\s+add column if not exists video_url text;/);
     expect(migration).toContain('youtube_url resta disponibile');
   });
 });
