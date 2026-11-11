@@ -105,15 +105,15 @@
  <p class="muted">Gestisci le fotografie e i video che i clienti vedranno nella sezione degli artisti in homepage. Le copertine si modificano nella sezione Immagini qui sopra. JPG, PNG o WEBP fino a 15 MB per foto; MP4, WEBM o MOV fino a 100 MB per video.</p>
  <div class="gallery-admin-grid">
   <div class="gallery-admin-card" data-artist-media="images"><h3>Galleria fotografica</h3><p>Carica più fotografie degli artisti e delle serate.</p><input type="file" accept="image/jpeg,image/png,image/webp" multiple aria-label="Aggiungi foto artisti"><button type="button" class="artist-media-upload">Aggiungi fotografie</button><div class="gallery-admin-status" aria-live="polite"></div><div class="gallery-admin-count"></div><div class="gallery-admin-list"></div></div>
-  <div class="gallery-admin-card" data-artist-media="videos"><h3>Galleria video</h3><p>Visualizza e gestisci i video degli artisti. Puoi aggiungere un link YouTube oppure continuare a caricare un file dal telefono.</p><div class="youtube-link-form"><label class="field" for="artistYoutubeUrl">Link YouTube</label><input class="artist-youtube-url" id="artistYoutubeUrl" type="url" inputmode="url" placeholder="https://youtu.be/…" autocomplete="url"><label class="field" for="artistYoutubeTitle">Titolo del video</label><input class="artist-youtube-title" id="artistYoutubeTitle" type="text" maxlength="160" placeholder="Es. Live music · Note Fiorentine"><button type="button" class="artist-youtube-add">＋ Aggiungi link YouTube</button><p class="hint">Il video viene aggiunto come bozza. Potrai controllarlo e scegliere “Mostra sul sito” per renderlo visibile.</p></div><p class="hint">Oppure carica un file video dal telefono (MP4, WEBM o MOV · massimo 100 MB).</p><input type="file" accept="video/*,.mp4,.mov,.webm,.m4v,.3gp" multiple aria-label="Seleziona video dal telefono"><button type="button" class="artist-media-upload">Scegli video dal telefono</button><div class="artist-media-selection" aria-live="polite">Nessun video selezionato.</div><button type="button" class="artist-media-publish" disabled>Pubblica video selezionati</button><div class="gallery-admin-status" aria-live="polite"></div><div class="gallery-admin-count"></div><div class="gallery-admin-list"></div></div>
+  <div class="gallery-admin-card" data-artist-media="videos"><h3>Galleria video</h3><p>Visualizza e gestisci i video degli artisti. Puoi aggiungere un link Vimeo o YouTube oppure caricare un file dal telefono.</p><div class="youtube-link-form"><label class="field" for="artistYoutubeUrl">Link Vimeo o YouTube</label><input class="artist-youtube-url" id="artistYoutubeUrl" type="url" inputmode="url" placeholder="https://vimeo.com/… oppure https://youtu.be/…" autocomplete="url"><label class="field" for="artistYoutubeTitle">Titolo del video</label><input class="artist-youtube-title" id="artistYoutubeTitle" type="text" maxlength="160" placeholder="Es. Live music · Note Fiorentine"><button type="button" class="artist-youtube-add">＋ Aggiungi link Vimeo / YouTube</button><p class="hint">Il video viene aggiunto come bozza. Potrai controllarlo e scegliere “Mostra sul sito” per renderlo visibile.</p></div><p class="hint">Oppure carica un file video dal telefono (MP4, WEBM o MOV · massimo 100 MB).</p><input type="file" accept="video/*,.mp4,.mov,.webm,.m4v,.3gp" multiple aria-label="Seleziona video dal telefono"><button type="button" class="artist-media-upload">Scegli video dal telefono</button><div class="artist-media-selection" aria-live="polite">Nessun video selezionato.</div><button type="button" class="artist-media-publish" disabled>Pubblica video selezionati</button><div class="gallery-admin-status" aria-live="polite"></div><div class="gallery-admin-count"></div><div class="gallery-admin-list"></div></div>
  </div>
 
 <div class="panel" id="restaurantVideosAdminPanel">
  <h2>Video degli ambienti del ristorante</h2>
- <p class="muted">Aggiungi i video caricati sul canale YouTube Note Fiorentine. I link vengono salvati separatamente dai video degli artisti e puoi scegliere quando mostrarli sul sito.</p>
+ <p class="muted">Aggiungi video Vimeo o YouTube degli ambienti. I link vengono salvati separatamente dai video degli artisti e puoi scegliere quando mostrarli sul sito.</p>
  <div class="youtube-link-form">
-  <label class="field" for="restaurantYoutubeUrl">Link YouTube</label>
-  <input id="restaurantYoutubeUrl" type="url" inputmode="url" placeholder="https://youtu.be/…" autocomplete="url">
+  <label class="field" for="restaurantYoutubeUrl">Link Vimeo o YouTube</label>
+  <input id="restaurantYoutubeUrl" type="url" inputmode="url" placeholder="https://vimeo.com/… oppure https://youtu.be/…" autocomplete="url">
   <label class="field" for="restaurantYoutubeTitle">Titolo del video</label>
   <input id="restaurantYoutubeTitle" type="text" maxlength="160" placeholder="Es. La sala principale">
   <button type="button" id="restaurantYoutubeAdd">＋ Aggiungi video degli ambienti</button>
@@ -457,9 +457,20 @@ function extractYouTubeId(value){
   let id='';
   if(host==='youtu.be')id=url.pathname.split('/').filter(Boolean)[0]||'';
   else if(['youtube.com','m.youtube.com','youtube-nocookie.com'].includes(host))id=url.searchParams.get('v')||(url.pathname.match(/^\/(?:embed|shorts|live)\/([^/?]+)/)||[])[1]||'';
-  return /^[A-Za-z0-9_-]{11}$/.test(id)?id:null;
+  return url.protocol==='https:'&&/^[A-Za-z0-9_-]{11}$/.test(id)?id:null;
  }catch{return null}
 }
+function extractVimeo(value){
+ try{
+  const url=new URL(String(value||'').trim()),host=url.hostname.toLowerCase().replace(/^www\./,'');
+  if(!['vimeo.com','player.vimeo.com'].includes(host)||url.protocol!=='https:')return null;
+  const parts=url.pathname.split('/').filter(Boolean),id=parts.find(part=>/^\d+$/.test(part));
+  if(!id)return null;
+  const hash=url.searchParams.get('h')||(parts[parts.indexOf(id)+1]||'');
+  return {id,hash};
+ }catch{return null}
+}
+function externalVideoSource(value){const youtubeId=extractYouTubeId(value);if(youtubeId)return {provider:'youtube',id:youtubeId,embed:'https://www.youtube-nocookie.com/embed/'+encodeURIComponent(youtubeId)+'?rel=0'};const vimeo=extractVimeo(value);if(vimeo)return {provider:'vimeo',id:vimeo.id,embed:'https://player.vimeo.com/video/'+encodeURIComponent(vimeo.id)+(vimeo.hash?'?h='+encodeURIComponent(vimeo.hash)+'&':'?')+'dnt=1&title=0&byline=0&portrait=0'};return null}
 async function saveArtistMediaOrder(def,items,card){
  const results=await Promise.all(items.map((item,index)=>supabase.from(def.table).update({sort_order:(index+1)*10}).eq('id',item.id)));
  const failed=results.find(r=>r.error);if(failed)throw new Error('Salvataggio ordine non riuscito: '+failed.error.message);
@@ -470,7 +481,7 @@ async function loadArtistMediaAdmin(){
  for(const def of defs){
   const card=document.querySelector('[data-artist-media="'+def.kind+'"]');if(!card)continue;
   const list=card.querySelector('.gallery-admin-list'),count=card.querySelector('.gallery-admin-count'),field=def.kind==='images'?'image_path':'video_path';
-  const mediaColumns=def.kind==='images'?'id,title,image_path,sort_order,is_published,created_at,focal_x,focal_y,focal_zoom':'id,title,video_path,sort_order,is_published,created_at';
+  const mediaColumns=def.kind==='images'?'id,title,image_path,sort_order,is_published,created_at,focal_x,focal_y,focal_zoom':'id,title,video_path,video_url,sort_order,is_published,created_at';
   const {data,error}=await supabase.from(def.table).select(mediaColumns).order('sort_order',{ascending:true}).order('created_at',{ascending:def.kind==='images'});
   if(error){artistMediaStatus(card,'Errore caricamento: '+error.message);continue}
   const items=data||[];list.replaceChildren();count.textContent=items.length+' '+def.label+' caricat'+(def.kind==='images'?'e':'i');
@@ -488,13 +499,15 @@ async function loadArtistMediaAdmin(){
   }
   for(let i=0;i<items.length;i++){
    const item=items[i],wrap=document.createElement('div');wrap.className='gallery-admin-item';
-   const youtubeId=def.kind==='videos'?extractYouTubeId(item.video_path):null;
-   const media=def.kind==='images'?document.createElement('img'):(youtubeId?document.createElement('img'):document.createElement('video'));
+   const videoSource=item.video_url||item.video_path,external=def.kind==='videos'?externalVideoSource(videoSource):null,youtubeId=external?.provider==='youtube'?external.id:null;
+   const media=def.kind==='images'?document.createElement('img'):(external?document.createElement('div'):document.createElement('video'));
    if(def.kind==='images'){
     media.src=supabase.storage.from(def.bucket).getPublicUrl(item[field]).data.publicUrl;
     media.alt=item.title||'Fotografia artista';media.loading='lazy';media.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';media.style.transform='scale('+(item.focal_zoom??1)+')';
-   }else if(youtubeId){
-    media.className='youtube-thumb';media.src='https://i.ytimg.com/vi/'+encodeURIComponent(youtubeId)+'/hqdefault.jpg';media.alt='Anteprima YouTube: '+(item.title||'Video artista');media.loading='lazy';media.addEventListener('click',()=>window.open('https://youtu.be/'+youtubeId,'_blank','noopener'));
+   }else if(external){
+    media.className='youtube-thumb';media.style.display='grid';media.style.placeItems='center';media.style.background='#392b24';media.style.color='#fff';media.style.fontWeight='700';media.style.cursor='pointer';media.textContent=youtubeId?'▶ YOUTUBE':'▶ VIMEO';media.setAttribute('role','button');media.setAttribute('tabindex','0');
+    const openEmbed=()=>{const frame=document.createElement('iframe');frame.src=external.embed;frame.title=item.title||'Video artista';frame.loading='lazy';frame.allow='autoplay; fullscreen; picture-in-picture';frame.allowFullscreen=true;frame.style.cssText='width:100%;aspect-ratio:16/9;border:0';media.replaceWith(frame)};
+    media.addEventListener('click',openEmbed);media.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openEmbed()}});
    }else{
     media.src=supabase.storage.from(def.bucket).getPublicUrl(item[field]).data.publicUrl;media.controls=true;media.preload='none';media.muted=true;
    }
@@ -517,7 +530,7 @@ async function loadArtistMediaAdmin(){
     const {error:de}=await supabase.from(def.table).delete().eq('id',item.id);
     if(de){artistMediaStatus(card,'Eliminazione non riuscita: '+de.message);del.disabled=false;return}
     let storageError=null;
-    if(!extractYouTubeId(item.video_path)){const {error:se}=await supabase.storage.from(def.bucket).remove([item[field]]);storageError=se}
+    if(item.video_path&&!item.video_url&&!externalVideoSource(item.video_path)){const {error:se}=await supabase.storage.from(def.bucket).remove([item[field]]);storageError=se}
     artistMediaStatus(card,storageError?'Contenuto rimosso; pulizia del file non riuscita: '+storageError.message:'Contenuto eliminato.');await loadArtistMediaAdmin();
    });wrap.append(del);list.append(wrap);
   }
@@ -530,13 +543,13 @@ async function loadRestaurantVideosAdmin(){
  const panel=$('restaurantVideosAdminPanel');if(!panel)return;
  const status=$('restaurantVideosAdminStatus'),count=$('restaurantVideosAdminCount'),list=$('restaurantVideosAdminList');
  status.textContent='Caricamento video degli ambienti…';
- const {data,error}=await supabase.from('restaurant_videos').select('id,title,youtube_url,sort_order,is_published,created_at').order('sort_order',{ascending:true}).order('created_at',{ascending:true});
+ const {data,error}=await supabase.from('restaurant_videos').select('id,title,youtube_url,video_url,sort_order,is_published,created_at').order('sort_order',{ascending:true}).order('created_at',{ascending:true});
  if(error){status.textContent='Errore caricamento: '+error.message;return}
  const items=data||[];list.replaceChildren();count.textContent=items.length+' video degli ambienti';
  for(let i=0;i<items.length;i++){
   const item=items[i],wrap=document.createElement('div');wrap.className='gallery-admin-item';
-  const id=extractYouTubeId(item.youtube_url),thumb=document.createElement('img');
-  if(id){thumb.className='youtube-thumb';thumb.src='https://i.ytimg.com/vi/'+encodeURIComponent(id)+'/hqdefault.jpg';thumb.alt='Anteprima YouTube: '+(item.title||'Video ambiente');thumb.loading='lazy';thumb.addEventListener('click',()=>window.open('https://youtu.be/'+id,'_blank','noopener'))}
+  const source=item.video_url||item.youtube_url,external=externalVideoSource(source),id=external?.provider==='youtube'?external.id:null,thumb=document.createElement('div');
+  if(external){thumb.className='youtube-thumb';thumb.style.display='grid';thumb.style.placeItems='center';thumb.style.background='#392b24';thumb.style.color='#fff';thumb.style.fontWeight='700';thumb.style.cursor='pointer';thumb.textContent=id?'▶ YOUTUBE':'▶ VIMEO';thumb.setAttribute('role','button');thumb.setAttribute('tabindex','0');const openEmbed=()=>{const frame=document.createElement('iframe');frame.src=external.embed;frame.title=item.title||'Video ambiente';frame.loading='lazy';frame.allow='autoplay; fullscreen; picture-in-picture';frame.allowFullscreen=true;frame.style.cssText='width:100%;aspect-ratio:16/9;border:0';thumb.replaceWith(frame)};thumb.addEventListener('click',openEmbed);thumb.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openEmbed()}})}
   const title=document.createElement('p');title.textContent=item.title||'Video ambiente';title.style.cssText='margin:0 0 7px;font-weight:700;color:#392B24';
   if(id)wrap.append(thumb);wrap.append(title);
   const controls=document.createElement('div');controls.className='artist-order-controls';
@@ -558,14 +571,14 @@ async function loadRestaurantVideosAdmin(){
  status.textContent=items.length+' video caricati. I contenuti in bozza non compaiono nella homepage.';
 }
 $('restaurantYoutubeAdd').addEventListener('click',async()=>{
- const url=$('restaurantYoutubeUrl').value.trim(),id=extractYouTubeId(url),title=$('restaurantYoutubeTitle').value.trim();
+ const url=$('restaurantYoutubeUrl').value.trim(),external=externalVideoSource(url),title=$('restaurantYoutubeTitle').value.trim();
  const status=$('restaurantVideosAdminStatus'),button=$('restaurantYoutubeAdd');
- if(!id){status.textContent='Link YouTube non valido. Incolla un link youtube.com o youtu.be completo.';return}
+ if(!external){status.textContent='Link non valido. Inserisci un URL HTTPS Vimeo o YouTube.';return}
  button.disabled=true;status.textContent='Aggiunta del video…';
  try{
   const {data:existing,error:read}=await supabase.from('restaurant_videos').select('sort_order').order('sort_order',{ascending:true}).limit(1);
   if(read)throw read;
-  const {error:insertError}=await supabase.from('restaurant_videos').insert({title:title||'Video degli ambienti',youtube_url:'https://youtu.be/'+id,sort_order:(existing?.[0]?.sort_order??10)-10,is_published:false});
+  const {error:insertError}=await supabase.from('restaurant_videos').insert({title:title||'Video degli ambienti',youtube_url:null,video_url:url,sort_order:(existing?.[0]?.sort_order??10)-10,is_published:false});
   if(insertError)throw insertError;
   $('restaurantYoutubeUrl').value='';$('restaurantYoutubeTitle').value='';
   status.textContent='Video aggiunto come bozza. Puoi controllarlo e pubblicarlo dall’elenco.';
@@ -645,13 +658,13 @@ document.querySelectorAll('[data-artist-media]').forEach(card=>{
  if(kind==='videos'){
   const youtubeUrl=card.querySelector('.artist-youtube-url'),youtubeTitle=card.querySelector('.artist-youtube-title'),youtubeAdd=card.querySelector('.artist-youtube-add');
   youtubeAdd.addEventListener('click',async()=>{
-   const id=extractYouTubeId(youtubeUrl.value);
-   if(!id){artistMediaStatus(card,'Link YouTube non valido. Incolla un link youtube.com o youtu.be completo.');return}
-   youtubeAdd.disabled=true;artistMediaStatus(card,'Aggiunta del video YouTube…');
+   const external=externalVideoSource(youtubeUrl.value);
+   if(!external){artistMediaStatus(card,'Link non valido. Inserisci un URL HTTPS Vimeo o YouTube.');return}
+   youtubeAdd.disabled=true;artistMediaStatus(card,'Aggiunta del video Vimeo / YouTube…');
    try{
     const {data:existing,error:read}=await supabase.from('performance_videos').select('sort_order').order('sort_order',{ascending:true}).limit(1);
     if(read)throw read;
-    const {error:ins}=await supabase.from('performance_videos').insert({title:youtubeTitle.value.trim()||'Video Note Fiorentine',video_path:'https://youtu.be/'+id,sort_order:(existing?.[0]?.sort_order??10)-10,is_published:false});
+    const {error:ins}=await supabase.from('performance_videos').insert({title:youtubeTitle.value.trim()||'Video Note Fiorentine',video_path:null,video_url:youtubeUrl.value.trim(),sort_order:(existing?.[0]?.sort_order??10)-10,is_published:false});
     if(ins)throw ins;
     youtubeUrl.value='';youtubeTitle.value='';
     artistMediaStatus(card,'Video aggiunto come bozza. Controlla l’anteprima e premi “Mostra sul sito” quando vuoi pubblicarlo.');
