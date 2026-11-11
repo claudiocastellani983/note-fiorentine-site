@@ -428,7 +428,7 @@ test('Admin: CRUD link Vimeo per Video ambienti su Supabase Test', async ({ page
     'Test autenticato eseguito soltanto nel job CI con credenziali di test.');
   test.setTimeout(180000);
   const host = new URL(ADMIN_PREVIEW_URL).hostname;
-  expect(host).toMatch(/^note-fiorentine-admin-.+\\.vercel\\.app$/);
+  expect(host).toMatch(/^note-fiorentine-admin-.+\.vercel\.app$/);
   const errors = [];
   const fixtureTitle = 'PLAYWRIGHT AMBIENTE VIMEO ' + randomUUID();
   const vimeoUrl = 'https://vimeo.com/1245730545/2049f3f297?share=copy';
