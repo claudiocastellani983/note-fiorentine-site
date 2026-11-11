@@ -1386,7 +1386,7 @@ links.querySelectorAll('a').forEach(link => link.addEventListener('click', () =>
         video.controls = true; video.playsInline = true; video.preload = 'none';
         video.setAttribute('aria-label', item.title || 'Video delle serate Note Fiorentine');
         video.addEventListener('click', function activate() {
-          if (!video.src) { video.src = video.dataset.src; video.load(); }
+          if (!video.src) { video.src = video.dataset.src; video.load(); const playPromise = video.play(); if (playPromise && playPromise.catch) playPromise.catch(() => {}); }
         }, { once: true });
         container.appendChild(video);
       }
