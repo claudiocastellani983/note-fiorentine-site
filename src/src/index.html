@@ -2326,6 +2326,96 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
   color:#F1E7D6!important;
   text-shadow:0 2px 16px rgba(0,0,0,.7);
 }
+
+<style id="nf-fixed-cinematic-background-v1">
+/* Video fissato alla viewport, ma ritagliato dinamicamente entro Hero + intro + menù. */
+#app>main>#nf-cinematic-zone{
+  position:relative!important;
+  isolation:isolate!important;
+  overflow:visible!important;
+  background:transparent!important;
+}
+#nf-cinematic-zone>.nf-cinematic-backdrop{
+  position:fixed!important;
+  top:var(--nf-video-top,0px)!important;
+  left:0!important;
+  right:0!important;
+  width:100%!important;
+  height:var(--nf-video-height,100vh)!important;
+  min-height:0!important;
+  margin:0!important;
+  z-index:0!important;
+  overflow:hidden!important;
+  pointer-events:none!important;
+  visibility:hidden;
+}
+#nf-cinematic-zone>.nf-cinematic-backdrop>.nf-cinematic-video,
+#nf-cinematic-zone>.nf-cinematic-backdrop>.nf-cinematic-shade{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+}
+#nf-cinematic-zone>.nf-cinematic-backdrop>.nf-cinematic-video{
+  object-fit:cover!important;
+  object-position:center 46%!important;
+}
+#nf-cinematic-zone>.hero,
+#nf-cinematic-zone>.intro,
+#nf-cinematic-zone>.menu-section{
+  position:relative!important;
+  z-index:1!important;
+  background:transparent!important;
+}
+#nf-cinematic-zone>.menu-section{
+  background:transparent!important;
+}
+@media(max-width:760px){
+  #nf-cinematic-zone>.nf-cinematic-backdrop>.nf-cinematic-video{
+    object-position:center 42%!important;
+  }
+}
+</style>
+<script id="nf-fixed-cinematic-background-controller-v1">
+(function(){
+  function init(){
+    var zone=document.getElementById('nf-cinematic-zone');
+    var backdrop=zone&&zone.querySelector('.nf-cinematic-backdrop');
+    var header=document.querySelector('#app>header');
+    if(!zone||!backdrop||!header)return;
+    var scheduled=false;
+    function update(){
+      scheduled=false;
+      var zr=zone.getBoundingClientRect();
+      var hr=header.getBoundingClientRect();
+      var top=Math.max(hr.bottom,zr.top,0);
+      var bottom=Math.min(window.innerHeight,zr.bottom);
+      if(bottom>top){
+        backdrop.style.setProperty('--nf-video-top',top+'px');
+        backdrop.style.setProperty('--nf-video-height',(bottom-top)+'px');
+        backdrop.style.visibility='visible';
+      }else{
+        backdrop.style.visibility='hidden';
+      }
+    }
+    function schedule(){
+      if(scheduled)return;
+      scheduled=true;
+      window.requestAnimationFrame(update);
+    }
+    window.addEventListener('scroll',schedule,{passive:true});
+    window.addEventListener('resize',schedule,{passive:true});
+    if(window.ResizeObserver){
+      var ro=new ResizeObserver(schedule);
+      ro.observe(header);
+      ro.observe(zone);
+    }
+    update();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
+})();
+</script>
 </style>
 
 </body>
