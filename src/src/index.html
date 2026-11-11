@@ -1981,5 +1981,59 @@ a{ text-decoration-color:rgba(198,161,106,.55) }
 }
 </style>
 
+
+<style id="nf-auditore-surfaces-v2">
+/* Uniforma anche i fondali che avevano ancora colori legacy o regole più specifiche */
+:root{
+ --nf-auditore-base:#171512;
+ --nf-auditore-panel:#211D18;
+ --nf-auditore-panel-raised:#29231C;
+ --nf-auditore-gold:#C6A16A;
+ --nf-auditore-ivory:#F1E7D6;
+}
+html,body,#app,#app main{background:var(--nf-auditore-base)!important;color:var(--nf-auditore-ivory)!important}
+#app>main>section,
+#app>main>.intro,#app>main>.music-section,#app>main>.content-section,
+#app>main>.music-videos,#app>main>.nf-artists-media,#app>main>.visit,
+#app main .content-section,#app main .intro,#app main .music-section,
+#app main .music-videos,#app main .nf-artists-media,#app main .visit{
+ background-color:var(--nf-auditore-base)!important;color:var(--nf-auditore-ivory)!important
+}
+#app>main>.music-section,#app>main>.content-section.alt,
+#app main .music-section,#app main .content-section.alt{
+ background-color:var(--nf-auditore-panel)!important
+}
+#app>main>.music-videos,#app main .music-videos{
+ background:linear-gradient(135deg,#211D18 0%,#29231C 55%,#171512 100%)!important;
+ color:var(--nf-auditore-ivory)!important
+}
+#app>main>.music-strip{background:var(--nf-auditore-gold)!important;color:#17130F!important}
+#app>footer,footer{background:#0E0C0A!important;color:var(--nf-auditore-ivory)!important}
+#app>header{background:rgba(23,21,18,.97)!important;color:var(--nf-auditore-ivory)!important}
+#app>header .navlinks{background:#211D18!important}
+#app>header .navlinks .nav-cta{background:var(--nf-auditore-gold)!important;color:#17130F!important}
+.event-card,.visit-card,.menu-item-card,.video-card,.gallery-tile,
+.nf-gallery-dialog,.nf-artists-dialog,.nf-artists-card{
+ background:var(--nf-auditore-panel)!important;color:var(--nf-auditore-ivory)!important;
+ border-color:rgba(198,161,106,.42)!important
+}
+.music-videos .video-card{background:var(--nf-auditore-panel-raised)!important;color:var(--nf-auditore-ivory)!important}
+#nf-popup-box,.nf-popup-box,#nf-popup-box *{color:var(--nf-auditore-ivory)}
+#nf-popup-box{background:var(--nf-auditore-panel)!important;border-color:rgba(198,161,106,.55)!important}
+#nf-popup-rule{background:var(--nf-auditore-gold)!important}
+.nf-popup-book{background:var(--nf-auditore-gold)!important;color:#17130F!important}
+.nf-popup-contact,.nf-popup-file{color:var(--nf-auditore-ivory)!important}
+.nf-gallery-site-header,.nf-gallery-site-header header{background:var(--nf-auditore-base)!important;color:var(--nf-auditore-ivory)!important}
+.nf-gallery-viewer,.nf-artists-viewer,#nf-popup-lightbox{background:rgba(10,8,6,.97)!important;color:var(--nf-auditore-ivory)!important}
+.nf-gallery-stage,.nf-artists-viewer-stage{background:#171512!important}
+.nf-gallery-viewer button:hover,.nf-gallery-viewer button:focus-visible,
+.nf-artists-viewer button:hover,.nf-artists-viewer button:focus-visible{background:var(--nf-auditore-gold)!important;color:#17130F!important}
+input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--nf-auditore-ivory)!important;border-color:rgba(198,161,106,.45)!important}
+::placeholder{color:#AFA08D!important}
+@media(max-width:760px){
+ #app>header .navlinks{background:#171512!important}
+}
+</style>
+
 </body>
 </html><script async data-explicit-opt-in="true" data-deployment-id="dpl_7tHJ9DycmxR1TALK2u85APShiyVZ" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_EmRnWHsGMUkcJwHUQ7vz8FCmfTh6" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_E5nptDv68tSzPwNaRWjjuQBRJWLT" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_3kBEXjiEjcHv33v8JxwMth6Znb56" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_GbSb1nxg8uKN3nnLoyFhoPVdiZvt" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
