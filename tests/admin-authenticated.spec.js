@@ -510,3 +510,109 @@ test('Admin: CRUD link Vimeo per Video ambienti su Supabase Test', async ({ page
   }
   expect(errors, 'Errori JavaScript o cleanup non gestito nel pannello Admin').toEqual([]);
 });
+
+
+test('Gestione immagini: CRUD Vimeo per galleria artisti e video ambienti su Supabase Test', async ({ page }) => {
+  test.skip(!ADMIN_PREVIEW_URL || !ADMIN_EMAIL || !ADMIN_PASSWORD,
+    'Test Vimeo autenticato eseguito soltanto nel job CI con credenziali di test.');
+  test.setTimeout(180000);
+  const base = new URL(ADMIN_PREVIEW_URL);
+  const managementUrl = base.origin + '/gestione-immagini.html';
+  const vimeoUrl = 'https://vimeo.com/1245730545/2049f3f297?share=copy';
+  const artistTitle = 'PLAYWRIGHT ARTISTI VIMEO ' + randomUUID();
+  const environmentTitle = 'PLAYWRIGHT AMBIENTI VIMEO ' + randomUUID();
+  const errors = [];
+  let artistId = null;
+  let environmentId = null;
+  page.on('pageerror', error => errors.push(error.message));
+
+  const api = async (method, path, body) => page.evaluate(async ({ method, path, body, publicKey, supabaseUrl }) => {
+    const storageKey = Object.keys(localStorage).find(key => key.endsWith('-auth-token'));
+    const session = JSON.parse(localStorage.getItem(storageKey) || '{}');
+    if (!session.access_token) throw new Error('Sessione Supabase assente nel test Gestione immagini.');
+    const response = await fetch(supabaseUrl + '/rest/v1/' + path, {
+      method,
+      headers: {
+        apikey: publicKey,
+        Authorization: 'Bearer ' + session.access_token,
+        'Content-Type': 'application/json',
+        Prefer: 'return=representation'
+      },
+      ...(body === undefined ? {} : { body: JSON.stringify(body) })
+    });
+    const text = await response.text();
+    if (!response.ok) throw new Error('Supabase Test API ' + method + ' ' + response.status + ': ' + text);
+    return text ? JSON.parse(text) : [];
+  }, { method, path, body, publicKey: SUPABASE_PUBLIC_KEY, supabaseUrl: SUPABASE_URL });
+
+  try {
+    const response = await page.goto(managementUrl, { waitUntil: 'domcontentloaded' });
+    expect(response && response.status()).toBe(200);
+    await page.locator('#email').fill(ADMIN_EMAIL);
+    await page.locator('#password').fill(ADMIN_PASSWORD);
+    await page.locator('#loginBtn').click();
+    await page.locator('#email').fill('');
+    await page.locator('#password').fill('');
+    await expect(page.locator('#manager')).toBeVisible({ timeout: 45000 });
+
+    const artistCard = page.locator('[data-artist-media="videos"]');
+    await artistCard.locator('.artist-youtube-url').fill(vimeoUrl);
+    await artistCard.locator('.artist-youtube-title').fill(artistTitle);
+    await artistCard.locator('.artist-youtube-add').click();
+    await expect(artistCard.locator('.gallery-admin-status')).toContainText('Video aggiunto come bozza.', { timeout: 30000 });
+
+    let rows = await api('GET', 'performance_videos?select=id,title,video_path,video_url,is_published&title=eq.' + encodeURIComponent(artistTitle));
+    expect(rows).toHaveLength(1);
+    artistId = rows[0].id;
+    expect(rows[0].video_url).toBe(vimeoUrl);
+    expect(rows[0].video_path).toBeNull();
+    expect(rows[0].is_published).toBe(false);
+
+    const artistItem = artistCard.locator('.gallery-admin-item').filter({ hasText: artistTitle });
+    await artistItem.locator('.youtube-thumb').click();
+    await expect(artistItem.locator('iframe')).toHaveAttribute('src', /player\\.vimeo\\.com\\/video\\/1245730545\\?h=2049f3f297/);
+
+    page.once('dialog', dialog => dialog.accept());
+    await artistItem.locator('.media-delete').click();
+    await expect(artistCard.locator('.gallery-admin-list').getByText(artistTitle)).toHaveCount(0);
+    rows = await api('GET', 'performance_videos?select=id&id=eq.' + artistId);
+    expect(rows).toHaveLength(0);
+    artistId = null;
+
+    await page.locator('#restaurantYoutubeUrl').fill(vimeoUrl);
+    await page.locator('#restaurantYoutubeTitle').fill(environmentTitle);
+    await page.locator('#restaurantYoutubeAdd').click();
+    await expect(page.locator('#restaurantVideosAdminStatus')).toContainText('Video aggiunto come bozza.', { timeout: 30000 });
+
+    rows = await api('GET', 'restaurant_videos?select=id,title,youtube_url,video_url,is_published&title=eq.' + encodeURIComponent(environmentTitle));
+    expect(rows).toHaveLength(1);
+    environmentId = rows[0].id;
+    expect(rows[0].video_url).toBe(vimeoUrl);
+    expect(rows[0].youtube_url).toBeNull();
+    expect(rows[0].is_published).toBe(false);
+
+    const environmentItem = page.locator('#restaurantVideosAdminList .gallery-admin-item').filter({ hasText: environmentTitle });
+    await environmentItem.locator('.youtube-thumb').click();
+    await expect(environmentItem.locator('iframe')).toHaveAttribute('src', /player\\.vimeo\\.com\\/video\\/1245730545\\?h=2049f3f297/);
+
+    page.once('dialog', dialog => dialog.accept());
+    await environmentItem.locator('.media-delete').click();
+    await expect(page.locator('#restaurantVideosAdminList').getByText(environmentTitle)).toHaveCount(0);
+    rows = await api('GET', 'restaurant_videos?select=id&id=eq.' + environmentId);
+    expect(rows).toHaveLength(0);
+    environmentId = null;
+  } finally {
+    for (const [table, id] of [['performance_videos', artistId], ['restaurant_videos', environmentId]]) {
+      if (id) {
+        try {
+          await api('DELETE', table + '?id=eq.' + id);
+          const remaining = await api('GET', table + '?select=id&id=eq.' + id);
+          if (remaining.length) errors.push('Cleanup record temporaneo non riuscito in ' + table);
+        } catch (error) {
+          errors.push('Cleanup ' + table + ' non riuscito: ' + error.message);
+        }
+      }
+    }
+  }
+  expect(errors, 'Errori JavaScript o cleanup non gestito nella Gestione immagini').toEqual([]);
+});
