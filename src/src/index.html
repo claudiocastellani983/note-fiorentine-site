@@ -1248,7 +1248,7 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
   </header>
   <main>
     <div class="nf-cinematic-zone" id="nf-cinematic-zone">
-      <div class="nf-cinematic-backdrop" aria-hidden="true"><video class="nf-cinematic-video" autoplay muted loop playsinline webkit-playsinline preload="auto"><source src="https://iuxskknbopboynjlsxbk.supabase.co/storage/v1/object/public/performance-videos/note-fiorentine-hero-montaggio.mp4" type="video/mp4"></video><div class="nf-cinematic-shade"></div></div>
+      <div class="nf-cinematic-backdrop"><video class="nf-cinematic-video" muted loop playsinline webkit-playsinline preload="none" data-src="https://iuxskknbopboynjlsxbk.supabase.co/storage/v1/object/public/performance-videos/note-fiorentine-hero-montaggio.mp4" aria-label="Video d’atmosfera Note Fiorentine"></video><button class="nf-cinematic-play" type="button" aria-label="Riproduci il video d’atmosfera">▶ <span>Guarda il video</span></button><div class="nf-cinematic-shade" aria-hidden="true"></div></div>
     <section class="hero" id="inizio">
       <div class="hero-copy">
         <div class="eyebrow">Ristorante Toscano & Live Music</div>
@@ -1339,7 +1339,7 @@ links.querySelectorAll('a').forEach(link => link.addEventListener('click', () =>
   if (!container) return;
   const supabaseUrl = 'https://nculgrwlzjitggjcgbpp.supabase.co';
   const supabaseKey = 'sb_publishable_vg78G491' + 'ekPPQt4CwCeJDw_Pp1n44V0';
-  const endpoint = supabaseUrl + '/rest/v1/performance_videos?select=id,video_path,sort_order,created_at&is_published=eq.true&order=sort_order.asc,created_at.desc';
+  const endpoint = supabaseUrl + '/rest/v1/performance_videos?select=id,title,video_path,video_url,sort_order,created_at&is_published=eq.true&order=sort_order.asc,created_at.desc';
   const makeText = (tag, value, className) => {
     const node = document.createElement(tag);
     if (className) node.className = className;
@@ -1360,15 +1360,36 @@ links.querySelectorAll('a').forEach(link => link.addEventListener('click', () =>
       return;
     }
     for (const item of videos) {
-      if (!item.video_path) continue;
-      const video = document.createElement('video');
-      const path = String(item.video_path).split('/').map(encodeURIComponent).join('/');
-      video.src = supabaseUrl + '/storage/v1/object/public/performance-videos/' + path;
-      video.controls = true;
-      video.playsInline = true;
-      video.preload = 'metadata';
-      video.setAttribute('aria-label', 'Video delle serate Note Fiorentine');
-      container.appendChild(video);
+      const external = String(item.video_url || item.video_path || '').trim();
+      if (!external) continue;
+      if (/^https?:\/\//i.test(external)) {
+        let parsed, host, parts, id, embed = '';
+        try { parsed = new URL(external); host = parsed.hostname.toLowerCase().replace(/^www\./, ''); parts = parsed.pathname.split('/').filter(Boolean); } catch (_) { continue; }
+        if (host === 'youtu.be' || ['youtube.com','m.youtube.com','youtube-nocookie.com'].includes(host)) {
+          const marker = parts.findIndex(part => ['embed','shorts','live'].includes(part));
+          id = host === 'youtu.be' ? parts[0] : (parsed.searchParams.get('v') || (marker >= 0 ? parts[marker + 1] : ''));
+          if (!id) continue;
+          embed = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?rel=0';
+        } else if (host === 'vimeo.com' || host === 'player.vimeo.com') {
+          id = parts.find(part => /^\d+$/.test(part));
+          if (!id) continue;
+          embed = 'https://player.vimeo.com/video/' + id + '?dnt=1&title=0&byline=0&portrait=0';
+        } else continue;
+        const frame = document.createElement('iframe');
+        frame.src = embed; frame.title = item.title || 'Video delle serate Note Fiorentine';
+        frame.loading = 'lazy'; frame.allow = 'fullscreen; picture-in-picture'; frame.allowFullscreen = true;
+        frame.referrerPolicy = 'strict-origin-when-cross-origin'; container.appendChild(frame);
+      } else {
+        const video = document.createElement('video');
+        const path = external.split('/').map(encodeURIComponent).join('/');
+        video.dataset.src = supabaseUrl + '/storage/v1/object/public/performance-videos/' + path;
+        video.controls = true; video.playsInline = true; video.preload = 'none';
+        video.setAttribute('aria-label', item.title || 'Video delle serate Note Fiorentine');
+        video.addEventListener('click', function activate() {
+          if (!video.src) { video.src = video.dataset.src; video.load(); }
+        }, { once: true });
+        container.appendChild(video);
+      }
     }
     if (!container.children.length) {
       container.appendChild(makeText('p', 'I video delle nostre serate saranno disponibili qui a breve.', 'video-empty'));
@@ -1716,7 +1737,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
  function mount(el,row){
   if(!el||!row||!row.image_path)return;
   const url=publicUrl(row.image_path),zoom=Math.max(1,Math.min(3,Number(row.focal_zoom||1)));
-  const img=document.createElement('img');img.className='nf-managed-image';img.alt=row.alt_text||'';img.decoding='async';img.loading='eager';img.fetchPriority='high';
+  const img=document.createElement('img');img.className='nf-managed-image';img.alt=row.alt_text||'';img.decoding='async';img.loading='lazy';img.fetchPriority='low';
   img.style.objectPosition=(row.focal_x??50)+'% '+(row.focal_y??50)+'%';
   img.style.transform='scale('+zoom+')';img.style.transformOrigin=(row.focal_x??50)+'% '+(row.focal_y??50)+'%';
   img.addEventListener('error',()=>{img.remove();el.classList.remove('has-managed-image');log('Immagine non caricata:',row.image_key,url)});
@@ -2622,6 +2643,28 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 #app>header>.nav>.language-switch>a{box-sizing:border-box!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 34px!important;width:34px!important;min-width:34px!important;max-width:34px!important;height:34px!important;min-height:34px!important;max-height:34px!important;padding:0!important;border:1px solid rgba(178,155,137,.62)!important;border-radius:50%!important;background:#38231F!important;color:#F9F8F7!important;opacity:1!important;line-height:1!important;text-decoration:none!important;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)!important}
 #app>header>.nav>.language-switch>a.active{background:#81201C!important;border:2px solid #D1B49C!important;box-shadow:0 0 0 2px rgba(129,32,28,.3)!important}
 @media(max-width:760px){#app>header>.nav>.language-switch{gap:4px!important}#app>header>.nav>.language-switch>a{flex-basis:32px!important;width:32px!important;min-width:32px!important;max-width:32px!important;height:32px!important;min-height:32px!important;max-height:32px!important}}
+</style>
+<script id="nf-hero-video-deferred-v1">
+(function(){
+ const zone=document.querySelector('#nf-cinematic-zone'),video=zone?.querySelector('.nf-cinematic-video'),button=zone?.querySelector('.nf-cinematic-play');
+ if(!video||!button)return;
+ button.addEventListener('click',function(){
+  if(!video.src){video.src=video.dataset.src;video.load();}
+  video.controls=true;
+  const result=video.play();
+  if(result&&typeof result.catch==='function')result.catch(()=>{button.hidden=false;});
+  button.hidden=true;
+ },{once:true});
+ video.addEventListener('ended',()=>{button.hidden=false;});
+})();
+</script>
+<style id="nf-hero-video-deferred-style-v1">
+#nf-cinematic-zone .nf-cinematic-backdrop{position:absolute;inset:0;overflow:hidden}
+#nf-cinematic-zone .nf-cinematic-video{opacity:0;transition:opacity .5s ease;pointer-events:auto}
+#nf-cinematic-zone .nf-cinematic-video[src]{opacity:1}
+#nf-cinematic-zone .nf-cinematic-play{position:absolute;z-index:4;left:50%;top:50%;transform:translate(-50%,-50%);display:inline-flex;align-items:center;gap:10px;padding:13px 18px;border:1px solid rgba(217,195,160,.85);border-radius:2px;background:rgba(42,25,22,.82);color:#F9F8F7;font:600 11px Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+#nf-cinematic-zone .nf-cinematic-play[hidden]{display:none}
+@media(prefers-reduced-motion:reduce){#nf-cinematic-zone .nf-cinematic-video{transition:none}}
 </style>
 </body>
 </html><script async data-explicit-opt-in="true" data-deployment-id="dpl_7tHJ9DycmxR1TALK2u85APShiyVZ" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_EmRnWHsGMUkcJwHUQ7vz8FCmfTh6" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_E5nptDv68tSzPwNaRWjjuQBRJWLT" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_3kBEXjiEjcHv33v8JxwMth6Znb56" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_GbSb1nxg8uKN3nnLoyFhoPVdiZvt" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
