@@ -2237,3 +2237,25 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 </style>
 </body>
 </html><script async data-explicit-opt-in="true" data-deployment-id="dpl_7tHJ9DycmxR1TALK2u85APShiyVZ" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_EmRnWHsGMUkcJwHUQ7vz8FCmfTh6" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_E5nptDv68tSzPwNaRWjjuQBRJWLT" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_3kBEXjiEjcHv33v8JxwMth6Znb56" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_GbSb1nxg8uKN3nnLoyFhoPVdiZvt" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
+
+<style id="nf-intro-video-visibility-fix-v1">
+/* La sezione "Un'esperienza fiorentina" deve lasciare visibile il video sottostante. */
+#nf-cinematic-zone>.intro,
+#nf-cinematic-zone>.intro::before,
+#nf-cinematic-zone>.intro::after {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  opacity: 1 !important;
+}
+/* Riduce la velatura scura che copriva il filmato nella parte inferiore della Hero. */
+#nf-cinematic-zone>.nf-cinematic-backdrop>.nf-cinematic-shade {
+  background: linear-gradient(
+    180deg,
+    rgba(16,13,11,.12) 0%,
+    rgba(16,13,11,.18) 58%,
+    rgba(16,13,11,.24) 100%
+  ) !important;
+  opacity: 1 !important;
+}
+</style>
