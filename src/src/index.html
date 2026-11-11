@@ -2299,6 +2299,33 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 @media(max-width:760px){
   #nf-cinematic-zone>.menu-section .menu-items{padding:12px!important}
 }
+
+/* La sezione introduttiva resta trasparente: il video continua a vedersi dietro il testo. */
+#nf-cinematic-zone>#ristorante,
+#nf-cinematic-zone>section.intro#ristorante{
+  position:relative!important;
+  z-index:1!important;
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  box-shadow:none!important;
+  color:#F1E7D6!important;
+}
+#nf-cinematic-zone>#ristorante::before,
+#nf-cinematic-zone>#ristorante::after{
+  content:none!important;
+  display:none!important;
+  background:none!important;
+}
+#nf-cinematic-zone>#ristorante .section-kicker{
+  color:#D8BD91!important;
+  text-shadow:0 2px 16px rgba(0,0,0,.65);
+}
+#nf-cinematic-zone>#ristorante h2,
+#nf-cinematic-zone>#ristorante p{
+  color:#F1E7D6!important;
+  text-shadow:0 2px 16px rgba(0,0,0,.7);
+}
 </style>
 
 </body>
