@@ -421,3 +421,92 @@ test('Admin: CRUD completo dei video musicali su Supabase Test', async ({ page }
   }
   expect(errors, 'Errori JavaScript o cleanup non gestito nel pannello Admin').toEqual([]);
 });
+
+
+test('Admin: CRUD link Vimeo per Video ambienti su Supabase Test', async ({ page }) => {
+  test.skip(!ADMIN_PREVIEW_URL || !ADMIN_EMAIL || !ADMIN_PASSWORD,
+    'Test autenticato eseguito soltanto nel job CI con credenziali di test.');
+  test.setTimeout(180000);
+  const host = new URL(ADMIN_PREVIEW_URL).hostname;
+  expect(host).toMatch(/^note-fiorentine-admin-.+\\.vercel\\.app$/);
+  const errors = [];
+  const fixtureTitle = 'PLAYWRIGHT AMBIENTE VIMEO ' + randomUUID();
+  const vimeoUrl = 'https://vimeo.com/1245730545/2049f3f297?share=copy';
+  let fixtureId = null;
+  page.on('pageerror', error => errors.push(error.message));
+
+  const api = async (method, path, body) => page.evaluate(async ({ method, path, body, publicKey, supabaseUrl }) => {
+    const storageKey = Object.keys(localStorage).find(key => key.endsWith('-auth-token'));
+    const session = JSON.parse(localStorage.getItem(storageKey) || '{}');
+    if (!session.access_token) throw new Error('Sessione Supabase assente durante il test Video ambienti.');
+    const response = await fetch(supabaseUrl + '/rest/v1/' + path, {
+      method,
+      headers: {
+        apikey: publicKey,
+        Authorization: 'Bearer ' + session.access_token,
+        'Content-Type': 'application/json',
+        Prefer: 'return=representation'
+      },
+      ...(body === undefined ? {} : { body: JSON.stringify(body) })
+    });
+    const text = await response.text();
+    if (!response.ok) throw new Error('Supabase Test API ' + method + ' ' + response.status + ': ' + text);
+    return text ? JSON.parse(text) : [];
+  }, { method, path, body, publicKey: SUPABASE_PUBLIC_KEY, supabaseUrl: SUPABASE_URL });
+
+  try {
+    const response = await page.goto(ADMIN_PREVIEW_URL, { waitUntil: 'domcontentloaded' });
+    expect(response && response.status()).toBe(200);
+    await page.locator('#email').fill(ADMIN_EMAIL);
+    await page.locator('#password').fill(ADMIN_PASSWORD);
+    await page.locator('#loginForm button').click();
+    await page.locator('#email').fill('');
+    await page.locator('#password').fill('');
+    await expect(page.locator('#app')).toBeVisible({ timeout: 45000 });
+
+    await page.locator('#tabs [data-tab="Video ambienti"]').click();
+    await expect(page.locator('#sectionTitle')).toHaveText('Video ambienti');
+    await page.locator('#add').click();
+    await page.locator('#fields [name="title"]').fill(fixtureTitle);
+    await page.locator('#fields [name="description"]').fill('Test Vimeo nella sezione dedicata');
+    await page.locator('#fields [name="video_url"]').fill(vimeoUrl);
+    await page.locator('#fields [name="video_orientation"]').selectOption('landscape');
+    await page.locator('#fields [name="sort_order"]').fill('999999');
+    // Il record resta non pubblicato: il test non espone contenuti temporanei sul sito.
+    await page.locator('#fields [name="is_published"]').uncheck();
+    await page.locator('#editForm button[type="submit"]').click();
+
+    const card = page.locator('#items article').filter({ hasText: fixtureTitle });
+    await expect(card).toBeVisible({ timeout: 30000 });
+    let rows = await api('GET', 'restaurant_videos?select=id,title,description,youtube_url,video_url,video_orientation,sort_order,is_published&title=eq.' + encodeURIComponent(fixtureTitle));
+    expect(rows).toHaveLength(1);
+    fixtureId = rows[0].id;
+    expect(rows[0].video_url).toBe(vimeoUrl);
+    expect(rows[0].youtube_url).toBeNull();
+    expect(rows[0].video_orientation).toBe('landscape');
+    expect(rows[0].is_published).toBe(false);
+
+    // Aggiornamento tramite il form reale e nuova verifica del valore letto dal DB.
+    await card.locator('[data-edit]').click();
+    await page.locator('#fields [name="description"]').fill('Descrizione Vimeo aggiornata');
+    await page.locator('#editForm button[type="submit"]').click();
+    await expect(page.locator('#items article').filter({ hasText: fixtureTitle })).toContainText('Descrizione Vimeo aggiornata');
+    rows = await api('GET', 'restaurant_videos?select=id,description,youtube_url,video_url,video_orientation&id=eq.' + fixtureId);
+    expect(rows).toHaveLength(1);
+    expect(rows[0].description).toBe('Descrizione Vimeo aggiornata');
+    expect(rows[0].video_url).toBe(vimeoUrl);
+    expect(rows[0].youtube_url).toBeNull();
+    expect(rows[0].video_orientation).toBe('landscape');
+  } finally {
+    if (fixtureId) {
+      try {
+        await api('DELETE', 'restaurant_videos?id=eq.' + fixtureId);
+        const remaining = await api('GET', 'restaurant_videos?select=id&id=eq.' + fixtureId);
+        if (remaining.length) errors.push('Il record Vimeo temporaneo non è stato eliminato.');
+      } catch (error) {
+        errors.push('Cleanup Video ambienti non riuscito: ' + error.message);
+      }
+    }
+  }
+  expect(errors, 'Errori JavaScript o cleanup non gestito nel pannello Admin').toEqual([]);
+});
