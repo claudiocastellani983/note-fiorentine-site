@@ -1206,6 +1206,16 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
   text-shadow:0 2px 4px rgba(20,12,10,.95),0 0 18px rgba(184,74,66,.42)!important;
 }
 </style>
+
+<style id="nf-live-photo-after-description-v1">
+/* La foto live music segue il testo descrittivo e precede l'orario. */
+#app>main>#musica .music-copy{grid-column:1/-1!important;grid-row:1!important}
+#app>main>#musica .music-copy .music-art{display:grid!important;width:100%!important;min-height:clamp(280px,42vw,520px)!important;margin:26px 0 30px!important;grid-column:auto!important;grid-row:auto!important}
+@media(max-width:760px){
+ #app>main>#musica .music-copy{grid-column:1!important;grid-row:1!important}
+ #app>main>#musica .music-copy .music-art{min-height:clamp(250px,70vw,390px)!important;margin:22px 0 26px!important}
+}
+</style>
 </head>
 <body>
 <div id="app">
@@ -1266,11 +1276,11 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
     </section>
     </div>
     <section class="music-section" id="musica">
-      <div class="music-art" role="img" aria-label="Fotografia della musica dal vivo"></div>
       <div class="music-copy">
         <div class="section-kicker">Ristorante Toscano & Live Music</div>
         <h2>Ogni sera,<br>la musica è di casa.</h2>
         <p>Ogni sera, sette giorni su sette, artisti e generi musicali variabili accompagnano la vostra cena. La musica dal vivo fa parte dell'esperienza Note Fiorentine.</p>
+        <div class="music-art" role="img" aria-label="Fotografia della musica dal vivo"></div>
         <div class="time"><span style="font-size:25px">◷</span><div><strong>19:30 – 21:30</strong><small>Tutte le sere</small></div></div>
         <div class="included">Musica inclusa nella cena</div>
       </div>
