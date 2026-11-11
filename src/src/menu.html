@@ -1048,3 +1048,26 @@ function showCategory(category,button){
 
 <script id="nf-site-images-runtime">(async function(){const base=window.NF_SUPABASE_CONFIG.url,key=window.NF_SUPABASE_CONFIG.key;try{const r=await fetch(base+'/rest/v1/site_images?select=image_key,image_path,alt_text,focal_x,focal_y&is_active=eq.true',{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});if(!r.ok)return;const rows=await r.json(),map=Object.fromEntries(rows.filter(x=>x.image_path).map(x=>[x.image_key,x]));const url=p=>base+'/storage/v1/object/public/site-media/'+p.split('/').map(encodeURIComponent).join('/');const apply=(el,row)=>{if(!el||!row)return;el.style.backgroundImage='linear-gradient(180deg,rgba(25,17,13,.10),rgba(25,17,13,.38)),url("'+url(row.image_path)+'")';el.style.backgroundSize='cover';el.style.backgroundPosition=(row.focal_x??50)+'% '+(row.focal_y??50)+'%';if(row.alt_text)el.setAttribute('aria-label',row.alt_text)};apply(document.querySelector('.hero-art'),map.hero);apply(document.querySelector('.music-art'),map.live_music);const tiles=[...document.querySelectorAll('.gallery-tile')];['gallery_restaurant','gallery_food','gallery_atmosphere'].forEach((k,i)=>apply(tiles[i],map[k]));}catch(e){console.warn('Immagini sito non caricate',e)}})();</script></body>
 </html><script async data-explicit-opt-in="true" data-deployment-id="dpl_7tHJ9DycmxR1TALK2u85APShiyVZ" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_EmRnWHsGMUkcJwHUQ7vz8FCmfTh6" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_E5nptDv68tSzPwNaRWjjuQBRJWLT" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_3kBEXjiEjcHv33v8JxwMth6Znb56" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_GbSb1nxg8uKN3nnLoyFhoPVdiZvt" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
+
+<style id="nf-menu-readability-v1">
+/* Contrasto stabile del menu completo, con pannello opaco e testi ad alta leggibilità. */
+#app>main>#menu .menu-category-tabs{position:relative!important;z-index:3!important;gap:10px!important}
+#app>main>#menu .menu-category-button{background:#211D18!important;color:#F1E7D6!important;border:1px solid #C6A16A!important;font-size:11px!important;line-height:1.35!important;font-weight:700!important;padding:13px 18px!important;text-shadow:none!important}
+#app>main>#menu .menu-category-button.active{background:#A83E35!important;color:#FFF!important;border-color:#D7A06F!important}
+#app>main>#menu .menu-items{position:relative!important;z-index:2!important;max-width:1050px!important;margin:0 auto!important;padding:clamp(18px,3vw,30px)!important;background:#171512!important;border:1px solid rgba(198,161,106,.55)!important;box-shadow:0 12px 36px rgba(0,0,0,.28)!important;text-align:left!important}
+#app>main>#menu .menu-item-card{background:#211D18!important;border:0!important;border-bottom:1px solid rgba(198,161,106,.35)!important;box-shadow:none!important;padding:22px 12px 24px!important}
+#app>main>#menu .menu-item-card h3{color:#FFF3E2!important;font-size:clamp(22px,2.3vw,29px)!important;line-height:1.25!important;text-shadow:none!important}
+#app>main>#menu .menu-item-price{color:#E5BD7E!important;font-size:17px!important;font-weight:700!important;text-shadow:none!important}
+#app>main>#menu .menu-item-description{color:#E3D8C8!important;font-size:16px!important;line-height:1.75!important;text-shadow:none!important}
+#app>main>#menu .menu-item-allergens{color:#CDBA9E!important;font-size:12px!important;line-height:1.6!important}
+#app>main>#menu .menu-category-description,#app>main>#menu .menu-loading,#app>main>#menu .menu-empty,#app>main>#menu .menu-error{color:#F1E7D6!important;font-size:16px!important;line-height:1.7!important}
+@media(max-width:760px){
+#app>main>#menu .menu-category-tabs{padding:0 0 14px!important;margin:24px 0 20px!important;overflow-x:auto!important;flex-wrap:nowrap!important}
+#app>main>#menu .menu-category-button{flex:0 0 auto!important;padding:12px 15px!important;font-size:11px!important}
+#app>main>#menu .menu-items{padding:12px!important;margin:0!important}
+#app>main>#menu .menu-item-card{padding:19px 7px 21px!important}
+#app>main>#menu .menu-item-card h3{font-size:22px!important}
+#app>main>#menu .menu-item-price{font-size:16px!important}
+#app>main>#menu .menu-item-description{font-size:15px!important;line-height:1.7!important}
+}
+</style>
