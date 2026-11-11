@@ -570,7 +570,7 @@ test('Gestione immagini: CRUD Vimeo per galleria artisti e video ambienti su Sup
 
     const artistItem = artistCard.locator('.gallery-admin-item').filter({ hasText: artistTitle });
     await artistItem.locator('.youtube-thumb').click();
-    await expect(artistItem.locator('iframe')).toHaveAttribute('src', /player\\.vimeo\\.com\\/video\\/1245730545\\?h=2049f3f297/);
+    await expect(artistItem.locator('iframe')).toHaveAttribute('src', /player\.vimeo\.com\/video\/1245730545\?h=2049f3f297/);
 
     page.once('dialog', dialog => dialog.accept());
     await artistItem.locator('.media-delete').click();
@@ -593,7 +593,7 @@ test('Gestione immagini: CRUD Vimeo per galleria artisti e video ambienti su Sup
 
     const environmentItem = page.locator('#restaurantVideosAdminList .gallery-admin-item').filter({ hasText: environmentTitle });
     await environmentItem.locator('.youtube-thumb').click();
-    await expect(environmentItem.locator('iframe')).toHaveAttribute('src', /player\\.vimeo\\.com\\/video\\/1245730545\\?h=2049f3f297/);
+    await expect(environmentItem.locator('iframe')).toHaveAttribute('src', /player\.vimeo\.com\/video\/1245730545\?h=2049f3f297/);
 
     page.once('dialog', dialog => dialog.accept());
     await environmentItem.locator('.media-delete').click();
