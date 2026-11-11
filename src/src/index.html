@@ -2034,6 +2034,17 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
    return /^[A-Za-z0-9_-]{11}$/.test(id)?id:null;
   }catch{return null}
  }
+ function extractVimeoId(value){
+  try{
+   const url=new URL(String(value||'').trim()),host=url.hostname.toLowerCase().replace(/^www\\./,'');
+   if(!['vimeo.com','player.vimeo.com'].includes(host))return null;
+   const parts=url.pathname.split('/').filter(Boolean);
+   const id=parts.find(part=>/^\\d+$/.test(part));
+   if(!id)return null;
+   const hash=url.searchParams.get('h')||(parts[parts.indexOf(id)+1]||'');
+   return {id,hash};
+  }catch{return null}
+ }
  function render(){
   stage.replaceChildren();stage.classList.remove('nf-artists-portrait','nf-artists-photo-portrait','nf-artists-photo-landscape','nf-youtube-portrait','nf-youtube-landscape');stage.style.removeProperty('--nf-photo-ratio');stage.style.removeProperty('width');
   if(!items.length){const empty=document.createElement('div');empty.className='nf-artists-viewer-empty';empty.textContent=kind==='images'?ui.noPhotos:kind==='restaurant-videos'?ui.noEnvironmentVideos:ui.noArtistVideos;stage.append(empty);count.textContent=ui.zeroItems;document.getElementById('nfArtistsViewerPrev').disabled=true;document.getElementById('nfArtistsViewerNext').disabled=true;return}
