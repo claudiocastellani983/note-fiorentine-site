@@ -2375,6 +2375,38 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
     object-position:center 42%!important;
   }
 }
+/* Gerarchia tipografica dedicata al titolo della sezione menù. */
+#nf-cinematic-zone>.menu-section>.section-kicker{
+  display:block!important;
+  margin:0 0 14px!important;
+  color:#D8B27A!important;
+  font:600 12px/1.4 Arial,sans-serif!important;
+  letter-spacing:.28em!important;
+  text-transform:uppercase!important;
+  text-shadow:0 2px 10px rgba(0,0,0,.48)!important;
+}
+#nf-cinematic-zone>.menu-section>h2{
+  margin:0 0 22px!important;
+  color:#FFF3E2!important;
+  font-family:"Bodoni MT",Didot,"Times New Roman",serif!important;
+  font-size:clamp(46px,5.2vw,66px)!important;
+  font-weight:400!important;
+  line-height:1.02!important;
+  letter-spacing:.015em!important;
+  text-shadow:0 3px 20px rgba(0,0,0,.62)!important;
+}
+@media(max-width:760px){
+  #nf-cinematic-zone>.menu-section>.section-kicker{
+    margin-bottom:12px!important;
+    font-size:11px!important;
+    letter-spacing:.23em!important;
+  }
+  #nf-cinematic-zone>.menu-section>h2{
+    margin-bottom:18px!important;
+    font-size:clamp(40px,11vw,48px)!important;
+    line-height:1.06!important;
+  }
+}
 /* Aumenta la luminosità del filmato e alleggerisce la velatura senza perdere contrasto sui testi. */
 #nf-cinematic-zone>.nf-cinematic-backdrop>.nf-cinematic-video{
   filter:brightness(.78) saturate(.95)!important;
