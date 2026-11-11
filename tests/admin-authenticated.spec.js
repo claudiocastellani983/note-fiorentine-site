@@ -582,7 +582,7 @@ test('Gestione immagini: CRUD Vimeo per galleria artisti e video ambienti su Sup
     await page.locator('#restaurantYoutubeUrl').fill(vimeoUrl);
     await page.locator('#restaurantYoutubeTitle').fill(environmentTitle);
     await page.locator('#restaurantYoutubeAdd').click();
-    await expect(page.locator('#restaurantVideosAdminStatus')).toContainText('Video aggiunto come bozza.', { timeout: 30000 });
+    await expect(page.locator('#restaurantVideosAdminList .gallery-admin-item').filter({ hasText: environmentTitle })).toBeVisible({ timeout: 30000 });
 
     rows = await api('GET', 'restaurant_videos?select=id,title,youtube_url,video_url,is_published&title=eq.' + encodeURIComponent(environmentTitle));
     expect(rows).toHaveLength(1);
