@@ -57,7 +57,7 @@ jobs:
           exit 1
 
       - name: Install Playwright browser
-        run: npx playwright install --with-deps ${{ matrix.browser }}
+        run: npx playwright install ${{ matrix.browser }}
 
       - name: Run local Playwright tests
         run: npx playwright test --project=${{ matrix.browser }} --ignore-snapshots --grep-invert "Preview Vercel reali|Funzioni pubbliche delle preview reali"
@@ -236,7 +236,7 @@ jobs:
         run: npm install --no-audit --no-fund
 
       - name: Install Playwright browser
-        run: npx playwright install --with-deps ${{ matrix.browser }}
+        run: npx playwright install ${{ matrix.browser }}
 
       - name: Test live Vercel previews
         run: npx playwright test tests/live-previews.spec.js tests/live-functional.spec.js --project=${{ matrix.browser }}
@@ -279,7 +279,7 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install chromium
       - name: Login, test image management and verify Storage cleanup
         run: npx playwright test tests/admin-authenticated.spec.js --project=chromium --workers=1
       - name: Upload Admin test evidence
