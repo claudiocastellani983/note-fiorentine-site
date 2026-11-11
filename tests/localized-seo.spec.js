@@ -25,7 +25,9 @@ for (const pagePath of ['/', '/menu.html']) {
           `https://www.notefiorentine.it${pagePath}${code === 'it' ? '' : `?lang=${code}`}`
         );
       }
-      await expect(page.locator('title')).toContainText('Note Fiorentine');
+      const title = await page.title();
+      expect(title.toLowerCase()).toContain(searchPhrases[lang].toLowerCase());
+      expect(title).toContain('Note Fiorentine');
       const description = await page.locator('meta[name="description"]').getAttribute('content');
       expect(description.toLowerCase()).toContain(searchPhrases[lang].toLowerCase());
       const schema = await page.locator('#nf-restaurant-schema').textContent();
