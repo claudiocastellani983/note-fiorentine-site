@@ -589,6 +589,20 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
   });
 })();
 </script>
+<style id="nf-menu-guide-v2">
+.nf-menu-guide{margin:42px 0 48px;padding:clamp(26px,4vw,48px);background:#F1E8DA;border:1px solid rgba(119,78,53,.22);color:#34261F}
+.nf-menu-guide-heading{max-width:680px;margin:0 auto 30px;text-align:center}
+.nf-menu-guide-heading .section-kicker{font:600 9px var(--nf-editorial-sans);letter-spacing:.2em;text-transform:uppercase;color:#936D49}
+.nf-menu-guide-heading h3{font:400 clamp(30px,4vw,48px)/1.08 var(--nf-editorial-serif);margin:14px 0;color:#503326}
+.nf-menu-guide-heading p{font:400 16px/1.75 var(--nf-editorial-serif);color:#6F5B4E;margin:0}
+.nf-menu-guide-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid rgba(119,78,53,.28);border-left:1px solid rgba(119,78,53,.18)}
+.nf-menu-guide-item{min-height:132px;padding:22px;border-right:1px solid rgba(119,78,53,.18);border-bottom:1px solid rgba(119,78,53,.28);display:flex;flex-direction:column;gap:8px}
+.nf-menu-guide-item>span{font:600 9px var(--nf-editorial-sans);letter-spacing:.16em;color:#A47B51}
+.nf-menu-guide-item strong{font:400 25px/1.1 var(--nf-editorial-serif);color:#503326}
+.nf-menu-guide-item small{font:400 13px/1.5 var(--nf-editorial-serif);color:#6F5B4E}
+@media(max-width:680px){.nf-menu-guide{margin:30px 0;padding:24px 18px}.nf-menu-guide-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.nf-menu-guide-item{min-height:118px;padding:16px 13px}.nf-menu-guide-item strong{font-size:22px}}
+</style>
+
 </head>
 <body>
 <div id="app">
@@ -669,6 +683,17 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
       <p class="section-lead">Esplora il menu di Note Fiorentine: seleziona una categoria per consultare i piatti disponibili, le descrizioni e i prezzi.</p>
       <div id="menuCategories" class="menu-category-tabs" aria-label="Categorie del menu" role="group">
         <p class="menu-loading">Caricamento categorie…</p>
+      </div>
+      <div class="nf-menu-guide" aria-label="Categorie del menu">
+        <div class="nf-menu-guide-heading"><span class="section-kicker">Dalla prima portata al dessert</span><h3>Un percorso tra i sapori toscani</h3><p>Esplora il menu per categoria: consulta i piatti pubblicati, le descrizioni e i prezzi aggiornati.</p></div>
+        <div class="nf-menu-guide-grid">
+          <div class="nf-menu-guide-item"><span>01</span><strong>Antipasti</strong><small>Per iniziare la cena</small></div>
+          <div class="nf-menu-guide-item"><span>02</span><strong>Primi</strong><small>La tradizione dei primi piatti</small></div>
+          <div class="nf-menu-guide-item"><span>03</span><strong>Secondi</strong><small>Le portate principali</small></div>
+          <div class="nf-menu-guide-item"><span>04</span><strong>Bistecca</strong><small>La protagonista della tavola toscana</small></div>
+          <div class="nf-menu-guide-item"><span>05</span><strong>Contorni</strong><small>Per accompagnare il piatto</small></div>
+          <div class="nf-menu-guide-item"><span>06</span><strong>Dolci</strong><small>Il finale della cena</small></div>
+        </div>
       </div>
       <div id="menuItems" class="menu-items" aria-live="polite">
         <p class="menu-loading">Caricamento piatti…</p>
@@ -881,6 +906,14 @@ es:{"Non ci sono ancora piatti pubblicati in questa categoria.":"Todavía no se 
 zh:{"Non ci sono ancora piatti pubblicati in questa categoria.":"此类别暂未发布菜品。","Non è stato possibile caricare le categorie del menu. Riprova più tardi.":"无法加载菜单类别，请稍后重试。"}
 };
 Object.keys(menuRuntimeMessages).forEach(language=>Object.assign(dictionaries[language],menuRuntimeMessages[language]));
+const nfMenuGuideTranslations={
+en:{"Dalla prima portata al dessert":"From the First Course to Dessert","Un percorso tra i sapori toscani":"A Journey Through Tuscan Flavours","Esplora il menu per categoria: consulta i piatti pubblicati, le descrizioni e i prezzi aggiornati.":"Explore the menu by category and browse published dishes, descriptions and current prices.","Antipasti":"Starters","Per iniziare la cena":"To begin your dinner","Primi":"First Courses","La tradizione dei primi piatti":"Traditional pasta and first courses","Secondi":"Main Courses","Le portate principali":"Main dishes","Bistecca":"Steak","La protagonista della tavola toscana":"A Tuscan table favourite","Contorni":"Side Dishes","Per accompagnare il piatto":"To accompany your dish","Dolci":"Desserts","Il finale della cena":"A sweet finish"},
+de:{"Dalla prima portata al dessert":"Vom ersten Gang bis zum Dessert","Un percorso tra i sapori toscani":"Eine Reise durch die Aromen der Toskana","Esplora il menu per categoria: consulta i piatti pubblicati, le descrizioni e i prezzi aggiornati.":"Entdecken Sie die Speisekarte nach Kategorien mit veröffentlichten Gerichten, Beschreibungen und aktuellen Preisen.","Antipasti":"Vorspeisen","Per iniziare la cena":"Der Auftakt Ihres Abendessens","Primi":"Erste Gänge","La tradizione dei primi piatti":"Traditionelle erste Gänge","Secondi":"Hauptgerichte","Le portate principali":"Die Hauptgerichte","Bistecca":"Steak","La protagonista della tavola toscana":"Ein Klassiker der toskanischen Küche","Contorni":"Beilagen","Per accompagnare il piatto":"Die passende Beilage","Dolci":"Desserts","Il finale della cena":"Der süße Abschluss"},
+fr:{"Dalla prima portata al dessert":"De la première assiette au dessert","Un percorso tra i sapori toscani":"Un voyage au cœur des saveurs toscanes","Esplora il menu per categoria: consulta i piatti pubblicati, le descrizioni e i prezzi aggiornati.":"Parcourez le menu par catégorie et consultez les plats publiés, leurs descriptions et les prix à jour.","Antipasti":"Entrées","Per iniziare la cena":"Pour commencer le dîner","Primi":"Premiers plats","La tradizione dei primi piatti":"La tradition des premiers plats","Secondi":"Plats principaux","Le portate principali":"Les plats principaux","Bistecca":"Bifteck","La protagonista della tavola toscana":"Une spécialité de la table toscane","Contorni":"Accompagnements","Per accompagnare il piatto":"Pour accompagner votre plat","Dolci":"Desserts","Il finale della cena":"La touche finale du dîner"},
+es:{"Dalla prima portata al dessert":"Del primer plato al postre","Un percorso tra i sapori toscani":"Un recorrido por los sabores toscanos","Esplora il menu per categoria: consulta i piatti pubblicati, le descrizioni e i prezzi aggiornati.":"Explora la carta por categorías y consulta los platos publicados, sus descripciones y los precios actualizados.","Antipasti":"Entrantes","Per iniziare la cena":"Para empezar la cena","Primi":"Primeros platos","La tradizione dei primi piatti":"La tradición de los primeros platos","Secondi":"Segundos platos","Le portate principali":"Los platos principales","Bistecca":"Bistecca","La protagonista della tavola toscana":"Un clásico de la mesa toscana","Contorni":"Guarniciones","Per accompagnare il piatto":"Para acompañar el plato","Dolci":"Postres","Il finale della cena":"El final dulce de la cena"},
+zh:{"Dalla prima portata al dessert":"从前菜到甜点","Un percorso tra i sapori toscani":"探索托斯卡纳风味","Esplora il menu per categoria: consulta i piatti pubblicati, le descrizioni e i prezzi aggiornati.":"按类别浏览菜单，查看已发布菜品、介绍和最新价格。","Antipasti":"前菜","Per iniziare la cena":"开启晚餐","Primi":"第一道主食","La tradizione dei primi piatti":"传统意面与主食","Secondi":"主菜","Le portate principali":"主要菜品","Bistecca":"佛罗伦萨牛排","La protagonista della tavola toscana":"托斯卡纳餐桌上的经典","Contorni":"配菜","Per accompagnare il piatto":"搭配主菜","Dolci":"甜点","Il finale della cena":"为晚餐画上甜蜜句号"}
+};
+Object.keys(nfMenuGuideTranslations).forEach(language=>Object.assign(dictionaries[language],nfMenuGuideTranslations[language]));
 const map=dictionaries[lang]||{};
 const protectedSelectors='.brand-mini strong,.art-name,footer h2,.language-switch';
 function translateNode(node){if(!node||node.nodeType!==Node.TEXT_NODE)return;const parent=node.parentElement;if(!parent||parent.closest(protectedSelectors)||parent.closest('script,style,noscript,svg,code,[translate="no"]'))return;const raw=node.nodeValue||'',key=raw.trim(),translated=map[key];if(translated&&translated!==key){const lead=raw.match(/^\s*/)?.[0]||'',tail=raw.match(/\s*$/)?.[0]||'';node.nodeValue=lead+translated+tail;}}
