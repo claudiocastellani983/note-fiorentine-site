@@ -1224,6 +1224,7 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
     </nav>
   </header>
   <main>
+    <div class="nf-cinematic-zone" id="nf-cinematic-zone">
     <section class="hero" id="inizio">
       <div class="hero-copy">
         <div class="eyebrow">Ristorante Toscano & Live Music</div>
@@ -1264,6 +1265,7 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
       <div class="menu-items" id="menuItems"><p class="menu-loading">Caricamento piatti…</p></div>
       <p style="text-align:center;margin:32px auto 0"><a class="button" href="/menu.html">Consulta il menù completo</a></p>
     </section>
+    </div>
     <section class="music-section" id="musica">
       
       <div class="music-copy">
@@ -2062,6 +2064,80 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
  if(video.readyState>=2)ready();
  const play=video.play();
  if(play&&typeof play.catch==='function')play.catch(()=>{hero.classList.remove('nf-video-ready')});
+})();
+</script>
+
+
+<style id="nf-hero-video-sticky-original-frame-v1">
+/* Il video originale resta nel suo hero-art: dimensioni, crop e sorgente invariati. */
+.nf-cinematic-zone{position:relative;isolation:isolate;overflow:clip}
+.nf-cinematic-zone>.hero{position:relative;z-index:5}
+.nf-cinematic-zone>.music-strip,.nf-cinematic-zone>.intro,.nf-cinematic-zone>.menu-section{position:relative;z-index:1}
+.nf-cinematic-zone>.intro,.nf-cinematic-zone>.menu-section{background:transparent!important}
+.nf-cinematic-zone>.intro h2,.nf-cinematic-zone>.menu-section h2,
+.nf-cinematic-zone>.intro p,.nf-cinematic-zone>.menu-section .section-lead,
+.nf-cinematic-zone>.intro .section-kicker,.nf-cinematic-zone>.menu-section .section-kicker{color:#F4EBDD!important}
+.nf-cinematic-zone>.intro p,.nf-cinematic-zone>.menu-section .section-lead{opacity:.92}
+.nf-cinematic-zone>.menu-section .menu-category-tabs,
+.nf-cinematic-zone>.menu-section .menu-items{background:rgba(22,19,15,.58);backdrop-filter:blur(5px)}
+.nf-cinematic-zone>.music-strip{background:rgba(198,161,106,.94)!important}
+.nf-cinematic-zone .hero-art.nf-sticky-video-active{z-index:10!important}
+.nf-cinematic-zone .hero-art.nf-sticky-video-active .nf-hero-video{z-index:0!important}
+@media(prefers-reduced-motion:reduce){.nf-hero-video{transition:none!important}}
+</style>
+<script id="nf-hero-video-sticky-original-frame-init-v1">
+(function(){
+ const zone=document.getElementById('nf-cinematic-zone');
+ const heroArt=zone&&zone.querySelector('.hero-art');
+ const video=heroArt&&heroArt.querySelector('.nf-hero-video');
+ if(!zone||!heroArt||!video)return;
+ let frame=null,zoneBottom=0,raf=0;
+ const stickyTop=82;
+ function measure(){
+   const rect=heroArt.getBoundingClientRect();
+   const zoneRect=zone.getBoundingClientRect();
+   frame={left:rect.left,width:rect.width,height:rect.height,top:window.scrollY+rect.top};
+   zoneBottom=window.scrollY+zoneRect.bottom;
+   update();
+ }
+ function update(){
+   if(!frame)return;
+   const y=window.scrollY;
+   const start=frame.top-stickyTop;
+   const end=zoneBottom-frame.height-stickyTop;
+   if(y>start&&y<end){
+     video.style.position='fixed';
+     video.style.top=stickyTop+'px';
+     video.style.left=frame.left+'px';
+     video.style.right='auto';
+     video.style.bottom='auto';
+     video.style.width=frame.width+'px';
+     video.style.height=frame.height+'px';
+     video.style.inset='auto';
+     heroArt.classList.add('nf-sticky-video-active');
+   }else{
+     video.style.position='';
+     video.style.top='';
+     video.style.left='';
+     video.style.right='';
+     video.style.bottom='';
+     video.style.width='';
+     video.style.height='';
+     video.style.inset='';
+     heroArt.classList.remove('nf-sticky-video-active');
+   }
+ }
+ function schedule(){if(raf)return;raf=requestAnimationFrame(()=>{raf=0;update()})}
+ window.addEventListener('scroll',schedule,{passive:true});
+ window.addEventListener('resize',measure,{passive:true});
+ if('ResizeObserver'in window){
+   const observer=new ResizeObserver(measure);
+   observer.observe(heroArt);
+   observer.observe(zone);
+ }
+ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(measure);
+ window.addEventListener('load',measure,{once:true});
+ measure();
 })();
 </script>
 
