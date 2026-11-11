@@ -122,7 +122,7 @@ section { scroll-margin-top:80px; }
 
 .video-list { max-width:900px; margin:30px auto 0; display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr)); gap:24px; text-align:left; }
 .video-card { margin:0; padding:16px; background:var(--paper); border:1px solid var(--line); box-shadow:0 8px 24px rgba(44,33,29,.08); min-width:0; }
-.video-card video { display:block; width:100%; max-height:520px; aspect-ratio:16/9; background:#171311; object-fit:contain; }
+.video-card video,.video-card iframe { display:block; width:100%; max-height:520px; aspect-ratio:16/9; background:#171311; object-fit:contain; border:0; }
 .video-card figcaption { padding:14px 2px 2px; }
 .video-card h3 { margin:0 0 7px; color:#6F3929; font-size:25px; }
 .video-card p { margin:0; color:var(--ink-soft); font-size:15px; line-height:1.6; white-space:pre-wrap; }
@@ -714,7 +714,7 @@ links.querySelectorAll('a').forEach(link => link.addEventListener('click', () =>
 
   const supabaseUrl = window.NF_SUPABASE_CONFIG.url;
   const supabaseKey = window.NF_SUPABASE_CONFIG.key;
-  const endpoint = supabaseUrl + '/rest/v1/performance_videos?select=id,title,description,video_path,translations,sort_order,created_at&is_published=eq.true&order=sort_order.asc,created_at.desc';
+  const endpoint = supabaseUrl + '/rest/v1/performance_videos?select=id,title,description,video_path,video_url,translations,sort_order,created_at&is_published=eq.true&order=sort_order.asc,created_at.desc';
 
   const makeText = (tag, value, className) => {
     const node = document.createElement(tag);
@@ -740,24 +740,15 @@ links.querySelectorAll('a').forEach(link => link.addEventListener('click', () =>
     }
 
     for (const item of videos) {
-      if (!item.video_path) continue;
-      const figure = document.createElement('figure');
-      figure.className = 'video-card';
-
-      const video = document.createElement('video');
-      const path = String(item.video_path).split('/').map(encodeURIComponent).join('/');
-      video.src = supabaseUrl + '/storage/v1/object/public/performance-videos/' + path;
-      video.controls = true;
-      video.playsInline = true;
-      video.preload = 'metadata';
-      video.setAttribute('aria-label', item.title || 'Video delle serate Note Fiorentine');
-
+      if (!item.video_path && !item.video_url) continue;
+      const figure=document.createElement('figure');figure.className='video-card';let media;
+      if(item.video_url){const url=new URL(String(item.video_url)),host=url.hostname.toLowerCase().replace(/^www[.]/,'');let embed='';if(host==='vimeo.com'||host==='player.vimeo.com'){const id=url.pathname.split('/').filter(Boolean).find(part=>part.length>0&&[...part].every(c=>c>='0'&&c<='9'));if(!id)continue;const parts=url.pathname.split('/').filter(Boolean),hash=url.searchParams.get('h')||(parts[parts.indexOf(id)+1]||'');embed='https://player.vimeo.com/video/'+id+(hash?'?h='+encodeURIComponent(hash)+'&':'?')+'dnt=1&title=0&byline=0&portrait=0'}else if(['youtube.com','m.youtube.com','youtube-nocookie.com','youtu.be'].includes(host)){const parts=url.pathname.split('/').filter(Boolean),i=parts.findIndex(p=>['embed','shorts','live'].includes(p)),id=host==='youtu.be'?parts[0]:(url.searchParams.get('v')||(i>=0?parts[i+1]:''));if(!id)continue;embed='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(id)+'?rel=0'}else continue;media=document.createElement('iframe');media.src=embed;media.title=item.title||'Video delle serate Note Fiorentine';media.loading='lazy';media.allow='autoplay; fullscreen; picture-in-picture';media.allowFullscreen=true;media.referrerPolicy='strict-origin-when-cross-origin'}else{media=document.createElement('video');const path=String(item.video_path).split('/').map(encodeURIComponent).join('/');media.src=supabaseUrl+'/storage/v1/object/public/performance-videos/'+path;media.controls=true;media.playsInline=true;media.preload='metadata';media.setAttribute('aria-label',item.title||'Video delle serate Note Fiorentine')}
       const caption = document.createElement('figcaption');
       const localized = item.translations?.[lang] || {};
       if (item.title) caption.appendChild(makeText('h3', localized.title || item.title));
       if (item.description) caption.appendChild(makeText('p', localized.description || item.description));
 
-      figure.append(video, caption);
+      figure.append(media, caption);
       container.appendChild(figure);
     }
     if (!container.children.length) {
