@@ -1727,7 +1727,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
   const rows=await response.json(),map=Object.fromEntries(rows.map(row=>[row.image_key,row]));
   const musicImage=map.live_music;
   if(musicImage?.image_path){const section=document.querySelector('#musica');if(section)section.style.setProperty('--nf-live-music-image','url("'+publicUrl(musicImage.image_path)+'")');}
-  mount(document.querySelector('.hero-art'),map.hero);
+  // Slot immagine Hero rimosso: la homepage usa esclusivamente il video cinematografico.
   mount(document.querySelector('.nf-artists-photo'),map.artists_gallery_cover);
   mount(document.querySelector('.nf-artists-video'),map.artists_video_cover);
   const tiles=document.querySelectorAll('.gallery-tile');
@@ -2078,6 +2078,11 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
  .nf-cinematic-zone>.intro,.nf-cinematic-zone>.menu-section{background:transparent!important}
 }
 @media(prefers-reduced-motion:reduce){.nf-cinematic-video{filter:brightness(.48) saturate(.78)}}
+/* NF: rimozione definitiva della seconda area fotografica Hero */
+#app>main>.hero>.hero-art{display:none!important}
+#app>main>.hero{grid-template-columns:1fr!important}
+.nf-cinematic-zone>.hero .hero-art{display:none!important}
+/* Fine rimozione area fotografica Hero */
 </style>
 <script id="nf-cinematic-background-video-init-v2">
 (function(){
