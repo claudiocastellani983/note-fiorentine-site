@@ -1577,8 +1577,47 @@ function translateAttributes(root){if(!root||root.nodeType!==Node.ELEMENT_NODE)r
 function scan(root){if(root.nodeType===Node.TEXT_NODE){translateNode(root);return;}if(root.nodeType===Node.ELEMENT_NODE&&root.matches(protectedSelectors))return;if(root.nodeType===Node.ELEMENT_NODE)translateAttributes(root);const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);while(w.nextNode())translateNode(w.currentNode);}
 if(lang!=='it'){scan(document.body);new MutationObserver(records=>records.forEach(r=>{if(r.type==='characterData')translateNode(r.target);if(r.type==='attributes')translateAttributes(r.target);(r.addedNodes||[]).forEach(scan);})).observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:attributeKeys});}
 const isMenu=location.pathname.endsWith('menu.html');
+function setNfSeo(lang,isMenu){
+ const base='https://www.notefiorentine.it';
+ const path=isMenu?'/menu.html':'/';
+ const languages=['it','en','de','fr','es','zh'];
+ const urls={it:base+path,en:base+path+'?lang=en',de:base+path+'?lang=de',fr:base+path+'?lang=fr',es:base+path+'?lang=es',zh:base+path+'?lang=zh'};
+ const canonical=urls[lang]||urls.it;
+ let canonicalTag=document.querySelector('link[rel="canonical"]');
+ if(!canonicalTag){canonicalTag=document.createElement('link');canonicalTag.rel='canonical';document.head.append(canonicalTag)}
+ canonicalTag.href=canonical;
+ document.querySelectorAll('link[rel="alternate"][hreflang]').forEach(el=>el.remove());
+ languages.forEach(code=>{const link=document.createElement('link');link.rel='alternate';link.hreflang=code==='zh'?'zh-CN':code;link.href=urls[code];document.head.append(link)});
+ const fallback=document.createElement('link');fallback.rel='alternate';fallback.hreflang='x-default';fallback.href=urls.it;document.head.append(fallback);
+ const descriptions={
+  it:isMenu?'Menu di Note Fiorentine, ristorante toscano con musica dal vivo a Firenze. Scopri i piatti e vivi una serata con musica ogni sera.':'Note Fiorentine è un ristorante toscano con musica dal vivo a Firenze, ogni sera dalle 19:30 alle 21:30, inclusa nella cena.',
+  en:isMenu?'Explore the menu at Note Fiorentine, a Tuscan restaurant with live music in Florence every evening.':'Note Fiorentine is a Tuscan restaurant with live music in Florence every evening from 7:30 to 9:30 pm, included with dinner.',
+  de:isMenu?'Entdecken Sie die Speisekarte des toskanischen Restaurants Note Fiorentine mit Live-Musik in Florenz.':'Note Fiorentine ist ein toskanisches Restaurant mit Live-Musik in Florenz, jeden Abend von 19:30 bis 21:30 Uhr, beim Abendessen inklusive.',
+  fr:isMenu?'Découvrez la carte de Note Fiorentine, restaurant toscan avec musique live à Florence chaque soir.':'Note Fiorentine est un restaurant toscan avec musique live à Florence, tous les soirs de 19 h 30 à 21 h 30, incluse avec le dîner.',
+  es:isMenu?'Descubre la carta de Note Fiorentine, restaurante toscano con música en vivo en Florencia cada noche.':'Note Fiorentine es un restaurante toscano con música en vivo en Florencia, todas las noches de 19:30 a 21:30, incluida con la cena.',
+  zh:isMenu?'查看 Note Fiorentine 菜单：位于佛罗伦萨的托斯卡纳餐厅，每晚都有现场音乐。':'Note Fiorentine 是佛罗伦萨的一家托斯卡纳餐厅，每晚 19:30 至 21:30 提供现场音乐，晚餐包含音乐体验。'
+ };
+ const meta=document.querySelector('meta[name="description"]');if(meta)meta.content=descriptions[lang]||descriptions.it;
+ const schema={
+  '@context':'https://schema.org',
+  '@type':'Restaurant',
+  '@id':base+'/#restaurant',
+  name:'Note Fiorentine',
+  url:base+'/',
+  description:descriptions[lang]||descriptions.it,
+  servesCuisine:['Tuscan','Italian'],
+  inLanguage:lang==='zh'?'zh-CN':lang,
+  amenityFeature:{'@type':'LocationFeatureSpecification',name:'Live music',value:true},
+  hasMenu:base+'/menu.html'+(lang==='it'?'':'?lang='+lang)
+ };
+ let script=document.getElementById('nf-restaurant-schema');
+ if(!script){script=document.createElement('script');script.id='nf-restaurant-schema';script.type='application/ld+json';document.head.append(script)}
+ script.textContent=JSON.stringify(schema);
+}
+
+setNfSeo(lang,isMenu);
 document.title=({it:isMenu?'Il Menu | Note Fiorentine – Firenze':'Note Fiorentine | Ristorante Toscano & Live Music – Firenze',en:isMenu?'Menu | Note Fiorentine – Florence':'Note Fiorentine | Ristorante Toscano & Live Music – Florence',de:isMenu?'Speisekarte | Note Fiorentine – Florenz':'Note Fiorentine | Ristorante Toscano & Live Music – Florenz',fr:isMenu?'La carte | Note Fiorentine – Florence':'Note Fiorentine | Ristorante Toscano & Live Music – Florence',es:isMenu?'Carta | Note Fiorentine – Florencia':'Note Fiorentine | Ristorante Toscano & Live Music – Florencia',zh:isMenu?'菜单 | Note Fiorentine – 佛罗伦萨':'Note Fiorentine | Ristorante Toscano & Live Music – 佛罗伦萨'})[lang];
-const meta=document.querySelector('meta[name="description"]');if(meta&&lang!=='it')meta.content=({en:'Note Fiorentine: Tuscan restaurant in the historic centre of Florence, with live music every evening.',de:'Note Fiorentine: toskanisches Restaurant im historischen Zentrum von Florenz mit Live-Musik jeden Abend.',fr:'Note Fiorentine : restaurant toscan dans le centre historique de Florence, avec musique live chaque soir.',es:'Note Fiorentine: restaurante toscano en el centro histórico de Florencia, con música en vivo todas las noches.',zh:'Note Fiorentine：位于佛罗伦萨历史中心的托斯卡纳餐厅，每晚提供现场音乐。'})[lang];
+
 const nav=document.querySelector('header nav');if(nav)nav.setAttribute('aria-label',({it:'Navigazione principale',en:'Main navigation',de:'Hauptnavigation',fr:'Navigation principale',es:'Navegación principal',zh:'主导航'})[lang]);
 document.querySelectorAll('a.brand-mini[href="/"]').forEach(a=>a.href='/?lang='+lang);
 document.querySelectorAll('a[href="/menu.html"],a[href="/menu.html?lang=it"]').forEach(a=>a.href='/menu.html?lang='+lang);
