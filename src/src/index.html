@@ -2482,3 +2482,26 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 /* Rimuove completamente la vecchia fascia musicale. */
 #app>main>.music-strip { display:none !important; }
 </style>
+
+<style id="nf-menu-readability-v1">
+/* Contrasto stabile per il menu sopra il fondale video, desktop e mobile. */
+#app>main>#menu .menu-category-tabs{position:relative!important;z-index:3!important;gap:10px!important}
+#app>main>#menu .menu-category-button{background:#211D18!important;color:#F1E7D6!important;border:1px solid #C6A16A!important;font-size:11px!important;line-height:1.35!important;font-weight:700!important;padding:13px 18px!important;text-shadow:none!important}
+#app>main>#menu .menu-category-button.active{background:#A83E35!important;color:#FFF!important;border-color:#D7A06F!important}
+#app>main>#menu .menu-items{position:relative!important;z-index:2!important;max-width:1050px!important;margin:0 auto!important;padding:clamp(18px,3vw,30px)!important;background:rgba(23,21,18,.97)!important;border:1px solid rgba(198,161,106,.55)!important;box-shadow:0 12px 36px rgba(0,0,0,.38)!important;backdrop-filter:blur(10px)!important;-webkit-backdrop-filter:blur(10px)!important;text-align:left!important}
+#app>main>#menu .menu-item-card{background:#211D18!important;border:0!important;border-bottom:1px solid rgba(198,161,106,.35)!important;box-shadow:none!important;padding:22px 12px 24px!important}
+#app>main>#menu .menu-item-card h3{color:#FFF3E2!important;font-size:clamp(22px,2.3vw,29px)!important;line-height:1.25!important;text-shadow:none!important}
+#app>main>#menu .menu-item-price{color:#E5BD7E!important;font-size:17px!important;font-weight:700!important;text-shadow:none!important}
+#app>main>#menu .menu-item-description{color:#E3D8C8!important;font-size:16px!important;line-height:1.75!important;text-shadow:none!important}
+#app>main>#menu .menu-item-allergens{color:#CDBA9E!important;font-size:12px!important;line-height:1.6!important}
+#app>main>#menu .menu-category-description,#app>main>#menu .menu-loading,#app>main>#menu .menu-empty,#app>main>#menu .menu-error{color:#F1E7D6!important;font-size:16px!important;line-height:1.7!important}
+@media(max-width:760px){
+#app>main>#menu .menu-category-tabs{padding:0 0 14px!important;margin:24px 0 20px!important;overflow-x:auto!important;flex-wrap:nowrap!important}
+#app>main>#menu .menu-category-button{flex:0 0 auto!important;padding:12px 15px!important;font-size:11px!important}
+#app>main>#menu .menu-items{padding:12px!important;margin:0!important}
+#app>main>#menu .menu-item-card{padding:19px 7px 21px!important}
+#app>main>#menu .menu-item-card h3{font-size:22px!important}
+#app>main>#menu .menu-item-price{font-size:16px!important}
+#app>main>#menu .menu-item-description{font-size:15px!important;line-height:1.7!important}
+}
+</style>
