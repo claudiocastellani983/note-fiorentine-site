@@ -521,16 +521,16 @@ $('editForm').onsubmit=async e=>{
   stage='request_sent';
   diag(stage,{table,recordId:editing||null,fields:Object.keys(obj),descriptionLength:typeof obj.description==='string'?obj.description.length:null});
   say('Richiesta inviata a Supabase. Attendo conferma…');
-  let saved=current==='Musica dal vivo'?await q.select('id,title,description,video_path,updated_at,sort_order,is_published').single():await q;
+  let saved=current==='Musica dal vivo'?await q.select('id,title,description,video_path,video_url,updated_at,sort_order,is_published').single():await q;
   if(saved.error)throw saved.error;
   if(current==='Musica dal vivo'){
    if(!saved.data||saved.data.id!==(editing||saved.data.id))throw Error('Salvataggio non verificato: nessun record aggiornato in performance_videos.');
    stage='response_received';
    diag(stage,{table,recordId:saved.data.id,responseDescriptionLength:typeof saved.data.description==='string'?saved.data.description.length:null,updatedAt:saved.data.updated_at||null});
    say('Risposta ricevuta. Verifica indipendente del record…');
-   const verify=await db.from(table).select('id,title,description,video_path,updated_at,sort_order,is_published').eq('id',saved.data.id).single();
+   const verify=await db.from(table).select('id,title,description,video_path,video_url,updated_at,sort_order,is_published').eq('id',saved.data.id).single();
    if(verify.error)throw verify.error;
-   const fieldsToVerify=['title','description','video_path','sort_order','is_published'];
+   const fieldsToVerify=['title','description','video_path','video_url','sort_order','is_published'];
    const mismatch=fieldsToVerify.filter(k=>(verify.data?.[k]??null)!==(obj[k]??null));
    if(mismatch.length)throw Error('Verifica successiva non corrispondente nei campi: '+mismatch.join(', '));
    stage='readback_verified';
