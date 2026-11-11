@@ -2036,10 +2036,10 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
  }
  function extractVimeoId(value){
   try{
-   const url=new URL(String(value||'').trim()),host=url.hostname.toLowerCase().replace(/^www\\./,'');
+   const url=new URL(String(value||'').trim()),host=url.hostname.toLowerCase().replace(/^www\./,'');
    if(!['vimeo.com','player.vimeo.com'].includes(host))return null;
    const parts=url.pathname.split('/').filter(Boolean);
-   const id=parts.find(part=>/^\\d+$/.test(part));
+   const id=parts.find(part=>/^\d+$/.test(part));
    if(!id)return null;
    const hash=url.searchParams.get('h')||(parts[parts.indexOf(id)+1]||'');
    return {id,hash};
