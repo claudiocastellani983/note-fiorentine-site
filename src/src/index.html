@@ -2073,6 +2073,16 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
    document.getElementById('nfArtistsViewerNext').disabled=items.length<2;
    return;
   }
+  if(kind==='restaurant-videos'){
+   const unavailable=document.createElement('div');
+   unavailable.className='nf-artists-viewer-empty';
+   unavailable.textContent='Il collegamento di questo video non è valido o non è supportato.';
+   stage.append(unavailable);
+   count.textContent=(index+1)+' / '+items.length;
+   document.getElementById('nfArtistsViewerPrev').disabled=items.length<2;
+   document.getElementById('nfArtistsViewerNext').disabled=items.length<2;
+   return;
+  }
   if(kind==='images'){
    media.className='nf-artists-gallery-photo';const rawTitle=String(item.title||'').trim();media.alt=rawTitle&&!/^\d+$/.test(rawTitle)?rawTitle:ui.artistAlt;media.draggable=false;media.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';media.style.transform='scale('+(item.focal_zoom??1)+')';
    media.addEventListener('load',()=>{const w=media.naturalWidth||1,h=media.naturalHeight||1,ratio=w/h,portrait=h>w;stage.classList.toggle('nf-artists-portrait',portrait);stage.classList.toggle('nf-artists-photo-portrait',portrait);stage.classList.toggle('nf-artists-photo-landscape',!portrait);stage.style.setProperty('--nf-photo-ratio',String(ratio));},{once:true});
