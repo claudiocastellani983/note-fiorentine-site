@@ -1237,17 +1237,6 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
           <a class="button outline" href="#musica">Scopri la musica</a>
         </div>
       </div>
-      <div class="hero-art" aria-label="Identità visiva Note Fiorentine">
-        
-        <div class="art-glow"></div>
-        <div class="art-content">
-          <div class="art-fleur">⚜</div>
-          <div class="art-name">NOTE<br>FIORENTINE</div>
-          <div class="art-sub">Ristorante Toscano & Live Music</div>
-          <div class="art-divider"></div>
-          <div class="art-note">Il gusto di Firenze, il ritmo della sera</div>
-        </div>
-      </div>
     </section>
     <div class="music-strip">
       <div class="music-inner"><span class="symbol">♫</span><strong>Musica dal vivo 7 giorni su 7</strong><span>Dalle 19:30 alle 21:30</span><span class="symbol">♫</span></div>
@@ -2117,6 +2106,41 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
   #app>header>.nav{row-gap:12px}
   #app>header>.nav>.language-switch{padding:4px 0 8px}
 }
+
+/* Hero video: rimuove il riquadro immagine e lascia il filmato come fondale */
+<style id="nf-hero-video-clean-layout-v1">
+#nf-cinematic-zone>.hero{
+  display:block!important;
+  min-height:min(760px,calc(100svh - 82px));
+  background:transparent!important;
+  background-color:transparent!important;
+}
+#nf-cinematic-zone>.hero>.hero-copy{
+  width:min(100%,1120px);
+  min-height:inherit;
+  margin:0 auto;
+  padding:clamp(72px,10vw,140px) var(--layout-gutter);
+  background:transparent!important;
+  z-index:2;
+}
+#nf-cinematic-zone>.intro{
+  background:transparent!important;
+  background-color:transparent!important;
+  position:relative;
+  z-index:2;
+}
+#nf-cinematic-zone>.intro::before,
+#nf-cinematic-zone>.intro::after{
+  background:transparent!important;
+  opacity:0!important;
+}
+#nf-cinematic-zone>.intro>.section-kicker,
+#nf-cinematic-zone>.intro>h2,
+#nf-cinematic-zone>.intro>p{
+  position:relative;
+  z-index:2;
+}
+</style>
 </style>
 </body>
 </html><script async data-explicit-opt-in="true" data-deployment-id="dpl_7tHJ9DycmxR1TALK2u85APShiyVZ" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_EmRnWHsGMUkcJwHUQ7vz8FCmfTh6" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_E5nptDv68tSzPwNaRWjjuQBRJWLT" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_3kBEXjiEjcHv33v8JxwMth6Znb56" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_GbSb1nxg8uKN3nnLoyFhoPVdiZvt" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
