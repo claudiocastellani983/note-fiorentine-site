@@ -102,7 +102,7 @@ jobs:
             // Fallback controllati: Home READY sul commit SEO integrato 21d8b442;
             // Admin READY sul commit 631a74c5. Riutilizziamo ciascuna preview solo
             // se da quel commit non sono cambiati i rispettivi file applicativi.
-            const knownHomePreviewSha = "84e4b28b937a4e89fe793162be6cdb846b898680";
+            const knownHomePreviewSha = "20df7469511196c17b132799f623b9e445ea514b";
             const knownAdminPreviewSha = "fe0586baf570752164b4ebe94b1ddfe2140aa40a";
             const siteUrl = "https://note-fiorentine-git-release-i1-363e1b-claudiacastellani983-5675.vercel.app/";
             const adminBaseUrl = "https://note-fiorentine-admin-git-rele-1da2a5-claudiacastellani983-5675.vercel.app/";
