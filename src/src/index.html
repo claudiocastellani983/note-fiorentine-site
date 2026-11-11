@@ -1247,6 +1247,7 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
       <p>Note Fiorentine è un ristorante toscano nel centro storico di Firenze, dove la cucina incontra l'atmosfera della musica dal vivo. Un luogo per una cena romantica, una serata speciale o semplicemente il piacere di condividere un buon momento.</p>
       
     </section>
+    </div>
     <section class="content-section menu-section" id="menu">
       <div class="section-kicker">La nostra cucina</div>
       <h2>Il menù</h2>
@@ -1255,7 +1256,6 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
       <div class="menu-items" id="menuItems"><p class="menu-loading">Caricamento piatti…</p></div>
       <p style="text-align:center;margin:32px auto 0"><a class="button" href="/menu.html">Consulta il menù completo</a></p>
     </section>
-    </div>
     <section class="music-section" id="musica">
       
       <div class="music-copy">
@@ -2139,6 +2139,99 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 #nf-cinematic-zone>.intro>p{
   position:relative;
   z-index:2;
+}
+</style>
+
+<style id="nf-sticky-header-and-hero-video-boundary-v3">
+/* Header completo, inclusa la riga delle lingue, sempre sopra il contenuto */
+#app>header{
+  position:sticky!important;
+  top:0!important;
+  z-index:100001!important;
+  width:100%;
+  background:#F4EBDD!important;
+  isolation:isolate;
+}
+#app>header>.nav{
+  display:flex;
+  flex-wrap:wrap;
+  row-gap:12px;
+}
+#app>header>.nav>.language-switch{
+  order:4;
+  flex:0 0 100%;
+  width:100%;
+  margin:0;
+  padding:4px 0 8px;
+  justify-content:center;
+  position:relative;
+  z-index:100002;
+}
+/* Il fondale video è assoluto e limitato alla zona Hero + fascia musica + intro.
+   La zona termina prima di #menu, quindi il video non invade "La nostra cucina". */
+#app>main>.nf-cinematic-zone{
+  position:relative!important;
+  isolation:isolate;
+  overflow:hidden!important;
+  background:#171512!important;
+  margin:0!important;
+  padding:0!important;
+}
+#nf-cinematic-zone>.nf-cinematic-backdrop{
+  position:absolute!important;
+  inset:0!important;
+  top:0!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:100%!important;
+  margin:0!important;
+  z-index:0!important;
+  overflow:hidden!important;
+  pointer-events:none;
+}
+#nf-cinematic-zone>.nf-cinematic-backdrop>.nf-cinematic-video{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  object-position:center 46%!important;
+}
+#nf-cinematic-zone>.nf-cinematic-backdrop>.nf-cinematic-shade{
+  position:absolute!important;
+  inset:0!important;
+}
+#nf-cinematic-zone>.hero,
+#nf-cinematic-zone>.music-strip,
+#nf-cinematic-zone>.intro{
+  position:relative!important;
+  z-index:1!important;
+  background:transparent!important;
+  background-color:transparent!important;
+}
+#nf-cinematic-zone>.hero{
+  min-height:clamp(560px,76svh,820px)!important;
+}
+#nf-cinematic-zone>.hero>.hero-copy{
+  position:relative;
+  z-index:2!important;
+  background:transparent!important;
+}
+#nf-cinematic-zone>.intro{
+  color:#F4EBDD!important;
+}
+#nf-cinematic-zone>.intro h2{color:#F4EBDD!important;text-shadow:0 2px 18px rgba(0,0,0,.55)}
+#nf-cinematic-zone>.intro p{color:#F1E6D7!important}
+#nf-cinematic-zone>.intro .section-kicker{color:#E4C49A!important}
+#app>main>#menu{
+  position:relative;
+  z-index:1;
+  background:#F4EBDD!important;
+  color:#392B24!important;
+}
+@media(max-width:760px){
+  #nf-cinematic-zone>.hero{min-height:clamp(540px,72svh,760px)!important}
+  #nf-cinematic-zone>.nf-cinematic-backdrop>.nf-cinematic-video{object-position:center 42%!important}
 }
 </style>
 </style>
