@@ -2038,36 +2038,19 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
   stage.replaceChildren();stage.classList.remove('nf-artists-portrait','nf-artists-photo-portrait','nf-artists-photo-landscape','nf-youtube-portrait','nf-youtube-landscape');stage.style.removeProperty('--nf-photo-ratio');stage.style.removeProperty('width');
   if(!items.length){const empty=document.createElement('div');empty.className='nf-artists-viewer-empty';empty.textContent=kind==='images'?ui.noPhotos:kind==='restaurant-videos'?ui.noEnvironmentVideos:ui.noArtistVideos;stage.append(empty);count.textContent=ui.zeroItems;document.getElementById('nfArtistsViewerPrev').disabled=true;document.getElementById('nfArtistsViewerNext').disabled=true;return}
   const item=items[index],videoSource=kind==='restaurant-videos'?(item.video_url||item.youtube_url):(item.video_url||item.video_path),youtubeId=(kind==='videos'||kind==='restaurant-videos')?(item.youtubeId||extractYouTubeId(videoSource)):null,vimeoMatch=(kind==='videos'||kind==='restaurant-videos')?extractVimeoId(videoSource):null,youtubeShort=!!(youtubeId||vimeoMatch)&&(item.video_orientation==='portrait'||(()=>{try{return new URL(String(videoSource||'')).pathname.includes('/shorts/')}catch{return false}})()),media=kind==='images'?document.createElement('img'):document.createElement('video');
-  if((kind==='videos'||kind==='restaurant-videos') && vimeoMatch){stage.classList.add(youtubeShort?'nf-youtube-portrait':'nf-youtube-landscape');if(diagnostic)diagnostic.hidden=true;const placeholder=document.createElement('button');placeholder.type='button';placeholder.className='nf-artist-youtube-placeholder'+(youtubeShort?' nf-artist-youtube-portrait':'');placeholder.setAttribute('aria-label',ui.preview+(item.title||ui.videoDefault)+ui.tapPlay);const play=document.createElement('span');play.className='nf-artist-youtube-play';play.setAttribute('aria-hidden','true');play.textContent='▶';const label=document.createElement('strong');label.textContent=item.title||ui.videoDefault;const hint=document.createElement('small');hint.textContent=ui.tapLoad;placeholder.append(play,label,hint);placeholder.addEventListener('click',()=>{const frame=document.createElement('iframe');frame.className='nf-artist-youtube-frame nf-artist-vimeo-frame'+(youtubeShort?' nf-artist-youtube-portrait':'');frame.title=item.title||ui.videoDefault;frame.loading='lazy';frame.referrerPolicy='strict-origin-when-cross-origin';frame.allow='autoplay; fullscreen; picture-in-picture';frame.allowFullscreen=true;frame.src='https://player.vimeo.com/video/'+encodeURIComponent(vimeoMatch.id)+(vimeoMatch.hash?'?h='+encodeURIComponent(vimeoMatch.hash)+'&':'?')+'dnt=1&title=0&byline=0&portrait=0';placeholder.replaceWith(frame)},{once:true});stage.append(placeholder);count.textContent=(index+1)+' / '+items.length;document.getElementById('nfArtistsViewerPrev').disabled=items.length<2;document.getElementById('nfArtistsViewerNext').disabled=items.length<2;return}
+  if((kind==='videos'||kind==='restaurant-videos') && vimeoMatch){stage.classList.add(youtubeShort?'nf-youtube-portrait':'nf-youtube-landscape');if(diagnostic)diagnostic.hidden=true;const frame=document.createElement('iframe');frame.className='nf-artist-youtube-frame nf-artist-vimeo-frame'+(youtubeShort?' nf-artist-youtube-portrait':'');frame.title=item.title||ui.videoDefault;frame.loading='eager';frame.referrerPolicy='strict-origin-when-cross-origin';frame.allow='autoplay; fullscreen; picture-in-picture';frame.allowFullscreen=true;frame.src='https://player.vimeo.com/video/'+encodeURIComponent(vimeoMatch.id)+(vimeoMatch.hash?'?h='+encodeURIComponent(vimeoMatch.hash)+'&':'?')+'dnt=1&title=0&byline=0&portrait=0';stage.append(frame);count.textContent=(index+1)+' / '+items.length;document.getElementById('nfArtistsViewerPrev').disabled=items.length<2;document.getElementById('nfArtistsViewerNext').disabled=items.length<2;return}
   if((kind==='videos'||kind==='restaurant-videos') && youtubeId){
    stage.classList.add(youtubeShort?'nf-youtube-portrait':'nf-youtube-landscape');
    if(diagnostic)diagnostic.hidden=true;
-   const placeholder=document.createElement('button');
-   placeholder.type='button';
-   placeholder.className='nf-artist-youtube-placeholder'+(youtubeShort?' nf-artist-youtube-portrait':'');
-   placeholder.style.backgroundImage='linear-gradient(rgba(20,14,11,.24),rgba(20,14,11,.55)),url("https://i.ytimg.com/vi/'+encodeURIComponent(youtubeId)+'/hqdefault.jpg")';
-   placeholder.setAttribute('aria-label',ui.preview+(item.title||'Note Fiorentine')+ui.tapPlay);
-   const play=document.createElement('span');
-   play.className='nf-artist-youtube-play';
-   play.setAttribute('aria-hidden','true');
-   play.textContent='▶';
-   const label=document.createElement('strong');
-   label.textContent=item.title||ui.videoDefault;
-   const hint=document.createElement('small');
-   hint.textContent=ui.tapLoad;
-   placeholder.append(play,label,hint);
-   placeholder.addEventListener('click',()=>{
-    const frame=document.createElement('iframe');
-    frame.className='nf-artist-youtube-frame'+(youtubeShort?' nf-artist-youtube-portrait':'');
-    frame.title=item.title||ui.youtubeDefault;
-    frame.loading='lazy';
-    frame.referrerPolicy='strict-origin-when-cross-origin';
-    frame.allow='encrypted-media; picture-in-picture; web-share';
-    frame.allowFullscreen=true;
-    frame.src='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(youtubeId)+'?rel=0&autoplay=0';
-    placeholder.replaceWith(frame);
-   },{once:true});
-   stage.append(placeholder);
+   const frame=document.createElement('iframe');
+   frame.className='nf-artist-youtube-frame'+(youtubeShort?' nf-artist-youtube-portrait':'');
+   frame.title=item.title||ui.youtubeDefault;
+   frame.loading='eager';
+   frame.referrerPolicy='strict-origin-when-cross-origin';
+   frame.allow='encrypted-media; picture-in-picture; web-share; fullscreen';
+   frame.allowFullscreen=true;
+   frame.src='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(youtubeId)+'?rel=0&autoplay=0';
+   stage.append(frame);
    count.textContent=(index+1)+' / '+items.length;
    document.getElementById('nfArtistsViewerPrev').disabled=items.length<2;
    document.getElementById('nfArtistsViewerNext').disabled=items.length<2;
@@ -2134,7 +2117,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
   return fadeAudio(v,0,2700).then(()=>v.pause());
  }
  async function move(step){if(!items.length||fading)return;fading=true;await fadeOutCurrent();index=(index+step+items.length)%items.length;render();fading=false}
- async function close(){if(fading)return;fading=true;await fadeOutCurrent();viewer.classList.remove('open');viewer.setAttribute('aria-hidden','true');document.body.style.overflow='';stage.replaceChildren();if(lastFocus)lastFocus.focus();fading=false}
+ function close(){const activeMedia=stage.querySelector('video,iframe');if(activeMedia){if(activeMedia.tagName==='VIDEO'){activeMedia.pause();activeMedia.removeAttribute('src');try{activeMedia.load()}catch{}}else{activeMedia.src='about:blank'}}viewer.classList.remove('open');viewer.setAttribute('aria-hidden','true');document.body.style.overflow='';stage.replaceChildren();fading=false;if(lastFocus&&lastFocus.isConnected)lastFocus.focus()}
  async function open(kindValue,button){
   kind=kindValue;lastFocus=button;index=0;viewer.classList.toggle('nf-environments-gallery',kind==='restaurant-videos');if(diagnostic){diagnostic.hidden=kind!=='videos';diagnostic.textContent=kind==='videos'?ui.diagnosticLoading:'';}title.textContent=kind==='images'?ui.photoTitle:kind==='restaurant-videos'?ui.environmentVideoTitle:ui.artistVideoTitle;viewer.classList.add('open');viewer.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';stage.innerHTML='<div class="nf-artists-viewer-empty">Caricamento…</div>';count.textContent='';
   try{
@@ -2143,6 +2126,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
    const response=await fetch(api+'/rest/v1/'+table+'?select='+columns+'&is_published=eq.true&order=sort_order.asc,created_at.asc',{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});
    if(!response.ok)throw new Error('HTTP '+response.status);
    items=await response.json();
+if(!viewer.classList.contains('open')||kind!==kindValue)return;
 render();
   }catch(e){
    stage.replaceChildren(Object.assign(document.createElement('div'),{className:'nf-artists-viewer-empty',textContent:ui.loadError}));
