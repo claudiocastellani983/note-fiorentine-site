@@ -2375,6 +2375,13 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
     object-position:center 42%!important;
   }
 }
+/* Aumenta la luminosità del filmato e alleggerisce la velatura senza perdere contrasto sui testi. */
+#nf-cinematic-zone>.nf-cinematic-backdrop>.nf-cinematic-video{
+  filter:brightness(.78) saturate(.95)!important;
+}
+#nf-cinematic-zone>.nf-cinematic-backdrop>.nf-cinematic-shade{
+  background:linear-gradient(180deg,rgba(16,13,11,.12),rgba(16,13,11,.20) 58%,rgba(16,13,11,.28))!important;
+}
 </style>
 <script id="nf-fixed-cinematic-background-controller-v1">
 (function(){
