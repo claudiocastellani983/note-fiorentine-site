@@ -1835,7 +1835,16 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
 <script id="nf-multiple-gallery-runtime">
 (async function(){
  const api='https://nculgrwlzjitggjcgbpp.supabase.co',key='sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0';
- const labels={restaurant:'Il ristorante',kitchen:'La cucina',music:'L’atmosfera'};
+ const lang=(()=>{const v=(new URLSearchParams(location.search).get('lang')||'it').toLowerCase();return ['it','en','de','fr','es','zh'].includes(v)?v:'it'})();
+ const labels={restaurant:'Il ristorante',kitchen:'L’atmosfera',music:'La musica'};
+ const galleryAlt={
+  it:{restaurant:'Gli ambienti del ristorante Note Fiorentine a Firenze'},
+  en:{restaurant:'The interiors of Note Fiorentine in Florence'},
+  de:{restaurant:'Die Räumlichkeiten des Restaurants Note Fiorentine in Florenz'},
+  fr:{restaurant:'Les espaces du restaurant Note Fiorentine à Florence'},
+  es:{restaurant:'Los espacios del restaurante Note Fiorentine en Florencia'},
+  zh:{restaurant:'Note Fiorentine 餐厅空间，位于佛罗伦萨'}
+ };
  const viewer=document.getElementById('nfGalleryViewer'),stage=document.getElementById('nfGalleryStage'),title=document.getElementById('nfGalleryTitle'),counter=document.getElementById('nfGalleryCounter');
  if(!viewer||!stage)return;
  let photos=[],position=0,touchStart=0,lastFocus=null;
@@ -1843,7 +1852,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
  function render(){
   stage.replaceChildren();
   if(!photos.length){const empty=document.createElement('div');empty.className='nf-gallery-empty';empty.textContent='Le fotografie di questa galleria saranno disponibili a breve.';stage.append(empty);counter.textContent='0 FOTO';document.getElementById('nfGalleryPrev').disabled=true;document.getElementById('nfGalleryNext').disabled=true;return}
-  const item=photos[position],img=document.createElement('img');img.className='nf-gallery-photo';img.addEventListener('load',()=>{stage.classList.toggle('nf-gallery-portrait',img.naturalHeight>img.naturalWidth)},{once:true});img.src=publicUrl(item.image_path);img.alt=item.title||labels[viewer.dataset.category]||'Fotografia Note Fiorentine';img.draggable=false;img.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';img.style.transform='scale('+(item.focal_zoom??1)+')';stage.append(img);
+  const item=photos[position],img=document.createElement('img');img.className='nf-gallery-photo';img.addEventListener('load',()=>{stage.classList.toggle('nf-gallery-portrait',img.naturalHeight>img.naturalWidth)},{once:true});img.src=publicUrl(item.image_path);img.alt=item.title&&!/^\\d{6,}$/.test(item.title)?item.title:(galleryAlt[lang]?.[viewer.dataset.category]||labels[viewer.dataset.category]||'Fotografia Note Fiorentine');img.draggable=false;img.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';img.style.transform='scale('+(item.focal_zoom??1)+')';stage.append(img);
   counter.textContent=(position+1)+' / '+photos.length;
   document.getElementById('nfGalleryPrev').disabled=photos.length<2;document.getElementById('nfGalleryNext').disabled=photos.length<2;
  }
@@ -1884,6 +1893,8 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
  const viewer=document.getElementById('nfArtistsViewer'),stage=document.getElementById('nfArtistsViewerStage'),title=document.getElementById('nfArtistsViewerTitle'),count=document.getElementById('nfArtistsViewerCount');
  if(!viewer||!stage)return;
  let items=[],index=0,kind='images',lastFocus=null;
+ const lang=(()=>{const v=(new URLSearchParams(location.search).get('lang')||'it').toLowerCase();return ['it','en','de','fr','es','zh'].includes(v)?v:'it'})();
+ const artistPhotoAlt={it:'Artisti Note Fiorentine',en:'Note Fiorentine artists',de:'Künstler von Note Fiorentine',fr:'Artistes de Note Fiorentine',es:'Artistas de Note Fiorentine',zh:'Note Fiorentine 艺术家'};
  const publicUrl=(bucket,path)=>api+'/storage/v1/object/public/'+bucket+'/'+String(path).split('/').map(encodeURIComponent).join('/');
  function externalVideoEmbed(value){
   let url;try{url=new URL(String(value||''))}catch(_){return null}
@@ -1908,7 +1919,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
   if(!items.length){const empty=document.createElement('div');empty.className='nf-artists-viewer-empty';empty.textContent=kind==='images'?'Le fotografie degli artisti saranno disponibili a breve.':'I video degli artisti saranno disponibili a breve.';stage.append(empty);count.textContent='0 ELEMENTI';document.getElementById('nfArtistsViewerPrev').disabled=true;document.getElementById('nfArtistsViewerNext').disabled=true;return}
   const item=items[index];
   if(kind==='images'){
-   const media=document.createElement('img');media.className='nf-artists-gallery-photo';media.alt=item.title||'Artisti Note Fiorentine';media.draggable=false;media.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';media.style.transform='scale('+(item.focal_zoom??1)+')';
+   const media=document.createElement('img');media.className='nf-artists-gallery-photo';media.alt=item.title&&!/^\\d{6,}$/.test(item.title)?item.title:(artistPhotoAlt[lang]||artistPhotoAlt.it);media.draggable=false;media.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';media.style.transform='scale('+(item.focal_zoom??1)+')';
    media.addEventListener('load',()=>{stage.classList.toggle('nf-artists-portrait',media.naturalHeight>media.naturalWidth)},{once:true});
    media.src=publicUrl('site-media',item.image_path);stage.append(media);
   }else{
