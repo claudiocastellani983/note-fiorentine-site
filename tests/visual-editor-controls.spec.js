@@ -5,6 +5,10 @@ test('Editor Testi e grafica permette testo, dimensione e stile in anteprima',()
  const admin=fs.readFileSync(path.join(__dirname,'../admin/src/index.html'),'utf8');
  expect(admin).toContain('id="veText"');
  expect(admin).toContain("textDirty=false,selectedTag='P'");
+ expect(admin).toContain('id="vePageSelect"');
+ for(const page of ['Home','Menù','Sezioni ristorante','Artisti','Atmosfera']) expect(admin).toContain('>'+page+'</option>');
+ expect(admin).toContain("currentPageKey+'::'+selectedSelector");
+ expect(admin).toContain('function buildVisualPageUrl(pageKey)');
  expect(admin).not.toContain("let selectedTag='P';");
  expect(admin).toContain('id="veSize" type="text" inputmode="numeric"');
  expect(admin).toContain('Valore libero da 8 a 160 px');
@@ -48,6 +52,9 @@ test('Home comunica al pannello Admin la selezione del testo e riceve le modific
  expect(home).toContain("actual={fontSize:cs.fontSize,fontFamily:cs.fontFamily,color:cs.color,textFillColor:cs.webkitTextFillColor,textAlign:cs.textAlign}");
  expect(home).toContain("set('-webkit-text-fill-color',p.color)");
  expect(home).toContain("if(typeof p==='string')");
+ expect(home).toContain("allowedScopes=menuPage?['menu']:['home','ristorante','artisti','atmosfera']");
+ expect(home).toContain("el.matches('.menu-full-cta')");
+ expect(home).toContain("get('visualTarget')");
 });
 
 test('Home applica davvero font, dimensione e colore anche sopra regole CSS important',async({page})=>{
