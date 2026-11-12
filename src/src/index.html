@@ -1555,7 +1555,7 @@ links.querySelectorAll('a').forEach(link => link.addEventListener('click', () =>
     if(currentLang!=='it')delete patch.text;
     legacy.push([key,patch]);
   });
-  [...legacy,...globalStyles,...languageStyles].forEach(([selector,patch])=>{
+  [...legacy,...languageStyles,...globalStyles].forEach(([selector,patch])=>{
     if(!apply(selector,patch))console.warn('[Note Fiorentine editor] Selettore non risolto:',selector);
   });
 }catch(e){console.warn('Stili visuali non caricati',e)}}
