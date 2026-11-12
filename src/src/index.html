@@ -2743,8 +2743,8 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 // Carica gli eventi pubblicati dal pannello amministrativo.
 (async function loadPublishedEvents(){
  const container=document.getElementById('eventList');if(!container)return;
- const base=window.NF_SUPABASE_CONFIG.url;
- const key=window.NF_SUPABASE_CONFIG.key;
+ const base='https://nculgrwlzjitggjcgbpp.supabase.co';
+ const key='sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0';
  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  try{
   const res=await fetch(base+'/rest/v1/events?select=id,title,description,starts_at,image_path,external_url,button_label,is_published,translations&is_published=eq.true',{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});
