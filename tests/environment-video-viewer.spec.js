@@ -75,7 +75,7 @@ test.describe('Home: galleria video artisti', () => {
     await expect(viewer).toHaveClass(/open/);
     await expect(page.locator('#nfArtistsViewerStage iframe')).toHaveAttribute(
       'src',
-      'https://www.youtube-nocookie.com/embed/Gl_1qHhQKqM?rel=0'
+      'https://www.youtube-nocookie.com/embed/Gl_1qHhQKqM?rel=0&autoplay=0'
     );
     expect(extendedQuery).toBe(1);
     expect(legacyQuery).toBe(1);
