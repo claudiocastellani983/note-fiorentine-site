@@ -47,6 +47,17 @@ for (const target of [
       expect(response && response.status()).toBe(200);
 
       await expect(page.locator('#galleria')).toBeVisible();
+      if (target.name === 'Home') {
+        const sectionOrder = await page.evaluate(() => {
+          const artists = document.querySelector('.nf-artists-media');
+          const gallery = document.querySelector('#galleria');
+          const events = document.querySelector('#eventi');
+          return Boolean(artists && gallery && events &&
+            (artists.compareDocumentPosition(gallery) & Node.DOCUMENT_POSITION_FOLLOWING) &&
+            (gallery.compareDocumentPosition(events) & Node.DOCUMENT_POSITION_FOLLOWING));
+        });
+        expect(sectionOrder, 'La galleria Home deve seguire la sezione Artisti e precedere Eventi').toBe(true);
+      }
       await expect(page.locator('[data-gallery-category="restaurant"]')).toBeVisible();
       await expect(page.locator('[data-gallery-category="kitchen"]')).toBeVisible();
       await expect(page.locator('[data-gallery-category="music"]')).toBeVisible();
