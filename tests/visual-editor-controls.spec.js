@@ -23,6 +23,8 @@ test('Editor Testi e grafica permette testo, dimensione e stile in anteprima',()
  expect(admin).toContain('...(visualStyles[selected]||{})');
  expect(admin).toContain("localStorage.setItem(visualDraftKey");
  expect(admin).toContain("function normalizeVisualStyles(input)");
+ expect(admin).toContain('function stableVisualJson(value)');
+ expect(admin).toContain('stableVisualJson(persisted[k])!==stableVisualJson(visualStyles[k])');
  expect(admin).toContain("id=\"veColorHex\"");
  expect(admin).toContain("id=\"veAddColor\"");
  expect(admin).toContain("function normalizeVisualPalette(input)");
