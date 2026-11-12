@@ -1548,7 +1548,7 @@ links.querySelectorAll('a').forEach(link => link.addEventListener('click', () =>
 @media(max-width:420px){#nf-popup-box{padding:36px 16px 24px}#nf-popup-title{font-size:11px;letter-spacing:.055em}}
 </style>
 <script>(async()=>{
-const api='https://nculgrwlzjitggjcgbpp.supabase.co/rest/v1/site_content?select=content_value&content_key=eq.public_site',key='sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0',lang=(()=>{const v=new URLSearchParams(location.search).get('lang')||'it';return ['it','en','de','fr','es','zh'].includes(v)?v:'it'})();
+const api=window.NF_SUPABASE_CONFIG.url+'/rest/v1/site_content?select=content_value&content_key=eq.public_site',key=window.NF_SUPABASE_CONFIG.key,lang=(()=>{const v=new URLSearchParams(location.search).get('lang')||'it';return ['it','en','de','fr','es','zh'].includes(v)?v:'it'})();
 const setText=(el,v)=>{if(!el||v==null||String(v)==='')return;el.replaceChildren();String(v).split(/\n/).forEach((p,i)=>{if(i)el.appendChild(document.createElement('br'));el.appendChild(document.createTextNode(p))})};
 try{
 const rows=await (window.NF_SITE_CONTENT_PROMISE||(window.NF_SITE_CONTENT_PROMISE=fetch(api,{headers:{apikey:key,Accept:'application/json'},cache:'no-store'}).then(r=>{if(!r.ok)throw Error('site_content '+r.status);return r.json()})));
@@ -1639,7 +1639,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
 (async function loadDatabaseMenu(){
  const categoriesBox=document.getElementById('menuCategories'),itemsBox=document.getElementById('menuItems');
  if(!categoriesBox||!itemsBox)return;
- const base='https://nculgrwlzjitggjcgbpp.supabase.co/rest/v1',key='sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0',headers={apikey:key,Accept:'application/json'};
+ const base=window.NF_SUPABASE_CONFIG.url+'/rest/v1',key=window.NF_SUPABASE_CONFIG.key,headers={apikey:key,Accept:'application/json'};
  const lang=new URLSearchParams(location.search).get('lang')||'it';
  const make=(tag,cls,value)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(value!==undefined&&value!==null)el.textContent=String(value);return el};
  const money=value=>value===null||value===undefined||value===''?'':new Intl.NumberFormat(({it:'it-IT',en:'en-GB',de:'de-DE',fr:'fr-FR',es:'es-ES'})[lang]||'it-IT',{style:'currency',currency:'EUR'}).format(Number(value));
