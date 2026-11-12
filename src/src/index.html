@@ -1319,6 +1319,9 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
 @media(max-width:640px){.nf-gallery-stage,.nf-artists-viewer-stage{height:68vh!important}.nf-artists-viewer-stage.nf-youtube-portrait{width:min(100%,calc(68vh*9/16))!important}}
 </style>
 <style id="nf-artists-video-fades-v1">
+.nf-artists-viewer-stage.nf-youtube-portrait video{width:100%!important;height:100%!important;max-width:none!important;max-height:72vh!important;object-fit:contain!important;background:#100D0B!important}
+.nf-artists-viewer-stage.nf-youtube-landscape video{width:100%!important;height:100%!important;max-width:none!important;max-height:72vh!important;object-fit:contain!important;background:#100D0B!important}
+
 /* Transizioni morbide dei video nella galleria artisti */
 .nf-artists-viewer-stage video{opacity:0;transition:opacity 1.35s ease-out}
 .nf-artists-viewer-stage video.nf-artist-video-visible{opacity:1}
@@ -2060,6 +2063,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
    media.addEventListener('load',()=>{const w=media.naturalWidth||1,h=media.naturalHeight||1,ratio=w/h,portrait=h>w;stage.classList.toggle('nf-artists-portrait',portrait);stage.classList.toggle('nf-artists-photo-portrait',portrait);stage.classList.toggle('nf-artists-photo-landscape',!portrait);stage.style.setProperty('--nf-photo-ratio',String(ratio));},{once:true});
    media.src=publicUrl('site-media',item.image_path);
   }else{
+   stage.classList.add(item.video_orientation==='portrait'?'nf-youtube-portrait':'nf-youtube-landscape');
    media.src=publicUrl('performance-videos',item.video_path);media.controls=true;media.playsInline=true;media.preload='none';media.setAttribute('aria-label',item.title||ui.videoAria);
    if(diagnostic){
     diagnostic.hidden=false;
