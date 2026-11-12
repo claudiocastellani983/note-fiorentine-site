@@ -37,7 +37,8 @@ test.describe('Supporto Vimeo e YouTube nelle sezioni video', () => {
 
   test('Home integra Vimeo e YouTube nella galleria video degli artisti', () => {
     expect(home).toContain("data-artist-gallery=\"videos\"");
-    expect(home).toContain("function externalVideoEmbed(value)");
+    expect(home).toContain("function extractYouTubeId(value)");
+    expect(home).toContain("function extractVimeoId(value)");
     expect(home).toContain("item.video_url||item.video_path");
     expect(home).toContain("video_path,video_url,video_orientation");
     expect(home).toContain("https://player.vimeo.com/video/");
