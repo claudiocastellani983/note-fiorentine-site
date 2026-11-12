@@ -115,7 +115,7 @@ test('Pagina Menù: il titolo accetta colore e dimensione dall’editor anche co
       type: 'nf-visual-update',
       sequence: 901,
       selector: '#menu h2',
-      payload: { color: '#123456', fontSize: '37px' }
+      patch: { color: '#123456', fontSize: '37px' }
     }, '*');
   });
   await expect.poll(() => title.evaluate(el => getComputedStyle(el).color)).toBe('rgb(18, 52, 86)');

@@ -79,7 +79,7 @@ test('Home applica davvero font, dimensione e colore anche sopra regole CSS impo
  expect(result.fontSize).toBe('37px');
  expect(result.fontFamily.toLowerCase()).toContain('georgia');
  expect(result.color).toBe('rgb(255, 0, 0)');
- expect(result.textFillColor).toBe('rgb(255, 0, 0)');
+ if (await page.evaluate(() => CSS.supports('-webkit-text-fill-color', '#ff0000'))) expect(result.textFillColor).toBe('rgb(255, 0, 0)');
 });
 
 test('I due pulsanti Dove siamo aprono la mappa della sede',()=>{
