@@ -34,7 +34,7 @@
 <section class="preview-wrap"><div class="preview-head"><strong>Anteprima interattiva del sito</strong><span class="muted">Seleziona pulsanti, link, titoli, descrizioni e testi delle sezioni immagini / video</span></div><iframe id="sitePreview" title="Anteprima modificabile del sito" src="/?visual-editor=1&amp;visualPage=home&amp;lang=it"></iframe></section></main>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';const supabase=createClient(window.NF_SUPABASE_CONFIG.url,window.NF_SUPABASE_CONFIG.key);const $=id=>document.getElementById(id),frame=$('sitePreview');let selected=null;
-const scopes={home:{path:'/',target:''},ristorante:{path:'/',target:'#ristorante'},artisti:{path:'/',target:'.nf-artists-media'},atmosfera:{path:'/',target:'.nf-environments-choice'},menu:{path:'/menu.html',target:''}};
+const scopes={home:{path:'/',target:''},ristorante:{path:'/',target:'#ristorante'},artisti:{path:'/',target:'.nf-artists-media'},atmosfera:{path:'/',target:'#galleria'},menu:{path:'/menu.html',target:''}};
 function previewUrl(){const scope=$('pageScope').value,lang=$('previewLanguage').value,params=new URLSearchParams({'visual-editor':'1',visualPage:scope,lang});if(scopes[scope].target)params.set('visualTarget',scopes[scope].target);return scopes[scope].path+'?'+params.toString()}
 function loadPreview(){selected=null;setEnabled(false);frame.src=previewUrl();$('selectionStatus').textContent='Anteprima caricata. Seleziona un testo, un link o un pulsante.'}
 function setEnabled(on){['textValue','fontFamily','fontSize','fontWeight','fontStyle','textColor','saveBtn','addFavoriteColor'].forEach(id=>$(id).disabled=!on);document.querySelectorAll('[data-align]').forEach(b=>b.disabled=!on)}
