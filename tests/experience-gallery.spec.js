@@ -86,3 +86,21 @@ test('Pagina Menù: titolo coerente con Home e non bloccato sul cremisi', async 
   const color = await title.evaluate(el => getComputedStyle(el).color);
   expect(color).not.toBe('rgb(209, 106, 94)');
 });
+
+test('Pagina Menù: il titolo accetta colore e dimensione dall’editor anche con CSS importante', async ({ page }) => {
+  await mockPublicData(page);
+  await page.goto('/menu.html?visual-editor=1', { waitUntil: 'domcontentloaded' });
+  const title = page.locator('#menu h2');
+  await expect(title).toHaveText('Il menù');
+  await page.evaluate(() => {
+    window.postMessage({
+      type: 'nf-visual-update',
+      sequence: 901,
+      selector: '#menu h2',
+      payload: { color: '#123456', fontSize: '37px' }
+    }, '*');
+  });
+  await expect.poll(() => title.evaluate(el => getComputedStyle(el).color)).toBe('rgb(18, 52, 86)');
+  await expect.poll(() => title.evaluate(el => getComputedStyle(el).fontSize)).toBe('37px');
+  expect(await title.evaluate(el => el.style.getPropertyPriority('color'))).toBe('important');
+});
