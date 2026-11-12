@@ -120,14 +120,18 @@ test('Home: all six languages translate artist gallery labels and accessibility 
     await expect(page.locator('[data-artist-gallery="images"]')).toHaveAttribute('aria-label', expected.photoAria);
     await expect(page.locator('[data-artist-gallery="videos"]')).toHaveAttribute('aria-label', expected.videoAria);
     await page.locator('[data-gallery-category="restaurant"]').click();
-    await page.locator('[data-env-choice="photos"]').click();
     await expect(page.locator('#nfGalleryTitle')).toHaveText(galleryExpected[lang].title);
     await expect(page.locator('#nfGalleryStage img.nf-gallery-photo')).toHaveAttribute('alt', galleryExpected[lang].alt);
     await page.locator('#nfGalleryClose').click();
     await page.locator('[data-artist-gallery="images"]').click();
     await expect(page.locator('#nfArtistsViewer')).toHaveClass(/open/);
     await expect(page.locator('#nfArtistsViewerStage img.nf-artists-gallery-photo')).toHaveAttribute('alt', artistPhotoAlt[lang]);
-    await expect(page.locator('.hero-art img.nf-managed-image')).toHaveAttribute('alt', expected.heroAlt);
+    const heroVideo = page.locator('.nf-cinematic-video');
+    await expect(heroVideo).toHaveCount(1);
+    await expect(heroVideo).toHaveAttribute('autoplay', '');
+    await expect(heroVideo).toHaveAttribute('muted', '');
+    await expect(heroVideo).toHaveAttribute('playsinline', '');
+    await expect(heroVideo).not.toHaveAttribute('loop');
     if (lang !== 'it') {
       const visibleText = await page.locator('body').innerText();
       expect(visibleText).not.toContain('Galleria immagini');
