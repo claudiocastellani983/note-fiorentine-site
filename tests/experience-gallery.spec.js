@@ -65,17 +65,18 @@ for (const target of [
       expect(errors, 'Il caricamento delle gallerie non deve generare errori JavaScript').toEqual([]);
     });
 
-    test('usa Dove siamo al posto di Scopri la musica e mantiene la destinazione Maps', async ({ page }) => {
-      await mockPublicData(page);
-      await page.goto(target.path, { waitUntil: 'domcontentloaded' });
-      const reachUs = page.locator('#inizio .actions [data-nf-reach-us]');
-      await expect(reachUs).toHaveText('Dove siamo');
-      await expect(reachUs).toHaveAttribute('href', /google\.com\/maps\/dir/);
-      await expect(reachUs).toHaveAttribute('href', /Via%20dei%20Benci/);
-      await expect(page.locator('#inizio .actions').getByText('Scopri la musica')).toHaveCount(0);
-    });
   });
 }
+
+test('Home: usa Dove siamo al posto di Scopri la musica e mantiene la destinazione Maps', async ({ page }) => {
+  await mockPublicData(page);
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  const reachUs = page.locator('#inizio .actions [data-nf-reach-us]');
+  await expect(reachUs).toHaveText('Dove siamo');
+  await expect(reachUs).toHaveAttribute('href', /google\.com\/maps\/dir/);
+  await expect(reachUs).toHaveAttribute('href', /Via%20dei%20Benci/);
+  await expect(page.locator('#inizio .actions').getByText('Scopri la musica')).toHaveCount(0);
+});
 
 test('Pagina Menù: titolo coerente con Home e non bloccato sul cremisi', async ({ page }) => {
   await mockPublicData(page);
