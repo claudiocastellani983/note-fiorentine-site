@@ -606,7 +606,7 @@ try{let s=await db.auth.getSession();if(s.data.session)await enter()}catch(e){$(
  const observer=new MutationObserver(addVisualButton);observer.observe(document.getElementById('items')||document.body,{childList:true,subtree:true});
  let frame,selected=null,visualStyles={};
  const visualDraftKey='nf-visual-draft-v1';
- const sitePreviewUrl=(()=>{const fallback='https://note-fiorentine-git-release-in-47d382-claudiocastellani983-5675.vercel.app/';try{const requested=new URLSearchParams(location.search).get('sitePreview');const target=new URL(requested||fallback);const allowed=target.protocol==='https:'&&(target.hostname.endsWith('.vercel.app')||target.hostname==='www.notefiorentine.it'||target.hostname==='notefiorentine.it');if(!allowed)return fallback;target.searchParams.set('visual-editor','1');target.searchParams.set('v',String(Date.now()));return target.href}catch(_){return fallback}})();
+ const sitePreviewUrl=(()=>{const fallback='https://note-fiorentine-ly4p924s8-claudiocastellani983-5675.vercel.app/';try{const requested=new URLSearchParams(location.search).get('sitePreview');const target=new URL(requested||fallback);const allowed=target.protocol==='https:'&&(target.hostname.endsWith('.vercel.app')||target.hostname==='www.notefiorentine.it'||target.hostname==='notefiorentine.it');if(!allowed)return fallback;target.searchParams.set('visual-editor','1');target.searchParams.set('v',String(Date.now()));return target.href}catch(_){return fallback}})();
  function readVisualDraft(){try{const value=JSON.parse(localStorage.getItem(visualDraftKey)||'null');return value&&value.visualStyles&&typeof value.visualStyles==='object'?value:null}catch(_){return null}}
  function openVisualEditor(){
   const savedDraft=readVisualDraft();
