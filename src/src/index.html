@@ -1270,8 +1270,7 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
         <a href="/menu.html#menu">Menu</a>
         
         <a href="#galleria">Galleria</a>
-        <a href="#eventi">Eventi</a>
-        
+          
         <a class="nav-cta" href="https://bookingnotefiorentine.guestplan.io" target="_blank" rel="noopener">Prenota un tavolo</a>
       </div>
       <nav class="language-switch" aria-label="Seleziona la lingua">
@@ -1301,7 +1300,6 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
     </section>
     <section class="intro" id="ristorante">
       <div class="section-kicker">Un'esperienza fiorentina</div>
-      <h2>Il piacere di stare a tavola,<br>con una nota in più.</h2>
       <p>Note Fiorentine è un ristorante toscano nel centro storico di Firenze, dove la cucina incontra l'atmosfera della musica dal vivo. Un luogo per una cena romantica, una serata speciale o semplicemente il piacere di condividere un buon momento.</p>
       
     </section>
@@ -2252,27 +2250,10 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 
 
 <style id="nf-language-row-above-cinematic-v1">
-/* La riga delle lingue è l'ultimo elemento dell'header: il fondale parte subito sotto. */
-#app>header>.nav{display:flex;flex-wrap:wrap;row-gap:14px}
-#app>header>.nav>.brand-mini{order:1}
-#app>header>.nav>.menu-toggle{order:2}
-#app>header>.nav>.navlinks{order:3}
-#app>header>.nav>.language-switch{
-  order:4;
-  flex:0 0 100%;
-  width:100%;
-  margin:0;
-  padding:2px 0 8px;
-  justify-content:center;
-}
 #app>main>.nf-cinematic-zone{margin-top:0;padding-top:0}
 #app>main>.nf-cinematic-zone>.nf-cinematic-backdrop{
   margin-top:0;
   top:0;
-}
-@media(max-width:760px){
-  #app>header>.nav{row-gap:12px}
-  #app>header>.nav>.language-switch{padding:4px 0 8px}
 }
 
 /* Hero video: rimuove il riquadro immagine e lascia il filmato come fondale */
@@ -2311,30 +2292,6 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 </style>
 
 <style id="nf-sticky-header-and-hero-video-boundary-v3">
-/* Header completo, inclusa la riga delle lingue, sempre sopra il contenuto */
-#app>header{
-  position:sticky!important;
-  top:0!important;
-  z-index:100001!important;
-  width:100%;
-  background:#F4EBDD!important;
-  isolation:isolate;
-}
-#app>header>.nav{
-  display:flex;
-  flex-wrap:wrap;
-  row-gap:12px;
-}
-#app>header>.nav>.language-switch{
-  order:4;
-  flex:0 0 100%;
-  width:100%;
-  margin:0;
-  padding:4px 0 8px;
-  justify-content:center;
-  position:relative;
-  z-index:100002;
-}
 /* Il fondale video è assoluto e limitato alla zona Hero + fascia musica + intro.
    La zona termina prima di #menu, quindi il video non invade "La nostra cucina". */
 #app>main>.nf-cinematic-zone{
