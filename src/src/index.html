@@ -1940,14 +1940,6 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
   try{
    const url=api+'/rest/v1/gallery_images?select=id,title,image_path,sort_order,focal_x,focal_y,focal_zoom&category=eq.'+encodeURIComponent(category)+'&is_published=eq.true&order=sort_order.asc,created_at.asc';
    const response=await fetch(url,{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});
-   if(!response.ok&&kind==='videos'&&response.status===400){
-    const detail=await response.clone().text();
-    if(/video_url|column|schema cache/i.test(detail)){
-     // Compatibilità con lo schema legacy prima dell'applicazione della migrazione video_url.
-     const legacyEndpoint=api+'/rest/v1/performance_videos?select=id,title,video_path&is_published=eq.true&order=sort_order.asc,created_at.asc';
-     response=await fetch(legacyEndpoint,{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});
-    }
-   }
    if(!response.ok)throw new Error('HTTP '+response.status);
    photos=await response.json();position=0;render();
   }catch(error){stage.innerHTML='<div class="nf-gallery-empty">Non è stato possibile caricare le fotografie. Riprova tra poco.</div>';counter.textContent='';console.warn('[Note Fiorentine galleria]',error)}
@@ -2103,6 +2095,14 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
     const detail=await response.clone().text();
     if(/video_url|column|schema cache/i.test(detail)){
      const legacyEndpoint=api+'/rest/v1/restaurant_videos?select=id,title,youtube_url,video_orientation&is_published=eq.true&order=sort_order.asc,created_at.asc';
+     response=await fetch(legacyEndpoint,{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});
+    }
+   }
+   if(!response.ok&&kind==='videos'&&response.status===400){
+    const detail=await response.clone().text();
+    if(/video_url|column|schema cache/i.test(detail)){
+     // Compatibilità con lo schema legacy prima dell'applicazione della migrazione video_url.
+     const legacyEndpoint=api+'/rest/v1/performance_videos?select=id,title,video_path&is_published=eq.true&order=sort_order.asc,created_at.asc';
      response=await fetch(legacyEndpoint,{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});
     }
    }
