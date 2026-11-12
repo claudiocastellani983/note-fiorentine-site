@@ -1508,7 +1508,7 @@ Object.assign(map,{
  'Scopri gli artisti':({en:'Discover the artists',de:'Künstler entdecken',fr:'Découvrir les artistes',es:'Descubre a los artistas',zh:'探索艺术家'})[lang]||'Scopri gli artisti',
  'Guarda le performance':({en:'Watch the performances',de:'Auftritte ansehen',fr:'Voir les performances',es:'Ver las actuaciones',zh:'观看演出'})[lang]||'Guarda le performance'
 });
-const protectedSelectors='.brand-mini strong,.art-name,footer h2,.language-switch';
+const protectedSelectors='.brand-mini strong,.brand-mini small,.art-name,footer h2,.language-switch';
 function translateNode(node){if(!node||node.nodeType!==Node.TEXT_NODE)return;const parent=node.parentElement;if(!parent||parent.closest(protectedSelectors)||parent.closest('script,style,noscript,svg,code,[translate="no"]'))return;const raw=node.nodeValue||'',key=raw.trim(),translated=map[key];if(translated&&translated!==key){const lead=raw.match(/^\s*/)?.[0]||'',tail=raw.match(/\s*$/)?.[0]||'';node.nodeValue=lead+translated+tail;}}
 function scan(root){if(root.nodeType===Node.TEXT_NODE){translateNode(root);return;}if(root.nodeType===Node.ELEMENT_NODE&&root.matches(protectedSelectors))return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);while(w.nextNode())translateNode(w.currentNode);}
 if(lang!=='it'){scan(document.body);new MutationObserver(records=>records.forEach(r=>{if(r.type==='characterData')translateNode(r.target);(r.addedNodes||[]).forEach(scan);})).observe(document.body,{subtree:true,childList:true,characterData:true});}
