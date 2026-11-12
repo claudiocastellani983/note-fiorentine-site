@@ -41,8 +41,8 @@ test('Editor Testi e grafica permette testo, dimensione e stile in anteprima',()
 
 test('Home comunica al pannello Admin la selezione del testo e riceve le modifiche',()=>{
  const home=fs.readFileSync(path.join(__dirname,'../src/src/index.html'),'utf8');
- expect(home).toContain("const candidates='h1,h2,h3,p,.eyebrow,.section-kicker,.section-lead,.included,.time strong,.time small,.nf-artists-card-copy strong,.nf-artists-card-copy small,.nf-artists-intro,.nf-artists-media h2'");
- expect(home).toContain("if(!el||el.closest('a,input,textarea,nav'))return;");
+ expect(home).toContain("const candidates='h1,h2,h3,h4,p,a,button,label,small,strong,em,li,.eyebrow,.section-kicker,.section-lead,.included,.time strong,.time small,.nf-artists-card-copy strong,.nf-artists-card-copy small,.nf-artists-intro,.nf-artists-media h2,.nf-popup-action,.nf-popup-file'");
+ expect(home).toContain('if(!el||el.closest(\'input,textarea,select,script,style,[aria-hidden="true"]\'))return;');
  expect(home).not.toContain("el.closest('button,a,input,textarea,nav')");
  expect(home).toContain('.nf-artists-card-copy strong');
  expect(home).toContain("e.composedPath()");
