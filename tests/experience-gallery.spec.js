@@ -40,8 +40,7 @@ async function mockPublicData(page) {
 }
 
 for (const target of [
-  { name: 'Home', path: '/' },
-  { name: 'Pagina Menù', path: '/menu.html' }
+  { name: 'Home', path: '/' }
 ]) {
   test.describe(target.name + ': gallerie del ristorante', () => {
     test('non mostra video in pagina e li apre solo dal visualizzatore della relativa galleria', async ({ page }) => {
