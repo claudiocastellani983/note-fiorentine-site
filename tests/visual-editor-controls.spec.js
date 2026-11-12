@@ -14,6 +14,9 @@ test('Editor Testi e grafica permette testo, dimensione e stile in anteprima',()
  expect(admin).toContain('if(textDirty)patch.text=text.value');
  expect(admin).toContain('...(visualStyles[selected]||{})');
  expect(admin).toContain("localStorage.setItem(visualDraftKey");
+ expect(admin).toContain("function normalizeVisualStyles(input)");
+ expect(admin).toContain("...normalizeVisualStyles(value._visual_styles)");
+ expect(admin).toContain("normalizeVisualStyles(verify.data?.content_value?._visual_styles||{})");
 });
 
 test('Home comunica al pannello Admin la selezione del testo e riceve le modifiche',()=>{
@@ -26,7 +29,9 @@ test('Home comunica al pannello Admin la selezione del testo e riceve le modific
  expect(home).toContain("textContent:el.textContent||''");
  expect(home).toContain("type:'nf-visual-applied'");
  expect(home).toContain("setProperty(name,String(value),'important')");
- expect(home).toContain("actual={fontSize:cs.fontSize,fontFamily:cs.fontFamily,color:cs.color,textAlign:cs.textAlign}");
+ expect(home).toContain("actual={fontSize:cs.fontSize,fontFamily:cs.fontFamily,color:cs.color,textFillColor:cs.webkitTextFillColor,textAlign:cs.textAlign}");
+ expect(home).toContain("set('-webkit-text-fill-color',p.color)");
+ expect(home).toContain("if(typeof p==='string')");
 });
 
 test('Home applica davvero font, dimensione e colore anche sopra regole CSS important',async({page})=>{
@@ -40,7 +45,7 @@ test('Home applica davvero font, dimensione e colore anche sopra regole CSS impo
    if(e.data?.type!=='nf-visual-applied')return;
    window.removeEventListener('message',handler);
    const cs=getComputedStyle(el);
-   resolve({applied:e.data.applied,fontSize:cs.fontSize,fontFamily:cs.fontFamily,color:cs.color});
+   resolve({applied:e.data.applied,fontSize:cs.fontSize,fontFamily:cs.fontFamily,color:cs.color,textFillColor:cs.webkitTextFillColor});
   };
   window.addEventListener('message',handler);
   window.postMessage({type:'nf-visual-update',selector:'#nf-playwright-visual-target',patch:{fontSize:'37px',fontFamily:'Georgia,serif',color:'#ff0000'},sequence:987},'*');
@@ -51,4 +56,5 @@ test('Home applica davvero font, dimensione e colore anche sopra regole CSS impo
  expect(result.fontSize).toBe('37px');
  expect(result.fontFamily.toLowerCase()).toContain('georgia');
  expect(result.color).toBe('rgb(255, 0, 0)');
+ expect(result.textFillColor).toBe('rgb(255, 0, 0)');
 });
