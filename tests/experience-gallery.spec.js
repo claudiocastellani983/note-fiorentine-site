@@ -23,7 +23,14 @@ async function mockPublicData(page) {
     let data = [];
     if (table === 'gallery_images') data = galleryRows;
     else if (table === 'restaurant_videos') data = restaurantVideos;
-    else if (['performance_videos', 'artist_images', 'events', 'menu_categories', 'menu_items', 'site_content'].includes(table)) data = [];
+    else if (table === 'site_content') data = [{
+      content_key: 'public_site',
+      content_value: {
+        hero_secondary_label: 'Dove siamo',
+        _translations: { en: { hero_secondary_label: 'Find us' } }
+      }
+    }];
+    else if (['performance_videos', 'artist_images', 'events', 'menu_categories', 'menu_items'].includes(table)) data = [];
     // Le altre tabelle pubbliche non sono necessarie in questi test: evita chiamate esterne.
     else data = [];
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(data) });
