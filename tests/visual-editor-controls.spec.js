@@ -15,6 +15,12 @@ test('Editor Testi e grafica permette testo, dimensione e stile in anteprima',()
  expect(admin).toContain('...(visualStyles[selected]||{})');
  expect(admin).toContain("localStorage.setItem(visualDraftKey");
  expect(admin).toContain("function normalizeVisualStyles(input)");
+ expect(admin).toContain("id=\"veColorHex\"");
+ expect(admin).toContain("id=\"veAddColor\"");
+ expect(admin).toContain("function normalizeVisualPalette(input)");
+ expect(admin).toContain("value._visual_palette=normalizeVisualPalette(visualPalette)");
+ expect(admin).toContain("persistedPalette");
+ expect(admin).toContain("nf-visual-palette-v1");
  expect(admin).toContain("...normalizeVisualStyles(value._visual_styles)");
  expect(admin).toContain("normalizeVisualStyles(verify.data?.content_value?._visual_styles||{})");
 });
