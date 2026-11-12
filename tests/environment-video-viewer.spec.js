@@ -2,6 +2,8 @@ const { test, expect } = require('@playwright/test');
 
 test.describe('Home: galleria video artisti', () => {
   test('riproduce un link Vimeo pubblicato da Supabase e chiude il visualizzatore', async ({ page }) => {
+    const pageErrors = [];
+    page.on('pageerror', error => pageErrors.push(error.message));
     await page.route('**/rest/v1/events**', route => route.fulfill({
       status: 200, contentType: 'application/json', body: '[]'
     }));
@@ -32,9 +34,12 @@ test.describe('Home: galleria video artisti', () => {
     await expect(viewer).toHaveAttribute('aria-hidden', 'true');
     await expect(viewer).not.toHaveClass(/open/);
     await expect(frame).toHaveCount(0);
+    expect(pageErrors, 'Il runtime della galleria non deve generare errori JavaScript').toEqual([]);
   });
 
   test('mantiene compatibilità con i record legacy prima della migrazione video_url', async ({ page }) => {
+    const pageErrors = [];
+    page.on('pageerror', error => pageErrors.push(error.message));
     let extendedQuery = 0;
     let legacyQuery = 0;
     await page.route('**/rest/v1/events**', route => route.fulfill({
@@ -76,5 +81,6 @@ test.describe('Home: galleria video artisti', () => {
     expect(legacyQuery).toBe(1);
     await page.locator('#nfArtistsViewerClose').click();
     await expect(viewer).toHaveAttribute('aria-hidden', 'true');
+    expect(pageErrors, 'Il fallback legacy non deve generare errori JavaScript').toEqual([]);
   });
 });
