@@ -6,7 +6,12 @@ test('Editor Testi e grafica permette testo, dimensione e stile in anteprima',()
  expect(admin).toContain('id="veText"');
  expect(admin).toContain("textDirty=false,selectedTag='P'");
  expect(admin).not.toContain("let selectedTag='P';");
- expect(admin).toContain('id="veSize" type="number"');
+ expect(admin).toContain('id="veSize" type="text" inputmode="numeric"');
+ expect(admin).toContain('Valore libero da 8 a 160 px');
+ expect(admin).toContain("align-items:flex-start");
+ expect(admin).toContain("const parsedSize=Number(rawSize)");
+ expect(admin).toContain("size.addEventListener('change'");
+ expect(admin).toContain("^\\d{1,3}$");
  expect(admin).toContain("textField.value=patch.text??receivedText");
  expect(admin).toContain("e.source!==iframe.contentWindow");
  expect(admin).toContain("VISUAL_SELECT_RECEIVED");
