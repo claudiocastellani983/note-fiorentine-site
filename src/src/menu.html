@@ -911,7 +911,7 @@ zh:{"Non ci sono ancora piatti pubblicati in questa categoria.":"此类别暂未
 };
 Object.keys(menuRuntimeMessages).forEach(language=>Object.assign(dictionaries[language],menuRuntimeMessages[language]));
 const map=dictionaries[lang]||{};
-const protectedSelectors='.brand-mini strong,.art-name,footer h2,.language-switch';
+const protectedSelectors='.brand-mini strong,.brand-mini small,.art-name,footer h2,.language-switch';
 function translateNode(node){if(!node||node.nodeType!==Node.TEXT_NODE)return;const parent=node.parentElement;if(!parent||parent.closest(protectedSelectors)||parent.closest('script,style,noscript,svg,code,[translate="no"]'))return;const raw=node.nodeValue||'',key=raw.trim(),translated=map[key];if(translated&&translated!==key){const lead=raw.match(/^\s*/)?.[0]||'',tail=raw.match(/\s*$/)?.[0]||'';node.nodeValue=lead+translated+tail;}}
 const attributeKeys=['aria-label','title','placeholder','alt'];
 function translateAttributes(root){if(!root||root.nodeType!==Node.ELEMENT_NODE)return;const nodes=[root,...root.querySelectorAll('*')];for(const el of nodes){if(el.closest&&el.closest(protectedSelectors))continue;for(const attr of attributeKeys){const value=el.getAttribute(attr);if(!value)continue;const translated=map[value];if(translated)el.setAttribute(attr,translated);}}}
