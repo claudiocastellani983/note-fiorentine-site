@@ -1640,7 +1640,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
  try{
   const [cr,ir]=await Promise.all([
    fetch(base+'/menu_categories?select=id,name,description,translations,sort_order,created_at&is_published=eq.true&order=sort_order.asc,created_at.asc',{headers,cache:'no-store'}),
-   fetch(base+'/menu_items?select=id,category_id,name,description,price,allergens,translations,sort_order,created_at&is_published=eq.true&order=sort_order.asc,created_at.asc',{headers,cache:'no-store'})
+   fetch(base+'/menu_items?select=id,category_id,name,description,price,allergens,image_path,translations,sort_order,created_at&is_published=eq.true&order=sort_order.asc,created_at.asc',{headers,cache:'no-store'})
   ]);
   if(!cr.ok)throw Error('Categorie HTTP '+cr.status);if(!ir.ok)throw Error('Piatti HTTP '+ir.status);
   const [categories,items]=await Promise.all([cr.json(),ir.json()]);
@@ -1656,6 +1656,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
    if(!matching.length){itemsBox.append(make('p','menu-empty','Non ci sono ancora piatti pubblicati in questa categoria.'));return}
    matching.forEach(item=>{
     const card=make('article','menu-item-card'),heading=make('div','menu-item-heading');
+    if(item.image_path){const image=make('img','menu-item-image');image.src=base+'/storage/v1/object/public/site-media/'+String(item.image_path).split('/').map(encodeURIComponent).join('/');image.alt=item.translations?.[lang]?.name||item.name||'';image.loading='lazy';card.append(image)}
     heading.append(make('h3','',item.translations?.[lang]?.name||item.name||''));const price=money(item.price);if(price)heading.append(make('span','menu-item-price',price));card.append(heading);
     if(item.description)card.append(make('p','menu-item-description',item.translations?.[lang]?.description||item.description));
     if(Array.isArray(item.allergens)&&item.allergens.length)card.append(make('p','menu-item-allergens',({it:'Allergeni:',en:'Allergens:',de:'Allergene:',fr:'Allergènes :',es:'Alérgenos:'})[lang]+' '+item.allergens.join(', ')));
@@ -2987,6 +2988,9 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 </style>
 
 <style id="nf-menu-readability-v1">
+#app>main>#menu .menu-item-image{display:block;width:min(100%,420px);max-height:260px;object-fit:cover;margin:0 0 16px;border:1px solid rgba(198,161,106,.35)}
+@media(max-width:760px){#app>main>#menu .menu-item-image{width:100%;max-height:220px}}
+
 /* Contrasto stabile per il menu sopra il fondale video, desktop e mobile. */
 #app>main>#menu .menu-category-tabs{position:relative!important;z-index:3!important;gap:10px!important}
 #app>main>#menu .menu-category-button{background:#211D18!important;color:#F1E7D6!important;border:1px solid #C6A16A!important;font-size:11px!important;line-height:1.35!important;font-weight:700!important;padding:13px 18px!important;text-shadow:none!important}
