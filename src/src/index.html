@@ -1326,6 +1326,34 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
 @media(prefers-reduced-motion:reduce){.nf-artists-viewer-stage video{transition:none!important}}
 </style>
 <style id="nf-artists-video-diagnostic-hidden">#nfArtistsVideoDiagnostic{display:none!important}</style>
+
+<style id="nf-video-panels-larger-v1">
+/* Riquadri video più ampi, mantenendo i rapporti originali dei filmati */
+.music-videos .video-list {
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,850px),1fr)) !important;
+  gap:clamp(18px,2vw,28px) !important;
+}
+.nf-artists-cards {
+  max-width:1320px !important;
+  gap:clamp(20px,2.2vw,30px) !important;
+}
+.nf-artists-card {
+  min-height:clamp(280px,36vw,460px) !important;
+}
+.nf-artists-dialog {
+  width:min(1320px,100%) !important;
+  height:min(94vh,1040px) !important;
+}
+.nf-artists-viewer-stage video {
+  width:min(100%,1200px) !important;
+}
+@media(max-width:640px) {
+  .nf-artists-cards { gap:16px !important; }
+  .nf-artists-card { min-height:300px !important; }
+  .nf-artists-dialog { height:92vh !important; }
+  .music-videos .video-list { grid-template-columns:minmax(0,1fr) !important; }
+}
+</style>
 </head>
 <body>
 <div id="app">
