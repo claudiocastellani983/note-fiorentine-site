@@ -1870,7 +1870,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
  function render(){
   stage.replaceChildren();
   if(!photos.length){const empty=document.createElement('div');empty.className='nf-gallery-empty';empty.textContent='Le fotografie di questa galleria saranno disponibili a breve.';stage.append(empty);counter.textContent='0 FOTO';document.getElementById('nfGalleryPrev').disabled=true;document.getElementById('nfGalleryNext').disabled=true;return}
-  const item=photos[position],img=document.createElement('img');img.className='nf-gallery-photo';img.addEventListener('load',()=>{stage.classList.toggle('nf-gallery-portrait',img.naturalHeight>img.naturalWidth)},{once:true});img.src=publicUrl(item.image_path);img.alt=item.title&&!/^\\d{6,}$/.test(item.title)?item.title:(galleryAlt[lang]?.[viewer.dataset.category]||labels[viewer.dataset.category]||'Fotografia Note Fiorentine');img.draggable=false;img.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';img.style.transform='scale('+(item.focal_zoom??1)+')';stage.append(img);
+  const item=photos[position],img=document.createElement('img');img.className='nf-gallery-photo';img.addEventListener('load',()=>{stage.classList.toggle('nf-gallery-portrait',img.naturalHeight>img.naturalWidth)},{once:true});img.src=publicUrl(item.image_path);img.alt=item.title&&!/^\d{6,}$/.test(item.title)?item.title:(galleryAlt[lang]?.[viewer.dataset.category]||labels[viewer.dataset.category]||'Fotografia Note Fiorentine');img.draggable=false;img.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';img.style.transform='scale('+(item.focal_zoom??1)+')';stage.append(img);
   counter.textContent=(position+1)+' / '+photos.length;
   document.getElementById('nfGalleryPrev').disabled=photos.length<2;document.getElementById('nfGalleryNext').disabled=photos.length<2;
  }
@@ -1937,7 +1937,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
   if(!items.length){const empty=document.createElement('div');empty.className='nf-artists-viewer-empty';empty.textContent=kind==='images'?'Le fotografie degli artisti saranno disponibili a breve.':'I video degli artisti saranno disponibili a breve.';stage.append(empty);count.textContent='0 ELEMENTI';document.getElementById('nfArtistsViewerPrev').disabled=true;document.getElementById('nfArtistsViewerNext').disabled=true;return}
   const item=items[index];
   if(kind==='images'){
-   const media=document.createElement('img');media.className='nf-artists-gallery-photo';media.alt=item.title&&!/^\\d{6,}$/.test(item.title)?item.title:(artistPhotoAlt[lang]||artistPhotoAlt.it);media.draggable=false;media.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';media.style.transform='scale('+(item.focal_zoom??1)+')';
+   const media=document.createElement('img');media.className='nf-artists-gallery-photo';media.alt=item.title&&!/^\d{6,}$/.test(item.title)?item.title:(artistPhotoAlt[lang]||artistPhotoAlt.it);media.draggable=false;media.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';media.style.transform='scale('+(item.focal_zoom??1)+')';
    media.addEventListener('load',()=>{stage.classList.toggle('nf-artists-portrait',media.naturalHeight>media.naturalWidth)},{once:true});
    media.src=publicUrl('site-media',item.image_path);stage.append(media);
   }else{
