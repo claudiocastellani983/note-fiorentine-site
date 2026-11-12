@@ -6,7 +6,9 @@ test('Editor Testi e grafica permette testo, dimensione e stile in anteprima',()
  expect(admin).toContain('id="veText"');
  expect(admin).toContain('id="veSize" type="number"');
  expect(admin).toContain("m.querySelector('#veText').value=patch.text??e.data.text??''");
- expect(admin).toContain("text.addEventListener('input',apply)");
+ expect(admin).toContain("text.addEventListener('input',()=>{textDirty=true;apply()})");
+ expect(admin).toContain('if(textDirty)patch.text=text.value');
+ expect(admin).toContain('...(visualStyles[selected]||{})');
  expect(admin).toContain("localStorage.setItem(visualDraftKey");
 });
 
