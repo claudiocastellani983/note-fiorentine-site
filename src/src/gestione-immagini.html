@@ -118,6 +118,9 @@
   <input id="restaurantYoutubeUrl" type="url" inputmode="url" placeholder="https://youtu.be/…" autocomplete="url">
   <label class="field" for="restaurantYoutubeTitle">Titolo del video</label>
   <input id="restaurantYoutubeTitle" type="text" maxlength="160" placeholder="Es. La sala principale">
+  <label class="field" for="restaurantVideoOrientation">Orientamento video</label>
+  <select id="restaurantVideoOrientation" style="width:100%;padding:12px;border:1px solid var(--line)"><option value="landscape">Orizzontale · 16:9</option><option value="portrait">Verticale · 9:16</option></select>
+  <div id="restaurantVideoOrientationPreview" style="width:100%;max-width:240px;aspect-ratio:16/9;margin:12px auto;background:#392b24;border:1px solid var(--line);display:grid;place-items:center;color:#fff;font-size:12px">Anteprima 16:9</div>
   <button type="button" id="restaurantYoutubeAdd">＋ Aggiungi video degli ambienti</button>
   <p class="hint">Il video viene aggiunto come bozza. Controllalo e scegli “Mostra sul sito” per pubblicarlo.</p>
  </div>
@@ -547,15 +550,20 @@ async function loadRestaurantVideosAdmin(){
  const panel=$('restaurantVideosAdminPanel');if(!panel)return;
  const status=$('restaurantVideosAdminStatus'),count=$('restaurantVideosAdminCount'),list=$('restaurantVideosAdminList');
  status.textContent='Caricamento video degli ambienti…';
- const {data,error}=await supabase.from('restaurant_videos').select('id,title,youtube_url,sort_order,is_published,created_at').order('sort_order',{ascending:true}).order('created_at',{ascending:true});
+ const {data,error}=await supabase.from('restaurant_videos').select('id,title,youtube_url,video_orientation,sort_order,is_published,created_at').order('sort_order',{ascending:true}).order('created_at',{ascending:true});
  if(error){status.textContent='Errore caricamento: '+error.message;return}
  const items=data||[];list.replaceChildren();count.textContent=items.length+' video degli ambienti';
  for(let i=0;i<items.length;i++){
   const item=items[i],wrap=document.createElement('div');wrap.className='gallery-admin-item';
-  const id=extractYouTubeId(item.youtube_url),thumb=document.createElement('img');
-  if(id){thumb.className='youtube-thumb';thumb.src='https://i.ytimg.com/vi/'+encodeURIComponent(id)+'/hqdefault.jpg';thumb.alt='Anteprima YouTube: '+(item.title||'Video ambiente');thumb.loading='lazy';thumb.addEventListener('click',()=>window.open('https://youtu.be/'+id,'_blank','noopener'))}
+  const id=extractYouTubeId(item.youtube_url),orientation=item.video_orientation==='portrait'?'portrait':'landscape',thumb=document.createElement('img');
+  if(id){thumb.className='youtube-thumb';thumb.src='https://i.ytimg.com/vi/'+encodeURIComponent(id)+'/hqdefault.jpg';thumb.alt='Anteprima YouTube: '+(item.title||'Video ambiente');thumb.loading='lazy';thumb.style.width=orientation==='portrait'?'min(100%,150px)':'100%';thumb.style.aspectRatio=orientation==='portrait'?'9/16':'16/9';thumb.style.objectFit='cover';thumb.style.margin='0 auto';thumb.addEventListener('click',()=>window.open('https://youtu.be/'+id,'_blank','noopener'))}
   const title=document.createElement('p');title.textContent=item.title||'Video ambiente';title.style.cssText='margin:0 0 7px;font-weight:700;color:#392B24';
   if(id)wrap.append(thumb);wrap.append(title);
+  const orientationLabel=document.createElement('label');orientationLabel.className='field';orientationLabel.textContent='Orientamento video';
+  const orientationSelect=document.createElement('select');orientationSelect.style.cssText='width:100%;padding:10px;border:1px solid var(--line);background:#fff';
+  orientationSelect.innerHTML='<option value="landscape">Orizzontale · 16:9</option><option value="portrait">Verticale · 9:16</option>';orientationSelect.value=orientation;
+  orientationSelect.addEventListener('change',async()=>{orientationSelect.disabled=true;const {error:orientationError}=await supabase.from('restaurant_videos').update({video_orientation:orientationSelect.value,updated_at:new Date().toISOString()}).eq('id',item.id);if(orientationError){status.textContent='Orientamento non salvato: '+orientationError.message;orientationSelect.value=orientation;orientationSelect.disabled=false;return}status.textContent='Orientamento aggiornato.';await loadRestaurantVideosAdmin()});
+  const formatHint=document.createElement('p');formatHint.className='hint';formatHint.textContent=orientation==='portrait'?'Visualizzazione verticale 9:16':'Visualizzazione orizzontale 16:9';wrap.append(orientationLabel,orientationSelect,formatHint);
   const controls=document.createElement('div');controls.className='artist-order-controls';
   const position=document.createElement('span');position.className='artist-order-position';position.textContent=(i+1)+' / '+items.length;controls.append(position);
   for(const [label,delta,aria] of [['↑',-1,'Sposta in alto'],['↓',1,'Sposta in basso']]){
@@ -574,15 +582,16 @@ async function loadRestaurantVideosAdmin(){
  if(!items.length){const empty=document.createElement('p');empty.textContent='Nessun video degli ambienti aggiunto.';empty.style.gridColumn='1/-1';list.append(empty)}
  status.textContent=items.length+' video caricati. I contenuti in bozza non compaiono nella homepage.';
 }
+$('restaurantVideoOrientation').addEventListener('change',()=>{const portrait=$('restaurantVideoOrientation').value==='portrait',preview=$('restaurantVideoOrientationPreview');preview.style.aspectRatio=portrait?'9/16':'16/9';preview.style.maxWidth=portrait?'135px':'240px';preview.textContent=portrait?'Anteprima 9:16':'Anteprima 16:9'});
 $('restaurantYoutubeAdd').addEventListener('click',async()=>{
- const url=$('restaurantYoutubeUrl').value.trim(),id=extractYouTubeId(url),title=$('restaurantYoutubeTitle').value.trim();
+ const url=$('restaurantYoutubeUrl').value.trim(),id=extractYouTubeId(url),title=$('restaurantYoutubeTitle').value.trim(),orientation=$('restaurantVideoOrientation').value;
  const status=$('restaurantVideosAdminStatus'),button=$('restaurantYoutubeAdd');
  if(!id){status.textContent='Link YouTube non valido. Incolla un link youtube.com o youtu.be completo.';return}
  button.disabled=true;status.textContent='Aggiunta del video…';
  try{
   const {data:existing,error:read}=await supabase.from('restaurant_videos').select('sort_order').order('sort_order',{ascending:true}).limit(1);
   if(read)throw read;
-  const {error:insertError}=await supabase.from('restaurant_videos').insert({title:title||'Video degli ambienti',youtube_url:'https://youtu.be/'+id,sort_order:(existing?.[0]?.sort_order??10)-10,is_published:false});
+  const {error:insertError}=await supabase.from('restaurant_videos').insert({title:title||'Video degli ambienti',youtube_url:'https://youtu.be/'+id,video_orientation:orientation,sort_order:(existing?.[0]?.sort_order??10)-10,is_published:false});
   if(insertError)throw insertError;
   $('restaurantYoutubeUrl').value='';$('restaurantYoutubeTitle').value='';
   status.textContent='Video aggiunto come bozza. Puoi controllarlo e pubblicarlo dall’elenco.';
