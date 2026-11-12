@@ -56,7 +56,7 @@ test.describe('Funzioni pubbliche delle preview reali', () => {
     await expect(viewer).toHaveClass(/open/);
     const frame = page.locator('#nfArtistsViewerStage iframe');
     await expect(frame).toHaveCount(1, { timeout: 20000 });
-    await expect(frame).toHaveAttribute('src', /player\\.vimeo\\.com\\/video\\//);
+    await expect(frame).toHaveAttribute('src', /player\.vimeo\.com\/video\//);
     expect(errors, 'Il percorso dei video del ristorante non deve generare errori JavaScript').toEqual([]);
   });
 
