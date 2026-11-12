@@ -21,7 +21,7 @@ async function mockPublicData(page) {
     const url = new URL(route.request().url());
     const table = url.pathname.split('/').pop();
     let data = [];
-    if (table === 'gallery_images') data = galleryRows;
+    if (table === 'gallery_images') { const category = url.searchParams.get('category'); data = category?.startsWith('eq.') ? galleryRows.filter(row => row.category === category.slice(3)) : galleryRows; }
     else if (table === 'restaurant_videos') data = restaurantVideos;
     else if (table === 'site_content') data = [{
       content_key: 'public_site',
