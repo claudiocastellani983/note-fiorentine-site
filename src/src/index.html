@@ -1844,22 +1844,47 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
  if(!viewer||!stage)return;
  let items=[],index=0,kind='images',lastFocus=null;
  const publicUrl=(bucket,path)=>api+'/storage/v1/object/public/'+bucket+'/'+String(path).split('/').map(encodeURIComponent).join('/');
+ function externalVideoEmbed(value){
+  let url;try{url=new URL(String(value||''))}catch(_){return null}
+  if(url.protocol!=='https:')return null;
+  const host=url.hostname.toLowerCase().replace(/^www\\./,'');
+  const parts=url.pathname.split('/').filter(Boolean);
+  if(host==='vimeo.com'||host==='player.vimeo.com'){
+   const id=parts.find(part=>/^\\d+$/.test(part));if(!id)return null;
+   const idIndex=parts.indexOf(id),hash=url.searchParams.get('h')||(parts[idIndex+1]&&!/^\\d+$/.test(parts[idIndex+1])?parts[idIndex+1]:'');
+   return {provider:'vimeo',src:'https://player.vimeo.com/video/'+id+(hash?'?h='+encodeURIComponent(hash)+'&':'?')+'dnt=1&title=0&byline=0&portrait=0'};
+  }
+  if(['youtube.com','m.youtube.com','youtube-nocookie.com','youtu.be'].includes(host)){
+   const marker=parts.findIndex(part=>['embed','shorts','live'].includes(part));
+   const id=host==='youtu.be'?parts[0]:(url.searchParams.get('v')||(marker>=0?parts[marker+1]:''));
+   if(!id||!/^[A-Za-z0-9_-]{6,}$/.test(id))return null;
+   return {provider:'youtube',src:'https://www.youtube-nocookie.com/embed/'+encodeURIComponent(id)+'?rel=0'};
+  }
+  return null;
+ }
  function render(){
   stage.replaceChildren();stage.classList.remove('nf-artists-portrait');
   if(!items.length){const empty=document.createElement('div');empty.className='nf-artists-viewer-empty';empty.textContent=kind==='images'?'Le fotografie degli artisti saranno disponibili a breve.':'I video degli artisti saranno disponibili a breve.';stage.append(empty);count.textContent='0 ELEMENTI';document.getElementById('nfArtistsViewerPrev').disabled=true;document.getElementById('nfArtistsViewerNext').disabled=true;return}
-  const item=items[index],media=kind==='images'?document.createElement('img'):document.createElement('video');
+  const item=items[index];
   if(kind==='images'){
-   media.className='nf-artists-gallery-photo';media.alt=item.title||'Artisti Note Fiorentine';media.draggable=false;media.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';media.style.transform='scale('+(item.focal_zoom??1)+')';
+   const media=document.createElement('img');media.className='nf-artists-gallery-photo';media.alt=item.title||'Artisti Note Fiorentine';media.draggable=false;media.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';media.style.transform='scale('+(item.focal_zoom??1)+')';
    media.addEventListener('load',()=>{stage.classList.toggle('nf-artists-portrait',media.naturalHeight>media.naturalWidth)},{once:true});
-   media.src=publicUrl('site-media',item.image_path);
+   media.src=publicUrl('site-media',item.image_path);stage.append(media);
   }else{
-   media.src=publicUrl('performance-videos',item.video_path);media.controls=true;media.playsInline=true;media.preload='metadata';media.setAttribute('aria-label',item.title||'Video artisti Note Fiorentine');
-   media.volume=preferredVolume;
-   media.addEventListener('volumechange',()=>{if(!media.__nfAdjustingVolume)preferredVolume=media.volume});
-   media.addEventListener('play',()=>{media.classList.remove('nf-artist-video-visible','nf-artist-video-fading');requestAnimationFrame(()=>requestAnimationFrame(()=>media.classList.add('nf-artist-video-visible')));media.__nfAdjustingVolume=true;media.volume=0;media.__nfAdjustingVolume=false;fadeAudio(media,preferredVolume,1350)});
-   media.addEventListener('loadeddata',()=>requestAnimationFrame(()=>media.classList.add('nf-artist-video-visible')),{once:true});
+   const source=String(item.video_url||item.video_path||'').trim(),external=externalVideoEmbed(source);
+   if(external){
+    const frame=document.createElement('iframe');frame.className='nf-artist-video-frame';frame.src=external.src;frame.title=item.title||'Video artisti Note Fiorentine';frame.loading='eager';frame.allow='autoplay; fullscreen; picture-in-picture';frame.allowFullscreen=true;frame.referrerPolicy='strict-origin-when-cross-origin';frame.setAttribute('aria-label',frame.title);stage.append(frame);
+   }else if(source&&!/^https?:\\/\\//i.test(source)){
+    const media=document.createElement('video');media.src=publicUrl('performance-videos',source);media.controls=true;media.playsInline=true;media.preload='metadata';media.setAttribute('aria-label',item.title||'Video artisti Note Fiorentine');media.volume=preferredVolume;
+    media.addEventListener('volumechange',()=>{if(!media.__nfAdjustingVolume)preferredVolume=media.volume});
+    media.addEventListener('play',()=>{media.classList.remove('nf-artist-video-visible','nf-artist-video-fading');requestAnimationFrame(()=>requestAnimationFrame(()=>media.classList.add('nf-artist-video-visible')));media.__nfAdjustingVolume=true;media.volume=0;media.__nfAdjustingVolume=false;fadeAudio(media,preferredVolume,1350)});
+    media.addEventListener('loadeddata',()=>requestAnimationFrame(()=>media.classList.add('nf-artist-video-visible')),{once:true});stage.append(media);
+   }else{
+    const empty=document.createElement('div');empty.className='nf-artists-viewer-empty';empty.textContent='Il collegamento di questo video non è valido o non è supportato.';stage.append(empty);
+   }
+   if(item.video_orientation==='portrait')stage.classList.add('nf-artists-portrait');
   }
-  stage.append(media);if(kind==='videos')requestAnimationFrame(()=>media.classList.add('nf-artist-video-visible'));count.textContent=(index+1)+' / '+items.length;
+  count.textContent=(index+1)+' / '+items.length;
   document.getElementById('nfArtistsViewerPrev').disabled=items.length<2;document.getElementById('nfArtistsViewerNext').disabled=items.length<2;
  }
  let fading=false,preferredVolume=1;
@@ -1870,8 +1895,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
   return new Promise(resolve=>{
    function frame(now){
     if(media.__nfFadeToken!==token){resolve();return}
-    const progress=Math.min(1,(now-started)/duration);
-    const eased=progress*progress*(3-2*progress);
+    const progress=Math.min(1,(now-started)/duration),eased=progress*progress*(3-2*progress);
     media.__nfAdjustingVolume=true;media.volume=Math.max(0,Math.min(1,start+(target-start)*eased));media.__nfAdjustingVolume=false;
     if(progress<1)requestAnimationFrame(frame);else resolve();
    }
@@ -1881,16 +1905,21 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
  function fadeOutCurrent(){
   const v=stage.querySelector('video');if(!v)return Promise.resolve();
   v.classList.remove('nf-artist-video-visible');v.classList.add('nf-artist-video-fading');
-  if(v.paused||v.ended){v.pause();return new Promise(resolve=>setTimeout(resolve,2720))}
-  return fadeAudio(v,0,2700).then(()=>v.pause());
+  if(v.paused||v.ended){v.pause();return Promise.resolve()}
+  return fadeAudio(v,0,450).then(()=>v.pause());
  }
  async function move(step){if(!items.length||fading)return;fading=true;await fadeOutCurrent();index=(index+step+items.length)%items.length;render();fading=false}
  async function close(){if(fading)return;fading=true;await fadeOutCurrent();viewer.classList.remove('open');viewer.setAttribute('aria-hidden','true');document.body.style.overflow='';stage.replaceChildren();if(lastFocus)lastFocus.focus();fading=false}
  async function open(kindValue,button){
   kind=kindValue;lastFocus=button;index=0;title.textContent=kind==='images'?'Gli artisti · Fotografie':'Gli artisti · Video';viewer.classList.add('open');viewer.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';stage.innerHTML='<div class="nf-artists-viewer-empty">Caricamento…</div>';count.textContent='';
   try{
-   const table=kind==='images'?'artist_images':'performance_videos',field=kind==='images'?'image_path':'video_path';
-   const response=await fetch(api+'/rest/v1/'+table+'?select=id,title,'+field+',focal_x,focal_y,focal_zoom&is_published=eq.true&order=sort_order.asc,created_at.asc',{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});
+   const table=kind==='images'?'artist_images':'performance_videos';
+   let endpoint='/rest/v1/'+table+'?select=id,title,'+(kind==='images'?'image_path,focal_x,focal_y,focal_zoom':'video_path,video_url,video_orientation')+'&is_published=eq.true&order=sort_order.asc,created_at.asc';
+   let response=await fetch(api+endpoint,{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});
+   if(kind==='videos'&&!response.ok){
+    // Compatibilità con lo schema legacy prima dell'applicazione della migrazione video_url.
+    response=await fetch(api+'/rest/v1/performance_videos?select=id,title,video_path&is_published=eq.true&order=sort_order.asc,created_at.asc',{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});
+   }
    if(!response.ok)throw new Error('HTTP '+response.status);
    items=await response.json();render();
   }catch(e){stage.innerHTML='<div class="nf-artists-viewer-empty">Non è stato possibile caricare i contenuti. Riprova tra poco.</div>';count.textContent='';console.warn('[Note Fiorentine artisti]',e)}
@@ -2693,6 +2722,12 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 #nf-cinematic-zone .nf-cinematic-play{position:absolute;z-index:4;left:50%;top:50%;transform:translate(-50%,-50%);display:inline-flex;align-items:center;gap:10px;padding:13px 18px;border:1px solid rgba(217,195,160,.85);border-radius:2px;background:rgba(42,25,22,.82);color:#F9F8F7;font:600 11px Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
 #nf-cinematic-zone .nf-cinematic-play[hidden]{display:none}
 @media(prefers-reduced-motion:reduce){#nf-cinematic-zone .nf-cinematic-video{transition:none}}
+</style>
+
+<style id="nf-artist-external-video-frame-v1">
+.nf-artists-viewer-stage iframe.nf-artist-video-frame{display:block;width:min(100%,1100px);height:100%;min-height:260px;aspect-ratio:16/9;border:0;background:#100d0b}
+.nf-artists-viewer-stage.nf-artists-portrait iframe.nf-artist-video-frame{width:min(100%,560px);height:min(76vh,850px);aspect-ratio:9/16;margin:auto}
+@media(max-width:760px){.nf-artists-viewer-stage iframe.nf-artist-video-frame{min-height:220px}.nf-artists-viewer-stage.nf-artists-portrait iframe.nf-artist-video-frame{height:70vh}}
 </style>
 </body>
 </html><script async data-explicit-opt-in="true" data-deployment-id="dpl_7tHJ9DycmxR1TALK2u85APShiyVZ" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_EmRnWHsGMUkcJwHUQ7vz8FCmfTh6" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_E5nptDv68tSzPwNaRWjjuQBRJWLT" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_3kBEXjiEjcHv33v8JxwMth6Znb56" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_GbSb1nxg8uKN3nnLoyFhoPVdiZvt" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
