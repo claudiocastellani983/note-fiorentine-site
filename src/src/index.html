@@ -1916,7 +1916,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
    if(external){
     const frame=document.createElement('iframe');frame.className='nf-artist-video-frame';frame.src=external.src;frame.title=item.title||'Video artisti Note Fiorentine';frame.loading='eager';frame.allow='autoplay; fullscreen; picture-in-picture';frame.allowFullscreen=true;frame.referrerPolicy='strict-origin-when-cross-origin';frame.setAttribute('aria-label',frame.title);stage.append(frame);
    }else if(source&&!/^https?:\/\//i.test(source)){
-    const media=document.createElement('video');media.src=publicUrl('performance-videos',source);media.controls=true;media.playsInline=true;media.preload='metadata';media.setAttribute('aria-label',item.title||'Video artisti Note Fiorentine');media.volume=preferredVolume;
+    const media=document.createElement('video');media.src=publicUrl('performance-videos',source);media.controls=true;media.playsInline=true;media.preload='none';media.setAttribute('aria-label',item.title||'Video artisti Note Fiorentine');media.volume=preferredVolume;
     media.addEventListener('volumechange',()=>{if(!media.__nfAdjustingVolume)preferredVolume=media.volume});
     media.addEventListener('play',()=>{media.classList.remove('nf-artist-video-visible','nf-artist-video-fading');requestAnimationFrame(()=>requestAnimationFrame(()=>media.classList.add('nf-artist-video-visible')));media.__nfAdjustingVolume=true;media.volume=0;media.__nfAdjustingVolume=false;fadeAudio(media,preferredVolume,1350)});
     media.addEventListener('loadeddata',()=>requestAnimationFrame(()=>media.classList.add('nf-artist-video-visible')),{once:true});stage.append(media);
