@@ -28,7 +28,7 @@ test.describe('Home: galleria video artisti', () => {
     const frame = page.locator('#nfArtistsViewerStage iframe');
     await expect(frame).toHaveCount(1);
     await expect(frame).toHaveAttribute('src', 'https://player.vimeo.com/video/1245730545?h=2049f3f297&dnt=1&title=0&byline=0&portrait=0');
-    await expect(page.locator('#nfArtistsViewerStage')).toHaveClass(/nf-artists-portrait/);
+    await expect(page.locator('#nfArtistsViewerStage')).toHaveClass(/nf-youtube-portrait/);
 
     await page.locator('#nfArtistsViewerClose').click();
     await expect(viewer).toHaveAttribute('aria-hidden', 'true');
