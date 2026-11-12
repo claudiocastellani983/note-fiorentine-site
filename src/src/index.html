@@ -1940,6 +1940,14 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
   try{
    const url=api+'/rest/v1/gallery_images?select=id,title,image_path,sort_order,focal_x,focal_y,focal_zoom&category=eq.'+encodeURIComponent(category)+'&is_published=eq.true&order=sort_order.asc,created_at.asc';
    const response=await fetch(url,{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});
+   if(!response.ok&&kind==='videos'&&response.status===400){
+    const detail=await response.clone().text();
+    if(/video_url|column|schema cache/i.test(detail)){
+     // Compatibilità con lo schema legacy prima dell'applicazione della migrazione video_url.
+     const legacyEndpoint=api+'/rest/v1/performance_videos?select=id,title,video_path&is_published=eq.true&order=sort_order.asc,created_at.asc';
+     response=await fetch(legacyEndpoint,{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});
+    }
+   }
    if(!response.ok)throw new Error('HTTP '+response.status);
    photos=await response.json();position=0;render();
   }catch(error){stage.innerHTML='<div class="nf-gallery-empty">Non è stato possibile caricare le fotografie. Riprova tra poco.</div>';counter.textContent='';console.warn('[Note Fiorentine galleria]',error)}
@@ -2088,7 +2096,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
   kind=kindValue;lastFocus=button;index=0;viewer.classList.toggle('nf-environments-gallery',kind==='restaurant-videos');if(diagnostic){diagnostic.hidden=kind!=='videos';diagnostic.textContent=kind==='videos'?ui.diagnosticLoading:'';}title.textContent=kind==='images'?ui.photoTitle:kind==='restaurant-videos'?ui.environmentVideoTitle:ui.artistVideoTitle;viewer.classList.add('open');viewer.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';stage.innerHTML='<div class="nf-artists-viewer-empty">Caricamento…</div>';count.textContent='';
   try{
    const table=kind==='images'?'artist_images':kind==='restaurant-videos'?'restaurant_videos':'performance_videos';
-   const columns=kind==='images'?'id,title,image_path,focal_x,focal_y,focal_zoom':kind==='restaurant-videos'?'id,title,youtube_url,video_url,video_orientation':'id,title,video_path,video_url';
+   const columns=kind==='images'?'id,title,image_path,focal_x,focal_y,focal_zoom':kind==='restaurant-videos'?'id,title,youtube_url,video_url,video_orientation':'id,title,video_path,video_url,video_orientation';
    const endpoint=api+'/rest/v1/'+table+'?select='+columns+'&is_published=eq.true&order=sort_order.asc,created_at.asc';
    let response=await fetch(endpoint,{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});
    if(!response.ok&&kind==='restaurant-videos'&&response.status===400){
@@ -2917,39 +2925,7 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
    card.style.backgroundPosition=(first.focal_x??50)+'% '+(first.focal_y??50)+'%';
   }
  }catch(error){console.warn('[Note Fiorentine gallerie]',error)}
- const container=document.getElementById('restaurantVideos');if(!container)return;
- try{
-  const url=api+'/rest/v1/restaurant_videos?select=id,title,description,video_url,youtube_url,video_orientation,sort_order,created_at&is_published=eq.true&order=sort_order.asc,created_at.asc';
-  const response=await fetch(url,{headers,cache:'no-store'});if(!response.ok)throw new Error('restaurant_videos HTTP '+response.status);
-  const items=await response.json();container.replaceChildren();
-  function embedUrl(value){
-   let parsed;try{parsed=new URL(String(value||''))}catch(_){return null}
-   if(parsed.protocol!=='https:')return null;
-   const host=parsed.hostname.toLowerCase().replace(/^www\./,''),parts=parsed.pathname.split('/').filter(Boolean);
-   if(host==='vimeo.com'||host==='player.vimeo.com'){
-    const id=parts.find(part=>/^\d+$/.test(part));if(!id)return null;
-    const at=parts.indexOf(id),hash=parsed.searchParams.get('h')||(parts[at+1]&&!/^\d+$/.test(parts[at+1])?parts[at+1]:'');
-    const params=new URLSearchParams();if(hash)params.set('h',hash);params.set('dnt','1');params.set('title','0');params.set('byline','0');params.set('portrait','0');
-    return 'https://player.vimeo.com/video/'+id+'?'+params.toString();
-   }
-   if(['youtube.com','m.youtube.com','youtube-nocookie.com','youtu.be'].includes(host)){
-    const marker=parts.findIndex(part=>['embed','shorts','live'].includes(part));
-    const id=host==='youtu.be'?parts[0]:(parsed.searchParams.get('v')||(marker>=0?parts[marker+1]:''));
-    if(!id||!/^[A-Za-z0-9_-]{6,}$/.test(id))return null;
-    return 'https://www.youtube-nocookie.com/embed/'+encodeURIComponent(id)+'?rel=0';
-   }
-   return null;
-  }
-  for(const item of Array.isArray(items)?items:[]){
-   const src=embedUrl(item.video_url||item.youtube_url);if(!src)continue;
-   const figure=document.createElement('figure');figure.className='video-card nf-experience-video'+(item.video_orientation==='portrait'?' is-portrait':'');
-   const frame=document.createElement('iframe');frame.src=src;frame.title=item.title||'Note Fiorentine';frame.loading='lazy';frame.allow='fullscreen; picture-in-picture';frame.allowFullscreen=true;frame.referrerPolicy='strict-origin-when-cross-origin';
-   const caption=document.createElement('figcaption'),heading=document.createElement('h3');heading.textContent=item.title||words.restaurant;caption.append(heading);
-   if(item.description){const description=document.createElement('p');description.textContent=item.description;caption.append(description)}
-   figure.append(frame,caption);container.append(figure);
-  }
-  if(!container.children.length){const empty=document.createElement('p');empty.className='video-empty';empty.textContent=words.empty;container.append(empty)}
- }catch(error){console.warn('[Note Fiorentine video ambienti]',error);container.replaceChildren();const message=document.createElement('p');message.className='video-error';message.textContent=words.error;container.append(message)}
+ 
 })();
 </script>
 </body>
