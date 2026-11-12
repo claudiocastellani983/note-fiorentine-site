@@ -166,7 +166,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const rawSupabase=createClient(window.NF_SUPABASE_CONFIG.url,window.NF_SUPABASE_CONFIG.key);
 const NF_WRITE_HOSTS=new Set(['www.notefiorentine.it','notefiorentine.it']);
-const NF_PREVIEW_READ_ONLY=!NF_WRITE_HOSTS.has(location.hostname);
+const NF_PREVIEW_READ_ONLY=!NF_WRITE_HOSTS.has(location.hostname)&&!(location.hostname.endsWith('.vercel.app')&&window.NF_SUPABASE_CONFIG.environment==='Test');
 const nfBlockedWrite=()=>{throw new Error('Anteprima protetta: le modifiche a database e Storage sono disabilitate. Le operazioni sono disponibili solo sul dominio di produzione autorizzato.')};
 const nfGuardQuery=q=>new Proxy(q,{get(target,key){if(NF_PREVIEW_READ_ONLY&&['insert','update','upsert','delete'].includes(String(key)))return nfBlockedWrite;const value=Reflect.get(target,key,target);return typeof value==='function'?value.bind(target):value;}});
 const nfGuardBucket=b=>new Proxy(b,{get(target,key){if(NF_PREVIEW_READ_ONLY&&['upload','remove','update','move','copy'].includes(String(key)))return nfBlockedWrite;const value=Reflect.get(target,key,target);return typeof value==='function'?value.bind(target):value;}});
