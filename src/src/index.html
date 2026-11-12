@@ -1238,7 +1238,7 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
 <style id="nf-section-soft-transitions-v1">
 /* Transizioni cromatiche calde tra sezioni: evita stacchi netti senza coprire testi o immagini */
 #app section:not(.hero){background-color:transparent}
-#app section:not(.hero)::before{content:"";display:block;height:28px;margin:0 0 -28px;pointer-events:none;background:linear-gradient(180deg,rgba(217,195,160,.42) 0%,rgba(244,235,221,.18) 48%,rgba(244,235,221,0) 100%)}
+#app section:not(.hero):not(#menu)::before{content:"";display:block;height:28px;margin:0 0 -28px;pointer-events:none;background:linear-gradient(180deg,rgba(217,195,160,.42) 0%,rgba(244,235,221,.18) 48%,rgba(244,235,221,0) 100%)}
 #app .music-strip{position:relative}
 #app .music-strip::before{content:"";display:block;height:24px;margin:0 0 -24px;pointer-events:none;background:linear-gradient(180deg,rgba(217,195,160,.38),rgba(143,41,40,0))}
 </style></head>
