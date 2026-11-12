@@ -234,7 +234,7 @@ const siteGroups=[
 {title:'Colori e caratteri',fields:[['color_primary','Colore principale','color'],['color_secondary','Colore secondario','color'],['color_background','Colore sfondo','color'],['color_text','Colore testo','color'],['color_accent','Colore dettagli e accenti','color'],['font_heading','Carattere titoli','font'],['font_body','Carattere testi','font']]}
 ];
 const siteDefaults={
-hero_kicker:'Ristorante Toscano & Live Music',hero_description:'La cucina toscana incontra la musica dal vivo. Una serata da assaporare, nel cuore di Firenze.',hero_primary_label:'Prenota un tavolo',hero_secondary_label:'Scopri la musica',
+hero_kicker:'Ristorante Toscano & Live Music',hero_description:'La cucina toscana incontra la musica dal vivo. Una serata da assaporare, nel cuore di Firenze.',hero_primary_label:'Prenota un tavolo',hero_secondary_label:'Dove siamo',
 intro_kicker:'Un’esperienza fiorentina',intro_title:'Il piacere di stare a tavola,\ncon una nota in più.',intro_text:'Note Fiorentine è un ristorante toscano nel centro storico di Firenze, dove la cucina incontra l’atmosfera della musica dal vivo. Un luogo per una cena romantica, una serata speciale o semplicemente il piacere di condividere un buon momento.',
 music_kicker:'Restaurant & Live Music',music_title:'Ogni sera,\nla musica è di casa.',music_text:'Ogni sera, sette giorni su sette, artisti e generi musicali variabili accompagnano la vostra cena. La musica dal vivo fa parte dell’esperienza Note Fiorentine.',music_schedule:'19:30 – 21:30',music_days:'Tutte le sere',music_note:'Musica inclusa nella cena · Nessun supplemento',music_video_kicker:'L’atmosfera delle nostre serate',music_video_title:'La musica prende vita.',
 menu_kicker:'La nostra cucina',menu_title:'Il menu',menu_lead:'Sapori della tradizione toscana e piacere della tavola. La selezione completa dei piatti sarà consultabile qui.',
@@ -246,13 +246,13 @@ color_primary:'#8F2928',color_secondary:'#D9C3A0',color_background:'#F4EBDD',col
 let siteCurrent={};
 function siteEnglishControl([key,label,type],data){
  if(type==='image'||type==='color'||type==='font')return '';
- const value=data._translations?.en?.[key]??'';
+ const value=key==='hero_secondary_label'?'Find us':(data._translations?.en?.[key]??'');
  const tag=type==='textarea'?'textarea':'input';
  const control=type==='textarea'?'<textarea data-site-en-field="'+key+'">'+esc(value)+'</textarea>':'<input type="text" data-site-en-field="'+key+'" value="'+esc(value)+'">';
  return '<div class="site-field full"><label>'+esc(label)+' · English</label>'+control+'</div>';
 }
 function siteControl([key,label,type],data){
- const value=data[key]??siteDefaults[key]??'';
+ const value=key==='hero_secondary_label'?'Dove siamo':(data[key]??siteDefaults[key]??'');
  if(type==='image')return '<div class="site-field full"><label>'+esc(label)+' (JPG, PNG, WebP o GIF · massimo 10 MB)</label><input type="file" accept="image/jpeg,image/png,image/webp,image/gif" data-site-image="'+key+'">'+(value?'<img loading="lazy" decoding="async" class="site-image-preview" data-preview="'+key+'" src="'+esc(value)+'" alt="Anteprima '+esc(label)+'">':'<p class="site-help">Nessuna immagine caricata: verrà mantenuta la grafica attuale.</p>')+'</div>';
  if(type==='color')return '<div class="site-field"><label>'+esc(label)+'</label><input type="color" data-site-field="'+key+'" value="'+esc(value)+'"></div>';
  if(type==='font')return '<div class="site-field"><label>'+esc(label)+'</label><select data-site-field="'+key+'">'+['Georgia, serif','Palatino, Georgia, serif','Arial, sans-serif','Verdana, sans-serif','Times New Roman, serif','Trebuchet MS, sans-serif'].map(x=>'<option value="'+esc(x)+'" '+(x===value?'selected':'')+'>'+esc(x)+'</option>').join('')+'</select></div>';
