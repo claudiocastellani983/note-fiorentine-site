@@ -21,7 +21,7 @@ concurrency:
 jobs:
   playwright-local:
     name: Test locali (${{ matrix.browser }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -75,7 +75,7 @@ jobs:
   resolve-current-previews:
     name: Verifica che le preview appartengano al commit corrente
     if: (github.event_name == 'push' && github.ref == 'refs/heads/release/integrated-preview-2026-11') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/release/integrated-preview-2026-11') || (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'release/integrated-preview-2026-11')
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       admin_ready: ${{ steps.resolve.outputs.admin_ready }}
       all_ready: ${{ steps.resolve.outputs.all_ready }}
@@ -214,7 +214,7 @@ jobs:
     needs: resolve-current-previews
     if: needs.resolve-current-previews.outputs.all_ready == 'true'
     name: Preview Vercel reali (${{ matrix.browser }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -255,7 +255,7 @@ jobs:
     needs: resolve-current-previews
     if: needs.resolve-current-previews.outputs.admin_ready == 'true'
     name: Admin autenticato e upload Supabase Test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       ADMIN_PREVIEW_URL: ${{ needs.resolve-current-previews.outputs.admin_url }}
       NF_TEST_ADMIN_EMAIL: ${{ secrets.NF_TEST_ADMIN_EMAIL }}

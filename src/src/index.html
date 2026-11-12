@@ -16,8 +16,17 @@
 html.nf-language-pending body { visibility: hidden; }
 </style>
 <meta name="theme-color" content="#F4EBDD">
-<meta name="description" content="Note Fiorentine: ristorante toscano nel centro storico di Firenze. Musica dal vivo ogni sera dalle 19:30 alle 21:30, inclusa nella cena.">
-<title>Note Fiorentine | Ristorante Toscano & Live Music – Firenze</title>
+<meta name="description" content="Note Fiorentine è un ristorante con musica dal vivo a Firenze, cucina toscana e musica ogni sera dalle 19:30 alle 21:30, inclusa nella cena.">
+<title>Ristorante con musica dal vivo a Firenze | Note Fiorentine</title>
+<link rel="canonical" href="https://www.notefiorentine.it/">
+<link rel="alternate" hreflang="it" href="https://www.notefiorentine.it/">
+<link rel="alternate" hreflang="en" href="https://www.notefiorentine.it/?lang=en">
+<link rel="alternate" hreflang="de" href="https://www.notefiorentine.it/?lang=de">
+<link rel="alternate" hreflang="fr" href="https://www.notefiorentine.it/?lang=fr">
+<link rel="alternate" hreflang="es" href="https://www.notefiorentine.it/?lang=es">
+<link rel="alternate" hreflang="zh-CN" href="https://www.notefiorentine.it/?lang=zh">
+<link rel="alternate" hreflang="x-default" href="https://www.notefiorentine.it/">
+<script id="nf-restaurant-schema" type="application/ld+json">{"@context":"https://schema.org","@type":"Restaurant","@id":"https://www.notefiorentine.it/#restaurant","name":"Note Fiorentine","url":"https://www.notefiorentine.it/","description":"Note Fiorentine è un ristorante con musica dal vivo a Firenze, cucina toscana e musica ogni sera dalle 19:30 alle 21:30, inclusa nella cena.","servesCuisine":["Tuscan","Italian"],"hasMenu":"https://www.notefiorentine.it/menu.html","amenityFeature":{"@type":"LocationFeatureSpecification","name":"Live music","value":true}}</script>
 <style>
 :root {
   --site-primary: #8F2928;
@@ -1116,17 +1125,7 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
 <style id="nf-auditore-inspired-hero-v1">
 /* Hero immersivo: immagine reale gestita dall'editor, integrata nella composizione */
 #app{overflow:hidden}
-#app>header{
- position:absolute!important;top:7px!important;left:0!important;right:0!important;
- z-index:30!important;background:linear-gradient(180deg,rgba(18,13,11,.62),transparent)!important;
- border:0!important;box-shadow:none!important
-}
-#app>header .nav{max-width:1320px!important;padding:24px clamp(22px,5vw,76px)!important}
-#app>header .brand-mini,#app>header .navlinks a{color:#FFF8ED!important}
-#app>header .brand-mini small{color:#E2C39B!important}
-#app>header .fleur{color:#E2C39B!important}
-#app>header .navlinks .nav-cta{background:#8F2928!important;color:#FFF8ED!important}
-#app>header .menu-toggle{color:#FFF8ED!important;border-color:rgba(255,248,237,.55)!important}
+/* Header escluso da questo preset hero: usa il blocco condiviso Home/Menu. */
 #app>main>.hero{
  display:block!important;position:relative!important;isolation:isolate;
  width:100%!important;height:min(900px,94svh)!important;min-height:680px!important;
@@ -1170,9 +1169,6 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
 #app>main>.hero>.hero-copy .actions{justify-content:flex-start!important}
 #app>main>.hero>.hero-copy .button.outline{border-color:#E6C69C!important;color:#FFF8ED!important}
 @media(max-width:760px){
- #app>header .nav{padding:18px 22px!important}
- #app>header .navlinks{background:#241B17!important}
- #app>header .navlinks a{color:#FFF8ED!important}
  #app>main>.hero{height:calc(100svh - 7px)!important;min-height:640px!important;max-height:900px!important}
  #app>main>.hero>.hero-art .nf-managed-image{object-position:58% center!important}
  #app>main>.hero:after{
@@ -1216,6 +1212,150 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
  #app>main>#musica .music-copy .music-art{min-height:clamp(250px,70vw,390px)!important;margin:22px 0 26px!important}
 }
 </style>
+<style id="nf-shared-fixed-header-v2">
+/* Header condiviso Home/Menu: barra sticky, marchio centrato e lingue sempre ordinate */
+#app>header{position:sticky!important;top:0!important;z-index:1000!important;isolation:isolate;background:rgba(244,235,221,.97)!important;backdrop-filter:blur(16px);box-shadow:0 5px 18px rgba(40,25,18,.10)}
+#app>header>.nav{display:flex;align-items:center;justify-content:space-between;gap:clamp(10px,1.8vw,24px);max-width:1600px;min-height:82px;padding:12px clamp(16px,4vw,64px)}
+#app>header .brand-mini{flex:0 0 auto}
+#app>header .navlinks{flex:1 1 auto;justify-content:center;min-width:0}
+#app>header .language-switch{flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}
+#app>header .language-switch a{display:grid;place-items:center;width:30px;height:30px;border:1px solid transparent;border-radius:50%;font-size:15px;text-decoration:none}
+#app>header .language-switch a:hover,#app>header .language-switch a[aria-current=page]{border-color:#A97843;background:rgba(169,120,67,.08)}
+#app>header .menu-toggle{display:none}
+@media(max-width:760px){
+ #app>header>.nav{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"brand brand" "flags toggle" "links links";align-items:center;column-gap:10px;row-gap:10px;padding:12px 14px;min-height:0}
+ #app>header .brand-mini{grid-area:brand;justify-self:center;margin:0 auto;text-align:center}
+ #app>header .brand-mini .brand-wordmark{text-align:center}
+ #app>header .language-switch{grid-area:flags;justify-self:end;gap:4px;margin:0}
+ #app>header .language-switch a{width:32px;height:32px;font-size:15px}
+ #app>header .menu-toggle{grid-area:toggle;display:inline-flex;align-items:center;justify-content:center;justify-self:start;white-space:nowrap;min-height:38px;padding:8px 11px;border:1px solid #A97843;background:transparent;color:#392B24;font:600 11px Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase}
+ #app>header .navlinks{grid-area:links;display:none;flex:0 0 auto;width:100%;min-width:0;flex-direction:column;align-items:stretch;gap:0;padding:4px 0 8px;border-top:1px solid #D8C6AD}
+ #app>header .navlinks.open{display:flex}
+ #app>header .navlinks a{display:block;width:100%;padding:12px 10px;text-align:center;border-bottom:1px solid rgba(216,198,173,.55);font-size:11px}
+ #app>header .navlinks .nav-cta{margin-top:8px;border:1px solid #8F2928}
+}
+</style>
+<script id="nf-supabase-environment">
+(()=> {
+  const host=location.hostname.toLowerCase();
+  const productionHosts=new Set([
+    'www.notefiorentine.it','notefiorentine.it','note-fiorentine.vercel.app',
+  ]);
+  const production=productionHosts.has(host);
+  const projectRef=production?'nculgrwlzjitggjcgbpp':'iuxskknbopboynjlsxbk';
+  window.NF_SUPABASE_CONFIG=Object.freeze({
+    projectRef,
+    url:production?'https://nculgrwlzjitggjcgbpp.supabase.co':'https://iuxskknbopboynjlsxbk.supabase.co',
+    key:production?'sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0':'sb_publishable_GTGiyYl8pZsY6letaozS2Q_dmh9vrRc',
+    environment:production?'Production':'Test'
+  });
+})();
+</script>
+<style id="nf-experience-gallery-v1">
+.nf-experience-gallery{background:#F4EBDD!important}
+.nf-experience-gallery-grid{width:min(100%,1120px);margin:36px auto 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.nf-experience-gallery-card{position:relative;display:flex;align-items:flex-end;justify-content:flex-start;min-width:0;min-height:clamp(250px,28vw,360px);padding:clamp(20px,3vw,30px);overflow:hidden;text-align:left;border:1px solid #A97843;background-image:linear-gradient(180deg,rgba(22,15,12,.04) 20%,rgba(22,15,12,.78) 100%),linear-gradient(145deg,#49372d,#171210);background-position:center;background-size:cover;color:#FFF9F0;cursor:pointer;isolation:isolate;transition:transform .25s ease,box-shadow .25s ease}
+.nf-experience-gallery-card:before{content:"";position:absolute;inset:12px;border:1px solid rgba(255,249,240,.55);pointer-events:none;z-index:0}
+.nf-experience-gallery-card:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(38,24,18,.18)}
+.nf-experience-gallery-card-copy{position:relative;z-index:1;display:block}
+.nf-experience-gallery-card-copy strong{display:block;font:400 clamp(25px,3vw,35px) var(--site-font-heading);line-height:1.1;color:#FFF9F0}
+.nf-experience-gallery-card-copy small{display:block;margin-top:9px;color:#E8DCCB;font:600 10px Arial,sans-serif;letter-spacing:.16em;text-transform:uppercase}
+.nf-experience-videos{max-width:1120px;margin:clamp(42px,5vw,62px) auto 0;padding-top:clamp(28px,4vw,42px);border-top:1px solid rgba(169,120,67,.35);text-align:center}
+.nf-experience-videos h3{margin:12px 0 22px;color:#392B24;font:400 clamp(27px,3.5vw,40px) var(--site-font-heading)}
+#restaurantVideos{max-width:1000px}
+#restaurantVideos .nf-experience-video{min-width:0}
+#restaurantVideos .nf-experience-video iframe{display:block;width:100%;aspect-ratio:16/9;border:0;background:#171210}
+#restaurantVideos .nf-experience-video.is-portrait iframe{width:min(100%,400px);aspect-ratio:9/16;margin:0 auto}
+.nf-gallery-viewer{position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(18,13,11,.9)}
+.nf-gallery-viewer.open{display:flex}
+.nf-gallery-dialog{width:min(1100px,100%);max-height:92vh;display:flex;flex-direction:column;gap:14px;padding:clamp(16px,3vw,26px);background:#F4EBDD;color:#392B24;border:1px solid #A97843;box-shadow:0 22px 80px rgba(0,0,0,.4)}
+.nf-gallery-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.nf-gallery-title{margin:0;color:#392B24;font:400 clamp(23px,3vw,34px) var(--site-font-heading)}
+.nf-gallery-counter{color:#A97843;font:11px Arial,sans-serif;letter-spacing:.12em}
+.nf-gallery-stage{min-height:180px;max-height:70vh;display:grid;place-items:center;overflow:hidden;background:#211916}
+.nf-gallery-photo{display:block;max-width:100%;max-height:68vh;object-fit:contain}
+.nf-gallery-controls{display:flex;justify-content:center;gap:16px}
+.nf-gallery-btn{min-width:46px;min-height:42px;padding:8px 14px;border:1px solid #A97843;background:transparent;color:#392B24;font:22px Arial,sans-serif;cursor:pointer}
+.nf-gallery-btn:disabled{opacity:.35;cursor:not-allowed}
+.nf-gallery-empty{padding:28px 12px;color:#392B24;text-align:center}
+@media(max-width:760px){.nf-experience-gallery-grid{grid-template-columns:1fr;gap:14px;margin-top:26px}.nf-experience-gallery-card{min-height:240px;padding:22px}.nf-experience-gallery-card:before{inset:9px}.nf-experience-videos{margin-top:38px;padding-top:28px}.nf-gallery-viewer{padding:10px}.nf-gallery-dialog{max-height:94vh;padding:13px}.nf-gallery-stage{max-height:70vh}.nf-gallery-photo{max-height:68vh}}
+@media(prefers-reduced-motion:reduce){.nf-experience-gallery-card{transition:none}}
+</style>
+<style id="nf-environments-choice-css">
+.nf-environments-choice{position:fixed;inset:0;z-index:100001;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(12,10,9,.96)}
+.nf-environments-choice.open{display:flex}
+.nf-environments-choice-dialog{width:min(980px,100%);max-height:92vh;overflow:auto;padding:clamp(24px,5vw,48px);background:#211916;color:#F4EBDD;border:1px solid rgba(197,154,105,.65);text-align:center}
+.nf-environments-choice-dialog h2{font:400 clamp(27px,4vw,38px)/1.1 Georgia,serif;color:#F4EBDD;margin:8px 0 12px}
+.nf-environments-choice-dialog p{color:#D7C8B8;line-height:1.7}
+.nf-environments-choice-dialog .nf-artists-cards{grid-template-columns:repeat(2,minmax(0,1fr));max-width:780px}
+.nf-environments-choice-dialog .nf-artists-card{min-height:clamp(210px,28vw,320px)}
+.nf-environments-choice-close{margin-top:24px;border:1px solid rgba(208,174,131,.7);background:transparent;color:#F4EBDD;padding:12px 20px;font:11px Arial,sans-serif;letter-spacing:.14em;cursor:pointer}
+@media(max-width:640px){.nf-environments-choice{padding:12px}.nf-environments-choice-dialog{padding:24px 16px}.nf-environments-choice-dialog .nf-artists-cards{grid-template-columns:1fr}.nf-environments-choice-dialog .nf-artists-card{min-height:190px}}
+</style>
+<style id="nf-gallery-auto-orientation-v2">
+/* Preserva il rapporto intrinseco delle foto: niente crop automatico */
+.nf-gallery-stage,.nf-artists-viewer-stage{
+ display:grid!important;place-items:center!important;width:100%!important;
+ height:min(72vh,760px)!important;max-width:100%!important;max-height:none!important;
+ min-height:0!important;aspect-ratio:auto!important;flex:0 1 auto!important;
+ overflow:hidden!important;margin:0 auto!important;background:#E8DCC9!important;
+}
+.nf-gallery-stage.nf-gallery-portrait,.nf-artists-viewer-stage.nf-artists-portrait{width:100%!important;aspect-ratio:auto!important}
+.nf-gallery-photo,.nf-artists-viewer-stage .nf-artists-gallery-photo,.nf-artists-viewer-stage img{
+ display:block!important;width:auto!important;height:auto!important;max-width:100%!important;
+ max-height:100%!important;object-fit:contain!important;object-position:center!important;
+ transform:none!important;box-shadow:none;
+}
+/* I video locali seguono le dimensioni reali del file */
+.nf-artists-viewer-stage:has(video){width:min(100%,1120px)!important;height:auto!important;max-height:72vh!important;aspect-ratio:auto!important;overflow:visible!important}
+.nf-artists-viewer-stage video,.nf-artists-viewer-stage iframe{display:block!important;width:100%!important;height:auto!important;max-width:100%!important;max-height:72vh!important;aspect-ratio:auto!important;object-fit:contain!important;border:0}
+/* YouTube: 16:9 standard, 9:16 per Shorts */
+.nf-artists-viewer-stage.nf-youtube-landscape{width:min(100%,1120px)!important;height:auto!important;aspect-ratio:16/9!important;background:#100D0B!important}
+.nf-artists-viewer-stage.nf-youtube-portrait{width:min(100%,calc(min(72vh,760px)*9/16))!important;height:auto!important;aspect-ratio:9/16!important;background:#100D0B!important}
+.nf-artist-youtube-placeholder{width:100%!important;height:100%!important;min-height:0!important;aspect-ratio:16/9!important}
+.nf-artist-youtube-placeholder.nf-artist-youtube-portrait{aspect-ratio:9/16!important}
+.nf-artist-youtube-frame{display:block!important;width:100%!important;height:100%!important;aspect-ratio:auto!important;border:0!important}
+@media(max-width:640px){.nf-gallery-stage,.nf-artists-viewer-stage{height:68vh!important}.nf-artists-viewer-stage.nf-youtube-portrait{width:min(100%,calc(68vh*9/16))!important}}
+</style>
+<style id="nf-artists-video-fades-v1">
+.nf-artists-viewer-stage.nf-youtube-portrait video{width:100%!important;height:100%!important;max-width:none!important;max-height:72vh!important;object-fit:contain!important;background:#100D0B!important}
+.nf-artists-viewer-stage.nf-youtube-landscape video{width:100%!important;height:100%!important;max-width:none!important;max-height:72vh!important;object-fit:contain!important;background:#100D0B!important}
+
+/* Transizioni morbide dei video nella galleria artisti */
+.nf-artists-viewer-stage video{opacity:0;transition:opacity 1.35s ease-out}
+.nf-artists-viewer-stage video.nf-artist-video-visible{opacity:1}
+.nf-artists-viewer-stage video.nf-artist-video-fading{opacity:0;transition:opacity 2.7s ease-in}
+@media(prefers-reduced-motion:reduce){.nf-artists-viewer-stage video{transition:none!important}}
+</style>
+<style id="nf-artists-video-diagnostic-hidden">#nfArtistsVideoDiagnostic{display:none!important}</style>
+
+<style id="nf-video-panels-larger-v1">
+/* Riquadri video più ampi, mantenendo i rapporti originali dei filmati */
+.music-videos .video-list {
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,850px),1fr)) !important;
+  gap:clamp(18px,2vw,28px) !important;
+}
+.nf-artists-cards {
+  max-width:1320px !important;
+  gap:clamp(20px,2.2vw,30px) !important;
+}
+.nf-artists-card {
+  min-height:clamp(280px,36vw,460px) !important;
+}
+.nf-artists-dialog {
+  width:min(1320px,100%) !important;
+  height:min(94vh,1040px) !important;
+}
+.nf-artists-viewer-stage video {
+  width:min(100%,1200px) !important;
+}
+@media(max-width:640px) {
+  .nf-artists-cards { gap:16px !important; }
+  .nf-artists-card { min-height:300px !important; }
+  .nf-artists-dialog { height:92vh !important; }
+  .music-videos .video-list { grid-template-columns:minmax(0,1fr) !important; }
+}
+</style>
 </head>
 <body>
 <div id="app">
@@ -1230,10 +1370,9 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
         <a href="#ristorante">Il ristorante</a>
         <a href="#musica">Musica dal vivo</a>
         <a href="/menu.html#menu">Menu</a>
-        
-        <a href="#galleria">Galleria</a>
         <a href="#eventi">Eventi</a>
-        
+        <a href="#galleria">Galleria</a>
+          
         <a class="nav-cta" href="https://bookingnotefiorentine.guestplan.io" target="_blank" rel="noopener">Prenota un tavolo</a>
       </div>
       <nav class="language-switch" aria-label="Seleziona la lingua">
@@ -1257,23 +1396,23 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
         <p>La cucina toscana incontra la musica dal vivo. Una serata da assaporare, nel cuore di Firenze.</p>
         <div class="actions">
           <a class="button primary" href="https://bookingnotefiorentine.guestplan.io" target="_blank" rel="noopener">Prenota un tavolo</a>
-          <a class="button outline" href="#musica">Scopri la musica</a>
+          <a class="button outline reach-us-button" data-nf-reach-us href="https://www.google.com/maps/dir/?api=1&destination=Via%20dei%20Benci%2041R%2C%2050122%20Firenze%2C%20Italia" target="_blank" rel="noopener noreferrer">Dove siamo</a>
         </div>
       </div>
     </section>
     <section class="intro" id="ristorante">
       <div class="section-kicker">Un'esperienza fiorentina</div>
-      <h2>Il piacere di stare a tavola,<br>con una nota in più.</h2>
       <p>Note Fiorentine è un ristorante toscano nel centro storico di Firenze, dove la cucina incontra l'atmosfera della musica dal vivo. Un luogo per una cena romantica, una serata speciale o semplicemente il piacere di condividere un buon momento.</p>
       
     </section>
+
     <section class="content-section menu-section" id="menu">
       <div class="section-kicker">La nostra cucina</div>
       <h2>Il menù</h2>
       <p class="section-lead">I sapori della tradizione toscana, preparati con cura e pensati per accompagnare ogni momento a tavola.</p>
       <div class="menu-category-tabs" id="menuCategories"><p class="menu-loading">Caricamento categorie…</p></div>
       <div class="menu-items" id="menuItems"><p class="menu-loading">Caricamento piatti…</p></div>
-      <p style="text-align:center;margin:32px auto 0"><a class="button" href="/menu.html">Consulta il menù completo</a></p>
+      <p style="text-align:center;margin:32px auto 0"><a class="button menu-full-cta" href="/menu.html">Consulta il menù completo</a></p>
     </section>
     </div>
     <section class="music-section" id="musica">
@@ -1298,13 +1437,32 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
     
     
     
+    <section class="content-section nf-experience-gallery" id="galleria" aria-labelledby="nfExperienceGalleryTitle">
+      <div class="section-kicker" data-nf-i18n="galleryKicker">Immagini e video del locale</div>
+      <h2 id="nfExperienceGalleryTitle" data-nf-i18n="galleryTitle">Il ristorante, la cucina e l’atmosfera</h2>
+      <p class="section-lead" data-nf-i18n="galleryIntro">Gli ambienti, i piatti e i dettagli di Note Fiorentine. Apri le gallerie fotografiche e guarda i video del locale.</p>
+      <div class="nf-experience-gallery-grid">
+        <button type="button" class="nf-experience-gallery-card" data-gallery-category="restaurant" aria-label="Apri la galleria immagini e video del ristorante">
+          <span class="nf-experience-gallery-card-copy"><strong data-nf-i18n="restaurantLabel">Immagini e video del ristorante</strong><small data-nf-i18n="restaurantSub">Scopri gli ambienti in foto e video</small></span>
+        </button>
+        <button type="button" class="nf-experience-gallery-card" data-gallery-category="kitchen" aria-label="Apri la galleria fotografica della cucina">
+          <span class="nf-experience-gallery-card-copy"><strong data-nf-i18n="kitchenLabel">La cucina</strong><small data-nf-i18n="kitchenSub">Scopri tutte le fotografie</small></span>
+        </button>
+        <button type="button" class="nf-experience-gallery-card" data-gallery-category="music" aria-label="Apri la galleria La musica">
+          <span class="nf-experience-gallery-card-copy"><strong data-nf-i18n="atmosphereLabel">L’atmosfera</strong><small data-nf-i18n="atmosphereSub">Dettagli e accoglienza</small></span>
+        </button>
+      </div>
+
+    </section>
+
       <section class="content-section alt" id="eventi">
       <h2>Eventi</h2>
       <p class="section-lead">Le serate speciali di Note Fiorentine.</p>
       <div class="event-grid" id="eventList"><p class="event-empty">I prossimi eventi saranno pubblicati qui a breve.</p></div>
     </section>
     </main>
-<div class="nf-artists-viewer" id="nfArtistsViewer" aria-hidden="true"><div class="nf-artists-dialog" role="dialog" aria-modal="true" aria-labelledby="nfArtistsViewerTitle"><div class="nf-artists-viewer-top"><h2 class="nf-artists-viewer-title" id="nfArtistsViewerTitle">Galleria artisti</h2><span class="nf-artists-viewer-count" id="nfArtistsViewerCount"></span><button class="nf-artists-viewer-btn" id="nfArtistsViewerClose" type="button" aria-label="Chiudi galleria">CHIUDI ×</button></div><div class="nf-artists-viewer-stage" id="nfArtistsViewerStage"><div class="nf-artists-viewer-empty">Caricamento…</div></div><div class="nf-artists-viewer-controls"><button class="nf-artists-viewer-btn" id="nfArtistsViewerPrev" type="button" aria-label="Elemento precedente">‹</button><button class="nf-artists-viewer-btn" id="nfArtistsViewerNext" type="button" aria-label="Elemento successivo">›</button></div></div></div>
+<div class="nf-artists-viewer" id="nfArtistsViewer" aria-hidden="true"><div class="nf-artists-dialog" role="dialog" aria-modal="true" aria-labelledby="nfArtistsViewerTitle"><div class="nf-artists-viewer-top"><h2 class="nf-artists-viewer-title" id="nfArtistsViewerTitle">Galleria artisti</h2><span class="nf-artists-viewer-count" id="nfArtistsViewerCount"></span><button class="nf-artists-viewer-btn" id="nfArtistsViewerClose" type="button" aria-label="Chiudi galleria">CHIUDI ×</button></div><div class="nf-artists-viewer-stage" id="nfArtistsViewerStage"><div class="nf-artists-viewer-empty">Caricamento…</div></div><div class="nf-artists-video-diagnostic" id="nfArtistsVideoDiagnostic" role="status" aria-live="polite" hidden></div><div class="nf-artists-viewer-controls"><button class="nf-artists-viewer-btn" id="nfArtistsViewerPrev" type="button" aria-label="Elemento precedente">‹</button><button class="nf-artists-viewer-btn" id="nfArtistsViewerNext" type="button" aria-label="Elemento successivo">›</button></div></div></div>
+<div class="nf-environments-choice" id="nfEnvironmentsChoice" aria-hidden="true"><div class="nf-environments-choice-dialog" role="dialog" aria-modal="true" aria-labelledby="nfEnvironmentsChoiceTitle"><div class="section-kicker">NOTE FIORENTINE · IL RISTORANTE</div><h2 id="nfEnvironmentsChoiceTitle">Gli ambienti</h2><p>Scopri gli spazi del ristorante attraverso immagini e video.</p><div class="nf-artists-cards"><button type="button" class="nf-artists-card" data-env-choice="videos" aria-label="Apri i video degli ambienti"><span class="nf-artists-play" aria-hidden="true">▶</span><span class="nf-artists-card-copy"><strong>Video degli ambienti</strong><small>Guarda gli spazi del ristorante</small></span></button><button type="button" class="nf-artists-card" data-env-choice="photos" aria-label="Apri le fotografie degli ambienti"><span class="nf-artists-card-copy"><strong>Foto degli ambienti</strong><small>Esplora la galleria fotografica</small></span></button></div><button type="button" class="nf-environments-choice-close" id="nfEnvironmentsChoiceClose">CHIUDI ×</button></div></div>
 <div class="nf-gallery-viewer" id="nfGalleryViewer" aria-hidden="true">
   <div class="nf-gallery-dialog" role="dialog" aria-modal="true" aria-labelledby="nfGalleryTitle">
     <div class="nf-gallery-top"><h2 class="nf-gallery-title" id="nfGalleryTitle">Il ristorante</h2><span class="nf-gallery-counter" id="nfGalleryCounter"></span><button class="nf-gallery-btn nf-gallery-close" id="nfGalleryClose" type="button" aria-label="Chiudi galleria">CHIUDI ×</button></div>
@@ -1317,9 +1475,24 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
     <div class="footer-fleur" aria-label="Giglio di Note Fiorentine">⚜</div>
     <div class="tag">Ristorante Toscano & Live Music · Firenze</div>
     <p>Cucina toscana, musica dal vivo, emozioni da condividere.</p>
+    <a class="button primary reach-us-button" id="nf-reach-us" data-nf-reach-us href="https://www.google.com/maps/dir/?api=1&destination=Via%20dei%20Benci%2041R%2C%2050122%20Firenze%2C%20Italia" target="_blank" rel="noopener noreferrer">Dove siamo</a>
     <a class="button primary" href="https://bookingnotefiorentine.guestplan.io" target="_blank" rel="noopener">Prenota un tavolo</a>
     <div class="copyright">© Note Fiorentine · Firenze</div>
   </footer>
+<script id="nf-reach-us-platform-maps-v1">
+(function(){
+  var links=document.querySelectorAll("[data-nf-reach-us]");
+  if(!links.length)return;
+  var destination="Via dei Benci 41R, 50122 Firenze, Italia";
+  var encoded=encodeURIComponent(destination);
+  var ua=navigator.userAgent||"";
+  var isAppleMobile=/iPad|iPhone|iPod/.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+  var url=isAppleMobile
+    ?"https://maps.apple.com/?daddr="+encoded+"&dirflg=d"
+    :"https://www.google.com/maps/dir/?api=1&destination="+encoded;
+  links.forEach(function(link){link.href=url;});
+})();
+</script>
 </div>
 <script>
 const toggle = document.getElementById('menuToggle');
@@ -1333,89 +1506,21 @@ links.querySelectorAll('a').forEach(link => link.addEventListener('click', () =>
   toggle.setAttribute('aria-expanded', 'false');
 }));
 
-// Carica i video pubblicati dal pannello amministrativo.
-(async function loadPerformanceVideos() {
-  const container = document.getElementById('performanceVideos');
-  if (!container) return;
-  const supabaseUrl = 'https://nculgrwlzjitggjcgbpp.supabase.co';
-  const supabaseKey = 'sb_publishable_vg78G491' + 'ekPPQt4CwCeJDw_Pp1n44V0';
-  const endpoint = supabaseUrl + '/rest/v1/performance_videos?select=id,title,video_path,video_url,sort_order,created_at&is_published=eq.true&order=sort_order.asc,created_at.desc';
-  const makeText = (tag, value, className) => {
-    const node = document.createElement(tag);
-    if (className) node.className = className;
-    node.textContent = value || '';
-    return node;
-  };
-  try {
-    const response = await fetch(endpoint, {
-      method: 'GET',
-      headers: { apikey: supabaseKey, Accept: 'application/json' },
-      cache: 'no-store'
-    });
-    if (!response.ok) throw new Error('HTTP ' + response.status);
-    const videos = await response.json();
-    container.replaceChildren();
-    if (!Array.isArray(videos) || videos.length === 0) {
-      container.appendChild(makeText('p', 'I video delle nostre serate saranno disponibili qui a breve.', 'video-empty'));
-      return;
-    }
-    for (const item of videos) {
-      const external = String(item.video_url || item.video_path || '').trim();
-      if (!external) continue;
-      if (/^https?:\/\//i.test(external)) {
-        let parsed, host, parts, id, embed = '';
-        try { parsed = new URL(external); host = parsed.hostname.toLowerCase().replace(/^www\./, ''); parts = parsed.pathname.split('/').filter(Boolean); } catch (_) { continue; }
-        if (host === 'youtu.be' || ['youtube.com','m.youtube.com','youtube-nocookie.com'].includes(host)) {
-          const marker = parts.findIndex(part => ['embed','shorts','live'].includes(part));
-          id = host === 'youtu.be' ? parts[0] : (parsed.searchParams.get('v') || (marker >= 0 ? parts[marker + 1] : ''));
-          if (!id) continue;
-          embed = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?rel=0';
-        } else if (host === 'vimeo.com' || host === 'player.vimeo.com') {
-          id = parts.find(part => /^\d+$/.test(part));
-          if (!id) continue;
-          embed = 'https://player.vimeo.com/video/' + id + '?dnt=1&title=0&byline=0&portrait=0';
-        } else continue;
-        const frame = document.createElement('iframe');
-        frame.src = embed; frame.title = item.title || 'Video delle serate Note Fiorentine';
-        frame.loading = 'lazy'; frame.allow = 'fullscreen; picture-in-picture'; frame.allowFullscreen = true;
-        frame.referrerPolicy = 'strict-origin-when-cross-origin'; container.appendChild(frame);
-      } else {
-        const video = document.createElement('video');
-        const path = external.split('/').map(encodeURIComponent).join('/');
-        video.dataset.src = supabaseUrl + '/storage/v1/object/public/performance-videos/' + path;
-        video.controls = true; video.playsInline = true; video.preload = 'none';
-        video.setAttribute('aria-label', item.title || 'Video delle serate Note Fiorentine');
-        video.addEventListener('click', function activate() {
-          if (!video.src) { video.src = video.dataset.src; video.load(); const playPromise = video.play(); if (playPromise && playPromise.catch) playPromise.catch(() => {}); }
-        }, { once: true });
-        container.appendChild(video);
-      }
-    }
-    if (!container.children.length) {
-      container.appendChild(makeText('p', 'I video delle nostre serate saranno disponibili qui a breve.', 'video-empty'));
-    }
-  } catch (error) {
-    console.error('Errore caricamento video Note Fiorentine:', error);
-    container.replaceChildren(makeText('p', 'Al momento non è possibile caricare i video. Riprova tra poco.', 'video-error'));
-  }
-})();
-
-
-
 </script>
 
 <script>
 (()=>{
- const api='https://nculgrwlzjitggjcgbpp.supabase.co/rest/v1/site_content?select=content_value&content_key=eq.public_site';
- const key='sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0';let active=null;
+ const isPreview=location.hostname.startsWith('note-fiorentine-')&&location.hostname.endsWith('.vercel.app');
+ const api=(isPreview?'https://iuxskknbopboynjlsxbk.supabase.co':'https://nculgrwlzjitggjcgbpp.supabase.co')+'/rest/v1/site_content?select=content_value&content_key=eq.public_site';
+ const key=isPreview?'sb_publishable_GTGiyYl8pZsY6letaozS2Q_dmh9vrRc':'sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0';let active=null;
  function selector(el){if(el.id)return '#'+CSS.escape(el.id);const parts=[];while(el&&el.nodeType===1&&el!==document.body){let part=el.tagName.toLowerCase();if(el.parentElement){const same=[...el.parentElement.children].filter(x=>x.tagName===el.tagName);if(same.length>1)part+=':nth-of-type('+(same.indexOf(el)+1)+')'}parts.unshift(part);el=el.parentElement}return 'body>'+parts.join('>')}
- function apply(sel,p){let el;try{el=document.querySelector(sel)}catch{}if(!el||!p)return;if((['it','en','de','fr','es','zh'].includes((new URLSearchParams(location.search).get('lang')||'it').toLowerCase())?(new URLSearchParams(location.search).get('lang')||'it').toLowerCase():'it')==='it'&&typeof p.text==='string'){el.textContent=p.text;el.style.whiteSpace=/[\\r\\n]/.test(p.text)?'pre-wrap':''}if(p.fontSize)el.style.fontSize=p.fontSize;if(typeof p.fontFamily==='string'&&p.fontFamily.trim())el.style.fontFamily=p.fontFamily;if(['left','center','right','justify'].includes(p.textAlign))el.style.textAlign=p.textAlign}
- async function load(){try{const rows=await (window.NF_SITE_CONTENT_PROMISE||(window.NF_SITE_CONTENT_PROMISE=fetch(api,{headers:{apikey:key,Accept:'application/json'},cache:'no-store'}).then(r=>{if(!r.ok)throw Error('site_content '+r.status);return r.json()}))),styles=rows?.[0]?.content_value?._visual_styles||{};Object.entries(styles).forEach(([sel,p])=>apply(sel,p))}catch(e){console.warn('Stili visuali non caricati',e)}}
+ function apply(sel,p){let el;try{el=document.querySelector(sel)}catch{}if(typeof p==='string'){try{p=JSON.parse(p)}catch{return false}}if(!el||!p||typeof p!=='object')return false;const set=(name,value)=>{if(value!==undefined&&value!==null&&String(value)!=='')el.style.setProperty(name,String(value),'important')};if(el.matches('.menu-full-cta')){set('background-color','#8F2928');set('border-color','#8F2928');set('color','#FFF9F0');set('-webkit-text-fill-color','#FFF9F0');set('text-decoration','none')}if((['it','en','de','fr','es','zh'].includes((new URLSearchParams(location.search).get('lang')||'it').toLowerCase())?(new URLSearchParams(location.search).get('lang')||'it').toLowerCase():'it')==='it'&&typeof p.text==='string'){el.textContent=p.text;set('white-space',/[\r\n]/.test(p.text)?'pre-wrap':'normal')}if(p.fontSize&&/^\d+(?:\.\d+)?px$/.test(p.fontSize))set('font-size',p.fontSize);if(typeof p.fontFamily==='string'&&p.fontFamily.trim())set('font-family',p.fontFamily);if(typeof p.color==='string'&&/^#[0-9a-f]{6}$/i.test(p.color)){set('color',p.color);if(typeof CSS!=='undefined'&&CSS.supports('-webkit-text-fill-color',p.color))set('-webkit-text-fill-color',p.color)}if(['left','center','right','justify'].includes(p.textAlign))set('text-align',p.textAlign);if(p.width&&/^\d+(?:\.\d+)?%$/.test(p.width))set('width',p.width);if(p.maxWidth&&/^\d+(?:\.\d+)?%$/.test(p.maxWidth))set('max-width',p.maxWidth);if(['horizontal-tb','vertical-rl','vertical-lr'].includes(p.writingMode))set('writing-mode',p.writingMode);if(typeof p.transform==='string'&&/^translateY\(-?\d+px\)$/.test(p.transform))set('transform',p.transform);if(p.objectFit&&['cover','contain','fill','none','scale-down'].includes(p.objectFit))set('object-fit',p.objectFit);if(p.display&&['block','inline','inline-block','flex','grid'].includes(p.display))set('display',p.display);if(p.marginLeft!==undefined)set('margin-left',p.marginLeft);if(p.marginRight!==undefined)set('margin-right',p.marginRight);const checks=[];if(p.fontSize)checks.push(el.style.getPropertyPriority('font-size')==='important'&&el.style.getPropertyValue('font-size')!=='');if(p.fontFamily)checks.push(el.style.getPropertyPriority('font-family')==='important'&&el.style.getPropertyValue('font-family')!=='');if(p.color)checks.push(el.style.getPropertyPriority('color')==='important'&&el.style.getPropertyValue('color')!=='');return checks.every(Boolean)}
+ async function load(){try{const rows=await (window.NF_SITE_CONTENT_PROMISE||(window.NF_SITE_CONTENT_PROMISE=fetch(api,{headers:{apikey:key,Accept:'application/json'},cache:'no-store'}).then(r=>{if(!r.ok)throw Error('site_content '+r.status);return r.json()}))),styles=rows?.[0]?.content_value?._visual_styles||{};const menuPage=/\/menu\.html$/.test(location.pathname),allowedScopes=menuPage?['menu']:['home','ristorante','artisti','atmosfera'];Object.entries(styles).forEach(([key,p])=>{const split=key.indexOf('::');if(split<0){apply(key,p);return}if(allowedScopes.includes(key.slice(0,split)))apply(key.slice(split+2),p)})}catch(e){console.warn('Stili visuali non caricati',e)}}
  window.nfReloadVisualStyles=load;load();
  if(new URLSearchParams(location.search).has('visual-editor')){
-  const style=document.createElement('style');style.textContent='body.nf-ve-active h1,body.nf-ve-active h2,body.nf-ve-active h3,body.nf-ve-active p,body.nf-ve-active .eyebrow,body.nf-ve-active .section-kicker,body.nf-ve-active .section-lead,body.nf-ve-active .included,body.nf-ve-active .time strong,body.nf-ve-active .time small{cursor:pointer}body.nf-ve-active [data-nf-selected]{outline:3px solid #d2a84b!important;outline-offset:3px}';document.head.appendChild(style);document.body.classList.add('nf-ve-active');
-  document.addEventListener('click',e=>{const el=e.target.closest('h1,h2,h3,p,.eyebrow,.section-kicker,.section-lead,.included,.time strong,.time small');if(!el||el.closest('button,a,input,textarea,nav'))return;e.preventDefault();e.stopPropagation();if(active)active.removeAttribute('data-nf-selected');active=el;active.setAttribute('data-nf-selected','1');const cs=getComputedStyle(el);parent.postMessage({type:'nf-visual-select',selector:selector(el),text:el.innerText,fontSize:parseInt(cs.fontSize),textAlign:cs.textAlign,fontFamily:cs.fontFamily},'*')},true);
-  addEventListener('message',e=>{if(e.data?.type==='nf-visual-update')apply(e.data.selector,e.data.patch)});
+  const style=document.createElement('style');style.textContent='body.nf-ve-active h1,body.nf-ve-active h2,body.nf-ve-active h3,body.nf-ve-active p,body.nf-ve-active .eyebrow,body.nf-ve-active .section-kicker,body.nf-ve-active .section-lead,body.nf-ve-active .included,body.nf-ve-active .time strong,body.nf-ve-active .time small{cursor:pointer}body.nf-ve-active [data-nf-selected]{outline:3px solid #d2a84b!important;outline-offset:3px}';document.head.appendChild(style);document.body.classList.add('nf-ve-active');const visualTarget=new URLSearchParams(location.search).get('visualTarget');if(visualTarget)requestAnimationFrame(()=>setTimeout(()=>{try{document.querySelector(visualTarget)?.scrollIntoView({block:'start'})}catch{}},180));
+  document.addEventListener('click',e=>{const candidates='h1,h2,h3,p,.eyebrow,.section-kicker,.section-lead,.included,.time strong,.time small,.nf-artists-card-copy strong,.nf-artists-card-copy small,.nf-artists-intro,.nf-artists-media h2';const path=typeof e.composedPath==='function'?e.composedPath():[];const el=path.find(node=>node instanceof Element&&node.matches(candidates))||(e.target instanceof Element?e.target.closest(candidates):e.target?.parentElement?.closest(candidates));if(!el||el.closest('a,input,textarea,nav'))return;const selectedText=String(el.innerText||el.textContent||'').replace(/\\u00a0/g,' ').trim();if(!selectedText)return;e.preventDefault();e.stopPropagation();if(active)active.removeAttribute('data-nf-selected');active=el;active.setAttribute('data-nf-selected','1');const cs=getComputedStyle(el);window.parent.postMessage({type:'nf-visual-select',selector:selector(el),text:selectedText,textContent:el.textContent||'',pageKey:new URLSearchParams(location.search).get('visualPage')||'home',tagName:el.tagName,fontSize:parseInt(cs.fontSize),textAlign:cs.textAlign,fontFamily:cs.fontFamily,color:cs.color},'*')},true);
+  addEventListener('message',e=>{if(e.data?.type==='nf-visual-update'){const applied=apply(e.data.selector,e.data.patch);let actual={};try{const el=document.querySelector(e.data.selector);if(el){const cs=getComputedStyle(el);actual={fontSize:cs.fontSize,fontFamily:cs.fontFamily,color:cs.color,textFillColor:cs.webkitTextFillColor,textAlign:cs.textAlign}}}catch{}window.parent.postMessage({type:'nf-visual-applied',selector:e.data.selector,sequence:e.data.sequence,applied:!!applied,actual},'*')}});
  }
 })();
 </script>
@@ -1439,7 +1544,7 @@ links.querySelectorAll('a').forEach(link => link.addEventListener('click', () =>
 @media(max-width:420px){#nf-popup-box{padding:36px 16px 24px}#nf-popup-title{font-size:11px;letter-spacing:.055em}}
 </style>
 <script>(async()=>{
-const api='https://nculgrwlzjitggjcgbpp.supabase.co/rest/v1/site_content?select=content_value&content_key=eq.public_site',key='sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0',lang=(()=>{const v=new URLSearchParams(location.search).get('lang')||'it';return ['it','en','de','fr','es','zh'].includes(v)?v:'it'})();
+const api=window.NF_SUPABASE_CONFIG.url+'/rest/v1/site_content?select=content_value&content_key=eq.public_site',key=window.NF_SUPABASE_CONFIG.key,lang=(()=>{const v=new URLSearchParams(location.search).get('lang')||'it';return ['it','en','de','fr','es','zh'].includes(v)?v:'it'})();
 const setText=(el,v)=>{if(!el||v==null||String(v)==='')return;el.replaceChildren();String(v).split(/\n/).forEach((p,i)=>{if(i)el.appendChild(document.createElement('br'));el.appendChild(document.createTextNode(p))})};
 try{
 const rows=await (window.NF_SITE_CONTENT_PROMISE||(window.NF_SITE_CONTENT_PROMISE=fetch(api,{headers:{apikey:key,Accept:'application/json'},cache:'no-store'}).then(r=>{if(!r.ok)throw Error('site_content '+r.status);return r.json()})));
@@ -1457,19 +1562,69 @@ const lang=allowed.includes((params.get('lang')||'it').toLowerCase())?(params.ge
 document.documentElement.lang=lang==='zh'?'zh-CN':lang;
 document.querySelectorAll('.language-switch a').forEach(a=>a.classList.toggle('active',a.dataset.lang===lang));
 const dictionaries={
-en:{'Il ristorante':'The Restaurant','Musica dal vivo':'Live Music','Eventi':'Events','Galleria':'Gallery','Contatti':'Contact','Prenota un tavolo':'Book a Table','Scopri la musica':'Discover the Music','Apri il sistema di prenotazione ↗':'Open the reservation system ↗','Menu ☰':'Menu ☰','Cucina toscana, musica dal vivo, emozioni da condividere.':'Tuscan cuisine, live music, emotions to share.','Seleziona una categoria per consultare i piatti disponibili.':'Select a category to browse the available dishes.','Caricamento categorie…':'Loading categories…','Caricamento piatti…':'Loading dishes…','Caricamento dei video delle nostre serate…':'Loading videos of our live music evenings…','I video delle nostre serate saranno disponibili qui a breve.':'Videos of our live music evenings will be available here soon.','Al momento non è possibile caricare i video. Riprova tra poco.':'Videos cannot be loaded right now. Please try again shortly.','Non ci sono ancora piatti pubblicati in questa categoria.':'There are no dishes published in this category yet.','Nessuna categoria del menu pubblicata al momento.':'No menu categories are currently published.','Non è stato possibile caricare le categorie del menu. Riprova più tardi.':'The menu categories could not be loaded. Please try again later.','Menu':'Menu','Il gusto di Firenze, il ritmo della sera':'The taste of Florence, the rhythm of the evening','Musica dal vivo ogni sera':'Live music every evening','7 sere su 7 · dalle 19:30 alle 21:30':'7 nights a week · from 7:30 pm to 9:30 pm','Ristorante Toscano & Live Music':'Ristorante Toscano & Live Music','Ristorante Toscano & Live Music':'Ristorante Toscano & Live Music','Ristorante Toscano & Live Music · Firenze':'Ristorante Toscano & Live Music · Florence','© Note Fiorentine · Firenze':'© Note Fiorentine · Florence','Allergeni:':'Allergens:'},
-de:{'Il ristorante':'Das Restaurant','Musica dal vivo':'Live-Musik','Eventi':'Veranstaltungen','Galleria':'Galerie','Contatti':'Kontakt','Prenota un tavolo':'Tisch reservieren','Scopri la musica':'Musik entdecken','Apri il sistema di prenotazione ↗':'Reservierungssystem öffnen ↗','Menu ☰':'Menü ☰','Cucina toscana, musica dal vivo, emozioni da condividere.':'Toskanische Küche, Live-Musik und gemeinsame Erlebnisse.','Seleziona una categoria per consultare i piatti disponibili.':'Wählen Sie eine Kategorie, um die verfügbaren Gerichte anzusehen.','Caricamento categorie…':'Kategorien werden geladen…','Caricamento piatti…':'Gerichte werden geladen…','Caricamento dei video delle nostre serate…':'Videos unserer Musikabende werden geladen…','I video delle nostre serate saranno disponibili qui a breve.':'Videos unserer Musikabende sind in Kürze hier verfügbar.','Al momento non è possibile caricare i video. Riprova tra poco.':'Die Videos können derzeit nicht geladen werden. Bitte versuchen Sie es später erneut.','Non ci sono ancora piatti pubblicati in questa categoria.':'In dieser Kategorie sind noch keine Gerichte veröffentlicht.','Nessuna categoria del menu pubblicata al momento.':'Derzeit sind keine Speisekarten-Kategorien veröffentlicht.','Non è stato possibile caricare le categorie del menu. Riprova più tardi.':'Die Kategorien konnten nicht geladen werden. Bitte versuchen Sie es später erneut.','Menu':'Speisekarte','Il gusto di Firenze, il ritmo della sera':'Der Geschmack von Florenz, der Rhythmus des Abends','Musica dal vivo ogni sera':'Jeden Abend Live-Musik','7 sere su 7 · dalle 19:30 alle 21:30':'Sieben Abende pro Woche · 19:30 bis 21:30 Uhr','Ristorante Toscano & Live Music':'Ristorante Toscano & Live Music','Ristorante Toscano & Live Music':'Ristorante Toscano & Live Music','Ristorante Toscano & Live Music · Firenze':'Ristorante Toscano & Live Music · Florenz','© Note Fiorentine · Firenze':'© Note Fiorentine · Florenz','Allergeni:':'Allergene:'},
-fr:{'Il ristorante':'Le restaurant','Musica dal vivo':'Musique live','Eventi':'Événements','Galleria':'Galerie','Contatti':'Contact','Prenota un tavolo':'Réserver une table','Scopri la musica':'Découvrir la musique','Apri il sistema di prenotazione ↗':'Ouvrir le système de réservation ↗','Menu ☰':'Menu ☰','Cucina toscana, musica dal vivo, emozioni da condividere.':'Cuisine toscane, musique live et émotions à partager.','Seleziona una categoria per consultare i piatti disponibili.':'Choisissez une catégorie pour consulter les plats disponibles.','Caricamento categorie…':'Chargement des catégories…','Caricamento piatti…':'Chargement des plats…','Caricamento dei video delle nostre serate…':'Chargement des vidéos de nos soirées musicales…','I video delle nostre serate saranno disponibili qui a breve.':'Les vidéos de nos soirées seront bientôt disponibles ici.','Al momento non è possibile caricare i video. Riprova tra poco.':'Impossible de charger les vidéos pour le moment. Veuillez réessayer plus tard.','Non ci sono ancora piatti pubblicati in questa categoria.':'Aucun plat n’est encore publié dans cette catégorie.','Nessuna categoria del menu pubblicata al momento.':'Aucune catégorie du menu n’est publiée pour le moment.','Non è stato possibile caricare le categorie del menu. Riprova più tardi.':'Impossible de charger les catégories du menu. Veuillez réessayer plus tard.','Menu':'La carte','Il gusto di Firenze, il ritmo della sera':'Le goût de Florence, le rythme de la soirée','Musica dal vivo ogni sera':'Musique live tous les soirs','7 sere su 7 · dalle 19:30 alle 21:30':'7 soirs sur 7 · de 19 h 30 à 21 h 30','Ristorante Toscano & Live Music':'Ristorante Toscano & Live Music','Ristorante Toscano & Live Music':'Ristorante Toscano & Live Music','Ristorante Toscano & Live Music · Firenze':'Ristorante Toscano & Live Music · Florence','© Note Fiorentine · Firenze':'© Note Fiorentine · Florence','Allergeni:':'Allergènes :'},
-es:{'Il ristorante':'El restaurante','Musica dal vivo':'Música en vivo','Eventi':'Eventos','Galleria':'Galería','Contatti':'Contacto','Prenota un tavolo':'Reservar una mesa','Scopri la musica':'Descubrir la música','Apri il sistema di prenotazione ↗':'Abrir el sistema de reservas ↗','Menu ☰':'Menú ☰','Cucina toscana, musica dal vivo, emozioni da condividere.':'Cocina toscana, música en vivo y emociones para compartir.','Seleziona una categoria per consultare i piatti disponibili.':'Selecciona una categoría para consultar los platos disponibles.','Caricamento categorie…':'Cargando categorías…','Caricamento piatti…':'Cargando platos…','Caricamento dei video delle nostre serate…':'Cargando los vídeos de nuestras veladas…','I video delle nostre serate saranno disponibili qui a breve.':'Los vídeos de nuestras veladas estarán disponibles aquí próximamente.','Al momento non è possibile caricare i video. Riprova tra poco.':'No se pueden cargar los vídeos en este momento. Inténtalo de nuevo más tarde.','Non ci sono ancora piatti pubblicati in questa categoria.':'Todavía no hay platos publicados en esta categoría.','Nessuna categoria del menu pubblicata al momento.':'No hay categorías del menú publicadas en este momento.','Non è stato possibile caricare le categorie del menu. Riprova più tardi.':'No se han podido cargar las categorías del menú. Inténtalo de nuevo más tarde.','Menu':'Carta','Il gusto di Firenze, il ritmo della sera':'El sabor de Florencia, el ritmo de la noche','Musica dal vivo ogni sera':'Música en vivo todas las noches','7 sere su 7 · dalle 19:30 alle 21:30':'7 noches a la semana · de 19:30 a 21:30','Ristorante Toscano & Live Music':'Ristorante Toscano & Live Music','Ristorante Toscano & Live Music':'Ristorante Toscano & Live Music','Ristorante Toscano & Live Music · Firenze':'Ristorante Toscano & Live Music · Florencia','© Note Fiorentine · Firenze':'© Note Fiorentine · Florencia','Allergeni:':'Alérgenos:'},zh:{'Il ristorante':'餐厅','Musica dal vivo':'现场音乐','Eventi':'活动','Galleria':'图片集','Contatti':'联系我们','Prenota un tavolo':'预订餐桌','Scopri la musica':'探索现场音乐','Apri il sistema di prenotazione ↗':'打开预订系统 ↗','Menu ☰':'菜单 ☰','Cucina toscana, musica dal vivo, emozioni da condividere.':'托斯卡纳美食、现场音乐与值得分享的美好时光。','Seleziona una categoria per consultare i piatti disponibili.':'请选择类别以查看可供选择的菜品。','Caricamento categorie…':'正在加载类别…','Caricamento piatti…':'正在加载菜品…','Caricamento dei video delle nostre serate…':'正在加载晚间演出视频…','I video delle nostre serate saranno disponibili qui a breve.':'晚间演出视频即将上线。','Al momento non è possibile caricare i video. Riprova tra poco.':'暂时无法加载视频，请稍后重试。','Non ci sono ancora piatti pubblicati in questa categoria.':'此类别暂时没有已发布的菜品。','Nessuna categoria del menu pubblicata al momento.':'目前尚无已发布的菜单类别。','Non è stato possibile caricare le categorie del menu. Riprova più tardi.':'无法加载菜单类别，请稍后重试。','Menu':'菜单','Il gusto di Firenze, il ritmo della sera':'佛罗伦萨的风味，夜晚的节奏','Musica dal vivo ogni sera':'每晚现场音乐','7 sere su 7 · dalle 19:30 alle 21:30':'每周七晚 · 19:30 至 21:30','Ristorante Toscano & Live Music':'托斯卡纳餐厅与现场音乐','Ristorante Toscano & Live Music · Firenze':'佛罗伦萨托斯卡纳餐厅与现场音乐','© Note Fiorentine · Firenze':'© Note Fiorentine · 佛罗伦萨','Allergeni:':'过敏原：'}
+en:{'Il ristorante':'The Restaurant','Musica dal vivo':'Live Music','Eventi':'Events','Galleria':'Gallery','Contatti':'Contact','Prenota un tavolo':'Book a Table','Dove siamo':'Directions','Apri il sistema di prenotazione ↗':'Open the reservation system ↗','Menu ☰':'Menu ☰','Cucina toscana, musica dal vivo, emozioni da condividere.':'Tuscan cuisine, live music, emotions to share.','Seleziona una categoria per consultare i piatti disponibili.':'Select a category to browse the available dishes.','Caricamento categorie…':'Loading categories…','Caricamento piatti…':'Loading dishes…','Caricamento dei video delle nostre serate…':'Loading videos of our live music evenings…','I video delle nostre serate saranno disponibili qui a breve.':'Videos of our live music evenings will be available here soon.','Al momento non è possibile caricare i video. Riprova tra poco.':'Videos cannot be loaded right now. Please try again shortly.','Non ci sono ancora piatti pubblicati in questa categoria.':'There are no dishes published in this category yet.','Nessuna categoria del menu pubblicata al momento.':'No menu categories are currently published.','Non è stato possibile caricare le categorie del menu. Riprova più tardi.':'The menu categories could not be loaded. Please try again later.','Menu':'Menu','Il gusto di Firenze, il ritmo della sera':'The taste of Florence, the rhythm of the evening','Musica dal vivo ogni sera':'Live music every evening','7 sere su 7 · dalle 19:30 alle 21:30':'7 nights a week · from 7:30 pm to 9:30 pm','Ristorante Toscano & Live Music':'Ristorante Toscano & Live Music','Ristorante Toscano & Live Music':'Ristorante Toscano & Live Music','Ristorante Toscano & Live Music · Firenze':'Ristorante Toscano & Live Music · Florence','© Note Fiorentine · Firenze':'© Note Fiorentine · Florence', 'RAGGIUNGICI':'GET DIRECTIONS','Allergeni:':'Allergens:'},
+de:{'Il ristorante':'Das Restaurant','Musica dal vivo':'Live-Musik','Eventi':'Veranstaltungen','Galleria':'Galerie','Contatti':'Kontakt','Prenota un tavolo':'Tisch reservieren','Dove siamo':'Anfahrt','Apri il sistema di prenotazione ↗':'Reservierungssystem öffnen ↗','Menu ☰':'Menü ☰','Cucina toscana, musica dal vivo, emozioni da condividere.':'Toskanische Küche, Live-Musik und gemeinsame Erlebnisse.','Seleziona una categoria per consultare i piatti disponibili.':'Wählen Sie eine Kategorie, um die verfügbaren Gerichte anzusehen.','Caricamento categorie…':'Kategorien werden geladen…','Caricamento piatti…':'Gerichte werden geladen…','Caricamento dei video delle nostre serate…':'Videos unserer Musikabende werden geladen…','I video delle nostre serate saranno disponibili qui a breve.':'Videos unserer Musikabende sind in Kürze hier verfügbar.','Al momento non è possibile caricare i video. Riprova tra poco.':'Die Videos können derzeit nicht geladen werden. Bitte versuchen Sie es später erneut.','Non ci sono ancora piatti pubblicati in questa categoria.':'In dieser Kategorie sind noch keine Gerichte veröffentlicht.','Nessuna categoria del menu pubblicata al momento.':'Derzeit sind keine Speisekarten-Kategorien veröffentlicht.','Non è stato possibile caricare le categorie del menu. Riprova più tardi.':'Die Kategorien konnten nicht geladen werden. Bitte versuchen Sie es später erneut.','Menu':'Speisekarte','Il gusto di Firenze, il ritmo della sera':'Der Geschmack von Florenz, der Rhythmus des Abends','Musica dal vivo ogni sera':'Jeden Abend Live-Musik','7 sere su 7 · dalle 19:30 alle 21:30':'Sieben Abende pro Woche · 19:30 bis 21:30 Uhr','Ristorante Toscano & Live Music':'Ristorante Toscano & Live Music','Ristorante Toscano & Live Music':'Ristorante Toscano & Live Music','Ristorante Toscano & Live Music · Firenze':'Ristorante Toscano & Live Music · Florenz','© Note Fiorentine · Firenze':'© Note Fiorentine · Florenz', 'RAGGIUNGICI':'WEGBESCHREIBUNG','Allergeni:':'Allergene:'},
+fr:{'Il ristorante':'Le restaurant','Musica dal vivo':'Musique live','Eventi':'Événements','Galleria':'Galerie','Contatti':'Contact','Prenota un tavolo':'Réserver une table','Dove siamo':'Nous rejoindre','Apri il sistema di prenotazione ↗':'Ouvrir le système de réservation ↗','Menu ☰':'Menu ☰','Cucina toscana, musica dal vivo, emozioni da condividere.':'Cuisine toscane, musique live et émotions à partager.','Seleziona una categoria per consultare i piatti disponibili.':'Choisissez une catégorie pour consulter les plats disponibles.','Caricamento categorie…':'Chargement des catégories…','Caricamento piatti…':'Chargement des plats…','Caricamento dei video delle nostre serate…':'Chargement des vidéos de nos soirées musicales…','I video delle nostre serate saranno disponibili qui a breve.':'Les vidéos de nos soirées seront bientôt disponibles ici.','Al momento non è possibile caricare i video. Riprova tra poco.':'Impossible de charger les vidéos pour le moment. Veuillez réessayer plus tard.','Non ci sono ancora piatti pubblicati in questa categoria.':'Aucun plat n’est encore publié dans cette catégorie.','Nessuna categoria del menu pubblicata al momento.':'Aucune catégorie du menu n’est publiée pour le moment.','Non è stato possibile caricare le categorie del menu. Riprova più tardi.':'Impossible de charger les catégories du menu. Veuillez réessayer plus tard.','Menu':'La carte','Il gusto di Firenze, il ritmo della sera':'Le goût de Florence, le rythme de la soirée','Musica dal vivo ogni sera':'Musique live tous les soirs','7 sere su 7 · dalle 19:30 alle 21:30':'7 soirs sur 7 · de 19 h 30 à 21 h 30','Ristorante Toscano & Live Music':'Ristorante Toscano & Live Music','Ristorante Toscano & Live Music':'Ristorante Toscano & Live Music','Ristorante Toscano & Live Music · Firenze':'Ristorante Toscano & Live Music · Florence','© Note Fiorentine · Firenze':'© Note Fiorentine · Florence', 'RAGGIUNGICI':'NOUS REJOINDRE','Allergeni:':'Allergènes :'},
+es:{'Il ristorante':'El restaurante','Musica dal vivo':'Música en vivo','Eventi':'Eventos','Galleria':'Galería','Contatti':'Contacto','Prenota un tavolo':'Reservar una mesa','Dove siamo':'Cómo llegar','Apri il sistema di prenotazione ↗':'Abrir el sistema de reservas ↗','Menu ☰':'Menú ☰','Cucina toscana, musica dal vivo, emozioni da condividere.':'Cocina toscana, música en vivo y emociones para compartir.','Seleziona una categoria per consultare i piatti disponibili.':'Selecciona una categoría para consultar los platos disponibles.','Caricamento categorie…':'Cargando categorías…','Caricamento piatti…':'Cargando platos…','Caricamento dei video delle nostre serate…':'Cargando los vídeos de nuestras veladas…','I video delle nostre serate saranno disponibili qui a breve.':'Los vídeos de nuestras veladas estarán disponibles aquí próximamente.','Al momento non è possibile caricare i video. Riprova tra poco.':'No se pueden cargar los vídeos en este momento. Inténtalo de nuevo más tarde.','Non ci sono ancora piatti pubblicati in questa categoria.':'Todavía no hay platos publicados en esta categoría.','Nessuna categoria del menu pubblicata al momento.':'No hay categorías del menú publicadas en este momento.','Non è stato possibile caricare le categorie del menu. Riprova più tardi.':'No se han podido cargar las categorías del menú. Inténtalo de nuevo más tarde.','Menu':'Carta','Il gusto di Firenze, il ritmo della sera':'El sabor de Florencia, el ritmo de la noche','Musica dal vivo ogni sera':'Música en vivo todas las noches','7 sere su 7 · dalle 19:30 alle 21:30':'7 noches a la semana · de 19:30 a 21:30','Ristorante Toscano & Live Music':'Ristorante Toscano & Live Music','Ristorante Toscano & Live Music':'Ristorante Toscano & Live Music','Ristorante Toscano & Live Music · Firenze':'Ristorante Toscano & Live Music · Florencia','© Note Fiorentine · Firenze':'© Note Fiorentine · Florencia', 'RAGGIUNGICI':'CÓMO LLEGAR','Allergeni:':'Alérgenos:'},zh:{'Il ristorante':'餐厅','Musica dal vivo':'现场音乐','Eventi':'活动','Galleria':'图片集','Contatti':'联系我们','Prenota un tavolo':'预订餐桌','Dove siamo':'到达路线','Apri il sistema di prenotazione ↗':'打开预订系统 ↗','Menu ☰':'菜单 ☰','Cucina toscana, musica dal vivo, emozioni da condividere.':'托斯卡纳美食、现场音乐与值得分享的美好时光。','Seleziona una categoria per consultare i piatti disponibili.':'请选择类别以查看可供选择的菜品。','Caricamento categorie…':'正在加载类别…','Caricamento piatti…':'正在加载菜品…','Caricamento dei video delle nostre serate…':'正在加载晚间演出视频…','I video delle nostre serate saranno disponibili qui a breve.':'晚间演出视频即将上线。','Al momento non è possibile caricare i video. Riprova tra poco.':'暂时无法加载视频，请稍后重试。','Non ci sono ancora piatti pubblicati in questa categoria.':'此类别暂时没有已发布的菜品。','Nessuna categoria del menu pubblicata al momento.':'目前尚无已发布的菜单类别。','Non è stato possibile caricare le categorie del menu. Riprova più tardi.':'无法加载菜单类别，请稍后重试。','Menu':'菜单','Il gusto di Firenze, il ritmo della sera':'佛罗伦萨的风味，夜晚的节奏','Musica dal vivo ogni sera':'每晚现场音乐','7 sere su 7 · dalle 19:30 alle 21:30':'每周七晚 · 19:30 至 21:30','Ristorante Toscano & Live Music':'托斯卡纳餐厅与现场音乐','Ristorante Toscano & Live Music · Firenze':'佛罗伦萨托斯卡纳餐厅与现场音乐','© Note Fiorentine · Firenze':'© Note Fiorentine · 佛罗伦萨', 'RAGGIUNGICI':'到达路线','Allergeni:':'过敏原：'}
 };
 const map=dictionaries[lang]||{};
-const protectedSelectors='.brand-mini strong,.art-name,footer h2,.language-switch';
+Object.assign(map,{
+ 'Galleria immagini':({en:'Photo Gallery',de:'Fotogalerie',fr:'Galerie photos',es:'Galería de imágenes',zh:'图片集'})[lang]||'Galleria immagini',
+ 'Galleria video':({en:'Video Gallery',de:'Videogalerie',fr:'Galerie vidéo',es:'Galería de vídeos',zh:'视频集'})[lang]||'Galleria video',
+ 'CHIUDI ×':({en:'CLOSE ×',de:'SCHLIESSEN ×',fr:'FERMER ×',es:'CERRAR ×',zh:'关闭 ×'})[lang]||'CHIUDI ×',
+ 'Scopri gli artisti':({en:'Discover the artists',de:'Künstler entdecken',fr:'Découvrir les artistes',es:'Descubre a los artistas',zh:'探索艺术家'})[lang]||'Scopri gli artisti',
+ 'Guarda le performance':({en:'Watch the performances',de:'Auftritte ansehen',fr:'Voir les performances',es:'Ver las actuaciones',zh:'观看演出'})[lang]||'Guarda le performance'
+});
+const protectedSelectors='.brand-mini strong,.brand-mini small,.art-name,footer h2,.language-switch';
 function translateNode(node){if(!node||node.nodeType!==Node.TEXT_NODE)return;const parent=node.parentElement;if(!parent||parent.closest(protectedSelectors)||parent.closest('script,style,noscript,svg,code,[translate="no"]'))return;const raw=node.nodeValue||'',key=raw.trim(),translated=map[key];if(translated&&translated!==key){const lead=raw.match(/^\s*/)?.[0]||'',tail=raw.match(/\s*$/)?.[0]||'';node.nodeValue=lead+translated+tail;}}
 function scan(root){if(root.nodeType===Node.TEXT_NODE){translateNode(root);return;}if(root.nodeType===Node.ELEMENT_NODE&&root.matches(protectedSelectors))return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);while(w.nextNode())translateNode(w.currentNode);}
 if(lang!=='it'){scan(document.body);new MutationObserver(records=>records.forEach(r=>{if(r.type==='characterData')translateNode(r.target);(r.addedNodes||[]).forEach(scan);})).observe(document.body,{subtree:true,childList:true,characterData:true});}
+const accessibilityLabels={
+ en:{'Apri la galleria fotografica degli artisti':"Open the artists' photo gallery",'Apri la galleria video degli artisti':"Open the artists' video gallery"},
+ de:{'Apri la galleria fotografica degli artisti':'Fotogalerie der Künstler öffnen','Apri la galleria video degli artisti':'Videogalerie der Künstler öffnen'},
+ fr:{'Apri la galleria fotografica degli artisti':'Ouvrir la galerie photos des artistes','Apri la galleria video degli artisti':'Ouvrir la galerie vidéo des artistes'},
+ es:{'Apri la galleria fotografica degli artisti':'Abrir la galería de fotos de los artistas','Apri la galleria video degli artisti':'Abrir la galería de vídeos de los artistas'},
+ zh:{'Apri la galleria fotografica degli artisti':'打开艺术家照片集','Apri la galleria video degli artisti':'打开艺术家视频集'}
+};
+document.querySelectorAll('[aria-label]').forEach(el=>{
+ const translated=accessibilityLabels[lang]?.[el.getAttribute('aria-label')];
+ if(translated)el.setAttribute('aria-label',translated);
+});
 const isMenu=location.pathname.endsWith('menu.html');
-document.title=({it:isMenu?'Il Menu | Note Fiorentine – Firenze':'Note Fiorentine | Ristorante Toscano & Live Music – Firenze',en:isMenu?'Menu | Note Fiorentine – Florence':'Note Fiorentine | Ristorante Toscano & Live Music – Florence',de:isMenu?'Speisekarte | Note Fiorentine – Florenz':'Note Fiorentine | Ristorante Toscano & Live Music – Florenz',fr:isMenu?'La carte | Note Fiorentine – Florence':'Note Fiorentine | Ristorante Toscano & Live Music – Florence',es:isMenu?'Carta | Note Fiorentine – Florencia':'Note Fiorentine | Ristorante Toscano & Live Music – Florencia',zh:isMenu?'菜单 | Note Fiorentine – 佛罗伦萨':'Note Fiorentine | 托斯卡纳餐厅与现场音乐 – 佛罗伦萨'})[lang];
-const meta=document.querySelector('meta[name="description"]');if(meta&&lang!=='it')meta.content=({en:'Note Fiorentine: Tuscan restaurant in the historic centre of Florence, with live music every evening.',de:'Note Fiorentine: toskanisches Restaurant im historischen Zentrum von Florenz mit Live-Musik jeden Abend.',fr:'Note Fiorentine : restaurant toscan dans le centre historique de Florence, avec musique live chaque soir.',es:'Note Fiorentine: restaurante toscano en el centro histórico de Florencia, con música en vivo todas las noches.',zh:'Note Fiorentine：位于佛罗伦萨历史中心的托斯卡纳餐厅，每晚提供现场音乐。'})[lang];
+function setNfSeo(lang,isMenu){
+ const base='https://www.notefiorentine.it',path=isMenu?'/menu.html':'/';
+ const languages=['it','en','de','fr','es','zh'];
+ const urls={it:base+path,en:base+path+'?lang=en',de:base+path+'?lang=de',fr:base+path+'?lang=fr',es:base+path+'?lang=es',zh:base+path+'?lang=zh'};
+ let canonical=document.querySelector('link[rel="canonical"]');
+ if(!canonical){canonical=document.createElement('link');canonical.rel='canonical';document.head.append(canonical)}
+ canonical.href=urls[lang]||urls.it;
+ document.querySelectorAll('link[rel="alternate"][hreflang]').forEach(link=>link.remove());
+ languages.forEach(code=>{const link=document.createElement('link');link.rel='alternate';link.hreflang=code==='zh'?'zh-CN':code;link.href=urls[code];document.head.append(link)});
+ const fallback=document.createElement('link');fallback.rel='alternate';fallback.hreflang='x-default';fallback.href=urls.it;document.head.append(fallback);
+ const titles={
+  it:isMenu?'Menu | Ristorante con musica dal vivo a Firenze | Note Fiorentine':'Ristorante con musica dal vivo a Firenze | Note Fiorentine',
+  en:isMenu?'Menu | Restaurant with live music in Florence | Note Fiorentine':'Restaurant with live music in Florence | Note Fiorentine',
+  de:isMenu?'Speisekarte | Restaurant mit Live-Musik in Florenz | Note Fiorentine':'Restaurant mit Live-Musik in Florenz | Note Fiorentine',
+  fr:isMenu?'Carte | Restaurant avec musique live à Florence | Note Fiorentine':'Restaurant avec musique live à Florence | Note Fiorentine',
+  es:isMenu?'Carta | Restaurante con música en vivo en Florencia | Note Fiorentine':'Restaurante con música en vivo en Florencia | Note Fiorentine',
+  zh:isMenu?'菜单 | 佛罗伦萨现场音乐托斯卡纳餐厅 | Note Fiorentine':'佛罗伦萨托斯卡纳现场音乐餐厅 | Note Fiorentine'
+ };
+ const descriptions={
+  it:isMenu?'Menu Note Fiorentine: ristorante con musica dal vivo a Firenze e cucina toscana.':'Note Fiorentine è un ristorante con musica dal vivo a Firenze, cucina toscana e musica ogni sera dalle 19:30 alle 21:30, inclusa nella cena.',
+  en:isMenu?'Explore the menu at Note Fiorentine, a Tuscan restaurant with live music in Florence every evening.':'Note Fiorentine is a Tuscan restaurant with live music in Florence every evening from 7:30 to 9:30 pm, included with dinner.',
+  de:isMenu?'Speisekarte von Note Fiorentine: Restaurant mit Live-Musik in Florenz und toskanischer Küche.':'Note Fiorentine ist ein Restaurant mit Live-Musik in Florenz und toskanischer Küche, jeden Abend von 19:30 bis 21:30 Uhr, beim Abendessen inklusive.',
+  fr:isMenu?'Carte de Note Fiorentine : restaurant avec musique live à Florence et cuisine toscane.':'Note Fiorentine : restaurant avec musique live à Florence et cuisine toscane. Musique chaque soir de 19 h 30 à 21 h 30, incluse avec le dîner.',
+  es:isMenu?'Carta de Note Fiorentine: restaurante con música en vivo en Florencia y cocina toscana.':'Note Fiorentine: restaurante con música en vivo en Florencia y cocina toscana. Música cada noche de 19:30 a 21:30, incluida con la cena.',
+  zh:isMenu?'查看 Note Fiorentine 菜单：位于佛罗伦萨的托斯卡纳餐厅，每晚都有现场音乐。':'Note Fiorentine 是佛罗伦萨的一家托斯卡纳餐厅，每晚 19:30 至 21:30 提供现场音乐，晚餐包含音乐体验。'
+ };
+ document.title=titles[lang]||titles.it;
+ const meta=document.querySelector('meta[name="description"]');if(meta)meta.content=descriptions[lang]||descriptions.it;
+ const schema={'@context':'https://schema.org','@type':'Restaurant','@id':base+'/#restaurant',name:'Note Fiorentine',url:base+'/',description:descriptions[lang]||descriptions.it,servesCuisine:['Tuscan','Italian'],amenityFeature:{'@type':'LocationFeatureSpecification',name:'Live music',value:true},hasMenu:base+'/menu.html'+(lang==='it'?'':'?lang='+lang)};
+ let structured=document.getElementById('nf-restaurant-schema');
+ if(!structured){structured=document.createElement('script');structured.id='nf-restaurant-schema';structured.type='application/ld+json';document.head.append(structured)}
+ structured.textContent=JSON.stringify(schema);
+}
+setNfSeo(lang,isMenu);
 const nav=document.querySelector('header nav');if(nav)nav.setAttribute('aria-label',({it:'Navigazione principale',en:'Main navigation',de:'Hauptnavigation',fr:'Navigation principale',es:'Navegación principal',zh:'主导航'})[lang]);
 document.querySelectorAll('a.brand-mini[href="/"]').forEach(a=>a.href='/?lang='+lang);
 document.querySelectorAll('a[href="/menu.html"],a[href="/menu.html?lang=it"]').forEach(a=>a.href='/menu.html?lang='+lang);
@@ -1480,14 +1635,14 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
 (async function loadDatabaseMenu(){
  const categoriesBox=document.getElementById('menuCategories'),itemsBox=document.getElementById('menuItems');
  if(!categoriesBox||!itemsBox)return;
- const base='https://nculgrwlzjitggjcgbpp.supabase.co/rest/v1',key='sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0',headers={apikey:key,Accept:'application/json'};
+ const base=window.NF_SUPABASE_CONFIG.url+'/rest/v1',key=window.NF_SUPABASE_CONFIG.key,headers={apikey:key,Accept:'application/json'};
  const lang=new URLSearchParams(location.search).get('lang')||'it';
  const make=(tag,cls,value)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(value!==undefined&&value!==null)el.textContent=String(value);return el};
  const money=value=>value===null||value===undefined||value===''?'':new Intl.NumberFormat(({it:'it-IT',en:'en-GB',de:'de-DE',fr:'fr-FR',es:'es-ES'})[lang]||'it-IT',{style:'currency',currency:'EUR'}).format(Number(value));
  try{
   const [cr,ir]=await Promise.all([
    fetch(base+'/menu_categories?select=id,name,description,translations,sort_order,created_at&is_published=eq.true&order=sort_order.asc,created_at.asc',{headers,cache:'no-store'}),
-   fetch(base+'/menu_items?select=id,category_id,name,description,price,allergens,translations,sort_order,created_at&is_published=eq.true&order=sort_order.asc,created_at.asc',{headers,cache:'no-store'})
+   fetch(base+'/menu_items?select=id,category_id,name,description,price,allergens,image_path,translations,sort_order,created_at&is_published=eq.true&order=sort_order.asc,created_at.asc',{headers,cache:'no-store'})
   ]);
   if(!cr.ok)throw Error('Categorie HTTP '+cr.status);if(!ir.ok)throw Error('Piatti HTTP '+ir.status);
   const [categories,items]=await Promise.all([cr.json(),ir.json()]);
@@ -1503,6 +1658,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
    if(!matching.length){itemsBox.append(make('p','menu-empty','Non ci sono ancora piatti pubblicati in questa categoria.'));return}
    matching.forEach(item=>{
     const card=make('article','menu-item-card'),heading=make('div','menu-item-heading');
+    if(item.image_path){const image=make('img','menu-item-image');image.src=base+'/storage/v1/object/public/site-media/'+String(item.image_path).split('/').map(encodeURIComponent).join('/');image.alt=item.translations?.[lang]?.name||item.name||'';image.loading='lazy';card.append(image)}
     heading.append(make('h3','',item.translations?.[lang]?.name||item.name||''));const price=money(item.price);if(price)heading.append(make('span','menu-item-price',price));card.append(heading);
     if(item.description)card.append(make('p','menu-item-description',item.translations?.[lang]?.description||item.description));
     if(Array.isArray(item.allergens)&&item.allergens.length)card.append(make('p','menu-item-allergens',({it:'Allergeni:',en:'Allergens:',de:'Allergene:',fr:'Allergènes :',es:'Alérgenos:'})[lang]+' '+item.allergens.join(', ')));
@@ -1519,8 +1675,8 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
   try {
     if(sessionStorage.getItem('nf-home-popup-dismissed')==='1') return;
   } catch(e) {}
-  const base='https://nculgrwlzjitggjcgbpp.supabase.co';
-  const key='sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0';
+  const base=window.NF_SUPABASE_CONFIG.url;
+  const key=window.NF_SUPABASE_CONFIG.key;
   try {
     const response=await fetch(base+'/rest/v1/homepage_popup?select=active,title_it,title_en,body_it,body_en,button_label_it,button_label_en,translations,contact_email,media_files&active=eq.true&limit=1',{
       headers:{apikey:key,Accept:'application/json'},cache:'no-store'
@@ -1731,7 +1887,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
 </style>
 <script id="nf-site-images-runtime">
 (async function(){
- const api='https://nculgrwlzjitggjcgbpp.supabase.co',key='sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0';
+ const api=window.NF_SUPABASE_CONFIG.url,key=window.NF_SUPABASE_CONFIG.key;
  const log=(...args)=>{if(window.console)console.warn('[Note Fiorentine immagini]',...args)};
  const publicUrl=path=>api+'/storage/v1/object/public/site-media/'+String(path).split('/').map(encodeURIComponent).join('/');
  function mount(el,row){
@@ -1764,23 +1920,48 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
 </script>
 <script id="nf-multiple-gallery-runtime">
 (async function(){
- const api='https://nculgrwlzjitggjcgbpp.supabase.co',key='sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0';
- const labels={restaurant:'Il ristorante',kitchen:'La cucina',music:'L’atmosfera'};
+ const api=window.NF_SUPABASE_CONFIG.url,key=window.NF_SUPABASE_CONFIG.key;
+ const lang=({it:'it',en:'en',de:'de',fr:'fr',es:'es',zh:'zh'})[new URLSearchParams(location.search).get('lang')]||'it';
+ const labels={
+  it:{restaurant:'Il ristorante',kitchen:'La cucina',music:'L’atmosfera'},
+  en:{restaurant:'The Restaurant',kitchen:'The Cuisine',music:'The Atmosphere'},
+  de:{restaurant:'Das Restaurant',kitchen:'Die Küche',music:'Die Atmosphäre'},
+  fr:{restaurant:'Le restaurant',kitchen:'La cuisine',music:'L’atmosphère'},
+  es:{restaurant:'El restaurante',kitchen:'La cocina',music:'El ambiente'},
+  zh:{restaurant:'餐厅',kitchen:'美食',music:'氛围'}
+ };
+ const photoAlt={
+  restaurant:{it:'Gli ambienti del ristorante Note Fiorentine a Firenze',en:'The interiors of Note Fiorentine in Florence',de:'Die Räumlichkeiten des Restaurants Note Fiorentine in Florenz',fr:'Les espaces du restaurant Note Fiorentine à Florence',es:'Los espacios del restaurante Note Fiorentine en Florencia',zh:'Note Fiorentine 餐厅空间，位于佛罗伦萨'},
+  kitchen:{it:'Piatti della cucina toscana e italiana di Note Fiorentine',en:'Tuscan and Italian dishes at Note Fiorentine',de:'Toskanische und italienische Gerichte von Note Fiorentine',fr:'Plats de cuisine toscane et italienne de Note Fiorentine',es:'Platos de cocina toscana e italiana de Note Fiorentine',zh:'Note Fiorentine 的托斯卡纳与意大利菜肴'},
+  music:{it:'Atmosfera delle serate con musica dal vivo da Note Fiorentine',en:'The atmosphere of live music evenings at Note Fiorentine',de:'Die Atmosphäre der Live-Musik-Abende im Note Fiorentine',fr:'L’atmosphère des soirées avec musique live chez Note Fiorentine',es:'El ambiente de las veladas con música en vivo de Note Fiorentine',zh:'Note Fiorentine 现场音乐之夜的氛围'}
+ };
  const viewer=document.getElementById('nfGalleryViewer'),stage=document.getElementById('nfGalleryStage'),title=document.getElementById('nfGalleryTitle'),counter=document.getElementById('nfGalleryCounter');
  if(!viewer||!stage)return;
- let photos=[],position=0,touchStart=0,lastFocus=null;
+ let photos=[],position=0,touchStart=0,lastFocus=null,selectingRestaurantPhotos=false;
  const publicUrl=path=>api+'/storage/v1/object/public/site-media/'+String(path).split('/').map(encodeURIComponent).join('/');
+ const choice=document.getElementById('nfEnvironmentsChoice');
+ let choiceFocus=null;
+ function openEnvironmentChooser(button){choiceFocus=button;choice.classList.add('open');choice.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';choice.querySelector('[data-env-choice="videos"]').focus()}
+ function closeEnvironmentChooser(){choice.classList.remove('open');choice.setAttribute('aria-hidden','true');document.body.style.overflow='';if(choiceFocus)choiceFocus.focus()}
+ choice.querySelector('#nfEnvironmentsChoiceClose').addEventListener('click',closeEnvironmentChooser);
+ choice.addEventListener('click',e=>{if(e.target===choice)closeEnvironmentChooser()});
+ choice.querySelector('[data-env-choice="photos"]').addEventListener('click',()=>{const returnFocus=choiceFocus;closeEnvironmentChooser();selectingRestaurantPhotos=true;openGallery('restaurant',returnFocus);selectingRestaurantPhotos=false});
+ choice.querySelector('[data-env-choice="videos"]').addEventListener('click',()=>{const returnFocus=choiceFocus;closeEnvironmentChooser();document.dispatchEvent(new CustomEvent('nf-open-restaurant-videos',{detail:{button:returnFocus}}))});
+
+ function extractVimeoId(value){try{const u=new URL(String(value||'')),host=u.hostname.toLowerCase().replace(/^www[.]/,'');if(!['vimeo.com','player.vimeo.com'].includes(host))return null;const id=u.pathname.split('/').filter(Boolean).find(part=>part.length>0&&[...part].every(c=>c>='0'&&c<='9'));const parts=u.pathname.split('/').filter(Boolean),hash=u.searchParams.get('h')||(parts[parts.indexOf(id)+1]||'');return id?{id,hash}:null}catch{return null}}
  function render(){
   stage.replaceChildren();
   if(!photos.length){const empty=document.createElement('div');empty.className='nf-gallery-empty';empty.textContent='Le fotografie di questa galleria saranno disponibili a breve.';stage.append(empty);counter.textContent='0 FOTO';document.getElementById('nfGalleryPrev').disabled=true;document.getElementById('nfGalleryNext').disabled=true;return}
-  const item=photos[position],img=document.createElement('img');img.className='nf-gallery-photo';img.addEventListener('load',()=>{stage.classList.toggle('nf-gallery-portrait',img.naturalHeight>img.naturalWidth)},{once:true});img.src=publicUrl(item.image_path);img.alt=item.title||labels[viewer.dataset.category]||'Fotografia Note Fiorentine';img.draggable=false;img.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';img.style.transform='scale('+(item.focal_zoom??1)+')';stage.append(img);
+  const item=photos[position],img=document.createElement('img');img.className='nf-gallery-photo';img.addEventListener('load',()=>{stage.classList.toggle('nf-gallery-portrait',img.naturalHeight>img.naturalWidth)},{once:true});img.src=publicUrl(item.image_path);const rawTitle=String(item.title||'').trim(),category=viewer.dataset.category;img.alt=rawTitle&&!/^\d+$/.test(rawTitle)?rawTitle:(photoAlt[category]?.[lang]||'Note Fiorentine photo');img.draggable=false;img.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';img.style.transform='scale('+(item.focal_zoom??1)+')';stage.append(img);
   counter.textContent=(position+1)+' / '+photos.length;
   document.getElementById('nfGalleryPrev').disabled=photos.length<2;document.getElementById('nfGalleryNext').disabled=photos.length<2;
  }
- function close(){viewer.classList.remove('open');viewer.setAttribute('aria-hidden','true');document.body.style.overflow='';if(lastFocus)lastFocus.focus()}
+ function close(){viewer.classList.remove('nf-environments-gallery');viewer.classList.remove('open');viewer.setAttribute('aria-hidden','true');document.body.style.overflow='';if(lastFocus)lastFocus.focus()}
  function move(step){if(!photos.length)return;position=(position+step+photos.length)%photos.length;render()}
  async function openGallery(category,button){
-  lastFocus=button;viewer.dataset.category=category;title.textContent=labels[category]||'La galleria';viewer.classList.add('open');viewer.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';stage.innerHTML='<div class="nf-gallery-empty">Caricamento fotografie…</div>';counter.textContent='';
+  viewer.classList.toggle('nf-environments-gallery',category==='restaurant');
+  if(category==='restaurant'&&!selectingRestaurantPhotos){openEnvironmentChooser(button);return}
+  lastFocus=button;viewer.dataset.category=category;title.textContent=labels[lang]?.[category]||labels.it[category]||'La galleria';viewer.classList.add('open');viewer.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';stage.innerHTML='<div class="nf-gallery-empty">Caricamento fotografie…</div>';counter.textContent='';
   try{
    const url=api+'/rest/v1/gallery_images?select=id,title,image_path,sort_order,focal_x,focal_y,focal_zoom&category=eq.'+encodeURIComponent(category)+'&is_published=eq.true&order=sort_order.asc,created_at.asc';
    const response=await fetch(url,{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});
@@ -1794,7 +1975,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
  viewer.addEventListener('click',e=>{if(e.target===viewer)close()});
  document.getElementById('nfGalleryPrev').addEventListener('click',()=>move(-1));
  document.getElementById('nfGalleryNext').addEventListener('click',()=>move(1));
- document.addEventListener('keydown',e=>{if(!viewer.classList.contains('open'))return;if(e.key==='Escape')close();if(e.key==='ArrowLeft')move(-1);if(e.key==='ArrowRight')move(1)});
+ document.addEventListener('keydown',e=>{if(choice.classList.contains('open')&&e.key==='Escape'){closeEnvironmentChooser();return}if(!viewer.classList.contains('open'))return;if(e.key==='Escape')close();if(e.key==='ArrowLeft')move(-1);if(e.key==='ArrowRight')move(1)});
  let touchStartX=0,touchStartY=0;
  stage.addEventListener('touchstart',e=>{const t=e.changedTouches[0];touchStartX=t?.clientX||0;touchStartY=t?.clientY||0},{passive:true});
  stage.addEventListener('touchend',e=>{const t=e.changedTouches[0],dx=(t?.clientX||0)-touchStartX,dy=(t?.clientY||0)-touchStartY;if(Math.abs(dx)>48&&Math.abs(dx)>Math.abs(dy)*1.25)move(dx<0?1:-1)},{passive:true});
@@ -1810,21 +1991,93 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
 </style>
 <script id="nf-artists-media-runtime">
 (async function(){
- const api='https://nculgrwlzjitggjcgbpp.supabase.co',key='sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0';
+ const api=window.NF_SUPABASE_CONFIG.url,key=window.NF_SUPABASE_CONFIG.key;
+ const lang=({it:'it',en:'en',de:'de',fr:'fr',es:'es',zh:'zh'})[new URLSearchParams(location.search).get('lang')]||'it';
+ const ui={
+ it:{photoTitle:'Gli artisti · Fotografie',environmentVideoTitle:'Gli ambienti · Video',artistVideoTitle:'Gli artisti · Video',noPhotos:'Le fotografie degli artisti saranno disponibili a breve.',noEnvironmentVideos:'I video degli ambienti saranno disponibili a breve.',noArtistVideos:'I video degli artisti saranno disponibili a breve.',zeroItems:'0 ELEMENTI',preview:'Anteprima video: ',tapPlay:'. Tocca per riprodurre',tapLoad:'Tocca per caricare il video',videoDefault:'Video Note Fiorentine',youtubeDefault:'Video Note Fiorentine su YouTube',artistAlt:'Artisti Note Fiorentine',videoAria:'Video delle serate Note Fiorentine',diagnosticLoading:'Diagnostica video: caricamento…',videoLoadError:'Errore caricamento video: ',loadError:'Non è stato possibile caricare i contenuti. Riprova tra poco.',video:'Video',status:'stato',ready:'pronto',network:'rete',duration:'durata',position:'posizione',error:'errore'},
+ en:{photoTitle:'Artists · Photos',environmentVideoTitle:'Restaurant · Videos',artistVideoTitle:'Artists · Videos',noPhotos:'Artists’ photos will be available soon.',noEnvironmentVideos:'Restaurant videos will be available soon.',noArtistVideos:'Artists’ videos will be available soon.',zeroItems:'0 ITEMS',preview:'Video preview: ',tapPlay:'. Tap to play',tapLoad:'Tap to load the video',videoDefault:'Note Fiorentine video',youtubeDefault:'Note Fiorentine video on YouTube',artistAlt:'Note Fiorentine artists',videoAria:'Note Fiorentine live music videos',diagnosticLoading:'Video diagnostics: loading…',videoLoadError:'Video loading error: ',loadError:'The content could not be loaded. Please try again shortly.',video:'Video',status:'status',ready:'ready',network:'network',duration:'duration',position:'position',error:'error'},
+ de:{photoTitle:'Künstler · Fotos',environmentVideoTitle:'Restaurant · Videos',artistVideoTitle:'Künstler · Videos',noPhotos:'Fotos der Künstler sind in Kürze verfügbar.',noEnvironmentVideos:'Restaurantvideos sind in Kürze verfügbar.',noArtistVideos:'Videos der Künstler sind in Kürze verfügbar.',zeroItems:'0 ELEMENTE',preview:'Videovorschau: ',tapPlay:'. Zum Abspielen tippen',tapLoad:'Tippen, um das Video zu laden',videoDefault:'Note Fiorentine Video',youtubeDefault:'Note Fiorentine Video auf YouTube',artistAlt:'Künstler von Note Fiorentine',videoAria:'Live-Musikvideos von Note Fiorentine',diagnosticLoading:'Videodiagnose: wird geladen…',videoLoadError:'Fehler beim Laden des Videos: ',loadError:'Die Inhalte konnten nicht geladen werden. Bitte versuchen Sie es erneut.',video:'Video',status:'Status',ready:'bereit',network:'Netzwerk',duration:'Dauer',position:'Position',error:'Fehler'},
+ fr:{photoTitle:'Artistes · Photos',environmentVideoTitle:'Restaurant · Vidéos',artistVideoTitle:'Artistes · Vidéos',noPhotos:'Les photos des artistes seront bientôt disponibles.',noEnvironmentVideos:'Les vidéos du restaurant seront bientôt disponibles.',noArtistVideos:'Les vidéos des artistes seront bientôt disponibles.',zeroItems:'0 ÉLÉMENTS',preview:'Aperçu vidéo : ',tapPlay:'. Appuyez pour lire',tapLoad:'Appuyez pour charger la vidéo',videoDefault:'Vidéo Note Fiorentine',youtubeDefault:'Vidéo Note Fiorentine sur YouTube',artistAlt:'Artistes de Note Fiorentine',videoAria:'Vidéos des soirées Note Fiorentine',diagnosticLoading:'Diagnostic vidéo : chargement…',videoLoadError:'Erreur de chargement vidéo : ',loadError:'Impossible de charger le contenu. Veuillez réessayer.',video:'Vidéo',status:'état',ready:'prêt',network:'réseau',duration:'durée',position:'position',error:'erreur'},
+ es:{photoTitle:'Artistas · Fotos',environmentVideoTitle:'Restaurante · Vídeos',artistVideoTitle:'Artistas · Vídeos',noPhotos:'Las fotos de los artistas estarán disponibles próximamente.',noEnvironmentVideos:'Los vídeos del restaurante estarán disponibles próximamente.',noArtistVideos:'Los vídeos de los artistas estarán disponibles próximamente.',zeroItems:'0 ELEMENTOS',preview:'Vista previa del vídeo: ',tapPlay:'. Toca para reproducir',tapLoad:'Toca para cargar el vídeo',videoDefault:'Vídeo de Note Fiorentine',youtubeDefault:'Vídeo de Note Fiorentine en YouTube',artistAlt:'Artistas de Note Fiorentine',videoAria:'Vídeos de las veladas de Note Fiorentine',diagnosticLoading:'Diagnóstico de vídeo: cargando…',videoLoadError:'Error al cargar el vídeo: ',loadError:'No se ha podido cargar el contenido. Inténtalo de nuevo.',video:'Vídeo',status:'estado',ready:'listo',network:'red',duration:'duración',position:'posición',error:'error'},
+ zh:{photoTitle:'艺术家 · 照片',environmentVideoTitle:'餐厅 · 视频',artistVideoTitle:'艺术家 · 视频',noPhotos:'艺术家照片即将上线。',noEnvironmentVideos:'餐厅视频即将上线。',noArtistVideos:'艺术家视频即将上线。',zeroItems:'0 项',preview:'视频预览：',tapPlay:'。点击播放',tapLoad:'点击加载视频',videoDefault:'Note Fiorentine 视频',youtubeDefault:'YouTube 上的 Note Fiorentine 视频',artistAlt:'Note Fiorentine 艺术家',videoAria:'Note Fiorentine 现场演出视频',diagnosticLoading:'视频诊断：正在加载…',videoLoadError:'视频加载错误：',loadError:'无法加载内容，请稍后重试。',video:'视频',status:'状态',ready:'就绪',network:'网络',duration:'时长',position:'位置',error:'错误'}
+ }[lang];
  const viewer=document.getElementById('nfArtistsViewer'),stage=document.getElementById('nfArtistsViewerStage'),title=document.getElementById('nfArtistsViewerTitle'),count=document.getElementById('nfArtistsViewerCount');
+ const diagnostic=document.getElementById('nfArtistsVideoDiagnostic');
  if(!viewer||!stage)return;
  let items=[],index=0,kind='images',lastFocus=null;
  const publicUrl=(bucket,path)=>api+'/storage/v1/object/public/'+bucket+'/'+String(path).split('/').map(encodeURIComponent).join('/');
+ function extractYouTubeId(value){
+  const raw=String(value||'').trim();if(/^[A-Za-z0-9_-]{11}$/.test(raw))return raw;
+  try{const url=new URL(raw),host=url.hostname.toLowerCase().replace(/^www\./,'');let id='';
+   if(host==='youtu.be')id=url.pathname.split('/').filter(Boolean)[0]||'';
+   else if(['youtube.com','m.youtube.com','youtube-nocookie.com'].includes(host))id=url.searchParams.get('v')||(url.pathname.match(/^\/(?:embed|shorts|live)\/([^/?]+)/)||[])[1]||'';
+   return /^[A-Za-z0-9_-]{11}$/.test(id)?id:null;
+  }catch{return null}
+ }
+ function extractVimeoId(value){
+  try{
+   const url=new URL(String(value||'').trim()),host=url.hostname.toLowerCase().replace(/^www\./,'');
+   if(!['vimeo.com','player.vimeo.com'].includes(host))return null;
+   const parts=url.pathname.split('/').filter(Boolean);
+   const id=parts.find(part=>/^\d+$/.test(part));
+   if(!id)return null;
+   const hash=url.searchParams.get('h')||(parts[parts.indexOf(id)+1]||'');
+   return {id,hash};
+  }catch{return null}
+ }
  function render(){
-  stage.replaceChildren();stage.classList.remove('nf-artists-portrait');
-  if(!items.length){const empty=document.createElement('div');empty.className='nf-artists-viewer-empty';empty.textContent=kind==='images'?'Le fotografie degli artisti saranno disponibili a breve.':'I video degli artisti saranno disponibili a breve.';stage.append(empty);count.textContent='0 ELEMENTI';document.getElementById('nfArtistsViewerPrev').disabled=true;document.getElementById('nfArtistsViewerNext').disabled=true;return}
-  const item=items[index],media=kind==='images'?document.createElement('img'):document.createElement('video');
+  stage.replaceChildren();stage.classList.remove('nf-artists-portrait','nf-artists-photo-portrait','nf-artists-photo-landscape','nf-youtube-portrait','nf-youtube-landscape');stage.style.removeProperty('--nf-photo-ratio');stage.style.removeProperty('width');
+  if(!items.length){const empty=document.createElement('div');empty.className='nf-artists-viewer-empty';empty.textContent=kind==='images'?ui.noPhotos:kind==='restaurant-videos'?ui.noEnvironmentVideos:ui.noArtistVideos;stage.append(empty);count.textContent=ui.zeroItems;document.getElementById('nfArtistsViewerPrev').disabled=true;document.getElementById('nfArtistsViewerNext').disabled=true;return}
+  const item=items[index],videoSource=kind==='restaurant-videos'?(item.video_url||item.youtube_url):(item.video_url||item.video_path),youtubeId=(kind==='videos'||kind==='restaurant-videos')?(item.youtubeId||extractYouTubeId(videoSource)):null,vimeoMatch=(kind==='videos'||kind==='restaurant-videos')?extractVimeoId(videoSource):null,youtubeShort=!!(youtubeId||vimeoMatch)&&(item.video_orientation==='portrait'||(()=>{try{return new URL(String(videoSource||'')).pathname.includes('/shorts/')}catch{return false}})()),media=kind==='images'?document.createElement('img'):document.createElement('video');
+  if((kind==='videos'||kind==='restaurant-videos') && vimeoMatch){stage.classList.add(youtubeShort?'nf-youtube-portrait':'nf-youtube-landscape');if(diagnostic)diagnostic.hidden=true;const frame=document.createElement('iframe');frame.className='nf-artist-youtube-frame nf-artist-vimeo-frame'+(youtubeShort?' nf-artist-youtube-portrait':'');frame.title=item.title||ui.videoDefault;frame.loading='eager';frame.referrerPolicy='strict-origin-when-cross-origin';frame.allow='autoplay; fullscreen; picture-in-picture';frame.allowFullscreen=true;frame.src='https://player.vimeo.com/video/'+encodeURIComponent(vimeoMatch.id)+(vimeoMatch.hash?'?h='+encodeURIComponent(vimeoMatch.hash)+'&':'?')+'dnt=1&title=0&byline=0&portrait=0';stage.append(frame);count.textContent=(index+1)+' / '+items.length;document.getElementById('nfArtistsViewerPrev').disabled=items.length<2;document.getElementById('nfArtistsViewerNext').disabled=items.length<2;return}
+  if((kind==='videos'||kind==='restaurant-videos') && youtubeId){
+   stage.classList.add(youtubeShort?'nf-youtube-portrait':'nf-youtube-landscape');
+   if(diagnostic)diagnostic.hidden=true;
+   const frame=document.createElement('iframe');
+   frame.className='nf-artist-youtube-frame'+(youtubeShort?' nf-artist-youtube-portrait':'');
+   frame.title=item.title||ui.youtubeDefault;
+   frame.loading='eager';
+   frame.referrerPolicy='strict-origin-when-cross-origin';
+   frame.allow='encrypted-media; picture-in-picture; web-share; fullscreen';
+   frame.allowFullscreen=true;
+   frame.src='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(youtubeId)+'?rel=0&autoplay=0';
+   stage.append(frame);
+   count.textContent=(index+1)+' / '+items.length;
+   document.getElementById('nfArtistsViewerPrev').disabled=items.length<2;
+   document.getElementById('nfArtistsViewerNext').disabled=items.length<2;
+   return;
+  }
+  if(kind==='restaurant-videos'){
+   const unavailable=document.createElement('div');
+   unavailable.className='nf-artists-viewer-empty';
+   unavailable.textContent='Il collegamento di questo video non è valido o non è supportato.';
+   stage.append(unavailable);
+   count.textContent=(index+1)+' / '+items.length;
+   document.getElementById('nfArtistsViewerPrev').disabled=items.length<2;
+   document.getElementById('nfArtistsViewerNext').disabled=items.length<2;
+   return;
+  }
   if(kind==='images'){
-   media.className='nf-artists-gallery-photo';media.alt=item.title||'Artisti Note Fiorentine';media.draggable=false;media.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';media.style.transform='scale('+(item.focal_zoom??1)+')';
-   media.addEventListener('load',()=>{stage.classList.toggle('nf-artists-portrait',media.naturalHeight>media.naturalWidth)},{once:true});
+   media.className='nf-artists-gallery-photo';const rawTitle=String(item.title||'').trim();media.alt=rawTitle&&!/^\d+$/.test(rawTitle)?rawTitle:ui.artistAlt;media.draggable=false;media.style.objectPosition=(item.focal_x??50)+'% '+(item.focal_y??50)+'%';media.style.transform='scale('+(item.focal_zoom??1)+')';
+   media.addEventListener('load',()=>{const w=media.naturalWidth||1,h=media.naturalHeight||1,ratio=w/h,portrait=h>w;stage.classList.toggle('nf-artists-portrait',portrait);stage.classList.toggle('nf-artists-photo-portrait',portrait);stage.classList.toggle('nf-artists-photo-landscape',!portrait);stage.style.setProperty('--nf-photo-ratio',String(ratio));},{once:true});
    media.src=publicUrl('site-media',item.image_path);
   }else{
-   media.src=publicUrl('performance-videos',item.video_path);media.controls=true;media.playsInline=true;media.preload='metadata';media.setAttribute('aria-label',item.title||'Video artisti Note Fiorentine');
+   stage.classList.add(item.video_orientation==='portrait'?'nf-youtube-portrait':'nf-youtube-landscape');
+   media.src=publicUrl('performance-videos',item.video_path);media.controls=true;media.playsInline=true;media.preload='none';media.setAttribute('aria-label',item.title||ui.videoAria);
+   if(diagnostic){
+    diagnostic.hidden=false;
+    const report=(eventName)=>{
+     const err=media.error;
+     const errorText=err?' · errore '+err.code+(err.message?' ('+err.message+')':''):'';
+     const duration=Number.isFinite(media.duration)?media.duration.toFixed(1)+'s':'n/d';
+     const current=Number.isFinite(media.currentTime)?media.currentTime.toFixed(1)+'s':'0.0s';
+     diagnostic.textContent=ui.video+' '+(index+1)+'/'+items.length+' · '+ui.status+' · '+ui.ready+' '+media.readyState+'/4 · '+ui.network+' '+media.networkState+'/3 · '+ui.duration+' '+duration+' · '+ui.position+' '+current+(err?' · '+ui.error+' '+err.code:'');
+     console.info('[NF video diagnostica]',{event:eventName,src:media.currentSrc||media.src,readyState:media.readyState,networkState:media.networkState,duration:media.duration,currentTime:media.currentTime,error:err?{code:err.code,message:err.message}:null});
+    };
+    ['loadstart','loadedmetadata','loadeddata','canplay','canplaythrough','playing','waiting','stalled','suspend','abort','emptied','ended','error'].forEach(name=>media.addEventListener(name,()=>report(name)));
+    media.addEventListener('timeupdate',()=>{if(!media.paused)report('riproduzione')});
+    report('inizializzazione');
+   }
    media.volume=preferredVolume;
    media.addEventListener('volumechange',()=>{if(!media.__nfAdjustingVolume)preferredVolume=media.volume});
    media.addEventListener('play',()=>{media.classList.remove('nf-artist-video-visible','nf-artist-video-fading');requestAnimationFrame(()=>requestAnimationFrame(()=>media.classList.add('nf-artist-video-visible')));media.__nfAdjustingVolume=true;media.volume=0;media.__nfAdjustingVolume=false;fadeAudio(media,preferredVolume,1350)});
@@ -1856,17 +2109,42 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
   return fadeAudio(v,0,2700).then(()=>v.pause());
  }
  async function move(step){if(!items.length||fading)return;fading=true;await fadeOutCurrent();index=(index+step+items.length)%items.length;render();fading=false}
- async function close(){if(fading)return;fading=true;await fadeOutCurrent();viewer.classList.remove('open');viewer.setAttribute('aria-hidden','true');document.body.style.overflow='';stage.replaceChildren();if(lastFocus)lastFocus.focus();fading=false}
+ function close(){const activeMedia=stage.querySelector('video,iframe');if(activeMedia){if(activeMedia.tagName==='VIDEO'){activeMedia.pause();activeMedia.removeAttribute('src');try{activeMedia.load()}catch{}}else{activeMedia.src='about:blank'}}viewer.classList.remove('open');viewer.setAttribute('aria-hidden','true');document.body.style.overflow='';stage.replaceChildren();fading=false;if(lastFocus&&lastFocus.isConnected)lastFocus.focus()}
  async function open(kindValue,button){
-  kind=kindValue;lastFocus=button;index=0;title.textContent=kind==='images'?'Gli artisti · Fotografie':'Gli artisti · Video';viewer.classList.add('open');viewer.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';stage.innerHTML='<div class="nf-artists-viewer-empty">Caricamento…</div>';count.textContent='';
+  kind=kindValue;lastFocus=button;index=0;viewer.classList.toggle('nf-environments-gallery',kind==='restaurant-videos');if(diagnostic){diagnostic.hidden=kind!=='videos';diagnostic.textContent=kind==='videos'?ui.diagnosticLoading:'';}title.textContent=kind==='images'?ui.photoTitle:kind==='restaurant-videos'?ui.environmentVideoTitle:ui.artistVideoTitle;viewer.classList.add('open');viewer.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';stage.innerHTML='<div class="nf-artists-viewer-empty">Caricamento…</div>';count.textContent='';
   try{
-   const table=kind==='images'?'artist_images':'performance_videos',field=kind==='images'?'image_path':'video_path';
-   const response=await fetch(api+'/rest/v1/'+table+'?select=id,title,'+field+',focal_x,focal_y,focal_zoom&is_published=eq.true&order=sort_order.asc,created_at.asc',{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});
+   const table=kind==='images'?'artist_images':kind==='restaurant-videos'?'restaurant_videos':'performance_videos';
+   const columns=kind==='images'?'id,title,image_path,focal_x,focal_y,focal_zoom':kind==='restaurant-videos'?'id,title,youtube_url,video_url,video_orientation':'id,title,video_path,video_url,video_orientation';
+   const endpoint=api+'/rest/v1/'+table+'?select='+columns+'&is_published=eq.true&order=sort_order.asc,created_at.asc';
+   let response=await fetch(endpoint,{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});
+   if(!response.ok&&kind==='restaurant-videos'&&response.status===400){
+    const detail=await response.clone().text();
+    if(/video_url|column|schema cache/i.test(detail)){
+     const legacyEndpoint=api+'/rest/v1/restaurant_videos?select=id,title,youtube_url,video_orientation&is_published=eq.true&order=sort_order.asc,created_at.asc';
+     response=await fetch(legacyEndpoint,{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});
+    }
+   }
+   if(!response.ok&&kind==='videos'&&response.status===400){
+    const detail=await response.clone().text();
+    if(/video_url|column|schema cache/i.test(detail)){
+     // Compatibilità con lo schema legacy prima dell'applicazione della migrazione video_url.
+     const legacyEndpoint=api+'/rest/v1/performance_videos?select=id,title,video_path&is_published=eq.true&order=sort_order.asc,created_at.asc';
+     response=await fetch(legacyEndpoint,{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});
+    }
+   }
    if(!response.ok)throw new Error('HTTP '+response.status);
-   items=await response.json();render();
-  }catch(e){stage.innerHTML='<div class="nf-artists-viewer-empty">Non è stato possibile caricare i contenuti. Riprova tra poco.</div>';count.textContent='';console.warn('[Note Fiorentine artisti]',e)}
+   items=await response.json();
+if(!viewer.classList.contains('open')||kind!==kindValue)return;
+render();
+  }catch(e){
+   stage.replaceChildren(Object.assign(document.createElement('div'),{className:'nf-artists-viewer-empty',textContent:ui.loadError}));
+   count.textContent='';
+   if(diagnostic){diagnostic.hidden=kind!=='videos';diagnostic.textContent=ui.loadError}
+   console.warn('[Note Fiorentine artisti]',e)
+  }
   document.getElementById('nfArtistsViewerClose').focus();
  }
+ document.addEventListener('nf-open-restaurant-videos',e=>open('restaurant-videos',e.detail?.button||null));
  document.querySelectorAll('[data-artist-gallery]').forEach(b=>b.addEventListener('click',()=>open(b.dataset.artistGallery,b)));
  document.getElementById('nfArtistsViewerClose').addEventListener('click',close);
  viewer.addEventListener('click',e=>{if(e.target===viewer)close()});
@@ -2124,27 +2402,10 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 
 
 <style id="nf-language-row-above-cinematic-v1">
-/* La riga delle lingue è l'ultimo elemento dell'header: il fondale parte subito sotto. */
-#app>header>.nav{display:flex;flex-wrap:wrap;row-gap:14px}
-#app>header>.nav>.brand-mini{order:1}
-#app>header>.nav>.menu-toggle{order:2}
-#app>header>.nav>.navlinks{order:3}
-#app>header>.nav>.language-switch{
-  order:4;
-  flex:0 0 100%;
-  width:100%;
-  margin:0;
-  padding:2px 0 8px;
-  justify-content:center;
-}
 #app>main>.nf-cinematic-zone{margin-top:0;padding-top:0}
 #app>main>.nf-cinematic-zone>.nf-cinematic-backdrop{
   margin-top:0;
   top:0;
-}
-@media(max-width:760px){
-  #app>header>.nav{row-gap:12px}
-  #app>header>.nav>.language-switch{padding:4px 0 8px}
 }
 
 /* Hero video: rimuove il riquadro immagine e lascia il filmato come fondale */
@@ -2183,30 +2444,6 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 </style>
 
 <style id="nf-sticky-header-and-hero-video-boundary-v3">
-/* Header completo, inclusa la riga delle lingue, sempre sopra il contenuto */
-#app>header{
-  position:sticky!important;
-  top:0!important;
-  z-index:100001!important;
-  width:100%;
-  background:#F4EBDD!important;
-  isolation:isolate;
-}
-#app>header>.nav{
-  display:flex;
-  flex-wrap:wrap;
-  row-gap:12px;
-}
-#app>header>.nav>.language-switch{
-  order:4;
-  flex:0 0 100%;
-  width:100%;
-  margin:0;
-  padding:4px 0 8px;
-  justify-content:center;
-  position:relative;
-  z-index:100002;
-}
 /* Il fondale video è assoluto e limitato alla zona Hero + fascia musica + intro.
    La zona termina prima di #menu, quindi il video non invade "La nostra cucina". */
 #app>main>.nf-cinematic-zone{
@@ -2594,6 +2831,7 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
  #app>main>#musica .music-art{grid-column:1!important;grid-row:1!important;min-height:clamp(260px,72vw,420px)!important}
  #app>main>#musica .music-copy{grid-column:1!important;grid-row:2!important}
 }
+</style>
 <style id="nf-live-music-photo-between-description-time-v1">
 /* Riquadro live music collocato tra descrizione e orario. */
 #app>main>#musica .music-art{
@@ -2609,7 +2847,6 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 @media(max-width:760px){
  #app>main>#musica .music-art{min-height:clamp(210px,65vw,330px)!important;margin:22px 0 24px!important}
 }
-</style>
 </style>
 <script>
 // Carica gli eventi pubblicati dal pannello amministrativo.
@@ -2637,6 +2874,7 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 })();
 </script>
 
+<style id="nf-event-cta-centering-v1">#eventList .event-action{display:table;margin:20px auto 0;text-align:center}</style>
 <style id="nf-language-switch-shared-final-v1">
 /* Selettore lingue condiviso: dimensioni e resa identiche su Home e Menu. */
 #app>header>.nav>.language-switch{display:flex!important;align-items:center!important;justify-content:center!important;gap:4px!important;flex:0 0 auto!important;margin:0!important;padding:0!important}
@@ -2663,6 +2901,68 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 #nf-cinematic-zone .nf-cinematic-play{position:absolute;z-index:4;left:50%;top:50%;transform:translate(-50%,-50%);display:inline-flex;align-items:center;gap:10px;padding:13px 18px;border:1px solid rgba(217,195,160,.85);border-radius:2px;background:rgba(42,25,22,.82);color:#F9F8F7;font:600 11px Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
 #nf-cinematic-zone .nf-cinematic-play[hidden]{display:none}
 @media(prefers-reduced-motion:reduce){#nf-cinematic-zone .nf-cinematic-video{transition:none}}
+</style>
+
+<style id="nf-artist-external-video-frame-v1">
+.nf-artists-viewer-stage iframe.nf-artist-video-frame{display:block;width:min(100%,1100px);height:100%;min-height:260px;aspect-ratio:16/9;border:0;background:#100d0b}
+.nf-artists-viewer-stage.nf-artists-portrait iframe.nf-artist-video-frame{width:min(100%,560px);height:min(76vh,850px);aspect-ratio:9/16;margin:auto}
+@media(max-width:760px){.nf-artists-viewer-stage iframe.nf-artist-video-frame{min-height:220px}.nf-artists-viewer-stage.nf-artists-portrait iframe.nf-artist-video-frame{height:70vh}}
+</style>
+<script id="nf-experience-gallery-i18n">
+(function(){
+ const lang=(new URLSearchParams(location.search).get('lang')||'it').toLowerCase();
+ const copy={
+  en:{galleryKicker:'Photos and videos of the restaurant',galleryTitle:'The restaurant, our cuisine and atmosphere',galleryIntro:'The rooms, the dishes and the details of Note Fiorentine. Explore the photo galleries and watch videos of the venue.',restaurantLabel:'Restaurant photos and videos',restaurantSub:'Explore the restaurant in photos and videos',kitchenLabel:'The Kitchen',kitchenSub:'Explore all photos',atmosphereLabel:'The Atmosphere',atmosphereSub:'Details and warm hospitality',videosKicker:'Restaurant videos',videosTitle:'The venue in motion',videosLoading:'Loading restaurant videos…',map:'Directions'},
+  de:{galleryKicker:'Bilder und Videos des Restaurants',galleryTitle:'Das Restaurant, die Küche und die Atmosphäre',galleryIntro:'Die Räume, die Gerichte und die Details von Note Fiorentine. Entdecken Sie die Fotogalerien und Videos des Restaurants.',restaurantLabel:'Bilder und Videos des Restaurants',restaurantSub:'Entdecken Sie das Restaurant in Bildern und Videos',kitchenLabel:'Die Küche',kitchenSub:'Alle Fotos ansehen',atmosphereLabel:'Die Atmosphäre',atmosphereSub:'Details und herzlicher Empfang',videosKicker:'Restaurantvideos',videosTitle:'Das Restaurant in Bewegung',videosLoading:'Restaurantvideos werden geladen…',map:'Anfahrt'},
+  fr:{galleryKicker:'Photos et vidéos du restaurant',galleryTitle:'Le restaurant, la cuisine et l’atmosphère',galleryIntro:'Les espaces, les plats et les détails de Note Fiorentine. Découvrez les galeries photos et les vidéos du restaurant.',restaurantLabel:'Photos et vidéos du restaurant',restaurantSub:'Découvrez le restaurant en images et en vidéos',kitchenLabel:'La cuisine',kitchenSub:'Voir toutes les photos',atmosphereLabel:'L’atmosphère',atmosphereSub:'Détails et accueil chaleureux',videosKicker:'Vidéos du restaurant',videosTitle:'Le restaurant en mouvement',videosLoading:'Chargement des vidéos du restaurant…',map:'Nous rejoindre'},
+  es:{galleryKicker:'Fotos y vídeos del restaurante',galleryTitle:'El restaurante, la cocina y el ambiente',galleryIntro:'Los espacios, los platos y los detalles de Note Fiorentine. Explora las galerías de fotos y mira los vídeos del local.',restaurantLabel:'Imágenes y vídeos del restaurante',restaurantSub:'Descubre el restaurante en fotos y vídeos',kitchenLabel:'La cocina',kitchenSub:'Ver todas las fotografías',atmosphereLabel:'El ambiente',atmosphereSub:'Detalles y una cálida bienvenida',videosKicker:'Vídeos del restaurante',videosTitle:'El local en movimiento',videosLoading:'Cargando vídeos del restaurante…',map:'Cómo llegar'},
+  zh:{galleryKicker:'餐厅照片与视频',galleryTitle:'餐厅、托斯卡纳美食与氛围',galleryIntro:'欣赏 Note Fiorentine 的空间、菜品与细节照片，并观看餐厅视频。',restaurantLabel:'餐厅图片与视频',restaurantSub:'通过照片和视频探索餐厅环境',kitchenLabel:'厨房',kitchenSub:'查看全部照片',atmosphereLabel:'氛围',atmosphereSub:'细节与热情款待',videosKicker:'餐厅视频',videosTitle:'动态体验餐厅',videosLoading:'正在加载餐厅视频…',map:'到达路线'}
+ };
+ const values=copy[lang];if(values)document.querySelectorAll('[data-nf-i18n]').forEach(node=>{const key=node.dataset.nfI18n;if(values[key])node.textContent=values[key]});
+ const mapLabels={it:'Dove siamo',en:'Directions',de:'Anfahrt',fr:'Nous rejoindre',es:'Cómo llegar',zh:'到达路线'};
+ document.querySelectorAll('[data-nf-reach-us]').forEach(node=>node.textContent=mapLabels[lang]||mapLabels.it);
+})();
+</script>
+<script id="nf-experience-gallery-runtime">
+(async function(){
+ const config=window.NF_SUPABASE_CONFIG;if(!config)return;
+ const api=config.url,key=config.key,headers={apikey:key,Accept:'application/json'};
+ const lang=(()=>{const v=(new URLSearchParams(location.search).get('lang')||'it').toLowerCase();return ['it','en','de','fr','es','zh'].includes(v)?v:'it'})();
+ const labels={
+  it:{restaurant:'Il ristorante',kitchen:'La cucina',music:'L’atmosfera',empty:'I video degli ambienti saranno disponibili qui a breve.',error:'Al momento non è possibile caricare i video.'},
+  en:{restaurant:'The Restaurant',kitchen:'Our Cuisine',music:'The Atmosphere',empty:'Videos of the restaurant will appear here soon.',error:'Restaurant videos cannot be loaded right now.'},
+  de:{restaurant:'Das Restaurant',kitchen:'Die Küche',music:'Die Atmosphäre',empty:'Videos des Restaurants erscheinen in Kürze hier.',error:'Die Restaurantvideos können derzeit nicht geladen werden.'},
+  fr:{restaurant:'Le restaurant',kitchen:'La cuisine',music:'L’atmosphère',empty:'Les vidéos du restaurant seront bientôt disponibles ici.',error:'Les vidéos du restaurant ne peuvent pas être chargées pour le moment.'},
+  es:{restaurant:'El restaurante',kitchen:'La cocina',music:'El ambiente',empty:'Los vídeos del restaurante estarán disponibles aquí próximamente.',error:'No se pueden cargar los vídeos del restaurante en este momento.'},
+  zh:{restaurant:'餐厅',kitchen:'厨房',music:'氛围',empty:'餐厅视频即将在此展示。',error:'目前无法加载餐厅视频。'}
+ };
+ const words=labels[lang]||labels.it;
+ const publicUrl=path=>api+'/storage/v1/object/public/site-media/'+String(path||'').split('/').map(encodeURIComponent).join('/');
+ const cardNodes=[...document.querySelectorAll('.nf-experience-gallery-card[data-gallery-category]')];
+ try{
+  const url=api+'/rest/v1/gallery_images?select=id,title,image_path,category,sort_order,focal_x,focal_y,focal_zoom,created_at&is_published=eq.true&order=category.asc,sort_order.asc,created_at.asc';
+  const response=await fetch(url,{headers,cache:'no-store'});if(!response.ok)throw new Error('gallery_images HTTP '+response.status);
+  const rows=await response.json(),grouped={restaurant:[],kitchen:[],music:[]};
+  for(const row of Array.isArray(rows)?rows:[])if(grouped[row.category])grouped[row.category].push(row);
+  window.NF_EXPERIENCE_GALLERY_CACHE=grouped;
+  for(const card of cardNodes){
+   const category=card.dataset.galleryCategory,first=grouped[category]?.[0];if(!first?.image_path)continue;
+   card.style.backgroundImage='linear-gradient(180deg,rgba(22,15,12,.04) 20%,rgba(22,15,12,.78) 100%),url("'+publicUrl(first.image_path)+'")';
+   card.style.backgroundPosition=(first.focal_x??50)+'% '+(first.focal_y??50)+'%';
+  }
+ }catch(error){console.warn('[Note Fiorentine gallerie]',error)}
+ 
+})();
+</script>
+
+<style id="nf-remove-blurred-bands-v1">
+/* Elimina i pannelli sfocati/semitrasparenti sovrapposti alle sezioni della Home. */
+#app>main .menu-items,
+#nf-cinematic-zone>.menu-section .menu-items{
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+  background:rgba(19,16,14,.96)!important;
+}
 </style>
 </body>
 </html><script async data-explicit-opt-in="true" data-deployment-id="dpl_7tHJ9DycmxR1TALK2u85APShiyVZ" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_EmRnWHsGMUkcJwHUQ7vz8FCmfTh6" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_E5nptDv68tSzPwNaRWjjuQBRJWLT" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_3kBEXjiEjcHv33v8JxwMth6Znb56" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_GbSb1nxg8uKN3nnLoyFhoPVdiZvt" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
@@ -2691,6 +2991,9 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 </style>
 
 <style id="nf-menu-readability-v1">
+#app>main>#menu .menu-item-image{display:block;width:min(100%,420px);max-height:260px;object-fit:cover;margin:0 0 16px;border:1px solid rgba(198,161,106,.35)}
+@media(max-width:760px){#app>main>#menu .menu-item-image{width:100%;max-height:220px}}
+
 /* Contrasto stabile per il menu sopra il fondale video, desktop e mobile. */
 #app>main>#menu .menu-category-tabs{position:relative!important;z-index:3!important;gap:10px!important}
 #app>main>#menu .menu-category-button{background:#211D18!important;color:#F1E7D6!important;border:1px solid #C6A16A!important;font-size:11px!important;line-height:1.35!important;font-weight:700!important;padding:13px 18px!important;text-shadow:none!important}
@@ -2711,4 +3014,21 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 #app>main>#menu .menu-item-price{font-size:16px!important}
 #app>main>#menu .menu-item-description{font-size:15px!important;line-height:1.7!important}
 }
+
+/* CTA menu: rosso stabile in ogni stato, indipendente dal tema e dagli stati del link. */
+#app main .menu-full-cta,
+#app main .menu-full-cta:link,
+#app main .menu-full-cta:visited,
+#app main .menu-full-cta:hover,
+#app main .menu-full-cta:focus,
+#app main .menu-full-cta:focus-visible,
+#app main .menu-full-cta:active{
+  background:#8F2928!important;
+  color:#FFF9F0!important;
+  border:1px solid #8F2928!important;
+  -webkit-text-fill-color:#FFF9F0!important;
+  text-decoration:none!important;
+}
+#app main .menu-full-cta:hover{background:#8F2928!important;color:#FFF9F0!important;}
+#app>main>#nf-cinematic-zone #menu .menu-full-cta,#app>main>#nf-cinematic-zone #menu .menu-full-cta:link,#app>main>#nf-cinematic-zone #menu .menu-full-cta:visited,#app>main>#nf-cinematic-zone #menu .menu-full-cta:hover,#app>main>#nf-cinematic-zone #menu .menu-full-cta:focus,#app>main>#nf-cinematic-zone #menu .menu-full-cta:active{background-color:#8F2928!important;border-color:#8F2928!important;color:#FFF9F0!important;-webkit-text-fill-color:#FFF9F0!important}
 </style>

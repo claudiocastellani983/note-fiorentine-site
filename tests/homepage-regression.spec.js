@@ -1,6 +1,9 @@
 const { test, expect } = require('@playwright/test');
 
 test('Home: mantiene la sezione Eventi, il collegamento nel menu e le sei lingue', async ({ page }) => {
+  await page.route('**/rest/v1/site_content*', async route => {
+    await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+  });
   await page.route('**/rest/v1/events*', async route => {
     await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
   });
