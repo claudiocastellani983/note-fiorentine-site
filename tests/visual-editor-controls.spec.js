@@ -24,5 +24,31 @@ test('Home comunica al pannello Admin la selezione del testo e riceve le modific
  expect(home).toContain("el.innerText||el.textContent||''");
  expect(home).toContain("window.parent.postMessage");
  expect(home).toContain("textContent:el.textContent||''");
- expect(home).toContain("addEventListener('message',e=>{if(e.data?.type==='nf-visual-update')apply(e.data.selector,e.data.patch)}");
+ expect(home).toContain("type:'nf-visual-applied'");
+ expect(home).toContain("setProperty(name,String(value),'important')");
+ expect(home).toContain("actual={fontSize:cs.fontSize,fontFamily:cs.fontFamily,color:cs.color,textAlign:cs.textAlign}");
+});
+
+test('Home applica davvero font, dimensione e colore anche sopra regole CSS important',async({page})=>{
+ await page.goto('/?visual-editor=1');
+ await page.addStyleTag({content:'#nf-playwright-visual-target{font-size:72px!important;font-family:Arial,sans-serif!important;color:rgb(0,0,0)!important}'});
+ const result=await page.evaluate(()=>new Promise(resolve=>{
+  const el=document.querySelector('h1');
+  if(!el){resolve({error:'Nessun h1 trovato'});return;}
+  el.id='nf-playwright-visual-target';
+  const handler=e=>{
+   if(e.data?.type!=='nf-visual-applied')return;
+   window.removeEventListener('message',handler);
+   const cs=getComputedStyle(el);
+   resolve({applied:e.data.applied,fontSize:cs.fontSize,fontFamily:cs.fontFamily,color:cs.color});
+  };
+  window.addEventListener('message',handler);
+  window.postMessage({type:'nf-visual-update',selector:'#nf-playwright-visual-target',patch:{fontSize:'37px',fontFamily:'Georgia,serif',color:'#ff0000'},sequence:987},'*');
+  setTimeout(()=>{window.removeEventListener('message',handler);resolve({error:'Timeout conferma anteprima'});},2000);
+ }));
+ expect(result.error).toBeUndefined();
+ expect(result.applied).toBe(true);
+ expect(result.fontSize).toBe('37px');
+ expect(result.fontFamily.toLowerCase()).toContain('georgia');
+ expect(result.color).toBe('rgb(255, 0, 0)');
 });
