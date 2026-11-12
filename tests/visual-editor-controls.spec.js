@@ -81,3 +81,15 @@ test('Home applica davvero font, dimensione e colore anche sopra regole CSS impo
  expect(result.color).toBe('rgb(255, 0, 0)');
  expect(result.textFillColor).toBe('rgb(255, 0, 0)');
 });
+
+test('I due pulsanti Dove siamo aprono la mappa della sede',()=>{
+ const home=fs.readFileSync(path.join(__dirname,'../src/src/index.html'),'utf8');
+ expect(home).toContain('class="button outline reach-us-button" data-nf-reach-us');
+ expect(home).toContain('class="button primary reach-us-button" id="nf-reach-us" data-nf-reach-us');
+ expect((home.match(/>Dove siamo<\\/a>/g)||[]).length).toBe(2);
+ expect(home).not.toContain('href="#musica">Scopri la musica</a>');
+ expect(home).toContain('document.querySelectorAll("[data-nf-reach-us]")');
+ expect(home).toContain('https://maps.apple.com/?daddr=');
+ expect(home).toContain('https://www.google.com/maps/dir/?api=1&destination=');
+ expect(home).toContain('Via dei Benci 41R, 50122 Firenze, Italia');
+});
