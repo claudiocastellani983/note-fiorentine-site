@@ -9,6 +9,9 @@ test('Editor Testi e grafica permette testo, dimensione e stile in anteprima',()
  expect(admin).toContain('id="veSize" type="text" inputmode="numeric"');
  expect(admin).toContain('Valore libero da 8 a 160 px');
  expect(admin).toContain("align-items:flex-start");
+ expect(admin).toContain('width:min(1180px,calc(100vw - 24px));height:92dvh');
+ expect(admin).toContain('#visualEditorModal .vebar{max-height:30%;overflow:auto}');
+ expect(admin).toContain('height:94dvh;min-height:300px');
  expect(admin).toContain("const parsedSize=Number(rawSize)");
  expect(admin).toContain("size.addEventListener('change'");
  expect(admin).toContain("^\\d{1,3}$");
