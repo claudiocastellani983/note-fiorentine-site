@@ -1913,8 +1913,9 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
   // Slot immagine Hero rimosso: la homepage usa esclusivamente il video cinematografico.
   mount(document.querySelector('.nf-artists-photo'),map.artists_gallery_cover);
   mount(document.querySelector('.nf-artists-video'),map.artists_video_cover);
-  const tiles=document.querySelectorAll('.gallery-tile');
-  ['gallery_restaurant','gallery_food','gallery_atmosphere'].forEach((key,index)=>mount(tiles[index],map[key]));
+  const environmentChoice=document.getElementById('nfEnvironmentsChoice');
+  mount(environmentChoice?.querySelector('[data-env-choice="videos"]'),map.environment_video_cover);
+  mount(environmentChoice?.querySelector('[data-env-choice="photos"]'),map.environment_photos_cover);
  }catch(error){log('Errore nel caricamento del catalogo immagini:',error)}
 })();
 </script>
