@@ -249,7 +249,12 @@ footer { padding-left: var(--layout-gutter); padding-right: var(--layout-gutter)
 .language-switch a.active{border-color:var(--site-primary);opacity:1;background:rgba(143,41,40,.08)}
 @media(max-width:760px){.language-switch{margin-left:auto}.language-switch a{min-width:32px;height:29px}}
 </style>
-<style id="menu-only-page">main>section:not(#menu):not(#galleria){display:none!important}#menu,#galleria{display:block!important}#menu{min-height:70vh;padding-top:70px;padding-bottom:90px}#galleria{padding-top:70px;padding-bottom:90px}</style>
+<style id="menu-only-page">
+/* Pagina dedicata al menù: una sola sezione, senza gallerie, video o contenuti accessori. */
+main>section:not(#menu){display:none!important}
+#menu{display:block!important;min-height:70vh;padding-top:70px;padding-bottom:90px}
+#nfGalleryViewer,.nf-gallery-viewer,footer,.music-videos,.nf-experience-videos,video,iframe{display:none!important}
+</style>
 
 <style id="nf-language-native-submit-v2">
 .language-switch{position:relative;z-index:100}
@@ -659,10 +664,7 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
       </a>
       <button class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="navlinks">Menu ☰</button>
       <div class="navlinks" id="navlinks">
-        <a href="/#ristorante">Il ristorante</a>
-        <a href="/#musica">Musica dal vivo</a>
         <a href="/menu.html#menu" aria-current="page">Menu</a>
-        <a href="/#galleria">Galleria</a>
         <a class="nav-cta" href="https://bookingnotefiorentine.guestplan.io" target="_blank" rel="noopener">Prenota un tavolo</a>
       </div>
       <nav class="language-switch" aria-label="Seleziona la lingua">
