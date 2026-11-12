@@ -1281,7 +1281,7 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
         <p>La cucina toscana incontra la musica dal vivo. Una serata da assaporare, nel cuore di Firenze.</p>
         <div class="actions">
           <a class="button primary" href="https://bookingnotefiorentine.guestplan.io" target="_blank" rel="noopener">Prenota un tavolo</a>
-          <a class="button outline" href="#musica">Scopri la musica</a>
+          <a class="button outline reach-us-button" data-nf-reach-us href="https://www.google.com/maps/dir/?api=1&destination=Via%20dei%20Benci%2041R%2C%2050122%20Firenze%2C%20Italia" target="_blank" rel="noopener noreferrer">Dove siamo</a>
         </div>
       </div>
     </section>
@@ -1340,21 +1340,22 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
     <div class="footer-fleur" aria-label="Giglio di Note Fiorentine">⚜</div>
     <div class="tag">Ristorante Toscano & Live Music · Firenze</div>
     <p>Cucina toscana, musica dal vivo, emozioni da condividere.</p>
-    <a class="button primary reach-us-button" id="nf-reach-us" href="https://www.google.com/maps/dir/?api=1&destination=Via%20dei%20Benci%2041R%2C%2050122%20Firenze%2C%20Italia" target="_blank" rel="noopener noreferrer">RAGGIUNGICI</a>
+    <a class="button primary reach-us-button" id="nf-reach-us" data-nf-reach-us href="https://www.google.com/maps/dir/?api=1&destination=Via%20dei%20Benci%2041R%2C%2050122%20Firenze%2C%20Italia" target="_blank" rel="noopener noreferrer">Dove siamo</a>
     <a class="button primary" href="https://bookingnotefiorentine.guestplan.io" target="_blank" rel="noopener">Prenota un tavolo</a>
     <div class="copyright">© Note Fiorentine · Firenze</div>
   </footer>
 <script id="nf-reach-us-platform-maps-v1">
 (function(){
-  var link=document.getElementById("nf-reach-us");
-  if(!link)return;
+  var links=document.querySelectorAll("[data-nf-reach-us]");
+  if(!links.length)return;
   var destination="Via dei Benci 41R, 50122 Firenze, Italia";
   var encoded=encodeURIComponent(destination);
   var ua=navigator.userAgent||"";
   var isAppleMobile=/iPad|iPhone|iPod/.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
-  link.href=isAppleMobile
+  var url=isAppleMobile
     ?"https://maps.apple.com/?daddr="+encoded+"&dirflg=d"
     :"https://www.google.com/maps/dir/?api=1&destination="+encoded;
+  links.forEach(function(link){link.href=url;});
 })();
 </script>
 </div>
