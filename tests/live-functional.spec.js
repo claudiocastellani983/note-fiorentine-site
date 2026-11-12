@@ -37,6 +37,29 @@ test.describe('Funzioni pubbliche delle preview reali', () => {
     expect(errors, 'Errori JavaScript non gestiti nella Home').toEqual([]);
   });
 
+  test('Home: elimina la fascia sfumata decorativa e apre i video reali del ristorante', async ({ page }) => {
+    expect(SITE_PREVIEW_URL).toBeTruthy();
+    const errors = [];
+    page.on('pageerror', error => errors.push(error.message));
+    const response = await page.goto(SITE_PREVIEW_URL, { waitUntil: 'domcontentloaded' });
+    expect(response && response.status()).toBe(200);
+    await page.waitForLoadState('networkidle');
+
+    await expect(page.locator('#nf-section-soft-transitions-v1')).toHaveCount(0);
+    await expect(page.locator('[data-gallery-category="restaurant"]')).toBeVisible();
+    await page.locator('[data-gallery-category="restaurant"]').click();
+    const chooser = page.locator('#nfEnvironmentsChoice');
+    await expect(chooser).toHaveClass(/open/);
+    await page.locator('[data-env-choice="videos"]').click();
+
+    const viewer = page.locator('#nfArtistsViewer');
+    await expect(viewer).toHaveClass(/open/);
+    const frame = page.locator('#nfArtistsViewerStage iframe');
+    await expect(frame).toHaveCount(1, { timeout: 20000 });
+    await expect(frame).toHaveAttribute('src', /player\\.vimeo\\.com\\/video\\//);
+    expect(errors, 'Il percorso dei video del ristorante non deve generare errori JavaScript').toEqual([]);
+  });
+
   test('Menu: categorie dinamiche, apertura categoria e lingua cinese', async ({ page }) => {
     expect(SITE_PREVIEW_URL).toBeTruthy();
     const menuUrl = new URL('/menu.html?lang=zh', SITE_PREVIEW_URL).toString();
