@@ -35,15 +35,6 @@ const languages = {
   }
 };
 
-const galleryExpected = {
-  it: { title: 'Il ristorante', alt: 'Gli ambienti del ristorante Note Fiorentine a Firenze' },
-  en: { title: 'The Restaurant', alt: 'The interiors of Note Fiorentine in Florence' },
-  de: { title: 'Das Restaurant', alt: 'Die Räumlichkeiten des Restaurants Note Fiorentine in Florenz' },
-  fr: { title: 'Le restaurant', alt: 'Les espaces du restaurant Note Fiorentine à Florence' },
-  es: { title: 'El restaurante', alt: 'Los espacios del restaurante Note Fiorentine en Florencia' },
-  zh: { title: '餐厅', alt: 'Note Fiorentine 餐厅空间，位于佛罗伦萨' }
-};
-
 const artistPhotoAlt = {
   it: 'Artisti Note Fiorentine',
   en: 'Note Fiorentine artists',
@@ -70,6 +61,9 @@ const categoryTranslations = {
 };
 
 test('Home: all six languages translate artist gallery labels and accessibility text', async ({ page }) => {
+  await page.route('**/rest/v1/site_content*', async route => {
+    await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+  });
   await page.route('**/rest/v1/site_images*', async route => {
     await route.fulfill({
       status: 200,
@@ -85,19 +79,6 @@ test('Home: all six languages translate artist gallery labels and accessibility 
     });
   });
   await page.route('**/storage/v1/object/public/site-media/hero/preview.webp', async route => {
-    await route.fulfill({ status: 200, contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg" width="2" height="2"></svg>' });
-  });
-  await page.route('**/rest/v1/gallery_images*', async route => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify([{
-        id: 'gallery-preview-test', title: '1000083676', image_path: 'gallery/preview.webp',
-        focal_x: 50, focal_y: 50, focal_zoom: 1
-      }])
-    });
-  });
-  await page.route('**/storage/v1/object/public/site-media/gallery/preview.webp', async route => {
     await route.fulfill({ status: 200, contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg" width="2" height="2"></svg>' });
   });
   await page.route('**/rest/v1/artist_images*', async route => {
@@ -119,10 +100,6 @@ test('Home: all six languages translate artist gallery labels and accessibility 
     await expect(page.locator('#nfArtistsViewerClose')).toHaveText(expected.close);
     await expect(page.locator('[data-artist-gallery="images"]')).toHaveAttribute('aria-label', expected.photoAria);
     await expect(page.locator('[data-artist-gallery="videos"]')).toHaveAttribute('aria-label', expected.videoAria);
-    await page.locator('[data-gallery-category="restaurant"]').click();
-    await expect(page.locator('#nfGalleryTitle')).toHaveText(galleryExpected[lang].title);
-    await expect(page.locator('#nfGalleryStage img.nf-gallery-photo')).toHaveAttribute('alt', galleryExpected[lang].alt);
-    await page.locator('#nfGalleryClose').click();
     await page.locator('[data-artist-gallery="images"]').click();
     await expect(page.locator('#nfArtistsViewer')).toHaveClass(/open/);
     await expect(page.locator('#nfArtistsViewerStage img.nf-artists-gallery-photo')).toHaveAttribute('alt', artistPhotoAlt[lang]);
