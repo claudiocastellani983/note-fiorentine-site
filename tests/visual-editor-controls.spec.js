@@ -36,7 +36,7 @@ test('Home comunica al pannello Admin la selezione del testo e riceve le modific
 
 test('Home applica davvero font, dimensione e colore anche sopra regole CSS important',async({page})=>{
  await page.goto('/?visual-editor=1');
- await page.addStyleTag({content:'#nf-playwright-visual-target{font-size:72px!important;font-family:Arial,sans-serif!important;color:rgb(0,0,0)!important}'});
+ await page.addStyleTag({content:'#nf-playwright-visual-target{font-size:72px!important;font-family:Arial,sans-serif!important;color:rgb(0,0,0)!important;-webkit-text-fill-color:rgb(0,0,0)!important}'});
  const result=await page.evaluate(()=>new Promise(resolve=>{
   const el=document.querySelector('h1');
   if(!el){resolve({error:'Nessun h1 trovato'});return;}
