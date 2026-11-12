@@ -868,7 +868,7 @@ links.querySelectorAll('a').forEach(link => link.addEventListener('click', () =>
  async function load(){try{
   const rows=await (window.NF_SITE_CONTENT_PROMISE||(window.NF_SITE_CONTENT_PROMISE=fetch(api,{headers:{apikey:key,Accept:'application/json'},cache:'no-store'}).then(r=>{if(!r.ok)throw Error('site_content '+r.status);return r.json()})));
   const styles=normalizeStyles(rows?.[0]?.content_value?._visual_styles);
-  const menuPage=/\\/menu\\.html$/.test(location.pathname),allowedScopes=menuPage?['menu']:['home','ristorante','artisti','atmosfera'];
+  const menuPage=location.pathname.endsWith('/menu.html'),allowedScopes=menuPage?['menu']:['home','ristorante','artisti','atmosfera'];
   const currentLang=(new URLSearchParams(location.search).get('lang')||'it').toLowerCase();
   const legacy=[],globalStyles=[],languageStyles=[];
   Object.entries(styles).forEach(([key,stored])=>{
