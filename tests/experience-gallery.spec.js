@@ -31,8 +31,6 @@ async function mockPublicData(page) {
       }
     }];
     else if (['performance_videos', 'artist_images', 'events', 'menu_categories', 'menu_items'].includes(table)) data = [];
-    // Le altre tabelle pubbliche non sono necessarie in questi test: evita chiamate esterne.
-    else data = [];
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(data) });
   });
   const pixel = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/S7sAAAAASUVORK5CYII=', 'base64');
@@ -46,7 +44,7 @@ for (const target of [
   { name: 'Pagina Menù', path: '/menu.html' }
 ]) {
   test.describe(target.name + ': gallerie del ristorante', () => {
-    test('mostra le tre categorie, i video pubblicati e apre la galleria fotografica', async ({ page }) => {
+    test('non mostra video in pagina e li apre solo dal visualizzatore della relativa galleria', async ({ page }) => {
       const errors = [];
       page.on('pageerror', error => errors.push(error.message));
       await mockPublicData(page);
@@ -54,6 +52,13 @@ for (const target of [
       expect(response && response.status()).toBe(200);
 
       await expect(page.locator('#galleria')).toBeVisible();
+      await expect(page.locator('[data-gallery-category="restaurant"]')).toBeVisible();
+      await expect(page.locator('[data-gallery-category="kitchen"]')).toBeVisible();
+      await expect(page.locator('[data-gallery-category="music"]')).toBeVisible();
+      await expect(page.locator('#restaurantVideos')).toHaveCount(0);
+      await expect(page.locator('#nfArtistsViewerStage iframe')).toHaveCount(0);
+      await expect.poll(() => page.locator('[data-gallery-category="restaurant"]').evaluate(el => el.style.backgroundImage)).toContain('gallery/restaurant/cover.webp');
+
       if (target.name === 'Home') {
         const sectionOrder = await page.evaluate(() => {
           const artists = document.querySelector('.nf-artists-media');
@@ -65,24 +70,41 @@ for (const target of [
         });
         expect(sectionOrder, 'La galleria Home deve seguire la sezione Artisti e precedere Eventi').toBe(true);
       }
-      await expect(page.locator('[data-gallery-category="restaurant"]')).toBeVisible();
-      await expect(page.locator('[data-gallery-category="kitchen"]')).toBeVisible();
-      await expect(page.locator('[data-gallery-category="music"]')).toBeVisible();
-      await expect.poll(() => page.locator('[data-gallery-category="restaurant"]').evaluate(el => el.style.backgroundImage)).toContain('gallery/restaurant/cover.webp');
 
-      const restaurantVideo = page.locator('#restaurantVideos iframe');
-      await expect(restaurantVideo).toHaveCount(1);
-      await expect(restaurantVideo).toHaveAttribute('src', 'https://player.vimeo.com/video/1245775396?h=a85f0cd653&dnt=1&title=0&byline=0&portrait=0');
-
+      // Il ristorante propone la scelta Foto/Video; il video non viene caricato prima del clic.
       await page.locator('[data-gallery-category="restaurant"]').click();
-      const viewer = page.locator('#nfGalleryViewer');
+      const chooser = page.locator('#nfEnvironmentsChoice');
+      await expect(chooser).toHaveClass(/open/);
+      await page.locator('[data-env-choice="videos"]').click();
+
+      const viewer = page.locator('#nfArtistsViewer');
       await expect(viewer).toHaveClass(/open/);
+      await expect(page.locator('#nfArtistsViewerTitle')).toHaveText('Gli ambienti · Video');
+      const frame = page.locator('#nfArtistsViewerStage iframe');
+      await expect(frame).toHaveCount(1);
+      await expect(frame).toHaveAttribute('src', 'https://player.vimeo.com/video/1245775396?h=a85f0cd653&dnt=1&title=0&byline=0&portrait=0');
+      await page.locator('#nfArtistsViewerClose').click();
+      await expect(viewer).not.toHaveClass(/open/);
+      await expect(frame).toHaveCount(0);
+
+      // La scelta Foto apre la galleria fotografica del ristorante.
+      await page.locator('[data-gallery-category="restaurant"]').click();
+      await page.locator('[data-env-choice="photos"]').click();
+      const photoViewer = page.locator('#nfGalleryViewer');
+      await expect(photoViewer).toHaveClass(/open/);
       await expect(page.locator('#nfGalleryStage img')).toHaveAttribute('src', /gallery\/restaurant\/cover\.webp/);
       await page.locator('#nfGalleryClose').click();
-      await expect(viewer).toHaveAttribute('aria-hidden', 'true');
+      await expect(photoViewer).not.toHaveClass(/open/);
+
+      // Cucina e atmosfera aprono direttamente la propria galleria fotografica.
+      for (const category of ['kitchen', 'music']) {
+        await page.locator('[data-gallery-category="' + category + '"]').click();
+        await expect(photoViewer).toHaveClass(/open/);
+        await expect(page.locator('#nfGalleryStage img')).toHaveAttribute('src', new RegExp('gallery\\/' + category + '\\/cover\\.webp'));
+        await page.locator('#nfGalleryClose').click();
+      }
       expect(errors, 'Il caricamento delle gallerie non deve generare errori JavaScript').toEqual([]);
     });
-
   });
 }
 
