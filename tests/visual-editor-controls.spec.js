@@ -110,3 +110,31 @@ test('I due pulsanti Dove siamo aprono la mappa della sede',()=>{
  expect(home).toContain('https://www.google.com/maps/dir/?api=1&destination=');
  expect(home).toContain('Via dei Benci 41R, 50122 Firenze, Italia');
 });
+
+
+test('Stili grafici salvati in italiano persistono dopo reload in tutte e sei le lingue, senza tradurre il testo',async({page})=>{
+ const styles={
+  'home::it::h1':{text:'Titolo italiano di prova',fontSize:'37px',fontFamily:'Georgia, serif',color:'#ff0000',textAlign:'center'},
+  'home::all::h1':{text:'GLOBAL TEXT MUST NOT REPLACE TRANSLATIONS',fontSize:'37px',fontFamily:'Georgia, serif',color:'#ff0000',textAlign:'center'}
+ };
+ await page.route('**/rest/v1/site_content*',route=>route.fulfill({
+  status:200,contentType:'application/json',
+  body:JSON.stringify([{content_value:{_visual_styles:styles}}])
+ }));
+ for(const lang of ['it','en','de','fr','es','zh']){
+  await page.goto('/?lang='+lang,{waitUntil:'domcontentloaded'});
+  const heading=page.locator('h1').first();
+  await expect(heading).toBeVisible();
+  await expect.poll(async()=>heading.evaluate(el=>getComputedStyle(el).fontSize)).toBe('37px');
+  await expect.poll(async()=>heading.evaluate(el=>getComputedStyle(el).fontFamily.toLowerCase())).toContain('georgia');
+  await expect.poll(async()=>heading.evaluate(el=>getComputedStyle(el).color)).toBe('rgb(255, 0, 0)');
+  await expect.poll(async()=>heading.evaluate(el=>getComputedStyle(el).textAlign)).toBe('center');
+  const text=await heading.innerText();
+  expect(text).not.toContain('GLOBAL TEXT MUST NOT REPLACE TRANSLATIONS');
+  if(lang==='it') expect(text).toBe('Titolo italiano di prova');
+  else expect(text).not.toBe('Titolo italiano di prova');
+  await page.reload({waitUntil:'domcontentloaded'});
+  await expect.poll(async()=>heading.evaluate(el=>getComputedStyle(el).fontSize)).toBe('37px');
+  await expect.poll(async()=>heading.evaluate(el=>getComputedStyle(el).color)).toBe('rgb(255, 0, 0)');
+ }
+});
