@@ -4,6 +4,8 @@ const fs=require('node:fs'),path=require('node:path');
 test('Editor Testi e grafica permette testo, dimensione e stile in anteprima',()=>{
  const admin=fs.readFileSync(path.join(__dirname,'../admin/src/index.html'),'utf8');
  expect(admin).toContain('id="veText"');
+ expect(admin).toContain("textDirty=false,selectedTag='P'");
+ expect(admin).not.toContain("let selectedTag='P';");
  expect(admin).toContain('id="veSize" type="number"');
  expect(admin).toContain("textField.value=patch.text??receivedText");
  expect(admin).toContain("e.source!==iframe.contentWindow");
@@ -16,7 +18,8 @@ test('Editor Testi e grafica permette testo, dimensione e stile in anteprima',()
 
 test('Home comunica al pannello Admin la selezione del testo e riceve le modifiche',()=>{
  const home=fs.readFileSync(path.join(__dirname,'../src/src/index.html'),'utf8');
- expect(home).toContain("e.target.closest('h1,h2,h3,p,.eyebrow,.section-kicker,.section-lead,.included,.time strong,.time small')");
+ expect(home).toContain("const candidates='h1,h2,h3,p,.eyebrow,.section-kicker,.section-lead,.included,.time strong,.time small'");
+ expect(home).toContain("e.composedPath()");
  expect(home).toContain("type:'nf-visual-select'");
  expect(home).toContain("el.innerText||el.textContent||''");
  expect(home).toContain("window.parent.postMessage");
