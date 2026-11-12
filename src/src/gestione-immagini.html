@@ -146,7 +146,15 @@
 <label class="field" for="menuItemImage">Immagine</label><input id="menuItemImage" type="file" accept="image/jpeg,image/png,image/webp">
 <label class="field"><input id="menuItemPublished" type="checkbox" checked> Visibile sul menù</label>
 <div class="actions"><button type="button" id="menuItemSave">Aggiungi piatto</button><button type="button" class="secondary" id="menuItemCancel" disabled>Annulla</button></div><div id="menuItemPreview" class="hint"></div></section></div>
-<h3 style="margin-top:22px">Elenco piatti</h3><div id="menuItemList" style="display:grid;gap:9px"></div></div>
+<div class="menu-list-toolbar">
+ <h3>Piatti del menù</h3>
+ <label class="field" for="menuListCategoryFilter">Filtra per categoria</label>
+ <select id="menuListCategoryFilter" aria-label="Filtra piatti per categoria"><option value="all">Tutte le categorie</option></select>
+ <label class="field" for="menuItemSearch">Cerca un piatto</label>
+ <input id="menuItemSearch" type="search" placeholder="Scrivi il nome del piatto…" autocomplete="off">
+ <p class="hint" id="menuListCount" aria-live="polite"></p>
+</div>
+<div id="menuItemList" class="menu-item-admin-list" style="display:grid;gap:9px"></div></div>
 <div class="panel" id="eventAdminPanel">
  <h2>Gestione Eventi</h2>
  <p class="muted">Crea e aggiorna gli appuntamenti speciali. Gli eventi in bozza non compaiono sul sito; quelli pubblicati vengono mostrati in homepage se la data non è passata.</p>
@@ -179,15 +187,11 @@ const nfGuardBucket=b=>new Proxy(b,{get(target,key){if(NF_PREVIEW_READ_ONLY&&['u
 const supabase=new Proxy(rawSupabase,{get(target,key){if(key==='from')return table=>nfGuardQuery(target.from(table));if(key==='storage')return new Proxy(target.storage,{get(storage,key2){if(key2==='from')return name=>nfGuardBucket(storage.from(name));const value=Reflect.get(storage,key2,storage);return typeof value==='function'?value.bind(storage):value;}});const value=Reflect.get(target,key,target);return typeof value==='function'?value.bind(target):value;}});
 const $=id=>document.getElementById(id);
 const slots=[
- {key:'hero',label:'Immagine principale',category:'Homepage',desc:'Riquadro principale della homepage.',desktopRatio:'1.12 / 1',mobileRatio:'0.89 / 1'},
- {key:'live_music',label:'Musica dal vivo',category:'Musica',desc:'Riquadro della sezione musica.',desktopRatio:'1.03 / 1',mobileRatio:'0.91 / 1'},
- {key:'gallery_restaurant',label:'Il ristorante',category:'Galleria',desc:'Primo riquadro della galleria.',desktopRatio:'1.09 / 1',mobileRatio:'1 / 1'},
- {key:'gallery_food',label:'La cucina',category:'Galleria',desc:'Secondo riquadro della galleria.',desktopRatio:'0.73 / 1',mobileRatio:'0.65 / 1'},
- {key:'gallery_atmosphere',label:'L’atmosfera',category:'Galleria',desc:'Terzo riquadro della galleria.',desktopRatio:'0.73 / 1',mobileRatio:'0.65 / 1'},
- {key:'artists_gallery_cover',label:'Copertina galleria artisti · Immagini',category:'Artisti',desc:'Immagine cliccabile che apre la galleria fotografica degli artisti.',desktopRatio:'1.2 / 1',mobileRatio:'1 / 1'},
- {key:'artists_video_cover',label:'Copertina galleria artisti · Video',category:'Artisti',desc:'Immagine cliccabile che apre la galleria video degli artisti.',desktopRatio:'1.2 / 1',mobileRatio:'1 / 1'},
- {key:'environment_video_cover',label:'Anteprima ambienti · Video',category:'Ambienti',desc:'Copertina della scheda “Video degli ambienti” nella schermata degli ambienti.',desktopRatio:'1.2 / 1',mobileRatio:'1 / 1'},
- {key:'environment_photos_cover',label:'Anteprima ambienti · Foto',category:'Ambienti',desc:'Copertina della scheda “Foto degli ambienti” nella schermata degli ambienti.',desktopRatio:'1.2 / 1',mobileRatio:'1 / 1'}
+ {key:'live_music',label:'Immagine sezione musica dal vivo',category:'Homepage',desc:'Sfondo della sezione dedicata alla musica dal vivo.',desktopRatio:'1.03 / 1',mobileRatio:'0.91 / 1'},
+ {key:'artists_gallery_cover',label:'Copertina galleria artisti · Foto',category:'Homepage · Artisti',desc:'Scheda “Galleria immagini” che apre le fotografie degli artisti.',desktopRatio:'1.2 / 1',mobileRatio:'1 / 1'},
+ {key:'artists_video_cover',label:'Copertina galleria artisti · Video',category:'Homepage · Artisti',desc:'Scheda “Galleria video” che apre le performance degli artisti.',desktopRatio:'1.2 / 1',mobileRatio:'1 / 1'},
+ {key:'environment_video_cover',label:'Copertina video degli ambienti',category:'Homepage · Il ristorante',desc:'Scheda “Video degli ambienti” nella finestra di scelta del ristorante.',desktopRatio:'1.2 / 1',mobileRatio:'1 / 1'},
+ {key:'environment_photos_cover',label:'Copertina foto degli ambienti',category:'Homepage · Il ristorante',desc:'Scheda “Foto degli ambienti” nella finestra di scelta del ristorante.',desktopRatio:'1.2 / 1',mobileRatio:'1 / 1'}
 ];
 let currentUser=null;
 function status(msg){$('managerStatus').textContent=msg}
@@ -779,6 +783,18 @@ function menuResetCategory(){editingMenuCategoryId=null;$('menuCategoryName').va
 function menuResetItem(){editingMenuItemId=null;$('menuItemName').value='';$('menuItemDescription').value='';$('menuItemPrice').value='';$('menuItemAllergens').value='';$('menuItemImage').value='';$('menuItemPublished').checked=true;$('menuItemPreview').textContent='';$('menuItemSave').textContent='Aggiungi piatto';$('menuItemCancel').disabled=true}
 async function menuSaveOrder(table,rows){for(let i=0;i<rows.length;i++){const {error}=await supabase.from(table).update({sort_order:(i+1)*10,updated_at:new Date().toISOString()}).eq('id',rows[i].id);if(error)throw error}}
 function menuPublicUrl(path){return supabase.storage.from('site-media').getPublicUrl(path).data.publicUrl}
+function applyMenuItemFilters(){
+ const category=$('menuListCategoryFilter')?.value||'all',query=($('menuItemSearch')?.value||'').trim().toLocaleLowerCase('it');
+ let visible=0;
+ document.querySelectorAll('#menuItemList [data-menu-item-row]').forEach(row=>{
+  const matchesCategory=category==='all'||row.dataset.category===category;
+  const matchesQuery=!query||row.dataset.search.includes(query);
+  row.hidden=!(matchesCategory&&matchesQuery);if(!row.hidden)visible++;
+ });
+ const count=$('menuListCount');if(count)count.textContent=visible+' piatti visualizzati su '+menuItems.length+'.';
+}
+$('menuListCategoryFilter').addEventListener('change',applyMenuItemFilters);
+$('menuItemSearch').addEventListener('input',applyMenuItemFilters);
 async function loadMenuAdmin(){
  menuStatus('Caricamento menù…');
  const [cr,ir]=await Promise.all([supabase.from('menu_categories').select('id,name,description,sort_order,is_published,created_at').order('sort_order').order('created_at'),supabase.from('menu_items').select('id,category_id,name,description,price,allergens,sort_order,is_published,image_path,created_at').order('sort_order').order('created_at')]);
@@ -787,13 +803,17 @@ async function loadMenuAdmin(){
  const select=$('menuItemCategory'),old=select.value;select.replaceChildren();
  menuCategories.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name+(c.is_published?'':' · bozza');select.append(o)});
  if(menuCategories.some(c=>c.id===old))select.value=old;
+ const listFilter=$('menuListCategoryFilter'),oldFilter=listFilter.value;listFilter.replaceChildren();
+ const allOption=document.createElement('option');allOption.value='all';allOption.textContent='Tutte le categorie';listFilter.append(allOption);
+ menuCategories.forEach(c=>{const option=document.createElement('option');option.value=c.id;option.textContent=c.name+(c.is_published?'':' · bozza');listFilter.append(option)});
+ if(menuCategories.some(c=>c.id===oldFilter))listFilter.value=oldFilter;else listFilter.value='all';
  const cats=$('menuCategoryList');cats.replaceChildren();
  menuCategories.forEach((c,i)=>{const row=document.createElement('div');row.style.cssText='padding:9px;border:1px solid var(--line);display:flex;gap:6px;align-items:center;flex-wrap:wrap';const label=document.createElement('strong');label.textContent=(i+1)+'. '+c.name+(c.is_published?'':' · nascosta');row.append(label);
  const catMove=document.createElement('div');catMove.style.cssText='display:flex;gap:3px';[['↑',-1],['↓',1]].forEach(([label,delta])=>{const move=document.createElement('button');move.type='button';move.className='secondary';move.textContent=label;move.disabled=i+delta<0||i+delta>=menuCategories.length;move.setAttribute('aria-label',delta<0?'Sposta categoria in alto':'Sposta categoria in basso');move.addEventListener('click',async()=>{const next=[...menuCategories],target=i+delta;[next[i],next[target]]=[next[target],next[i]];move.disabled=true;try{await menuSaveOrder('menu_categories',next);await loadMenuAdmin()}catch(e){menuStatus('Ordine categorie non salvato: '+e.message)}});catMove.append(move)});row.append(catMove);const edit=document.createElement('button');edit.type='button';edit.className='secondary';edit.textContent='Modifica';edit.addEventListener('click',()=>{editingMenuCategoryId=c.id;$('menuCategoryName').value=c.name||'';$('menuCategoryDescription').value=c.description||'';$('menuCategoryPublished').checked=!!c.is_published;$('menuCategorySave').textContent='Salva categoria';$('menuCategoryCancel').disabled=false});row.append(edit);
  const del=document.createElement('button');del.type='button';del.className='secondary';del.textContent='Elimina';del.addEventListener('click',async()=>{if(menuItems.some(x=>x.category_id===c.id)){alert('Sposta o elimina prima i piatti associati.');return}if(!confirm('Eliminare la categoria '+c.name+'?'))return;const {error}=await supabase.from('menu_categories').delete().eq('id',c.id);if(error){menuStatus(error.message);return}await loadMenuAdmin()});row.append(del);cats.append(row)});
  const list=$('menuItemList');list.replaceChildren();
- menuItems.forEach((item,i)=>{const row=document.createElement('article');row.style.cssText='padding:12px;border:1px solid var(--line);background:#fff;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px';const info=document.createElement('div'),title=document.createElement('strong');title.textContent=(i+1)+'. '+item.name;info.append(title);
- const category=menuCategories.find(c=>c.id===item.category_id),meta=document.createElement('p');meta.className='hint';meta.textContent=(category?.name||'Senza categoria')+' · '+(item.price==null?'Prezzo non indicato':Number(item.price).toFixed(2)+' €')+' · '+(item.is_published?'Visibile':'Bozza')+(item.allergens?.length?' · Allergeni: '+item.allergens.join(', '):'');info.append(meta);
+ menuItems.forEach((item,i)=>{const row=document.createElement('article');row.dataset.menuItemRow='1';row.dataset.category=item.category_id||'';const category=menuCategories.find(c=>c.id===item.category_id);row.dataset.search=[item.name,category?.name,item.description].filter(Boolean).join(' ').toLocaleLowerCase('it');row.style.cssText='padding:12px;border:1px solid var(--line);background:#fff;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center';const info=document.createElement('div'),title=document.createElement('strong');title.textContent=(i+1)+'. '+item.name;info.append(title);
+ const meta=document.createElement('p');meta.className='hint';meta.textContent=(category?.name||'Senza categoria')+' · '+(item.price==null?'Prezzo non indicato':Number(item.price).toFixed(2)+' €')+' · '+(item.is_published?'Visibile':'Bozza')+(item.allergens?.length?' · Allergeni: '+item.allergens.join(', '):'');info.append(meta);
  if(item.description){const d=document.createElement('p');d.className='hint';d.textContent=item.description;info.append(d)}
  if(item.image_path){const img=document.createElement('img');img.src=menuPublicUrl(item.image_path);img.alt=item.name;img.style.cssText='width:100%;max-width:140px;max-height:95px;object-fit:cover';info.append(img)}
  const actions=document.createElement('div');actions.style.cssText='display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end';
@@ -801,6 +821,7 @@ async function loadMenuAdmin(){
  const toggle=document.createElement('button');toggle.type='button';toggle.className='secondary';toggle.textContent=item.is_published?'Nascondi':'Mostra';toggle.addEventListener('click',async()=>{toggle.disabled=true;const {error}=await supabase.from('menu_items').update({is_published:!item.is_published,updated_at:new Date().toISOString()}).eq('id',item.id);if(error){menuStatus(error.message);toggle.disabled=false;return}await loadMenuAdmin()});actions.append(toggle);
  const del=document.createElement('button');del.type='button';del.className='secondary';del.textContent='Elimina';del.addEventListener('click',async()=>{if(!confirm('Eliminare il piatto '+item.name+'?'))return;del.disabled=true;const {error}=await supabase.from('menu_items').delete().eq('id',item.id);if(error){menuStatus(error.message);del.disabled=false;return}if(item.image_path)await supabase.storage.from('site-media').remove([item.image_path]);await loadMenuAdmin()});actions.append(del);row.append(info,actions);list.append(row)});
  if(!menuItems.length){const empty=document.createElement('p');empty.textContent='Nessun piatto inserito.';list.append(empty)}
+ applyMenuItemFilters();
  menuStatus(menuCategories.length+' categorie e '+menuItems.length+' piatti caricati.');if(!editingMenuCategoryId)menuResetCategory();if(!editingMenuItemId)menuResetItem();
 }
 $('menuCategorySave').addEventListener('click',async()=>{const name=$('menuCategoryName').value.trim();if(!name){menuStatus('Inserisci il nome della categoria.');return}const payload={name,description:$('menuCategoryDescription').value.trim()||null,is_published:$('menuCategoryPublished').checked,updated_at:new Date().toISOString()};const btn=$('menuCategorySave');btn.disabled=true;try{const result=editingMenuCategoryId?await supabase.from('menu_categories').update(payload).eq('id',editingMenuCategoryId):await supabase.from('menu_categories').insert({...payload,sort_order:Math.max(0,...menuCategories.map(x=>x.sort_order||0))+10});if(result.error)throw result.error;menuResetCategory();await loadMenuAdmin()}catch(e){menuStatus('Salvataggio categoria non riuscito: '+e.message)}finally{btn.disabled=false}});
