@@ -1505,6 +1505,17 @@ const protectedSelectors='.brand-mini strong,.art-name,footer h2,.language-switc
 function translateNode(node){if(!node||node.nodeType!==Node.TEXT_NODE)return;const parent=node.parentElement;if(!parent||parent.closest(protectedSelectors)||parent.closest('script,style,noscript,svg,code,[translate="no"]'))return;const raw=node.nodeValue||'',key=raw.trim(),translated=map[key];if(translated&&translated!==key){const lead=raw.match(/^\s*/)?.[0]||'',tail=raw.match(/\s*$/)?.[0]||'';node.nodeValue=lead+translated+tail;}}
 function scan(root){if(root.nodeType===Node.TEXT_NODE){translateNode(root);return;}if(root.nodeType===Node.ELEMENT_NODE&&root.matches(protectedSelectors))return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);while(w.nextNode())translateNode(w.currentNode);}
 if(lang!=='it'){scan(document.body);new MutationObserver(records=>records.forEach(r=>{if(r.type==='characterData')translateNode(r.target);(r.addedNodes||[]).forEach(scan);})).observe(document.body,{subtree:true,childList:true,characterData:true});}
+const accessibilityLabels={
+ en:{'Apri la galleria fotografica degli artisti':"Open the artists' photo gallery",'Apri la galleria video degli artisti':"Open the artists' video gallery"},
+ de:{'Apri la galleria fotografica degli artisti':'Fotogalerie der Künstler öffnen','Apri la galleria video degli artisti':'Videogalerie der Künstler öffnen'},
+ fr:{'Apri la galleria fotografica degli artisti':'Ouvrir la galerie photos des artistes','Apri la galleria video degli artisti':'Ouvrir la galerie vidéo des artistes'},
+ es:{'Apri la galleria fotografica degli artisti':'Abrir la galería de fotos de los artistas','Apri la galleria video degli artisti':'Abrir la galería de vídeos de los artistas'},
+ zh:{'Apri la galleria fotografica degli artisti':'打开艺术家照片集','Apri la galleria video degli artisti':'打开艺术家视频集'}
+};
+document.querySelectorAll('[aria-label]').forEach(el=>{
+ const translated=accessibilityLabels[lang]?.[el.getAttribute('aria-label')];
+ if(translated)el.setAttribute('aria-label',translated);
+});
 const isMenu=location.pathname.endsWith('menu.html');
 function setNfSeo(lang,isMenu){
  const base='https://www.notefiorentine.it',path=isMenu?'/menu.html':'/';
