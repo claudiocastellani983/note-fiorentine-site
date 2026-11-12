@@ -41,7 +41,10 @@ test('Editor Testi e grafica permette testo, dimensione e stile in anteprima',()
 
 test('Home comunica al pannello Admin la selezione del testo e riceve le modifiche',()=>{
  const home=fs.readFileSync(path.join(__dirname,'../src/src/index.html'),'utf8');
- expect(home).toContain("const candidates='h1,h2,h3,p,.eyebrow,.section-kicker,.section-lead,.included,.time strong,.time small'");
+ expect(home).toContain("const candidates='h1,h2,h3,p,strong,small,.eyebrow,.section-kicker,.section-lead,.included,.time strong,.time small'");
+ expect(home).toContain("if(!el||el.closest('a,input,textarea,nav'))return;");
+ expect(home).not.toContain("el.closest('button,a,input,textarea,nav')");
+ expect(home).toContain('.nf-artists-card-copy strong');
  expect(home).toContain("e.composedPath()");
  expect(home).toContain("type:'nf-visual-select'");
  expect(home).toContain("el.innerText||el.textContent||''");
@@ -55,6 +58,20 @@ test('Home comunica al pannello Admin la selezione del testo e riceve le modific
  expect(home).toContain("allowedScopes=menuPage?['menu']:['home','ristorante','artisti','atmosfera']");
  expect(home).toContain("el.matches('.menu-full-cta')");
  expect(home).toContain("get('visualTarget')");
+});
+
+test('I testi dentro le schede Artisti sono selezionabili nell’editor visuale',async({page})=>{
+ await page.goto('/?visual-editor=1&visualPage=artisti');
+ await page.locator('.nf-artists-card-copy strong').first().waitFor();
+ const selected=page.evaluate(()=>new Promise(resolve=>{
+  const handler=e=>{if(e.data?.type==='nf-visual-select'){window.removeEventListener('message',handler);resolve(e.data)}};
+  window.addEventListener('message',handler);
+ }));
+ await page.locator('.nf-artists-card-copy strong').first().click();
+ const result=await selected;
+ expect(result.text).toBeTruthy();
+ expect(result.pageKey).toBe('artisti');
+ expect(result.tagName).toBe('STRONG');
 });
 
 test('Home applica davvero font, dimensione e colore anche sopra regole CSS important',async({page})=>{
