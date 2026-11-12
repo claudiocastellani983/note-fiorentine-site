@@ -24,7 +24,8 @@ async function mockPublicData(page) {
     if (table === 'gallery_images') data = galleryRows;
     else if (table === 'restaurant_videos') data = restaurantVideos;
     else if (['performance_videos', 'artist_images', 'events', 'menu_categories', 'menu_items', 'site_content'].includes(table)) data = [];
-    else return route.continue();
+    // Le altre tabelle pubbliche non sono necessarie in questi test: evita chiamate esterne.
+    else data = [];
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(data) });
   });
   const pixel = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/S7sAAAAASUVORK5CYII=', 'base64');
