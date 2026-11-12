@@ -17,6 +17,14 @@ const restaurantVideos = [{
 }];
 
 async function mockPublicData(page) {
+  // Vimeo è un servizio esterno: nei test locali simuliamo il documento del player.
+  // Manteniamo l'iframe reale nel DOM e verifichiamo il suo src, ma evitiamo
+  // script cross-origin del player che in WebKit generano SecurityError non pertinenti.
+  await page.route('https://player.vimeo.com/**', route => route.fulfill({
+    status: 200,
+    contentType: 'text/html; charset=utf-8',
+    body: '<!doctype html><html><head><meta charset="utf-8"><title>Vimeo player test mock</title></head><body></body></html>'
+  }));
   await page.route('**/rest/v1/**', async route => {
     const url = new URL(route.request().url());
     const table = url.pathname.split('/').pop();
