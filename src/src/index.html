@@ -3631,6 +3631,19 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
  #app>main>#nf-cinematic-zone>#menu .menu-items{max-width:1580px!important}
  #app>main>#musica .nf-artists-cards,#app>main>#galleria .nf-experience-gallery-grid,#app>main>#eventi .event-grid{max-width:1580px!important}
 }
+/* Centra esclusivamente il messaggio vuoto della sezione Eventi. */
+#app>main>#eventi #eventList .event-empty{
+  display:block!important;
+  grid-column:1/-1!important;
+  width:min(100%,900px)!important;
+  max-width:900px!important;
+  margin:0 auto!important;
+  justify-self:center!important;
+  align-self:center!important;
+  text-align:center!important;
+  padding:0 20px!important;
+  box-sizing:border-box!important;
+}
 </style>
 </body>
 </html>
