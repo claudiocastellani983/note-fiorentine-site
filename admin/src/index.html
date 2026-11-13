@@ -209,12 +209,12 @@ const cfg={
 'Piatti':{table:'menu_items',fields:[['name','Nome','text',1],['description','Descrizione','textarea'],['category_id','Categoria','category'],['price','Prezzo (€)','number'],['allergens','Allergeni (separati da virgola)','text'],['image_path','Fotografia del piatto','image'],['sort_order','Ordine','number'],['is_published','Pubblicato','checkbox']]},
 'Categorie':{table:'menu_categories',fields:[['name','Nome','text',1],['description','Descrizione','textarea'],['sort_order','Ordine','number'],['is_published','Pubblicata','checkbox']]},
 'Eventi':{table:'events',fields:[['title','Titolo evento','text',1],['description','Descrizione breve','textarea'],['starts_at','Data e ora','datetime-local'],['image_path','Fotografia evento (opzionale)','image'],['external_url','Link destinazione (https:// o WhatsApp)','url'],['button_label','Testo pulsante','text'],['is_published','Pubblicato','checkbox']]},
-'Ristorante':{table:'gallery_images',fields:[['title','Titolo / ambiente','text',1],['description','Descrizione','textarea'],['category','Sezione galleria','gallery-category',1],['image_path','Fotografia','image',1],['sort_order','Ordine','number'],['is_published','Pubblicata','checkbox']]},
-'Artisti':{table:'artist_images',fields:[['title','Nome artista / didascalia','text'],['image_path','Fotografia artista','image',1],['sort_order','Ordine galleria','number'],['is_published','Pubblicata','checkbox']]},
+'Ristorante':{table:'gallery_images',fields:[['title','Titolo / ambiente','text',1],['description','Descrizione','textarea'],['category','Sezione galleria','gallery-category',1],['image_path','Fotografia','image',1],['media_aspect_ratio','Formato visualizzazione','aspect-ratio'],['sort_order','Ordine','number'],['is_published','Pubblicata','checkbox']]},
+'Artisti':{table:'artist_images',fields:[['title','Nome artista / didascalia','text'],['image_path','Fotografia artista','image',1],['media_aspect_ratio','Formato visualizzazione','aspect-ratio'],['sort_order','Ordine galleria','number'],['is_published','Pubblicata','checkbox']]},
 'Testi sito':{table:'site_content',fields:[['content_key','Chiave contenuto','text',1],['content_value','Valore JSON','textarea',1]]},
 'Testi e grafica':{table:'site_content',fields:[]},
-'Musica dal vivo':{table:'performance_videos',fields:[['title','Titolo del video','text',1],['description','Descrizione','textarea'],['video_url','Link video Vimeo/YouTube (opzionale)','url'],['sort_order','Ordine','number'],['is_published','Pubblicato sul sito','checkbox']]},
-'Video ambienti':{table:'restaurant_videos',fields:[['title','Titolo del video','text',1],['description','Descrizione','textarea'],['video_url','Link video Vimeo/YouTube','url',1],['video_orientation','Formato del video','orientation',1],['sort_order','Ordine','number'],['is_published','Pubblicato sul sito','checkbox']]}
+'Musica dal vivo':{table:'performance_videos',fields:[['title','Titolo del video','text',1],['description','Descrizione','textarea'],['video_url','Link video Vimeo/YouTube (opzionale)','url'],['media_aspect_ratio','Formato visualizzazione','aspect-ratio'],['sort_order','Ordine','number'],['is_published','Pubblicato sul sito','checkbox']]},
+'Video ambienti':{table:'restaurant_videos',fields:[['title','Titolo del video','text',1],['description','Descrizione','textarea'],['video_url','Link video Vimeo/YouTube','url',1],['video_orientation','Orientamento sorgente','orientation',1],['media_aspect_ratio','Formato visualizzazione','aspect-ratio'],['sort_order','Ordine','number'],['is_published','Pubblicato sul sito','checkbox']]}
 };
 cfg['Popup']={table:'homepage_popup',fields:[]};
 cfg['Immagini e popup']={table:'site_images',fields:[]};
@@ -443,6 +443,7 @@ if(t==='checkbox')return'<div class="checkrow"><input name="'+k+'" id="f_'+k+'" 
 if(t==='category')return'<label for="f_'+k+'">'+esc(l)+'</label><select name="'+k+'" id="f_'+k+'"><option value="">— Nessuna categoria —</option>'+categories.map(c=>'<option value="'+esc(c.id)+'" '+(String(v)===String(c.id)?'selected':'')+'>'+esc(c.name)+'</option>').join('')+'</select>';
 if(t==='gallery-category')return'<label for="f_'+k+'">'+esc(l)+'</label><select name="'+k+'" id="f_'+k+'" required><option value="restaurant" '+(v==='restaurant'?'selected':'')+'>Ristorante</option><option value="kitchen" '+(v==='kitchen'?'selected':'')+'>Cucina</option><option value="music" '+(v==='music'?'selected':'')+'>Atmosfera</option></select><p class="site-help">La categoria determina in quale galleria del sito compare la fotografia.</p>';
 if(t==='orientation')return'<label for="f_'+k+'">'+esc(l)+'</label><select name="'+k+'" id="f_'+k+'" required><option value="" disabled '+(!v?'selected':'')+'>Seleziona il formato</option><option value="landscape" '+(v==='landscape'?'selected':'')+'>Orizzontale · 16:9</option><option value="portrait" '+(v==='portrait'?'selected':'')+'>Verticale · 9:16</option></select><p class="site-help">Obbligatorio: scegli il formato reale del filmato. Non viene più impostato automaticamente su orizzontale.</p>';
+if(t==='aspect-ratio')return'<label for="f_'+k+'">'+esc(l)+'</label><select name="'+k+'" id="f_'+k+'"><option value="auto" '+(!v||v==='auto'?'selected':'')+'>Automatico · proporzioni originali</option><option value="4:3" '+(v==='4:3'?'selected':'')+'>4:3</option><option value="3:4" '+(v==='3:4'?'selected':'')+'>3:4</option><option value="16:9" '+(v==='16:9'?'selected':'')+'>16:9</option><option value="9:16" '+(v==='9:16'?'selected':'')+'>9:16</option><option value="1:1" '+(v==='1:1'?'selected':'')+'>1:1</option></select><p class="site-help">Automatico conserva le proporzioni originali. I preset cambiano il riquadro, senza tagliare il contenuto.</p>';
 if(t==='textarea')return'<label for="f_'+k+'">'+esc(l)+'</label><textarea name="'+k+'" id="f_'+k+'" '+(req?'required':'')+'>'+esc(v)+'</textarea>';
 return'<label for="f_'+k+'">'+esc(l)+'</label><input name="'+k+'" id="f_'+k+'" type="'+t+'" value="'+esc(v)+'" '+(req?'required':'')+(t==='number'?' step="any"':'')+'>'}
 function tabs(){$('tabs').innerHTML=Object.keys(cfg).map(k=>'<button type="button" class="tab '+(k===current?'active':'')+'" data-tab="'+esc(k)+'">'+esc(k)+'</button>').join('');$('tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{current=b.dataset.tab;editing=editingRow=null;$('editor').classList.add('hidden');tabs();load().catch(e=>say('Errore caricamento: '+e.message))})}
@@ -528,7 +529,7 @@ $('editForm').onsubmit=async e=>{
   diag(stage,{table,recordId:editing||null,fields:Object.keys(obj),descriptionLength:typeof obj.description==='string'?obj.description.length:null});
   say('Richiesta inviata a Supabase. Attendo conferma…');
   const videoSection=current==='Musica dal vivo'||current==='Video ambienti';
-  const selectedFields=current==='Musica dal vivo'?'id,title,description,video_path,video_url,updated_at,sort_order,is_published':'id,title,description,youtube_url,video_url,video_orientation,updated_at,sort_order,is_published';
+  const selectedFields=current==='Musica dal vivo'?'id,title,description,video_path,video_url,media_aspect_ratio,updated_at,sort_order,is_published':'id,title,description,youtube_url,video_url,video_orientation,media_aspect_ratio,updated_at,sort_order,is_published';
   let saved=videoSection?await q.select(selectedFields).single():await q;
   if(saved.error)throw saved.error;
   if(videoSection){
@@ -539,8 +540,8 @@ $('editForm').onsubmit=async e=>{
    const verify=await db.from(table).select(selectedFields).eq('id',saved.data.id).single();
    if(verify.error)throw verify.error;
    const fieldsToVerify=current==='Musica dal vivo'
-    ?['title','description','video_path','video_url','sort_order','is_published']
-    :['title','description','youtube_url','video_url','video_orientation','sort_order','is_published'];
+    ?['title','description','video_path','video_url','media_aspect_ratio','sort_order','is_published']
+    :['title','description','youtube_url','video_url','video_orientation','media_aspect_ratio','sort_order','is_published'];
    const mismatch=fieldsToVerify.filter(k=>(verify.data?.[k]??null)!==(obj[k]??null));
    if(mismatch.length)throw Error('Verifica successiva non corrispondente nei campi: '+mismatch.join(', '));
    stage='readback_verified';
