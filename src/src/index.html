@@ -3212,6 +3212,188 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 }
 </style>
 
+
+<style id="nf-tablet-landscape-centering-v2">
+/* Correzione selettori: hero, intro e menu sono figli del cinematic-zone,
+   non figli diretti di main. Breakpoint dedicato ai tablet landscape. */
+@media screen and (min-width:761px) and (max-width:1366px) and (min-height:500px) and (orientation:landscape) {
+  :root { --nf-tablet-gutter:clamp(30px,4.2vw,58px); }
+
+  #app>main>#nf-cinematic-zone { width:100%!important; margin-inline:auto!important; }
+  #app>main>#nf-cinematic-zone>.hero,
+  #app>main>#nf-cinematic-zone>#ristorante,
+  #app>main>#nf-cinematic-zone>#menu {
+    width:100%!important;
+    max-width:none!important;
+    margin-inline:auto!important;
+    box-sizing:border-box!important;
+  }
+
+  /* Hero: centra il blocco nel viewport e non solo le righe di testo. */
+  #app>main>#nf-cinematic-zone>.hero {
+    display:flex!important;
+    justify-content:center!important;
+    align-items:center!important;
+    min-height:calc(100svh - 82px)!important;
+    height:auto!important;
+    padding:0!important;
+  }
+  #app>main>#nf-cinematic-zone>.hero>.hero-copy {
+    width:min(100%,1000px)!important;
+    max-width:1000px!important;
+    min-height:0!important;
+    height:auto!important;
+    margin:0 auto!important;
+    padding:clamp(90px,13vh,140px) var(--nf-tablet-gutter) 70px!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    text-align:center!important;
+    box-sizing:border-box!important;
+  }
+  #app>main>#nf-cinematic-zone>.hero>.hero-copy>* {
+    margin-left:auto!important;
+    margin-right:auto!important;
+    text-align:center!important;
+  }
+  #app>main>#nf-cinematic-zone>.hero>.hero-copy h1 { width:100%!important; }
+  #app>main>#nf-cinematic-zone>.hero>.hero-copy p { width:min(100%,720px)!important; max-width:720px!important; }
+  #app>main>#nf-cinematic-zone>.hero>.hero-copy .actions { justify-content:center!important; }
+
+  /* Intro: contenuto effettivo centrato dentro la sezione. */
+  #app>main>#nf-cinematic-zone>#ristorante {
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    padding:76px var(--nf-tablet-gutter)!important;
+    text-align:center!important;
+    box-sizing:border-box!important;
+  }
+  #app>main>#nf-cinematic-zone>#ristorante>* {
+    width:min(100%,820px)!important;
+    max-width:820px!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    text-align:center!important;
+  }
+  #app>main>#nf-cinematic-zone>#ristorante p { max-width:760px!important; }
+
+  /* Menu: titolo, descrizione, categorie e pannello nella stessa asse centrale. */
+  #app>main>#nf-cinematic-zone>#menu {
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    padding:72px var(--nf-tablet-gutter)!important;
+    text-align:center!important;
+    box-sizing:border-box!important;
+  }
+  #app>main>#nf-cinematic-zone>#menu>* {
+    margin-left:auto!important;
+    margin-right:auto!important;
+    text-align:center!important;
+  }
+  #app>main>#nf-cinematic-zone>#menu .menu-category-tabs {
+    width:100%!important;
+    justify-content:center!important;
+    flex-wrap:wrap!important;
+  }
+  #app>main>#nf-cinematic-zone>#menu .menu-items {
+    width:min(100%,980px)!important;
+    max-width:980px!important;
+    margin-inline:auto!important;
+    box-sizing:border-box!important;
+  }
+
+  /* Sezioni successive: non imporre una colonna unica, ma centrare i frame. */
+  #app>main>.music-section,
+  #app>main>.content-section,
+  #app>main>.nf-artists-media,
+  #app>main>.visit,
+  #app>main>footer {
+    width:100%!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    box-sizing:border-box!important;
+  }
+  #app>main>#musica.music-section {
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+  }
+  #app>main>#musica .music-copy {
+    width:100%!important;
+    max-width:100%!important;
+    margin:0 auto!important;
+    padding:64px var(--nf-tablet-gutter)!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    text-align:center!important;
+    box-sizing:border-box!important;
+  }
+  #app>main>#musica .music-copy>* {
+    width:min(100%,820px)!important;
+    max-width:820px!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    text-align:center!important;
+  }
+  #app>main>#musica .music-copy .music-art {
+    width:min(100%,920px)!important;
+    max-width:920px!important;
+    margin:26px auto!important;
+  }
+  #app>main>#musica .music-copy .time,
+  #app>main>#musica .music-copy .included { align-self:center!important; }
+  #app>main>#musica .music-videos {
+    width:100%!important;
+    padding:52px var(--nf-tablet-gutter)!important;
+    text-align:center!important;
+    box-sizing:border-box!important;
+  }
+  #app>main>#musica .video-list {
+    width:min(100%,1000px)!important;
+    margin:26px auto 0!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+
+  #app>main>.content-section,
+  #app>main>.nf-artists-media,
+  #app>main>.visit {
+    padding-left:var(--nf-tablet-gutter)!important;
+    padding-right:var(--nf-tablet-gutter)!important;
+    text-align:center!important;
+  }
+  #app>main>.content-section>*,
+  #app>main>.nf-artists-media>*,
+  #app>main>.visit>* {
+    margin-left:auto!important;
+    margin-right:auto!important;
+  }
+  #app>main>.content-section>.section-kicker,
+  #app>main>.content-section>h2,
+  #app>main>.content-section>.section-lead,
+  #app>main>.visit>h2,
+  #app>main>.visit>.section-kicker {
+    width:min(100%,820px)!important;
+    max-width:820px!important;
+    text-align:center!important;
+  }
+  #app>main>.content-section .menu-grid,
+  #app>main>.content-section .event-grid,
+  #app>main>.content-section .gallery-grid,
+  #app>main>.visit .visit-grid {
+    width:min(100%,1040px)!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    justify-content:center!important;
+  }
+  #app>footer { text-align:center!important; }
+}
+</style>
+
 </body>
 </html><script async data-explicit-opt-in="true" data-deployment-id="dpl_7tHJ9DycmxR1TALK2u85APShiyVZ" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_EmRnWHsGMUkcJwHUQ7vz8FCmfTh6" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_E5nptDv68tSzPwNaRWjjuQBRJWLT" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_3kBEXjiEjcHv33v8JxwMth6Znb56" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_GbSb1nxg8uKN3nnLoyFhoPVdiZvt" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
 
