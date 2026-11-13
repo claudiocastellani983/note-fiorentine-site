@@ -3,7 +3,7 @@
 const KEY='nf-release-drafts-v1',VISUAL_KEY='nf-visual-draft-v1',DB='nf-release-assets-v1',STORE='assets';
 const $=id=>document.getElementById(id);
 const envName=()=>window.NF_SUPABASE_CONFIG?.environment||'configurato';
-const isAuthorizedTestAdminPreview=()=>window.NF_SUPABASE_CONFIG?.environment==='Test'&&location.hostname.startsWith('note-fiorentine-admin-')&&location.hostname.endsWith('.vercel.app');
+const isAuthorizedTestAdminPreview=()=>window.NF_SUPABASE_CONFIG?.environment==='Test'&&location.hostname.startsWith('note-fiorentine-auditore-')&&location.hostname.endsWith('.vercel.app');
 let drafts=readDrafts(),dbPromise=null;
 function readDrafts(){try{const v=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(v)?v:[]}catch(_){return[]}}
 function openDb(){if(dbPromise)return dbPromise;dbPromise=new Promise((resolve,reject)=>{if(!indexedDB){reject(Error('Archivio allegati non supportato dal browser.'));return}const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(STORE))r.result.createObjectStore(STORE)};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});return dbPromise}
