@@ -1,6 +1,11 @@
 name: Migrazione Storage Supabase
 
 on:
+  push:
+    branches:
+      - supabase-storage-migration-2026-11-13
+    paths:
+      - ".migration-run"
   workflow_dispatch:
 
 permissions:
