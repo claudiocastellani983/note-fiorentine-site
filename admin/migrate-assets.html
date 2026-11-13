@@ -39,184 +39,69 @@ details{margin-top:14px}summary{cursor:pointer;color:var(--red);font-weight:700}
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-const SOURCE_URL='https://iuxskknbopboynjlsxbk.supabase.co';
-const SOURCE_KEY='sb_publishable_GTGiyYl8pZsY6letaozS2Q_dmh9vrRc';
 const DEST_URL='https://cpumzowmadbqyecflkyl.supabase.co';
 const DEST_KEY='sb_publishable_jFOfj9H7WB0sd8kev72MmQ_YWprnreE';
-const assets=[
-  {
-    "path": "artist-gallery/1794312296939-yg5gv21.jpg",
-    "type": "image/jpeg"
-  },
-  {
-    "path": "artist-gallery/1794312298240-iyadbkd.webp",
-    "type": "image/webp"
-  },
-  {
-    "path": "artist-gallery/1794312299060-40gv7ds.webp",
-    "type": "image/webp"
-  },
-  {
-    "path": "artist-gallery/1794312299815-lwz4oly.jpg",
-    "type": "image/jpeg"
-  },
-  {
-    "path": "artists_gallery_cover/1794310170088-dg5gr1.webp",
-    "type": "image/webp"
-  },
-  {
-    "path": "artists_video_cover/1794310249090-y6p5n8.jpg",
-    "type": "image/jpeg"
-  },
-  {
-    "path": "environment_photos_cover/1794310323615-eh084e.webp",
-    "type": "image/webp"
-  },
-  {
-    "path": "environment_video_cover/1794310348637-4h2im3.webp",
-    "type": "image/webp"
-  },
-  {
-    "path": "environment_video_cover/1794508195696-2te6vr.webp",
-    "type": "image/webp"
-  },
-  {
-    "path": "gallery_atmosphere/1794310140319-jsli5d.webp",
-    "type": "image/webp"
-  },
-  {
-    "path": "gallery_food/1794310115375-edfolt.webp",
-    "type": "image/webp"
-  },
-  {
-    "path": "gallery_restaurant/1794309946947-6kjzdh.webp",
-    "type": "image/webp"
-  },
-  {
-    "path": "gallery/kitchen/1794314092899-n0fd4u7.webp",
-    "type": "image/webp"
-  },
-  {
-    "path": "gallery/kitchen/1794314093730-zobbsph.jpg",
-    "type": "image/jpeg"
-  },
-  {
-    "path": "gallery/kitchen/1794314094660-culw4xe.jpg",
-    "type": "image/jpeg"
-  },
-  {
-    "path": "gallery/kitchen/1794314095799-r930ivf.webp",
-    "type": "image/webp"
-  },
-  {
-    "path": "gallery/music/1794314210245-8g9bbff.webp",
-    "type": "image/webp"
-  },
-  {
-    "path": "gallery/music/1794314211933-rzqskbf.webp",
-    "type": "image/webp"
-  },
-  {
-    "path": "gallery/restaurant/1794313535613-j1n8td9.webp",
-    "type": "image/webp"
-  },
-  {
-    "path": "gallery/restaurant/1794313537093-z14es7b.webp",
-    "type": "image/webp"
-  },
-  {
-    "path": "gallery/restaurant/1794313538002-ieaq74f.webp",
-    "type": "image/webp"
-  },
-  {
-    "path": "gallery/restaurant/1794313538827-lrhf6t3.webp",
-    "type": "image/webp"
-  },
-  {
-    "path": "gallery/restaurant/1794313539572-kq2ls79.webp",
-    "type": "image/webp"
-  },
-  {
-    "path": "gallery/restaurant/1794313540429-75ozrn2.webp",
-    "type": "image/webp"
-  },
-  {
-    "path": "gallery/restaurant/1794313541139-vz8z4g8.webp",
-    "type": "image/webp"
-  },
-  {
-    "path": "gallery/restaurant/1794313542866-4hblo63.webp",
-    "type": "image/webp"
-  },
-  {
-    "path": "hero/1794253302246-5nuyyc.webp",
-    "type": "image/webp"
-  },
-  {
-    "path": "live_music/1794253328222-uzpnaw.jpg",
-    "type": "image/jpeg"
-  },
-  {
-    "path": "live_music/1794305958872-g4c8c0.webp",
-    "type": "image/webp"
-  },
-  {
-    "path": "live_music/1794306019227-3s8i55.webp",
-    "type": "image/webp"
-  },
-  {
-    "path": "live_music/1794310093999-3nm6jb.jpg",
-    "type": "image/jpeg"
-  },
-  {
-    "path": "optimization-review/optimizer-input/268d3ea9-58b7-4c8d-acf6-e27a68cadf2b-nf-playwright-2800894a-1a14-420b-ab2e-967053220630.png.webp",
-    "type": "image/webp"
-  }
-];
-const source=createClient(SOURCE_URL,SOURCE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
 const dest=createClient(DEST_URL,DEST_KEY);
 const $=id=>document.getElementById(id);
-const fmt=n=>(n/1024/1024).toFixed(2)+' MB';
-$('fileList').textContent=assets.map((x,i)=>(i+1)+'. '+x.path+' · '+fmt(x.bytes)).join('\n');
-$('progressStatus').textContent=assets.length+' immagini · '+fmt(0)+' complessivi.';
+const assets=[
+'artist-gallery/1794312296939-yg5gv21.jpg','artist-gallery/1794312298240-iyadbkd.webp',
+'artist-gallery/1794312299060-40gv7ds.webp','artist-gallery/1794312299815-lwz4oly.jpg',
+'artists_gallery_cover/1794310170088-dg5gr1.webp','artists_video_cover/1794310249090-y6p5n8.jpg',
+'environment_photos_cover/1794310323615-eh084e.webp','environment_video_cover/1794310348637-4h2im3.webp',
+'environment_video_cover/1794508195696-2te6vr.webp','gallery_atmosphere/1794310140319-jsli5d.webp',
+'gallery_food/1794310115375-edfolt.webp','gallery_restaurant/1794309946947-6kjzdh.webp',
+'gallery/kitchen/1794314092899-n0fd4u7.webp','gallery/kitchen/1794314093730-zobbsph.jpg',
+'gallery/kitchen/1794314094660-culw4xe.jpg','gallery/kitchen/1794314095799-r930ivf.webp',
+'gallery/music/1794314210245-8g9bbff.webp','gallery/music/1794314211933-rzqskbf.webp',
+'gallery/restaurant/1794313535613-j1n8td9.webp','gallery/restaurant/1794313537093-z14es7b.webp',
+'gallery/restaurant/1794313538002-ieaq74f.webp','gallery/restaurant/1794313538827-lrhf6t3.webp',
+'gallery/restaurant/1794313539572-kq2ls79.webp','gallery/restaurant/1794313540429-75ozrn2.webp',
+'gallery/restaurant/1794313541139-vz8z4g8.webp','gallery/restaurant/1794313542866-4hblo63.webp',
+'hero/1794253302246-5nuyyc.webp','live_music/1794253328222-uzpnaw.jpg',
+'live_music/1794305958872-g4c8c0.webp','live_music/1794306019227-3s8i55.webp',
+'live_music/1794310093999-3nm6jb.jpg',
+'optimization-review/optimizer-input/268d3ea9-58b7-4c8d-acf6-e27a68cadf2b-nf-playwright-2800894a-1a14-420b-ab2e-967053220630.png.webp'
+];
+$('fileList').textContent=assets.map((p,i)=>(i+1)+'. '+p).join('\\n');
+$('progressStatus').textContent=assets.length+' immagini · 5,65 MB circa.';
 async function authorize(){
  try{
   const {data,error}=await dest.auth.getSession();if(error)throw error;
   const session=data?.session;if(!session){$('authStatus').textContent='Accesso non trovato. Accedi al pannello admin Auditore in un’altra scheda e poi ricarica questa pagina.';return}
   const {data:admin,error:adminError}=await dest.from('admin_users').select('user_id').eq('user_id',session.user.id).maybeSingle();
   if(adminError)throw adminError;
-  if(!admin){$('authStatus').textContent='Sessione presente, ma questo account non è ancora abilitato in admin_users.';return}
-  $('authStatus').textContent='Amministratore autenticato. Pronto a copiare le immagini nel bucket Auditore.';
+  if(!admin){$('authStatus').textContent='Sessione presente, ma account non abilitato come amministratore.';return}
+  $('authStatus').textContent='Amministratore autenticato. Trasferimento server-side pronto.';
   $('startBtn').disabled=false;
  }catch(e){$('authStatus').textContent='Controllo accesso non riuscito: '+(e.message||String(e))}
 }
-function updateProgress(done,total,label){$('progressBar').style.width=Math.round(done/total*100)+'%';$('progressStatus').textContent=done+'/'+total+' · '+label}
-async function exists(path){
- const slash=path.lastIndexOf('/'),folder=path.slice(0,slash),name=path.slice(slash+1);
- const {data,error}=await dest.storage.from('site-media').list(folder,{limit:100,search:name});
- if(error)throw error;
- return (data||[]).some(x=>x.name===name);
-}
 async function run(){
  $('startBtn').disabled=true;
- const failures=[];let copied=0,skipped=0;
- for(let i=0;i<assets.length;i++){
-  const a=assets[i];
-  try{
-   if(await exists(a.path)){skipped++;updateProgress(i+1,assets.length,'già presente: '+a.path);continue}
-   const {data:blob,error:downloadError}=await source.storage.from('site-media').download(a.path);
-   if(downloadError)throw new Error('Download: '+downloadError.message);
-   const {error:uploadError}=await dest.storage.from('site-media').upload(a.path,blob,{contentType:a.type,cacheControl:'31536000',upsert:false});
-   if(uploadError)throw new Error('Upload: '+uploadError.message);
-   copied++;updateProgress(i+1,assets.length,'copiata: '+a.path);
-  }catch(e){failures.push(a.path+' — '+(e.message||String(e)));updateProgress(i+1,assets.length,'errore: '+a.path)}
- }
- let verified=0;
- for(const a of assets){try{if(await exists(a.path))verified++}catch(e){failures.push('Verifica '+a.path+' — '+(e.message||String(e)))}}
- $('progressBar').style.width='100%';
- $('progressStatus').textContent='Trasferimento terminato. Copiate: '+copied+' · già presenti: '+skipped+' · verificate: '+verified+'/'+assets.length+' · errori: '+failures.length+(failures.length?'\n\n'+failures.join('\n'):'');
- $('authStatus').textContent=failures.length?'Trasferimento incompleto: puoi rilanciare la procedura per riprovare i file mancanti.':'Trasferimento completato e percorsi verificati nel bucket Auditore.';
- $('startBtn').disabled=false;$('startBtn').textContent=failures.length?'Riprova file mancanti':'Esegui di nuovo (salta i file presenti)';
+ $('progressBar').style.width='15%';
+ $('progressStatus').textContent='Trasferimento server-side in corso: download sorgente e caricamento Auditore…';
+ try{
+  const {data,error}=await dest.functions.invoke('migrate-assets',{body:{}});
+  if(error){
+   const context=error.context;
+   let detail=error.message||String(error);
+   if(context && typeof context.text==='function'){try{detail+=' · '+await context.text()}catch{}}
+   throw new Error(detail);
+  }
+  if(!data)throw new Error('Il servizio non ha restituito un rapporto.');
+  const results=Array.isArray(data.results)?data.results:[];
+  const copied=data.copied??results.filter(x=>x.status==='copied').length;
+  const failed=data.failed??results.filter(x=>x.status==='error').length;
+  $('progressBar').style.width='100%';
+  const lines=results.filter(x=>x.status==='error').map(x=>x.path+' — '+(x.stage||'errore')+': '+(x.error||'errore non specificato'));
+  $('progressStatus').textContent='Risultato: '+copied+'/'+(data.total??assets.length)+' copiate · errori: '+failed+(lines.length?'\\n\\n'+lines.join('\\n'):'');
+  $('authStatus').textContent=failed===0?'Trasferimento completato dal server Auditore.':'Trasferimento parziale. Il dettaglio indica per ogni file se fallisce il download dalla sorgente o l’upload su Auditore.';
+  $('startBtn').textContent=failed===0?'Trasferimento completato':'Riprova trasferimento';
+ }catch(e){
+  $('progressBar').style.width='0%';
+  $('progressStatus').textContent='ERRORE DEL SERVIZIO\\n'+(e.message||String(e));
+  $('authStatus').textContent='Il servizio server-side non ha completato il trasferimento. Il messaggio sopra identifica il punto di errore.';
+  $('startBtn').textContent='Riprova trasferimento';
+ }finally{$('startBtn').disabled=false}
 }
 $('startBtn').addEventListener('click',run);
 authorize();
