@@ -3463,8 +3463,8 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 </style>
 
 <style id="nf-desktop-wide-layout-v1">
-/* Desktop: breakpoints tablet fino a 1024px; da qui layout centrato e proporzionato allo schermo. */
-@media screen and (min-width:1025px) {
+/* Desktop: attivo anche sui browser mobile in modalità “Sito desktop” (viewport tipico 980px). */
+@media screen and (min-width:761px) {
  :root{--nf-desktop-gutter:clamp(36px,5vw,96px)}
  #app{width:100%;min-height:100vh}
  #app>header>.nav{width:min(100%,1600px)!important;max-width:1600px!important;margin-inline:auto!important;padding:clamp(18px,1.8vw,30px) var(--nf-desktop-gutter)!important;gap:clamp(22px,2.4vw,42px)!important}
