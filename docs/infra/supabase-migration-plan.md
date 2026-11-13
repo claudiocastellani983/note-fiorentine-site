@@ -88,19 +88,31 @@ La dimensione del video Production va verificata prima della copia.
 - Autoscaling configurato tra 0.25 e 1 CU.
 - Neon Managed Better Auth provisionato con provider `better_auth`; schema `neon_auth` e relative tabelle verificate.
 - Neon Object Storage è abilitato sul branch. Bucket `note-fiorentine-media` creato e verificato con accesso `private`.
+- Verificata anche la possibilità di creare un bucket `public_read` in staging; creato un bucket di test vuoto e poi eliminato. Nessun oggetto pubblico di prova è stato caricato: l'ambiente di esecuzione non ha risolto il DNS dell'endpoint storage, quindi non è stato possibile completare il test HTTP anonimo end-to-end.
 - Il database applicativo è ancora vuoto: nessuna tabella public e nessun dato Supabase sono stati importati.
 - Nessun oggetto media è stato ancora copiato.
 - La stringa di connessione è stata generata ma non deve essere salvata nel repository o divulgata; resta da configurare come secret nell'ambiente Vercel Preview.
 - Non è stato eseguito alcun deploy Vercel né alcun cambiamento Production.
 
+## Limiti Free Neon: impatto sulla scelta media
+
+La documentazione ufficiale consultata indica per il piano Free:
+- 5 GB Object Storage per progetto.
+- 5 GB/mese di public network transfer per progetto.
+- Il traffico pubblico è condiviso tra Postgres, Object Storage e Functions.
+- Al raggiungimento dei limiti Free di compute o trasferimento pubblico, il compute viene sospeso fino al reset mensile o all'upgrade; il piano Free non applica automaticamente overage a pagamento.
+
+Fonti ufficiali: [Neon plans](https://neon.com/docs/introduction/plans) e [Free plan limits](https://neon.com/docs/introduction/plans#what-happens-when-i-hit-free-plan-limits). Le soglie possono cambiare e vanno ricontrollate prima del cutover.
+
+Dato storico del progetto: dashboard Supabase il 12 novembre mostrava 46.776 GB di Cached Egress su All projects (aggregato dei due progetti; non sappiamo la quota attribuibile alla sola Production). Questo valore è molto superiore ai 5 GB/mese di trasferimento pubblico inclusi in Neon Free. Quindi **non è prudente pubblicare direttamente tutti gli asset da Neon senza CDN/cache**. La strategia deve prevedere cache edge con TTL e invalidazione/versioning per ridurre i fetch ripetuti verso Neon. Non promettere egress illimitato o costo zero per traffico superiore alle quote.
+- Neon Object Storage raccomanda esplicitamente una CDN davanti agli asset pubblici; il suo endpoint non include una CDN.
+- Gli URL presigned sono adatti a oggetti privati e accessi temporanei, non come URL permanenti per tutte le immagini pubbliche del sito.
+
 ## Decisione storage e registrazione Tigris
 
 L'utente ha registrato un account Tigris, ma non ha autorizzato né intende inserire metodi di pagamento.
-- Il piano Tigris dichiara 5 GB Standard, 10.000 Class A e 100.000 Class B richieste/mese, egress gratuito e nessuna carta per iniziare: [pricing ufficiale](https://www.tigrisdata.com/pricing/).
-- Una verifica della documentazione/risorse di supporto disponibili segnala però che rendere un bucket pubblico può richiedere verifica del metodo di pagamento per organizzazioni recenti. Questo è un blocco per un sito che deve servire immagini pubbliche senza URL firmati.
-- Per rispettare il vincolo "nessuna carta", Tigris non viene usato come storage pubblico finché non si conferma un percorso interamente gratuito e senza carta.
-- Per lo staging si usa Neon Object Storage già disponibile sul progetto Neon Free, con bucket privato creato. Il piano Neon Free include 5 GB di Object Storage per progetto secondo l'annuncio ufficiale: [Neon Free Plan](https://neon.com/blog/neon-free-plan-1-gb-per-project).
-- Prima di usare Neon Object Storage in produzione, verificare i limiti effettivi di trasferimento/egress e la strategia di pubblicazione dei media. Non presumere che storage gratuito significhi egress illimitato o costo zero oltre le quote.
+- Tigris non è stato provisionato né usato.
+- La migrazione non deve richiedere carta o metodo di pagamento aggiuntivo.
 
 ## Dipendenze da rimuovere dal codice
 
@@ -121,15 +133,18 @@ Il video hero in `src/src/index.html` punta attualmente a un URL del progetto Su
 4. Importare dati Production in Neon staging e confrontare conteggi e checksum logici.
 5. Copiare i file Production in Neon Object Storage staging, mantenendo path stabili o una mappa path→URL; confrontare numero file, dimensioni e checksum.
 6. Implementare API server-side, integrazione Neon Managed Better Auth e permessi amministrativi equivalenti alle policy RLS attuali.
-7. Aggiornare homepage, menu e pannello admin dietro variabili ambiente Preview; non esporre segreti Neon/S3 nel browser.
-8. Test automatizzati: tutte le lingue (IT/EN/DE/FR/ES/ZH), contenuti, immagini, video, popup, menu, CRUD admin, upload, permessi, session expiry e rollback.
-9. Solo dopo esito positivo e approvazione esplicita, pianificare cutover Production. Mantenere Supabase intatto per rollback finché la nuova architettura è verificata.
+7. Implementare e testare cache CDN per gli asset pubblici, inclusi TTL, versioning e invalidazione.
+8. Aggiornare homepage, menu e pannello admin dietro variabili ambiente Preview; non esporre segreti Neon/S3 nel browser.
+9. Test automatizzati: tutte le lingue (IT/EN/DE/FR/ES/ZH), contenuti, immagini, video, popup, menu, CRUD admin, upload, permessi, session expiry e rollback.
+10. Solo dopo esito positivo e approvazione esplicita, pianificare cutover Production. Mantenere Supabase intatto per rollback finché la nuova architettura è verificata.
 
 ## Prossime azioni
 
 - [Completato] Account Neon collegato e progetto staging creato.
+- [Completato] Neon Managed Better Auth provisionato.
 - [Completato] Bucket privato Neon staging creato e verificato.
+- [Completato] Modalità bucket `public_read` creabile; test HTTP anonimo ancora da eseguire perché l'ambiente corrente non ha risolto il DNS storage.
 - [Completato] Account Tigris registrato dall'utente; non è stato creato alcun bucket Tigris né inserito alcun metodo di pagamento.
-- Verificare le opzioni di delivery pubblica Neon Object Storage e il traffico consentito dal Free plan prima di migrare i media.
+- Prima di importare i media, definire e verificare una CDN/cache che tenga il consumo entro i 5 GB di trasferimento pubblico del piano Free.
 - Completare backup verificabile di Supabase Production prima dell'importazione. Non effettuare modifiche a Production durante questa fase.
 - Nessuna credenziale o password va incollata in chat o committata.
