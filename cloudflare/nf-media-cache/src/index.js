@@ -11,7 +11,7 @@ const ALLOWED_TYPES = new Set([
   ".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif", ".svg"
 ]);
 
-function response(body, status, extra = {}) {
+function jsonResponse(body, status, extra = {}) {
   return new Response(body, {
     status,
     headers: {
@@ -24,7 +24,7 @@ function response(body, status, extra = {}) {
 }
 
 function safeObjectKey(rawPath) {
-  if (!rawPath || rawPath.length > 1024 || rawPath.startsWith("/") || rawPath.includes("\\\\")) {
+  if (!rawPath || rawPath.length > 1024 || rawPath.startsWith("/") || rawPath.includes("\\")) {
     return null;
   }
 
@@ -42,13 +42,12 @@ function safeObjectKey(rawPath) {
 
   if (decoded.some((segment) =>
     !segment || segment === "." || segment === ".." ||
-    segment.includes("/") || segment.includes("\\\\") ||
-    /[\\u0000-\\u001f\\u007f]/.test(segment)
+    segment.includes("/") || segment.includes("\\") ||
+    /[\u0000-\u001f\u007f]/.test(segment)
   )) {
     return null;
   }
 
-  const key = decoded.join("/");
   const last = decoded[decoded.length - 1];
   const dot = last.lastIndexOf(".");
   const extension = dot >= 0 ? last.slice(dot).toLowerCase() : "";
@@ -62,7 +61,7 @@ export default {
     const url = new URL(request.url);
 
     if (url.pathname === "/health") {
-      return response(JSON.stringify({
+      return jsonResponse(JSON.stringify({
         service: "nf-media-cache",
         status: "ok",
         environment: "staging",
@@ -71,25 +70,25 @@ export default {
     }
 
     if (request.method !== "GET" && request.method !== "HEAD") {
-      return response(JSON.stringify({ error: "Method not allowed" }), 405, {
+      return jsonResponse(JSON.stringify({ error: "Method not allowed" }), 405, {
         "Allow": "GET, HEAD"
       });
     }
 
     if (!url.pathname.startsWith("/media/")) {
-      return response(JSON.stringify({ error: "Not found" }), 404);
+      return jsonResponse(JSON.stringify({ error: "Not found" }), 404);
     }
 
     const key = safeObjectKey(url.pathname.slice("/media/".length));
     if (!key) {
-      return response(JSON.stringify({ error: "Invalid or unsupported media path" }), 400);
+      return jsonResponse(JSON.stringify({ error: "Invalid or unsupported media path" }), 400);
     }
 
     // Only the optional version token is accepted. It remains part of the
     // Worker URL/cache key but is never sent to the storage origin.
     for (const name of url.searchParams.keys()) {
       if (name !== "v") {
-        return response(JSON.stringify({ error: "Unsupported query parameter" }), 400);
+        return jsonResponse(JSON.stringify({ error: "Unsupported query parameter" }), 400);
       }
     }
 
@@ -106,11 +105,11 @@ export default {
         redirect: "manual"
       });
     } catch {
-      return response(JSON.stringify({ error: "Storage origin unavailable" }), 502);
+      return jsonResponse(JSON.stringify({ error: "Storage origin unavailable" }), 502);
     }
 
     if (upstream.status !== 200 && upstream.status !== 206) {
-      return response(
+      return jsonResponse(
         JSON.stringify({ error: upstream.status === 404 ? "Media not found" : "Storage request failed" }),
         upstream.status === 404 ? 404 : 502
       );
@@ -118,16 +117,13 @@ export default {
 
     const contentType = upstream.headers.get("Content-Type") || "";
     if (!contentType.toLowerCase().startsWith("image/")) {
-      return response(JSON.stringify({ error: "Origin returned a non-image resource" }), 415);
+      return jsonResponse(JSON.stringify({ error: "Origin returned a non-image resource" }), 415);
     }
 
     const headers = new Headers(upstream.headers);
     headers.set("X-Content-Type-Options", "nosniff");
     headers.set("Access-Control-Allow-Origin", "*");
     headers.set("Cross-Origin-Resource-Policy", "cross-origin");
-
-    // Keep TTL conservative during staging. Versioned URLs (?v=...) create
-    // distinct cache entries when the image changes.
     headers.set("Cache-Control", upstream.status === 200
       ? "public, max-age=60, s-maxage=600, stale-while-revalidate=60"
       : "no-store");
