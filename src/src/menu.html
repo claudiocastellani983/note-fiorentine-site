@@ -250,12 +250,49 @@ footer { padding-left: var(--layout-gutter); padding-right: var(--layout-gutter)
 @media(max-width:760px){.language-switch{margin-left:auto}.language-switch a{min-width:32px;height:29px}}
 </style>
 <style id="menu-only-page">
-/* Pagina dedicata al menù: una sola sezione, senza gallerie, video o contenuti accessori. */
-main>section:not(#menu){display:none!important}
-#menu{display:block!important;min-height:70vh;padding-top:70px;padding-bottom:90px}
-#nfGalleryViewer,.nf-gallery-viewer,footer,.music-strip,.music-videos,.nf-experience-videos,video,iframe{display:none!important}
+/* Pagina menù completa: nuovo impianto editoriale coordinato alla Home. */
+#nfGalleryViewer,.nf-gallery-viewer,footer,.music-strip,.music-videos,.nf-experience-videos,video:not(.nf-cinematic-video),iframe{display:none!important}
+#app>main>.nf-cinematic-zone{display:block!important;position:relative!important;isolation:isolate!important;overflow:hidden!important;background:#171512!important;color:#F4EBDD!important}
+#nf-cinematic-zone>.nf-cinematic-backdrop{position:absolute!important;inset:0!important;z-index:0!important;display:block!important;overflow:hidden!important;pointer-events:none!important;background:#171512!important}
+#nf-cinematic-zone>.nf-cinematic-backdrop>.nf-cinematic-video{display:block!important;position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center 46%!important;filter:brightness(.56) saturate(.82)!important}
+#nf-cinematic-zone>.nf-cinematic-backdrop>.nf-cinematic-shade{position:absolute!important;inset:0!important;background:linear-gradient(180deg,rgba(16,13,11,.28),rgba(16,13,11,.52) 58%,rgba(16,13,11,.76))!important}
+#nf-cinematic-zone>.hero,#nf-cinematic-zone>.intro,#nf-cinematic-zone>#menu{position:relative!important;z-index:1!important;background:transparent!important;background-color:transparent!important;color:#F4EBDD!important}
+#nf-cinematic-zone>.hero{display:block!important;min-height:clamp(500px,68svh,740px)!important}
+#nf-cinematic-zone>.hero>.hero-copy{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;width:min(100%,1120px)!important;min-height:inherit!important;margin:0 auto!important;padding:clamp(65px,9vw,125px) 24px!important;text-align:center!important;background:transparent!important}
+#nf-cinematic-zone>.hero .eyebrow{color:#D8BD91!important;font:600 10px Arial,sans-serif!important;letter-spacing:.28em!important}
+#nf-cinematic-zone>.hero h1{margin:30px 0 24px!important;color:#F4EBDD!important;font:400 clamp(58px,9vw,112px)/.92 "Bodoni MT",Didot,"Times New Roman",serif!important;letter-spacing:-.045em!important;text-shadow:0 3px 24px rgba(0,0,0,.55)!important}
+#nf-cinematic-zone>.hero h1 span{color:#F4EBDD!important}
+#nf-cinematic-zone>.hero .hero-copy>p{max-width:620px!important;color:#F1E7D6!important;font:400 clamp(17px,1.7vw,21px)/1.7 "Bodoni MT",Didot,serif!important}
+#nf-cinematic-zone>.hero .actions{justify-content:center!important}
+#nf-cinematic-zone>.hero .button.outline{color:#F4EBDD!important;border-color:#C6A16A!important;background:rgba(23,21,18,.42)!important}
+#nf-cinematic-zone>.intro{display:block!important;width:min(100%,940px)!important;margin:0 auto!important;padding:24px 28px 76px!important;text-align:center!important}
+#nf-cinematic-zone>.intro .section-kicker{margin-bottom:20px!important;color:#D8BD91!important;font:600 10px Arial,sans-serif!important;letter-spacing:.24em!important}
+#nf-cinematic-zone>.intro p{max-width:760px!important;margin:0 auto!important;color:#F1E7D6!important;font:400 17px/1.85 "Bodoni MT",Didot,serif!important}
+#nf-cinematic-zone>#menu{display:block!important;min-height:70vh!important;padding:clamp(65px,9vw,115px) clamp(22px,7vw,110px) 100px!important;text-align:center!important}
+#nf-cinematic-zone>#menu>.section-kicker{margin-bottom:14px!important;color:#D8BD91!important;font:600 10px Arial,sans-serif!important;letter-spacing:.26em!important}
+#nf-cinematic-zone>#menu>h2{margin:0 0 20px!important;color:#D16A5E!important;font:400 clamp(48px,7vw,82px)/1.02 "Bodoni MT",Didot,"Times New Roman",serif!important;text-shadow:0 2px 18px rgba(0,0,0,.65)!important}
+#nf-cinematic-zone>#menu>.section-lead{max-width:680px!important;margin:0 auto 35px!important;color:#F1E7D6!important;font:400 16px/1.8 "Bodoni MT",Didot,serif!important}
+#nf-cinematic-zone>#menu .menu-category-tabs{display:flex!important;justify-content:center!important;flex-wrap:wrap!important;gap:10px!important;margin:32px auto 24px!important;padding:0 0 20px!important;border-bottom:1px solid rgba(198,161,106,.4)!important;background:transparent!important}
+#nf-cinematic-zone>#menu .menu-category-button{flex:0 0 auto!important;padding:13px 18px!important;border:1px solid #C6A16A!important;border-radius:0!important;background:rgba(33,29,24,.82)!important;color:#F1E7D6!important;font:600 10px Arial,sans-serif!important;letter-spacing:.12em!important;text-transform:uppercase!important}
+#nf-cinematic-zone>#menu .menu-category-button.active{background:#A83E35!important;border-color:#D7A06F!important;color:#FFF!important}
+#nf-cinematic-zone>#menu .menu-items{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:0 38px!important;max-width:1120px!important;margin:0 auto!important;padding:18px 26px!important;border:1px solid rgba(198,161,106,.35)!important;background:rgba(25,21,18,.76)!important;backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important;text-align:left!important}
+#nf-cinematic-zone>#menu .menu-item-card{padding:23px 4px!important;border:0!important;border-bottom:1px solid rgba(198,161,106,.34)!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+#nf-cinematic-zone>#menu .menu-item-card h3{color:#F1E7D6!important;font:400 clamp(21px,2vw,28px) "Bodoni MT",Didot,serif!important}
+#nf-cinematic-zone>#menu .menu-item-description,#nf-cinematic-zone>#menu .menu-item-allergens{color:#D8CBB9!important;font:400 14px/1.7 "Bodoni MT",Didot,serif!important}
+#nf-cinematic-zone>#menu .menu-item-price{color:#D8BD91!important;font:600 14px Arial,sans-serif!important}
+#nf-cinematic-zone>#menu .menu-loading,#nf-cinematic-zone>#menu .menu-empty,#nf-cinematic-zone>#menu .menu-error{color:#F1E7D6!important}
+@media(max-width:760px){
+ #nf-cinematic-zone>.hero{min-height:clamp(440px,62svh,620px)!important}
+ #nf-cinematic-zone>.hero>.hero-copy{padding:60px 22px!important}
+ #nf-cinematic-zone>.hero h1{font-size:clamp(48px,13vw,76px)!important}
+ #nf-cinematic-zone>.intro{padding:10px 24px 55px!important}
+ #nf-cinematic-zone>#menu{padding:58px 18px 75px!important}
+ #nf-cinematic-zone>#menu .menu-category-tabs{justify-content:flex-start!important;flex-wrap:nowrap!important;overflow-x:auto!important;padding-bottom:14px!important}
+ #nf-cinematic-zone>#menu .menu-category-button{padding:12px 14px!important;font-size:10px!important}
+ #nf-cinematic-zone>#menu .menu-items{grid-template-columns:1fr!important;padding:12px 18px!important}
+}
 </style>
-<style id="nf-menu-anchor-target-v1">#la-nostra-cucina{scroll-margin-top:96px}</style>
+<style id="nf-menu-anchor-target-v1">#menu{scroll-margin-top:96px}#la-nostra-cucina{scroll-margin-top:96px}</style>
 
 <style id="nf-language-native-submit-v2">
 .language-switch{position:relative;z-index:100}
@@ -665,8 +702,11 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
       </a>
       <button class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="navlinks">Menu ☰</button>
       <div class="navlinks" id="navlinks">
+        <a href="/#ristorante">Il ristorante</a>
+        <a href="/#musica">Musica dal vivo</a>
         <a href="/menu.html#menu" aria-current="page">Menù</a>
         <a href="/#eventi">Eventi</a>
+        <a href="/#galleria">Galleria</a>
         <a class="nav-cta" href="https://bookingnotefiorentine.guestplan.io" target="_blank" rel="noopener">Prenota un tavolo</a>
       </div>
       <nav class="language-switch" aria-label="Seleziona la lingua">
@@ -680,87 +720,37 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
     </nav>
   </header>
   <main>
-    <section class="hero" id="inizio">
-      <div class="hero-copy">
-        <div class="eyebrow">Ristorante Toscano & Live Music</div>
-        <h1>NOTE <span>FIORENTINE</span></h1>
-        
-        <p>La cucina toscana incontra la musica dal vivo. Una serata da assaporare, nel cuore di Firenze.</p>
-        <div class="actions">
-          <a class="button primary" href="https://bookingnotefiorentine.guestplan.io" target="_blank" rel="noopener">Prenota un tavolo</a>
-          <a class="button outline reach-us-button" data-nf-reach-us href="https://www.google.com/maps/dir/?api=1&destination=Via%20dei%20Benci%2041R%2C%2050122%20Firenze%2C%20Italia" target="_blank" rel="noopener noreferrer">Dove siamo</a>
-        </div>
+    <div class="nf-cinematic-zone" id="nf-cinematic-zone">
+      <div class="nf-cinematic-backdrop" aria-hidden="true">
+        <video class="nf-cinematic-video" autoplay muted loop playsinline webkit-playsinline preload="metadata">
+          <source src="https://cpumzowmadbqyecflkyl.supabase.co/storage/v1/object/public/performance-videos/note-fiorentine-hero-montaggio.mp4" type="video/mp4">
+        </video>
+        <div class="nf-cinematic-shade"></div>
       </div>
-      <div class="hero-art" aria-label="Identità visiva Note Fiorentine">
-        <div class="art-glow"></div>
-        <div class="art-content">
-          <div class="art-fleur">⚜</div>
-          <div class="art-name">NOTE<br>FIORENTINE</div>
-          <div class="art-sub">Ristorante Toscano & Live Music</div>
-          <div class="art-divider"></div>
-          <div class="art-note">Il gusto di Firenze, il ritmo della sera</div>
+      <section class="hero" id="inizio">
+        <div class="hero-copy">
+          <div class="eyebrow">Ristorante Toscano & Live Music</div>
+          <h1>NOTE <span>FIORENTINE</span></h1>
+          <p>La cucina toscana incontra la musica dal vivo. Una serata da assaporare, nel cuore di Firenze.</p>
+          <div class="actions">
+            <a class="button primary" href="https://bookingnotefiorentine.guestplan.io" target="_blank" rel="noopener">Prenota un tavolo</a>
+            <a class="button outline reach-us-button" data-nf-reach-us href="https://www.google.com/maps/dir/?api=1&destination=Via%20dei%20Benci%2041R%2C%2050122%20Firenze%2C%20Italia" target="_blank" rel="noopener noreferrer">Dove siamo</a>
+          </div>
         </div>
-      </div>
-    </section>
-    <div class="music-strip">
-      <div class="music-inner"><span class="symbol">♫</span><strong>Musica dal vivo ogni sera</strong><span>7 sere su 7 · dalle 19:30 alle 21:30</span><span class="symbol">♫</span></div>
+      </section>
+      <section class="intro" id="ristorante">
+        <div class="section-kicker">Un'esperienza fiorentina</div>
+        <p>Note Fiorentine è un ristorante toscano nel centro storico di Firenze, dove la cucina incontra l'atmosfera della musica dal vivo. Un luogo per una cena romantica, una serata speciale o semplicemente il piacere di condividere un buon momento.</p>
+      </section>
+      <section class="content-section menu-section" id="menu">
+        <div class="section-kicker" id="la-nostra-cucina">La nostra cucina</div>
+        <h2>Il menù</h2>
+        <p class="section-lead">Seleziona una categoria per consultare i piatti disponibili.</p>
+        <div id="menuCategories" class="menu-category-tabs" aria-label="Categorie del menu" role="group"><p class="menu-loading">Caricamento categorie…</p></div>
+        <div id="menuItems" class="menu-items" aria-live="polite"><p class="menu-loading">Caricamento piatti…</p></div>
+      </section>
     </div>
-    <section class="intro" id="ristorante">
-      <div class="section-kicker">Un'esperienza fiorentina</div>
-      <h2>Il piacere di stare a tavola,<br>con una nota in più.</h2>
-      <p>Note Fiorentine è un ristorante toscano nel centro storico di Firenze, dove la cucina incontra l'atmosfera della musica dal vivo. Un luogo per una cena romantica, una serata speciale o semplicemente il piacere di condividere un buon momento.</p>
-      
-    </section>
-    <section class="music-section" id="musica">
-      <div class="music-art" aria-hidden="true"></div>
-      <div class="music-copy">
-        <div class="section-kicker">Ristorante Toscano & Live Music</div>
-        <h2>Ogni sera,<br>la musica è di casa.</h2>
-        <p>Ogni sera, sette giorni su sette, artisti e generi musicali variabili accompagnano la vostra cena. La musica dal vivo fa parte dell'esperienza Note Fiorentine.</p>
-        <div class="time"><span style="font-size:25px">◷</span><div><strong>19:30 – 21:30</strong><small>Tutte le sere</small></div></div>
-        <div class="included">Musica inclusa nella cena</div>
-      </div>
-    <div class="music-videos">
-        <div class="section-kicker">L'atmosfera delle nostre serate</div>
-        <h2>La musica prende vita.</h2>
-        <div class="video-list" id="performanceVideos" aria-live="polite"><p class="video-loading">Caricamento dei video delle nostre serate…</p></div>
-      </div>
-    </section>
-    <section class="content-section" id="menu">
-      <div class="section-kicker" id="la-nostra-cucina">La nostra cucina</div>
-      <h2>Il menù</h2>
-      <p class="section-lead">Seleziona una categoria per consultare i piatti disponibili.</p>
-      <div id="menuCategories" class="menu-category-tabs" aria-label="Categorie del menu" role="group">
-        <p class="menu-loading">Caricamento categorie…</p>
-      </div>
-      <div id="menuItems" class="menu-items" aria-live="polite">
-        <p class="menu-loading">Caricamento piatti…</p>
-      </div>
-    </section>
-    <section class="content-section nf-experience-gallery" id="galleria" aria-labelledby="nfExperienceGalleryTitle">
-      <div class="section-kicker" data-nf-i18n="galleryKicker">Immagini e video del locale</div>
-      <h2 id="nfExperienceGalleryTitle" data-nf-i18n="galleryTitle">Il ristorante, la cucina e l’atmosfera</h2>
-      <p class="section-lead" data-nf-i18n="galleryIntro">Gli ambienti, i piatti e i dettagli di Note Fiorentine. Apri le gallerie fotografiche e guarda i video del locale.</p>
-      <div class="nf-experience-gallery-grid">
-        <button type="button" class="nf-experience-gallery-card" data-gallery-category="restaurant" aria-label="Apri la galleria fotografica del ristorante">
-          <span class="nf-experience-gallery-card-copy"><strong data-nf-i18n="restaurantLabel">Il ristorante</strong><small data-nf-i18n="restaurantSub">Ambienti e sala</small></span>
-        </button>
-        <button type="button" class="nf-experience-gallery-card" data-gallery-category="kitchen" aria-label="Apri la galleria fotografica della cucina">
-          <span class="nf-experience-gallery-card-copy"><strong data-nf-i18n="kitchenLabel">La cucina</strong><small data-nf-i18n="kitchenSub">Piatti e preparazioni</small></span>
-        </button>
-        <button type="button" class="nf-experience-gallery-card" data-gallery-category="music" aria-label="Apri la galleria fotografica dell’atmosfera">
-          <span class="nf-experience-gallery-card-copy"><strong data-nf-i18n="atmosphereLabel">L’atmosfera</strong><small data-nf-i18n="atmosphereSub">Dettagli e accoglienza</small></span>
-        </button>
-      </div>
-      <div class="nf-experience-videos">
-        <div class="section-kicker" data-nf-i18n="videosKicker">Video del ristorante</div>
-        <h3 data-nf-i18n="videosTitle">Gli ambienti in movimento</h3>
-        <div class="video-list" id="restaurantVideos" aria-live="polite">
-          <p class="video-loading" data-nf-i18n="videosLoading">Caricamento dei video del ristorante…</p>
-        </div>
-      </div>
-    </section>
-    </main>
+  </main>
   <div class="nf-gallery-viewer" id="nfGalleryViewer" aria-hidden="true">
   <div class="nf-gallery-dialog" role="dialog" aria-modal="true" aria-labelledby="nfGalleryTitle">
     <div class="nf-gallery-top"><h2 class="nf-gallery-title" id="nfGalleryTitle">Il ristorante</h2><span class="nf-gallery-counter" id="nfGalleryCounter"></span><button class="nf-gallery-btn nf-gallery-close" id="nfGalleryClose" type="button" aria-label="Chiudi galleria">CHIUDI ×</button></div>
