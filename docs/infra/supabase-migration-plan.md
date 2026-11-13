@@ -1,4 +1,4 @@
-# Note Fiorentine — migrazione da Supabase a Neon + Better Auth + Tigris
+# Note Fiorentine — migrazione da Supabase a Neon + Better Auth + Neon Object Storage
 
 Data inventario: 2026-11-13  
 Branch isolato: `migration/neon-r2-better-auth-2026-11-13`  
@@ -9,10 +9,10 @@ Base: `fix/header-visual-editor-integrated-text-editor-2026-11-12`
 Sostituire Supabase per database, autenticazione e file storage, mantenendo Vercel per hosting. Architettura target:
 - Neon PostgreSQL per i dati relazionali.
 - Neon Managed Better Auth per login e sessioni amministrative.
-- Tigris Object Storage (S3-compatible) per immagini, PDF e video, con egress Internet gratuito.
+- Neon Object Storage S3-compatible per immagini, PDF e video.
 - API server-side su Vercel per operazioni amministrative e letture pubbliche, senza esporre credenziali privilegiate nel browser.
 
-Vincolo prioritario dell'utente: nessun servizio che richieda carta o metodo di pagamento per iniziare. Preferire piani gratuiti senza carta e hard limits; non attivare checkout, billing o upgrade. Nessuna modifica a Supabase Production, DNS o Vercel Production in questa fase. Nessuna credenziale o password deve essere committata.
+Vincolo prioritario dell'utente: nessun servizio che richieda carta o metodo di pagamento per iniziare. Preferire piani gratuiti senza carta e limiti espliciti; non attivare checkout, billing o upgrade. Nessuna modifica a Supabase Production, DNS o Vercel Production in questa fase. Nessuna credenziale o password deve essere committata.
 
 ## Inventario Supabase
 
@@ -56,7 +56,7 @@ Progetti rilevati nell'organizzazione NoteFiorentine:
 
 Production è la fonte autorevole per i contenuti live; Test contiene alcune differenze e non deve sovrascrivere Production.
 
-### Storage
+### Storage Supabase
 
 Production:
 - `site-media`: 74 oggetti, 54,933,349 byte registrati nei metadati (circa 52.4 MiB).
@@ -66,7 +66,7 @@ Test:
 - `site-media`: 32 oggetti, 5,654,754 byte.
 - `performance-videos`: 2 oggetti, 5,348,953 byte.
 
-La quantità nota è ampiamente inferiore al limite gratuito Tigris di 5 GB Standard; la dimensione del video Production va verificata. Tigris dichiara egress Internet gratuito e un piano Free mensile con 5 GB storage, 10.000 richieste Class A e 100.000 Class B, senza carta per iniziare. Oltre i limiti il servizio ha tariffe a consumo: non attivare upgrade o billing e fermare gli upload se si raggiungono i limiti.
+La dimensione del video Production va verificata prima della copia.
 
 ### Auth e sicurezza
 
@@ -87,10 +87,20 @@ La quantità nota è ampiamente inferiore al limite gratuito Tigris di 5 GB Stan
 - Database: `note_fiorentine`; ruolo applicativo dedicato `note_fiorentine_admin`.
 - Autoscaling configurato tra 0.25 e 1 CU.
 - Neon Managed Better Auth provisionato con provider `better_auth`; schema `neon_auth` e relative tabelle verificate.
+- Neon Object Storage è abilitato sul branch. Bucket `note-fiorentine-media` creato e verificato con accesso `private`.
 - Il database applicativo è ancora vuoto: nessuna tabella public e nessun dato Supabase sono stati importati.
+- Nessun oggetto media è stato ancora copiato.
 - La stringa di connessione è stata generata ma non deve essere salvata nel repository o divulgata; resta da configurare come secret nell'ambiente Vercel Preview.
-- Nessun bucket media è stato creato: la destinazione media proposta è Tigris, da attivare solo dopo conferma della registrazione gratuita senza carta.
 - Non è stato eseguito alcun deploy Vercel né alcun cambiamento Production.
+
+## Decisione storage e registrazione Tigris
+
+L'utente ha registrato un account Tigris, ma non ha autorizzato né intende inserire metodi di pagamento.
+- Il piano Tigris dichiara 5 GB Standard, 10.000 Class A e 100.000 Class B richieste/mese, egress gratuito e nessuna carta per iniziare: [pricing ufficiale](https://www.tigrisdata.com/pricing/).
+- Una verifica della documentazione/risorse di supporto disponibili segnala però che rendere un bucket pubblico può richiedere verifica del metodo di pagamento per organizzazioni recenti. Questo è un blocco per un sito che deve servire immagini pubbliche senza URL firmati.
+- Per rispettare il vincolo "nessuna carta", Tigris non viene usato come storage pubblico finché non si conferma un percorso interamente gratuito e senza carta.
+- Per lo staging si usa Neon Object Storage già disponibile sul progetto Neon Free, con bucket privato creato. Il piano Neon Free include 5 GB di Object Storage per progetto secondo l'annuncio ufficiale: [Neon Free Plan](https://neon.com/blog/neon-free-plan-1-gb-per-project).
+- Prima di usare Neon Object Storage in produzione, verificare i limiti effettivi di trasferimento/egress e la strategia di pubblicazione dei media. Non presumere che storage gratuito significhi egress illimitato o costo zero oltre le quote.
 
 ## Dipendenze da rimuovere dal codice
 
@@ -109,17 +119,17 @@ Il video hero in `src/src/index.html` punta attualmente a un URL del progetto Su
 2. Eseguire backup verificabile di schema, dati Production, policy, funzioni, trigger e inventario completo degli oggetti Storage (nomi, MIME, dimensioni, checksum).
 3. Preparare schema PostgreSQL portabile, preservando UUID, vincoli, indici, default, traduzioni JSON e relazioni.
 4. Importare dati Production in Neon staging e confrontare conteggi e checksum logici.
-5. Creare bucket Tigris staging e copiare file Production, mantenendo path stabili o una mappa path→URL; confrontare numero file, dimensioni e checksum.
+5. Copiare i file Production in Neon Object Storage staging, mantenendo path stabili o una mappa path→URL; confrontare numero file, dimensioni e checksum.
 6. Implementare API server-side, integrazione Neon Managed Better Auth e permessi amministrativi equivalenti alle policy RLS attuali.
-7. Aggiornare homepage, menu e pannello admin dietro variabili ambiente Preview; non esporre segreti Tigris/Neon nel browser.
+7. Aggiornare homepage, menu e pannello admin dietro variabili ambiente Preview; non esporre segreti Neon/S3 nel browser.
 8. Test automatizzati: tutte le lingue (IT/EN/DE/FR/ES/ZH), contenuti, immagini, video, popup, menu, CRUD admin, upload, permessi, session expiry e rollback.
 9. Solo dopo esito positivo e approvazione esplicita, pianificare cutover Production. Mantenere Supabase intatto per rollback finché la nuova architettura è verificata.
 
-## Blocchi esterni / prossime azioni
+## Prossime azioni
 
-- Neon è collegato e il progetto staging è stato creato.
-- Cloudflare R2 è stato scartato prima del provisioning: l'attivazione richiede un checkout per abbonamento R2 e una carta/metodo di pagamento. Non è stato creato alcun bucket e non va inserito alcun metodo di pagamento.
-- Tigris è l'alternativa selezionata sulla base della pagina prezzi ufficiale: [https://www.tigrisdata.com/pricing/](https://www.tigrisdata.com/pricing/). Il piano gratuito dichiara 5 GB Standard, 10.000 richieste Class A e 100.000 Class B al mese, egress gratuito e nessuna carta per iniziare.
-- Prossimo passo: creare un account Tigris gratuito senza carta e verificare che la console consenta di creare un bucket senza checkout. Non aggiungere metodi di pagamento, non attivare piani a consumo.
+- [Completato] Account Neon collegato e progetto staging creato.
+- [Completato] Bucket privato Neon staging creato e verificato.
+- [Completato] Account Tigris registrato dall'utente; non è stato creato alcun bucket Tigris né inserito alcun metodo di pagamento.
+- Verificare le opzioni di delivery pubblica Neon Object Storage e il traffico consentito dal Free plan prima di migrare i media.
+- Completare backup verificabile di Supabase Production prima dell'importazione. Non effettuare modifiche a Production durante questa fase.
 - Nessuna credenziale o password va incollata in chat o committata.
-- Prima di importare, completare il backup verificabile di Supabase Production. Non effettuare modifiche a Production durante questa fase.
