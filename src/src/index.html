@@ -1418,7 +1418,7 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
     <section class="music-section" id="musica">
       <div class="music-copy">
         <div class="section-kicker">Ristorante Toscano & Live Music</div>
-        <h2>Ogni sera,<br>la musica è di casa.</h2>
+        <h2 id="music-home-title">Ogni sera,<br>la musica è di casa.</h2>
         <p>Ogni sera, sette giorni su sette, artisti e generi musicali variabili accompagnano la vostra cena. La musica dal vivo fa parte dell'esperienza Note Fiorentine.</p>
         <div class="music-art" role="img" aria-label="Fotografia della musica dal vivo"></div>
         <div class="time"><span style="font-size:25px">◷</span><div><strong>19:30 – 21:30</strong><small>Tutte le sere</small></div></div>
@@ -1542,6 +1542,7 @@ links.querySelectorAll('a').forEach(link => link.addEventListener('click', () =>
     if(parts.length===3){
       const [scope,lang,selector]=parts;
       if(!allowedScopes.includes(scope))return;
+      if(scope==='home'&&selector==='body>div>main>section:nth-of-type(1)>div:nth-of-type(1)>h2')return;
       if(lang==='all'){delete patch.text;globalStyles.push([selector,patch]);}
       else if(lang===currentLang)languageStyles.push([selector,patch]);
       return;
@@ -2259,6 +2260,10 @@ render();
 </script>
 
 
+<style id="nf-music-title-color-fallback-v1">
+/* Colore di ripristino; l’editor lo può sovrascrivere tramite l’identificativo stabile. */
+#musica #music-home-title{color:#c4b7a5!important;-webkit-text-fill-color:#c4b7a5!important}
+</style>
 <style id="nf-live-music-section-v3">
 /* Sezione Musica ricostruita: la foto è un elemento della griglia CSS, indipendente dal markup interno */
 #musica.music-section{display:grid!important;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr)!important;grid-template-rows:auto auto!important;align-items:stretch!important}
