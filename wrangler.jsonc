@@ -1,0 +1,9 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "nf-media-cache",
+  "main": "cloudflare/nf-media-cache/src/index.js",
+  "compatibility_date": "2026-11-13",
+  "cache": {
+    "enabled": true
+  }
+}
