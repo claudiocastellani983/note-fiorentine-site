@@ -47,7 +47,7 @@ async function transfer(file) {
       Authorization: `Bearer ${DESTINATION_KEY}`,
       "Content-Type": mime,
       "x-upsert": "true",
-      "cache-control": "31536000"
+      "cache-control": "max-age=31536000"
     },
     body: bytes
   });
