@@ -37,3 +37,7 @@ The complete Worker source is in `src/index.js`. If using the Cloudflare dashboa
 6. Only after these pass, design the separate production migration and origin configuration.
 
 Do not point the live Note Fiorentine site at this Worker yet.
+
+## Preview build trigger
+
+This documentation-only change is intended to trigger the configured Cloudflare Preview build for branch `cloudflare-preview-2026-11-13`. It does not change Worker runtime behavior or production configuration.
