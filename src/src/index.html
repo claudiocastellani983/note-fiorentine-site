@@ -1962,6 +1962,31 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
  }catch(error){log('Errore nel caricamento del catalogo immagini:',error)}
 })();
 </script>
+<script id="nf-home-gallery-covers-runtime">
+(async function(){
+ const api=window.NF_SUPABASE_CONFIG.url,key=window.NF_SUPABASE_CONFIG.key;
+ const log=(...args)=>{if(window.console)console.warn('[Note Fiorentine copertine galleria]',...args)};
+ const publicUrl=path=>api+'/storage/v1/object/public/site-media/'+String(path).split('/').map(encodeURIComponent).join('/');
+ try{
+  const response=await fetch(api+'/rest/v1/gallery_images?select=category,image_path,focal_x,focal_y&is_published=eq.true&order=sort_order.asc,created_at.asc',{
+   headers:{apikey:key,Accept:'application/json'},cache:'no-store',mode:'cors'
+  });
+  if(!response.ok){log('Lettura copertine non riuscita:',response.status,await response.text());return}
+  const rows=await response.json(),covers={};
+  for(const row of rows){if(!covers[row.category]&&row.image_path)covers[row.category]=row}
+  const categoryMap={restaurant:'restaurant',kitchen:'kitchen',music:'music'};
+  document.querySelectorAll('.nf-experience-gallery-card[data-gallery-category]').forEach(card=>{
+   const category=categoryMap[card.dataset.galleryCategory],row=covers[category];
+   if(!row)return;
+   const image='url("'+publicUrl(row.image_path)+'")';
+   card.style.backgroundImage='linear-gradient(180deg,rgba(22,15,12,.04) 20%,rgba(22,15,12,.78) 100%),'+image;
+   card.style.backgroundPosition=(row.focal_x??50)+'% '+(row.focal_y??50)+'%';
+   card.style.backgroundSize='cover';
+   card.dataset.coverImageLoaded='true';
+  });
+ }catch(error){log('Errore nel caricamento delle copertine:',error)}
+})();
+</script>
 <script id="nf-multiple-gallery-runtime">
 (async function(){
  const api=window.NF_SUPABASE_CONFIG.url,key=window.NF_SUPABASE_CONFIG.key;
