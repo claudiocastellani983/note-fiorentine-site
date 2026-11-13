@@ -1,0 +1,23 @@
+name: Migrazione Storage Supabase
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  transfer-storage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Trasferisci gli oggetti Storage
+        env:
+          NF_DEST_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.NF_DEST_SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/migrate-supabase-storage.mjs
