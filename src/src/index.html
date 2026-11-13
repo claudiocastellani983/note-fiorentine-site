@@ -2950,16 +2950,57 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 #app>header>.nav>.language-switch>a.active{background:#81201C!important;border:2px solid #D1B49C!important;box-shadow:0 0 0 2px rgba(129,32,28,.3)!important}
 @media(max-width:760px){#app>header>.nav>.language-switch{gap:4px!important}#app>header>.nav>.language-switch>a{flex-basis:32px!important;width:32px!important;min-width:32px!important;max-width:32px!important;height:32px!important;min-height:32px!important;max-height:32px!important}}
 </style>
-<script id="nf-hero-video-autoplay-v2">
+<script id="nf-hero-video-autoplay-v3">
 (function(){
  const video=document.querySelector("#nf-cinematic-zone .nf-cinematic-video");
  if(!video)return;
+ // Safari/iOS richiede muted + playsinline impostati anche come attributi HTML
+ // prima che il browser avvii il caricamento del media.
  video.muted=true;
  video.defaultMuted=true;
- video.loop=false;
- const startPlayback=()=>{const p=video.play();if(p&&typeof p.catch==="function")p.catch(()=>{});};
- if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",startPlayback,{once:true});else startPlayback();
- document.addEventListener("visibilitychange",()=>{if(!document.hidden&&video.paused&&!video.ended)startPlayback();});
+ video.setAttribute("muted","");
+ video.setAttribute("playsinline","");
+ video.setAttribute("webkit-playsinline","");
+ video.setAttribute("autoplay","");
+ video.removeAttribute("controls");
+ video.controls=false;
+ video.loop=true;
+ video.setAttribute("loop","");
+ video.playsInline=true;
+ video.disablePictureInPicture=true;
+ let retryQueued=false;
+ const startPlayback=()=>{
+   if(document.hidden||!video.paused)return;
+   try{
+     const result=video.play();
+     if(result&&typeof result.then==="function"){
+       result.then(()=>{retryQueued=false;}).catch(()=>{
+         // iOS può rifiutare il primo play prima che il media sia pronto.
+         retryQueued=true;
+       });
+     }
+   }catch(_){retryQueued=true;}
+ };
+ const retryWhenReady=()=>{
+   if(retryQueued||video.paused)startPlayback();
+ };
+ ["loadedmetadata","loadeddata","canplay","canplaythrough"].forEach(eventName=>{
+   video.addEventListener(eventName,retryWhenReady,{passive:true});
+ });
+ if(document.readyState==="loading"){
+   document.addEventListener("DOMContentLoaded",startPlayback,{once:true});
+ }else{
+   startPlayback();
+ }
+ document.addEventListener("visibilitychange",()=>{
+   if(!document.hidden&&video.paused)startPlayback();
+ });
+ // Fallback per le versioni iOS che sospendono l'autoplay fino alla prima interazione.
+ ["touchstart","pointerdown"].forEach(eventName=>{
+   document.addEventListener(eventName,()=>{
+     if(video.paused)startPlayback();
+   },{once:true,passive:true});
+ });
 })();
 </script>
 <style id="nf-hero-video-deferred-style-v1">
