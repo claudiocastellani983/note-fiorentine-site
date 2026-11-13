@@ -253,7 +253,7 @@ footer { padding-left: var(--layout-gutter); padding-right: var(--layout-gutter)
 /* Pagina dedicata al menù: una sola sezione, senza gallerie, video o contenuti accessori. */
 main>section:not(#menu){display:none!important}
 #menu{display:block!important;min-height:70vh;padding-top:70px;padding-bottom:90px}
-#nfGalleryViewer,.nf-gallery-viewer,footer,.music-videos,.nf-experience-videos,video,iframe{display:none!important}
+#nfGalleryViewer,.nf-gallery-viewer,footer,.music-strip,.music-videos,.nf-experience-videos,video,iframe{display:none!important}
 </style>
 <style id="nf-menu-anchor-target-v1">#la-nostra-cucina{scroll-margin-top:96px}</style>
 
@@ -589,8 +589,8 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
   ]);
   const production=productionHosts.has(host);
   window.NF_SUPABASE_CONFIG=Object.freeze({
-    url:production?'https://nculgrwlzjitggjcgbpp.supabase.co':'https://iuxskknbopboynjlsxbk.supabase.co',
-    key:production?'sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0':'sb_publishable_GTGiyYl8pZsY6letaozS2Q_dmh9vrRc',
+    url:production?'https://nculgrwlzjitggjcgbpp.supabase.co':'https://cpumzowmadbqyecflkyl.supabase.co',
+    key:production?'sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0':'sb_publishable_jFOfj9H7WB0sd8kev72MmQ_YWprnreE',
     environment:production?'Production':'Test'
   });
 })();
@@ -665,7 +665,7 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
       </a>
       <button class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="navlinks">Menu ☰</button>
       <div class="navlinks" id="navlinks">
-        <a href="/menu.html#la-nostra-cucina" aria-current="page">Menù</a>
+        <a href="/menu.html#menu" aria-current="page">Menù</a>
         <a href="/#eventi">Eventi</a>
         <a class="nav-cta" href="https://bookingnotefiorentine.guestplan.io" target="_blank" rel="noopener">Prenota un tavolo</a>
       </div>
