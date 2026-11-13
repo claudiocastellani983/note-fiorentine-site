@@ -724,6 +724,17 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
 }
 </style>
 
+
+<style id="nf-menu-page-content-v3">
+#app>main>.nf-cinematic-zone{min-height:100vh!important;padding:0!important;background:radial-gradient(ellipse at 50% 0%,rgba(139,63,48,.34),transparent 58%),linear-gradient(145deg,#211916 0%,#171311 52%,#241A16 100%)!important;color:#F4EBDD!important}
+#app>main>.nf-cinematic-zone>#menu{display:block!important;max-width:1200px!important;min-height:100vh!important;margin:0 auto!important;padding:clamp(74px,10vh,120px) clamp(20px,6vw,76px) 90px!important;text-align:center!important;background:transparent!important}
+#app>main>.nf-cinematic-zone>#menu>#la-nostra-cucina{margin:0 0 18px!important;color:#D8BD91!important;font:600 10px Arial,sans-serif!important;letter-spacing:.28em!important;text-transform:uppercase!important}
+#app>main>.nf-cinematic-zone>#menu>h1{margin:0 0 18px!important;color:#F4EBDD!important;font:400 clamp(48px,7vw,78px)/1.05 "Bodoni MT",Didot,"Times New Roman",serif!important;letter-spacing:-.035em!important;text-shadow:none!important}
+#app>main>.nf-cinematic-zone>#menu>.section-lead{max-width:650px!important;margin:0 auto 38px!important;color:#E7DCCB!important;font:400 clamp(16px,1.6vw,19px)/1.75 "Bodoni MT",Didot,serif!important}
+#app>main>.nf-cinematic-zone>#menu .menu-category-tabs{margin:36px auto 24px!important}
+@media(max-width:760px){#app>main>.nf-cinematic-zone>#menu{padding:64px 18px 70px!important}}
+</style>
+
 </head>
 <body>
 <div id="app">
@@ -754,31 +765,10 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
   </header>
   <main>
     <div class="nf-cinematic-zone" id="nf-cinematic-zone">
-      <div class="nf-cinematic-backdrop" aria-hidden="true">
-        <video class="nf-cinematic-video" autoplay muted loop playsinline webkit-playsinline preload="metadata">
-          <source src="https://cpumzowmadbqyecflkyl.supabase.co/storage/v1/object/public/performance-videos/note-fiorentine-hero-montaggio.mp4" type="video/mp4">
-        </video>
-        <div class="nf-cinematic-shade"></div>
-      </div>
-      <section class="hero" id="inizio">
-        <div class="hero-copy">
-          <div class="eyebrow">Ristorante Toscano & Live Music</div>
-          <h1>NOTE <span>FIORENTINE</span></h1>
-          <p>La cucina toscana incontra la musica dal vivo. Una serata da assaporare, nel cuore di Firenze.</p>
-          <div class="actions">
-            <a class="button primary" href="https://bookingnotefiorentine.guestplan.io" target="_blank" rel="noopener">Prenota un tavolo</a>
-            <a class="button outline reach-us-button" data-nf-reach-us href="https://www.google.com/maps/dir/?api=1&destination=Via%20dei%20Benci%2041R%2C%2050122%20Firenze%2C%20Italia" target="_blank" rel="noopener noreferrer">Dove siamo</a>
-          </div>
-        </div>
-      </section>
-      <section class="intro" id="ristorante">
-        <div class="section-kicker">Un'esperienza fiorentina</div>
-        <p>Note Fiorentine è un ristorante toscano nel centro storico di Firenze, dove la cucina incontra l'atmosfera della musica dal vivo. Un luogo per una cena romantica, una serata speciale o semplicemente il piacere di condividere un buon momento.</p>
-      </section>
       <section class="content-section menu-section" id="menu">
         <div class="section-kicker" id="la-nostra-cucina">La nostra cucina</div>
-        <h2>Il menù</h2>
-        <p class="section-lead">Seleziona una categoria per consultare i piatti disponibili.</p>
+        <h1>Il menu</h1>
+        <p class="section-lead">Sapori della tradizione toscana e piacere della tavola. La selezione completa dei piatti sarà consultabile qui.</p>
         <div id="menuCategories" class="menu-category-tabs" aria-label="Categorie del menu" role="group"><p class="menu-loading">Caricamento categorie…</p></div>
         <div id="menuItems" class="menu-items" aria-live="polite"><p class="menu-loading">Caricamento piatti…</p></div>
       </section>
@@ -1136,7 +1126,9 @@ function showCategory(category,button){
    });
    if(!renderedItems)itemsBox.append(make('p','menu-empty',lang==='it'?'Non ci sono ancora piatti pubblicati in questa categoria.':({en:'No dishes are available in this language yet.',de:'In dieser Sprache sind noch keine Gerichte verfügbar.',fr:'Aucun plat n’est encore disponible dans cette langue.',es:'Todavía no hay platos disponibles en este idioma.',zh:'此语言暂时没有可显示的菜品。'})[lang]));
   }
-  categories.forEach(category=>{const categoryName=lang==='it'?category.name:category.translations?.[lang]?.name;if(!categoryName)return;const button=make('button','menu-category-button',categoryName);button.type='button';button.setAttribute('aria-pressed','false');button.addEventListener('click',()=>showCategory(category,button));categoriesBox.append(button)});
+  const categoryOrder=['antipasti','primi','secondo','secondi','bistecca','contorni','dolci'];
+  const orderedCategories=[...categories].sort((a,b)=>{const key=value=>String(value||'').trim().toLocaleLowerCase('it').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'');const ai=categoryOrder.findIndex(name=>key(a.name).startsWith(name));const bi=categoryOrder.findIndex(name=>key(b.name).startsWith(name));return (ai<0?99:ai)-(bi<0?99:bi)});
+  orderedCategories.forEach(category=>{let categoryName=lang==='it'?category.name:category.translations?.[lang]?.name;if(!categoryName)return;if(lang==='it'&&/^secondi?$/i.test(String(category.name).trim()))categoryName='Secondo';const button=make('button','menu-category-button',categoryName);button.type='button';button.setAttribute('aria-pressed','false');button.addEventListener('click',()=>showCategory(category,button));categoriesBox.append(button)});
  }catch(error){console.error('Menu dinamico non caricato:',error);categoriesBox.replaceChildren(make('p','menu-error','Non è stato possibile caricare le categorie del menu. Riprova più tardi.'));itemsBox.replaceChildren();itemsBox.style.display='none'}
 })();
 </script>
