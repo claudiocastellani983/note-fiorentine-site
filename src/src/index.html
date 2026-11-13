@@ -1242,11 +1242,11 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
     'www.notefiorentine.it','notefiorentine.it','note-fiorentine.vercel.app',
   ]);
   const production=productionHosts.has(host);
-  const projectRef=production?'nculgrwlzjitggjcgbpp':'iuxskknbopboynjlsxbk';
+  const projectRef=production?'cpumzowmadbqyecflkyl':'cpumzowmadbqyecflkyl';
   window.NF_SUPABASE_CONFIG=Object.freeze({
     projectRef,
-    url:production?'https://nculgrwlzjitggjcgbpp.supabase.co':'https://iuxskknbopboynjlsxbk.supabase.co',
-    key:production?'sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0':'sb_publishable_GTGiyYl8pZsY6letaozS2Q_dmh9vrRc',
+    url:production?'https://cpumzowmadbqyecflkyl.supabase.co':'https://cpumzowmadbqyecflkyl.supabase.co',
+    key:production?'sb_publishable_jFOfj9H7WB0sd8kev72MmQ_YWprnreE':'sb_publishable_GTGiyYl8pZsY6letaozS2Q_dmh9vrRc',
     environment:production?'Production':'Test'
   });
 })();
@@ -1387,7 +1387,7 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
   </header>
   <main>
     <div class="nf-cinematic-zone" id="nf-cinematic-zone">
-      <div class="nf-cinematic-backdrop"><video class="nf-cinematic-video" autoplay muted playsinline webkit-playsinline preload="auto" src="https://iuxskknbopboynjlsxbk.supabase.co/storage/v1/object/public/performance-videos/note-fiorentine-hero-montaggio.mp4" aria-label="Video d’atmosfera Note Fiorentine"></video><div class="nf-cinematic-shade" aria-hidden="true"></div></div>
+      <div class="nf-cinematic-backdrop"><video class="nf-cinematic-video" autoplay muted playsinline webkit-playsinline preload="auto" src="https://cpumzowmadbqyecflkyl.supabase.co/storage/v1/object/public/performance-videos/note-fiorentine-hero-montaggio.mp4" aria-label="Video d’atmosfera Note Fiorentine"></video><div class="nf-cinematic-shade" aria-hidden="true"></div></div>
     <section class="hero" id="inizio">
       <div class="hero-copy">
         <div class="eyebrow">Ristorante Toscano & Live Music</div>
@@ -1511,8 +1511,8 @@ links.querySelectorAll('a').forEach(link => link.addEventListener('click', () =>
 <script>
 (()=>{
  const isPreview=location.hostname.startsWith('note-fiorentine-')&&location.hostname.endsWith('.vercel.app');
- const api=(isPreview?'https://iuxskknbopboynjlsxbk.supabase.co':'https://nculgrwlzjitggjcgbpp.supabase.co')+'/rest/v1/site_content?select=content_value&content_key=eq.public_site';
- const key=isPreview?'sb_publishable_GTGiyYl8pZsY6letaozS2Q_dmh9vrRc':'sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0';let active=null;
+ const api=(isPreview?'https://cpumzowmadbqyecflkyl.supabase.co':'https://cpumzowmadbqyecflkyl.supabase.co')+'/rest/v1/site_content?select=content_value&content_key=eq.public_site';
+ const key=isPreview?'sb_publishable_GTGiyYl8pZsY6letaozS2Q_dmh9vrRc':'sb_publishable_jFOfj9H7WB0sd8kev72MmQ_YWprnreE';let active=null;
  function selector(el){
  if(el.id)return '#'+CSS.escape(el.id);
  const parts=[];
