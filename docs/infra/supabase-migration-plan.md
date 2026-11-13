@@ -1,4 +1,4 @@
-# Note Fiorentine — migrazione da Supabase a Neon + Better Auth + Cloudflare R2
+# Note Fiorentine — migrazione da Supabase a Neon + Better Auth + Tigris
 
 Data inventario: 2026-11-13  
 Branch isolato: `migration/neon-r2-better-auth-2026-11-13`  
@@ -9,10 +9,10 @@ Base: `fix/header-visual-editor-integrated-text-editor-2026-11-12`
 Sostituire Supabase per database, autenticazione e file storage, mantenendo Vercel per hosting. Architettura target:
 - Neon PostgreSQL per i dati relazionali.
 - Neon Managed Better Auth per login e sessioni amministrative.
-- Cloudflare R2 per immagini, PDF e video; URL pubblici/CDN separati dal database.
+- Tigris Object Storage (S3-compatible) per immagini, PDF e video, con egress Internet gratuito.
 - API server-side su Vercel per operazioni amministrative e letture pubbliche, senza esporre credenziali privilegiate nel browser.
 
-Nessuna modifica a Supabase Production, DNS, Vercel Production o dati pubblicati è autorizzata in questa fase. Nessuna credenziale o password deve essere committata.
+Vincolo prioritario dell'utente: nessun servizio che richieda carta o metodo di pagamento per iniziare. Preferire piani gratuiti senza carta e hard limits; non attivare checkout, billing o upgrade. Nessuna modifica a Supabase Production, DNS o Vercel Production in questa fase. Nessuna credenziale o password deve essere committata.
 
 ## Inventario Supabase
 
@@ -66,7 +66,7 @@ Test:
 - `site-media`: 32 oggetti, 5,654,754 byte.
 - `performance-videos`: 2 oggetti, 5,348,953 byte.
 
-La quantità rilevata rientra ampiamente nel limite di storage gratuito R2 indicato nella valutazione iniziale, ma la dimensione del video Production va verificata. Il traffico egress deve essere monitorato separatamente.
+La quantità nota è ampiamente inferiore al limite gratuito Tigris di 5 GB Standard; la dimensione del video Production va verificata. Tigris dichiara egress Internet gratuito e un piano Free mensile con 5 GB storage, 10.000 richieste Class A e 100.000 Class B, senza carta per iniziare. Oltre i limiti il servizio ha tariffe a consumo: non attivare upgrade o billing e fermare gli upload se si raggiungono i limiti.
 
 ### Auth e sicurezza
 
@@ -89,7 +89,7 @@ La quantità rilevata rientra ampiamente nel limite di storage gratuito R2 indic
 - Neon Managed Better Auth provisionato con provider `better_auth`; schema `neon_auth` e relative tabelle verificate.
 - Il database applicativo è ancora vuoto: nessuna tabella public e nessun dato Supabase sono stati importati.
 - La stringa di connessione è stata generata ma non deve essere salvata nel repository o divulgata; resta da configurare come secret nell'ambiente Vercel Preview.
-- Nessun bucket media è stato creato su Neon: la destinazione media resta Cloudflare R2, più adatta al traffico pubblico statico grazie all'egress Internet gratuito.
+- Nessun bucket media è stato creato: la destinazione media proposta è Tigris, da attivare solo dopo conferma della registrazione gratuita senza carta.
 - Non è stato eseguito alcun deploy Vercel né alcun cambiamento Production.
 
 ## Dipendenze da rimuovere dal codice
@@ -109,15 +109,17 @@ Il video hero in `src/src/index.html` punta attualmente a un URL del progetto Su
 2. Eseguire backup verificabile di schema, dati Production, policy, funzioni, trigger e inventario completo degli oggetti Storage (nomi, MIME, dimensioni, checksum).
 3. Preparare schema PostgreSQL portabile, preservando UUID, vincoli, indici, default, traduzioni JSON e relazioni.
 4. Importare dati Production in Neon staging e confrontare conteggi e checksum logici.
-5. Creare bucket Cloudflare R2 staging e copiare file Production, mantenendo path stabili o una mappa path→URL; confrontare numero file, dimensioni e checksum.
+5. Creare bucket Tigris staging e copiare file Production, mantenendo path stabili o una mappa path→URL; confrontare numero file, dimensioni e checksum.
 6. Implementare API server-side, integrazione Neon Managed Better Auth e permessi amministrativi equivalenti alle policy RLS attuali.
-7. Aggiornare homepage, menu e pannello admin dietro variabili ambiente Preview; non esporre segreti R2/Neon nel browser.
+7. Aggiornare homepage, menu e pannello admin dietro variabili ambiente Preview; non esporre segreti Tigris/Neon nel browser.
 8. Test automatizzati: tutte le lingue (IT/EN/DE/FR/ES/ZH), contenuti, immagini, video, popup, menu, CRUD admin, upload, permessi, session expiry e rollback.
 9. Solo dopo esito positivo e approvazione esplicita, pianificare cutover Production. Mantenere Supabase intatto per rollback finché la nuova architettura è verificata.
 
 ## Blocchi esterni / prossime azioni
 
 - Neon è collegato e il progetto staging è stato creato.
-- Cloudflare R2 non è ancora collegato/provisionato. Occorre creare il bucket `note-fiorentine-media` nel dashboard Cloudflare; non cambiare DNS e non abilitare ancora accesso pubblico/custom domain.
+- Cloudflare R2 è stato scartato prima del provisioning: l'attivazione richiede un checkout per abbonamento R2 e una carta/metodo di pagamento. Non è stato creato alcun bucket e non va inserito alcun metodo di pagamento.
+- Tigris è l'alternativa selezionata sulla base della pagina prezzi ufficiale: [https://www.tigrisdata.com/pricing/](https://www.tigrisdata.com/pricing/). Il piano gratuito dichiara 5 GB Standard, 10.000 richieste Class A e 100.000 Class B al mese, egress gratuito e nessuna carta per iniziare.
+- Prossimo passo: creare un account Tigris gratuito senza carta e verificare che la console consenta di creare un bucket senza checkout. Non aggiungere metodi di pagamento, non attivare piani a consumo.
 - Nessuna credenziale o password va incollata in chat o committata.
 - Prima di importare, completare il backup verificabile di Supabase Production. Non effettuare modifiche a Production durante questa fase.
