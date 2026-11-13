@@ -3095,7 +3095,7 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 <style id="nf-tablet-landscape-centering-v1">
 /* Tablet in orizzontale: composizione centrata e griglie proporzionate.
    Il preset si attiva solo su viewport tablet, non su telefoni in landscape. */
-@media (min-width:761px) and (max-width:1180px) and (min-height:560px) and (orientation:landscape) {
+@media (min-width:761px) and (max-width:1024px) and (min-height:560px) and (orientation:landscape) {
   :root { --layout-gutter: clamp(28px,4vw,52px); --frame-inset:18px; }
 
   #app>header>.nav {
@@ -3216,7 +3216,7 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 <style id="nf-tablet-landscape-centering-v2">
 /* Correzione selettori: hero, intro e menu sono figli del cinematic-zone,
    non figli diretti di main. Breakpoint dedicato ai tablet landscape. */
-@media screen and (min-width:761px) and (max-width:1366px) and (min-height:500px) and (orientation:landscape) {
+@media screen and (min-width:761px) and (max-width:1024px) and (min-height:500px) and (orientation:landscape) {
   :root { --nf-tablet-gutter:clamp(30px,4.2vw,58px); }
 
   #app>main>#nf-cinematic-zone { width:100%!important; margin-inline:auto!important; }
@@ -3394,8 +3394,7 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 }
 </style>
 
-</body>
-</html><script async data-explicit-opt-in="true" data-deployment-id="dpl_7tHJ9DycmxR1TALK2u85APShiyVZ" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_EmRnWHsGMUkcJwHUQ7vz8FCmfTh6" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_E5nptDv68tSzPwNaRWjjuQBRJWLT" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_3kBEXjiEjcHv33v8JxwMth6Znb56" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-deployment-id="dpl_GbSb1nxg8uKN3nnLoyFhoPVdiZvt" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
+
 
 <style id="nf-transparent-intro-and-menu-v3">
 /* Nessun pannello di sfondo sulle sezioni introduttiva e cucina. */
@@ -3462,3 +3461,4 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 #app main .menu-full-cta:hover{background:#8F2928!important;color:#FFF9F0!important;}
 #app>main>#nf-cinematic-zone #menu .menu-full-cta,#app>main>#nf-cinematic-zone #menu .menu-full-cta:link,#app>main>#nf-cinematic-zone #menu .menu-full-cta:visited,#app>main>#nf-cinematic-zone #menu .menu-full-cta:hover,#app>main>#nf-cinematic-zone #menu .menu-full-cta:focus,#app>main>#nf-cinematic-zone #menu .menu-full-cta:active{background-color:#8F2928!important;border-color:#8F2928!important;color:#FFF9F0!important;-webkit-text-fill-color:#FFF9F0!important}
 </style>
+</html>
