@@ -117,7 +117,7 @@ import{mountStorageOptimizer}from'./storage-optimizer.js';
 window.__NF_DEBUG?.moduleStarted();
 const ADMIN_HOST=location.hostname.toLowerCase();
 const ADMIN_PRODUCTION=ADMIN_HOST==='note-fiorentine-admin.vercel.app'||ADMIN_HOST==='note-fiorentine-admin-claudiocastellani983-5675.vercel.app'||ADMIN_HOST==='note-fiorentine-admin-dhv0f1t1z-claudiocastellani983-5675.vercel.app';
-const ADMIN_PREVIEW=ADMIN_HOST.startsWith('note-fiorentine-auditore-')&&ADMIN_HOST.endsWith('.vercel.app')&&!ADMIN_PRODUCTION;
+const ADMIN_PREVIEW=ADMIN_HOST.startsWith('note-fiorentine-auditore-admin-')&&ADMIN_HOST.endsWith('.vercel.app')&&!ADMIN_PRODUCTION;
 const rawDb=createClient(window.NF_SUPABASE_CONFIG.url,window.NF_SUPABASE_CONFIG.key);
 const PREVIEW_READ_ONLY=!(ADMIN_PRODUCTION||ADMIN_PREVIEW);
 const blockedWrite=()=>{throw new Error('Scritture disabilitate: apri il pannello Admin ufficiale o una preview autorizzata.')};
