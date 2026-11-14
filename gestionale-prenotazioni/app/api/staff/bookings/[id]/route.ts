@@ -21,7 +21,7 @@ export async function PATCH(request:NextRequest,context:{params:Promise<{id:stri
   const time=String(body.time||old.local_time);
   const partySize=Number(body.party_size??old.party_size);
   const status=String(body.status||old.status);
-  if(!allowed.includes(status)||!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)||!/^([01]\\d|2[0-3]):[0-5]\\d$/.test(time)||!Number.isInteger(partySize)||partySize<1||partySize>30){
+  if(!allowed.includes(status)||!/^\d{4}-\d{2}-\d{2}$/.test(date)||!/^([01]\d|2[0-3]):[0-5]\d$/.test(time)||!Number.isInteger(partySize)||partySize<1||partySize>30){
    await client.query("rollback");return NextResponse.json({error:"Dati della prenotazione non validi"},{status:400});
   }
   const lockDates=[old.local_date,date].sort();
