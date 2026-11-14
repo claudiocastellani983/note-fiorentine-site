@@ -1,0 +1,11 @@
+{
+  "name": "Note Fiorentine Gestionale",
+  "short_name": "NF Gestionale",
+  "description": "Gestione prenotazioni e sala Note Fiorentine",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#171311",
+  "theme_color": "#211b18",
+  "orientation": "any",
+  "icons": []
+}
