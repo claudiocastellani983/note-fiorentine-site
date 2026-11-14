@@ -14,6 +14,7 @@ export default function LoginPage(){
       {state?.error&&<p className="error">{state.error}</p>}
       <button className="btn primary" disabled={pending}>{pending?"Accesso in corso…":"Accedi"}</button>
     </form>
+    <p style={{marginTop:16,textAlign:"center"}}><a href="/login/forgot-password">Imposta o recupera la password</a></p>
     <p className="footer-note">L'accesso viene creato dall'amministratore. Non è possibile registrarsi liberamente.</p>
   </section></main>;
 }
