@@ -9,7 +9,7 @@ export async function POST(request:NextRequest) {
   if (!body) return NextResponse.json({error:"Richiesta non valida"},{status:400});
   const {date,time,party_size,guest_name,phone,email,notes} = body;
   const size = Number(party_size);
-  if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(String(date)) || !/^([01]\\d|2[0-3]):[0-5]\\d$/.test(String(time)) ||
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date)) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(String(time)) ||
       !Number.isInteger(size) || size<1 || size>30 || !String(guest_name||"").trim() || !String(phone||"").trim()) {
     return NextResponse.json({error:"Compila nome, telefono, data, orario e numero di persone."},{status:400});
   }
