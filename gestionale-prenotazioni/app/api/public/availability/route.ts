@@ -5,7 +5,7 @@ export async function GET(request:NextRequest) {
   try {
     const date = request.nextUrl.searchParams.get("date") || "";
     const partySize = Number(request.nextUrl.searchParams.get("party_size") || 2);
-    if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(date) || !Number.isInteger(partySize) || partySize<1 || partySize>30) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isInteger(partySize) || partySize<1 || partySize>30) {
       return NextResponse.json({error:"Parametri non validi"},{status:400});
     }
     const result = await getSlots(date,partySize,true);
