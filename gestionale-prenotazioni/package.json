@@ -1,0 +1,27 @@
+{
+  "name": "note-fiorentine-prenotazioni",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@neon/auth": "0.8.2",
+    "next": "16.4.6",
+    "pg": "8.16.3",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.1",
+    "@types/pg": "8.15.6",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
+    "eslint": "9.39.1",
+    "eslint-config-next": "16.4.6",
+    "typescript": "5.9.3"
+  }
+}
