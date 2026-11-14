@@ -22,3 +22,5 @@ Standalone responsive web app / PWA for the restaurant team and public booking f
 4. Add the production custom domain only after the acceptance tests pass.
 
 Do not disable Guestplan until the replacement has passed end-to-end tests and the restaurant explicitly approves the switch.
+
+Preview build: staff and public routes are deployed from the `reservations-app` branch.
