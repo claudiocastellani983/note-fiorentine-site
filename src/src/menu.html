@@ -837,7 +837,8 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
    fetch(base+'/menu_categories?select=id,name,description,translations,sort_order,created_at&is_published=eq.true&order=sort_order.asc,created_at.asc',{headers,cache:'no-store'}),
    fetch(base+'/menu_items?select=id,category_id,name,description,price,allergens,translations,sort_order,created_at&is_published=eq.true&order=sort_order.asc,created_at.asc',{headers,cache:'no-store'})
   ]);
-  if(!cr.ok)throw Error('Categorie HTTP '+cr.status);if(!ir.ok)throw Error('Piatti HTTP '+ir.status);
+  if(!cr.ok){const detail=(await cr.text()).slice(0,700);throw Error('Categorie HTTP '+cr.status+(detail?': '+detail:''));}
+  if(!ir.ok){const detail=(await ir.text()).slice(0,700);throw Error('Piatti HTTP '+ir.status+(detail?': '+detail:''));}
   const [categories,items]=await Promise.all([cr.json(),ir.json()]);
   categoriesBox.replaceChildren();itemsBox.replaceChildren();itemsBox.style.display='none';
   if(!Array.isArray(categories)||!categories.length){categoriesBox.append(make('p','menu-empty','Nessuna categoria del menu pubblicata al momento.'));return}
@@ -858,7 +859,7 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
    });
   }
   categories.forEach(category=>{const button=make('button','menu-category-button',category.name||'Categoria');button.type='button';button.setAttribute('aria-pressed','false');button.addEventListener('click',()=>showCategory(category,button));categoriesBox.append(button)});
- }catch(error){console.error('Menu dinamico non caricato:',error);categoriesBox.replaceChildren(make('p','menu-error','Non è stato possibile caricare le categorie del menu. Riprova più tardi.'));itemsBox.replaceChildren();itemsBox.style.display='none'}
+ }catch(error){console.error('Menu dinamico non caricato:',error);const detail=error&&error.message?error.message:String(error);categoriesBox.replaceChildren(make('p','menu-error','Diagnostica menu: '+detail));itemsBox.replaceChildren();itemsBox.style.display='none'}
 })();
 </script>
 <script>
