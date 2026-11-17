@@ -1,7 +1,9 @@
 const { test, expect } = require('@playwright/test');
+const { attachVercelBypass } = require('./helpers/vercel-bypass');
 
 // The login form contains test credentials: never store traces or screenshots for this test.
 test.use({ trace: 'off', screenshot: 'off' });
+test.beforeEach(async ({ page }) => attachVercelBypass(page));
 const { createHash, randomUUID } = require('node:crypto');
 
 const ADMIN_PREVIEW_URL = process.env.ADMIN_PREVIEW_URL;
