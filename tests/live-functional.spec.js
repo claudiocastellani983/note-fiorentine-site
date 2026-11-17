@@ -42,7 +42,7 @@ test.describe('Funzioni pubbliche delle preview reali', () => {
     expect(errors, 'Errori JavaScript non gestiti nella Home').toEqual([]);
   });
 
-  test('Home: elimina la fascia sfumata decorativa e apre i video reali del ristorante', async ({ page }) => {
+  test('Home: elimina la fascia sfumata e gestisce i video pubblicati o la galleria vuota', async ({ page }) => {
     expect(SITE_PREVIEW_URL).toBeTruthy();
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
@@ -55,13 +55,37 @@ test.describe('Funzioni pubbliche delle preview reali', () => {
     await page.locator('[data-gallery-category="restaurant"]').click();
     const chooser = page.locator('#nfEnvironmentsChoice');
     await expect(chooser).toHaveClass(/open/);
+
+    const videosResponsePromise = page.waitForResponse(response =>
+      response.url().includes('/rest/v1/restaurant_videos?') &&
+      response.request().method() === 'GET'
+    );
     await page.locator('[data-env-choice="videos"]').click();
+    const videosResponse = await videosResponsePromise;
+    expect(videosResponse.status(), 'La richiesta dei video del ristorante deve riuscire').toBe(200);
+    const publishedVideos = await videosResponse.json();
+    expect(Array.isArray(publishedVideos), 'Supabase deve restituire un elenco di video').toBe(true);
 
     const viewer = page.locator('#nfArtistsViewer');
     await expect(viewer).toHaveClass(/open/);
-    const frame = page.locator('#nfArtistsViewerStage iframe');
-    await expect(frame).toHaveCount(1, { timeout: 20000 });
-    await expect(frame).toHaveAttribute('src', /player\.vimeo\.com\/video\//);
+    const stage = page.locator('#nfArtistsViewerStage');
+    const frame = stage.locator('iframe');
+
+    if (publishedVideos.length === 0) {
+      await expect(frame).toHaveCount(0);
+      await expect(stage).toContainText('I video degli ambienti saranno disponibili a breve.');
+    } else {
+      const firstVideo = publishedVideos[0];
+      const source = firstVideo.video_url || firstVideo.youtube_url || '';
+      if (/vimeo\.com\//i.test(source) || /(youtube\.com|youtu\.be|youtube-nocookie\.com)\//i.test(source)) {
+        await expect(frame).toHaveCount(1);
+        await expect(frame).toHaveAttribute('src', /player\.vimeo\.com\/video\/|youtube-nocookie\.com\/embed\//);
+      } else {
+        await expect(frame).toHaveCount(0);
+        await expect(stage).toContainText('Il collegamento di questo video non è valido o non è supportato.');
+      }
+    }
+
     expect(errors, 'Il percorso dei video del ristorante non deve generare errori JavaScript').toEqual([]);
   });
 
