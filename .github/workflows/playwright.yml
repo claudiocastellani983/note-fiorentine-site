@@ -102,10 +102,11 @@ jobs:
             // Fallback controllati: Home READY sul commit SEO integrato 21d8b442;
             // Admin READY sul commit 631a74c5. Riutilizziamo ciascuna preview solo
             // se da quel commit non sono cambiati i rispettivi file applicativi.
-            const knownHomePreviewSha = "20df7469511196c17b132799f623b9e445ea514b";
-            const knownAdminPreviewSha = "fe0586baf570752164b4ebe94b1ddfe2140aa40a";
-            const siteUrl = "https://note-fiorentine-git-release-i1-363e1b-claudiacastellani983-5675.vercel.app/";
-            const adminBaseUrl = "https://note-fiorentine-admin-git-rele-1da2a5-claudiacastellani983-5675.vercel.app/";
+            const isCurrentFixPreview = branch === "fix/header-visual-editor-integrated-supabase-preview-test-2026-11-17";
+            const knownHomePreviewSha = isCurrentFixPreview ? "299462d582eb74e624e4dcfc281c1fdc71ca8890" : "20df7469511196c17b132799f623b9e445ea514b";
+            const knownAdminPreviewSha = isCurrentFixPreview ? "0b009ca37753fc222f81f76edc994d82788b1906" : "fe0586baf570752164b4ebe94b1ddfe2140aa40a";
+            const siteUrl = isCurrentFixPreview ? "https://note-fiorentine-git-fix-header-88edc9-claudiocastellani983-5675.vercel.app/" : "https://note-fiorentine-git-release-i1-363e1b-claudiocastellani983-5675.vercel.app/";
+            const adminBaseUrl = isCurrentFixPreview ? "https://note-fiorentine-admin-3lhpnhr86-claudiocastellani983-5675.vercel.app/" : "https://note-fiorentine-admin-git-rele-1da2a5-claudiocastellani983-5675.vercel.app/";
             const adminUrl = adminBaseUrl + "?sitePreview=" + encodeURIComponent(siteUrl);
             const homeContext = "Vercel – note-fiorentine";
             const adminContext = "Vercel – note-fiorentine-admin";
