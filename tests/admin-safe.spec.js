@@ -48,10 +48,12 @@ test('admin: login e diagnostica si caricano senza toccare Supabase', async ({ p
   expect(adminHtml).toContain('Release in preparazione');
   expect(adminHtml).toContain('Esporta pacchetto');
   expect(adminHtml).not.toContain('Pubblica modifiche del sito');
-  expect(adminHtml).toContain("https://cpumzowmadbqyecflkyl.supabase.co");
+  expect(adminHtml).toContain("url:production?'https://cpumzowmadbqyecflkyl.supabase.co':'https://iuxskknbopboynjlsxbk.supabase.co'");
+  expect(adminHtml).toContain("key:production?'sb_publishable_jFOfj9H7WB0sd8kev72MmQ_YWprnreE':'sb_publishable_GTGiyYl8pZsY6letaozS2Q_dmh9vrRc'");
+  expect(adminHtml).toContain("environment:production?'Production':preview?'Test':'Non autorizzato'");
   expect(adminHtml).toContain("const ADMIN_PRODUCTION=ADMIN_HOST==='note-fiorentine-auditore-admin.vercel.app'");
   expect(adminHtml).toContain("const ADMIN_PREVIEW=(ADMIN_HOST.startsWith('note-fiorentine-auditore-admin-')");
-  expect(adminHtml).toContain("const PREVIEW_READ_ONLY=!ADMIN_PRODUCTION;");
+  expect(adminHtml).toContain("const PREVIEW_READ_ONLY=!ADMIN_PRODUCTION&&!ADMIN_PREVIEW;");
   expect(adminHtml).toContain("createClient(window.NF_SUPABASE_CONFIG.url,window.NF_SUPABASE_CONFIG.key)");
   expect(adminHtml).toContain("if(PREVIEW_READ_ONLY&&['insert','update','upsert','delete'].includes(String(key)))");
 
