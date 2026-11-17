@@ -10,7 +10,7 @@ test('admin: login e diagnostica si caricano senza toccare Supabase', async ({ p
   const pageErrors = [];
 
   // Isolamento assoluto: nessuna richiesta raggiunge il progetto Supabase reale.
-  await page.route(/^https:\/\/(nculgrwlzjitggjcgbpp|iuxskknbopboynjlsxbk)\.supabase\.co\//, async route => {
+  await page.route(/^https:\/\/cpumzowmadbqyecflkyl\.supabase\.co\//, async route => {
     supabaseRequests.push({
       method: route.request().method(),
       url: route.request().url()
@@ -48,11 +48,10 @@ test('admin: login e diagnostica si caricano senza toccare Supabase', async ({ p
   expect(adminHtml).toContain('Release in preparazione');
   expect(adminHtml).toContain('Esporta pacchetto');
   expect(adminHtml).not.toContain('Pubblica modifiche del sito');
-  expect(adminHtml).toContain("https://iuxskknbopboynjlsxbk.supabase.co");
-  expect(adminHtml).toContain("https://nculgrwlzjitggjcgbpp.supabase.co");
-  expect(adminHtml).toContain("const ADMIN_PRODUCTION=ADMIN_HOST==='note-fiorentine-admin.vercel.app'");
-  expect(adminHtml).toContain("const ADMIN_PREVIEW=ADMIN_HOST.startsWith('note-fiorentine-admin-')");
-  expect(adminHtml).toContain("const PREVIEW_READ_ONLY=!(ADMIN_PRODUCTION||ADMIN_PREVIEW);");
+  expect(adminHtml).toContain("https://cpumzowmadbqyecflkyl.supabase.co");
+  expect(adminHtml).toContain("const ADMIN_PRODUCTION=ADMIN_HOST==='note-fiorentine-auditore-admin.vercel.app'");
+  expect(adminHtml).toContain("const ADMIN_PREVIEW=(ADMIN_HOST.startsWith('note-fiorentine-auditore-admin-')");
+  expect(adminHtml).toContain("const PREVIEW_READ_ONLY=!ADMIN_PRODUCTION;");
   expect(adminHtml).toContain("createClient(window.NF_SUPABASE_CONFIG.url,window.NF_SUPABASE_CONFIG.key)");
   expect(adminHtml).toContain("if(PREVIEW_READ_ONLY&&['insert','update','upsert','delete'].includes(String(key)))");
 
