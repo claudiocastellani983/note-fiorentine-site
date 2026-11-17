@@ -73,10 +73,9 @@ test('gestione immagini: UI autenticata simulata, senza chiamate o scritture rea
   await expect(page.locator('#galleryAdminPanel input[type="file"]')).toHaveCount(3);
   await expect(page.locator('#artistMediaAdminPanel input[type="file"]')).toHaveCount(3);
 
-  // Sul dominio Vercel di preview anche l'area autenticata resta protetta:
-  // il tentativo di modificare il popup deve essere rifiutato prima di Supabase.
+  // Sul server locale l'host non è autorizzato: il proxy deve bloccare la scrittura prima di Supabase.
   await page.locator('#popupVisibilityBtn').click();
-  await expect(page.locator('#popupVisibilityStatus')).toContainText('Anteprima protetta');
+  await expect(page.locator('#popupVisibilityStatus')).toContainText('Scritture disabilitate');
   expect(realSupabaseRequests).toEqual([]);
   expect(pageErrors).toEqual([]);
 });
