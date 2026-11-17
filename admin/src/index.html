@@ -29,13 +29,13 @@
   const productionHosts=new Set([
     'www.notefiorentine.it','notefiorentine.it','note-fiorentine.vercel.app',
     'note-fiorentine-n8y0wjydb-claudiocastellani983-5675.vercel.app',
-    'note-fiorentine-admin.vercel.app','note-fiorentine-admin-claudiocastellani983-5675.vercel.app',
+    'note-fiorentine-auditore-admin.vercel.app','note-fiorentine-admin.vercel.app','note-fiorentine-admin-claudiocastellani983-5675.vercel.app',
     'note-fiorentine-admin-dhv0f1t1z-claudiocastellani983-5675.vercel.app'
   ]);
   const production=productionHosts.has(host);
   window.NF_SUPABASE_CONFIG=Object.freeze({
-    url:production?'https://nculgrwlzjitggjcgbpp.supabase.co':'https://cpumzowmadbqyecflkyl.supabase.co',
-    key:production?'sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0':'sb_publishable_jFOfj9H7WB0sd8kev72MmQ_YWprnreE',
+    url:'https://cpumzowmadbqyecflkyl.supabase.co',
+    key:'sb_publishable_jFOfj9H7WB0sd8kev72MmQ_YWprnreE',
     environment:production?'Production':'Auditore Preview'
   });
 })();
@@ -116,10 +116,10 @@ import{createClient}from'https://esm.sh/@supabase/supabase-js@2';
 import{mountStorageOptimizer}from'./storage-optimizer.js';
 window.__NF_DEBUG?.moduleStarted();
 const ADMIN_HOST=location.hostname.toLowerCase();
-const ADMIN_PRODUCTION=ADMIN_HOST==='note-fiorentine-admin.vercel.app'||ADMIN_HOST==='note-fiorentine-admin-claudiocastellani983-5675.vercel.app'||ADMIN_HOST==='note-fiorentine-admin-dhv0f1t1z-claudiocastellani983-5675.vercel.app';
-const ADMIN_PREVIEW=ADMIN_HOST.startsWith('note-fiorentine-admin-')&&ADMIN_HOST.endsWith('.vercel.app')&&!ADMIN_PRODUCTION;
+const ADMIN_PRODUCTION=ADMIN_HOST==='note-fiorentine-auditore-admin.vercel.app'||ADMIN_HOST==='note-fiorentine-admin.vercel.app'||ADMIN_HOST==='note-fiorentine-admin-claudiocastellani983-5675.vercel.app'||ADMIN_HOST==='note-fiorentine-admin-dhv0f1t1z-claudiocastellani983-5675.vercel.app';
+const ADMIN_PREVIEW=(ADMIN_HOST.startsWith('note-fiorentine-auditore-admin-')||ADMIN_HOST.startsWith('note-fiorentine-admin-'))&&ADMIN_HOST.endsWith('.vercel.app')&&!ADMIN_PRODUCTION;
 const rawDb=createClient(window.NF_SUPABASE_CONFIG.url,window.NF_SUPABASE_CONFIG.key);
-const PREVIEW_READ_ONLY=!(ADMIN_PRODUCTION||ADMIN_PREVIEW);
+const PREVIEW_READ_ONLY=!ADMIN_PRODUCTION;
 const blockedWrite=()=>{throw new Error('Scritture disabilitate: apri il pannello Admin ufficiale o una preview autorizzata.')};
 const guardQuery=q=>new Proxy(q,{get(target,key){if(PREVIEW_READ_ONLY&&['insert','update','upsert','delete'].includes(String(key)))return blockedWrite;const v=Reflect.get(target,key,target);return typeof v==='function'?v.bind(target):v;}});
 const guardBucket=b=>new Proxy(b,{get(target,key){if(PREVIEW_READ_ONLY&&['upload','remove','update','move','copy'].includes(String(key)))return blockedWrite;const v=Reflect.get(target,key,target);return typeof v==='function'?v.bind(target):v;}});
@@ -385,7 +385,7 @@ async function loadMediaPopup(){
     :'Caricamento non riuscito: '+(e.message||String(e));
   }finally{btn.disabled=false;}
  };
- say('Sezione immagini e popup pronta.');await loadMediaLibrary();mountStorageOptimizer({db,root:$('storageOptimizerMount'),readOnly:!ADMIN_PREVIEW,environment:window.NF_SUPABASE_CONFIG.environment});
+ say('Sezione immagini e popup pronta.');await loadMediaLibrary();mountStorageOptimizer({db,root:$('storageOptimizerMount'),readOnly:PREVIEW_READ_ONLY,environment:window.NF_SUPABASE_CONFIG.environment});
 }
 
 async function loadMediaLibrary(){
