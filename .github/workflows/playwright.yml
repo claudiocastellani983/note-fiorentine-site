@@ -223,6 +223,8 @@ jobs:
     env:
       SITE_PREVIEW_URL: ${{ needs.resolve-current-previews.outputs.site_url }}
       ADMIN_PREVIEW_URL: ${{ needs.resolve-current-previews.outputs.admin_url }}
+      VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+      ADMIN_VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.ADMIN_VERCEL_AUTOMATION_BYPASS_SECRET }}
 
     steps:
       - name: Checkout repository
@@ -259,6 +261,7 @@ jobs:
     runs-on: ubuntu-24.04
     env:
       ADMIN_PREVIEW_URL: ${{ needs.resolve-current-previews.outputs.admin_url }}
+      ADMIN_VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.ADMIN_VERCEL_AUTOMATION_BYPASS_SECRET }}
       NF_TEST_ADMIN_EMAIL: ${{ secrets.NF_TEST_ADMIN_EMAIL }}
       NF_TEST_ADMIN_PASSWORD: ${{ secrets.NF_TEST_ADMIN_PASSWORD }}
     steps:
