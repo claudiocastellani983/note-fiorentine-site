@@ -74,7 +74,7 @@ jobs:
 
   resolve-current-previews:
     name: Verifica che le preview appartengano al commit corrente
-    if: (github.event_name == 'push' && github.ref == 'refs/heads/release/integrated-preview-2026-11') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/release/integrated-preview-2026-11') || (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'release/integrated-preview-2026-11')
+    if: (github.event_name == 'push' && (github.ref == 'refs/heads/release/integrated-preview-2026-11' || github.ref == 'refs/heads/fix/header-visual-editor-integrated-supabase-preview-test-2026-11-17')) || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/release/integrated-preview-2026-11') || (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'release/integrated-preview-2026-11')
     runs-on: ubuntu-24.04
     outputs:
       admin_ready: ${{ steps.resolve.outputs.admin_ready }}
