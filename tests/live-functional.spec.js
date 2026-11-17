@@ -1,4 +1,9 @@
 const { test, expect } = require('@playwright/test');
+const { attachVercelBypass } = require('./helpers/vercel-bypass');
+// Bypass headers are credentials: keep them out of uploaded Playwright traces.
+test.use({ trace: 'off' });
+test.beforeEach(async ({ page }) => attachVercelBypass(page));
+
 
 const SITE_PREVIEW_URL = process.env.SITE_PREVIEW_URL;
 const ADMIN_PREVIEW_URL = process.env.ADMIN_PREVIEW_URL;
