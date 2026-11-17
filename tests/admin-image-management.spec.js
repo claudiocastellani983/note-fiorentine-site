@@ -7,7 +7,7 @@ test('Admin: caricamento immagini per piatti, artisti e ristorante', async () =>
   const menu = fs.readFileSync(path.join(process.cwd(), 'src/src/menu.html'), 'utf8');
 
   expect(admin).toContain("'Piatti':{table:'menu_items'");
-  expect(admin).toContain("['image_path','Fotografia del piatto','image']");
+  expect(admin).toContain("['image_path','Immagine del piatto (facoltativa)','image']");
   expect(admin).toContain("'Artisti':{table:'artist_images'");
   expect(admin).toContain("['image_path','Fotografia artista','image',1]");
   expect(admin).toContain("'Ristorante':{table:'gallery_images'");
