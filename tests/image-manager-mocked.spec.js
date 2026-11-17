@@ -50,7 +50,7 @@ test('gestione immagini: UI autenticata simulata, senza chiamate o scritture rea
   );
 
   // Ulteriore barriera: ogni tentativo di raggiungere il progetto reale viene bloccato e registrato.
-  await page.route('https://nculgrwlzjitggjcgbpp.supabase.co/**', async route => {
+  await page.route('https://cpumzowmadbqyecflkyl.supabase.co/**', async route => {
     realSupabaseRequests.push({ method: route.request().method(), url: route.request().url() });
     await route.abort('blockedbyclient');
   });
