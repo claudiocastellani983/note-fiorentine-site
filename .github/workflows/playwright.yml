@@ -223,7 +223,7 @@ jobs:
 
   playwright-live-previews:
     needs: resolve-current-previews
-    if: false # I test live restano sospesi finché il resolver Admin non è verificato.
+    if: ${{ false }} # I test live restano sospesi finché il resolver Admin non è verificato.
     name: Preview Vercel reali (${{ matrix.browser }})
     runs-on: ubuntu-24.04
     strategy:
@@ -266,7 +266,7 @@ jobs:
 
   playwright-admin-authenticated:
     needs: resolve-current-previews
-    if: false # I test autenticati Supabase restano disattivati; non eseguire scritture.
+    if: ${{ false }} # I test autenticati Supabase restano disattivati; non eseguire scritture.
     name: Admin autenticato e upload Supabase Test
     runs-on: ubuntu-24.04
     env:
