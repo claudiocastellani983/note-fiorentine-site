@@ -10,7 +10,7 @@ test('gestione immagini: struttura protetta e controlli media presenti senza bac
   const pageErrors = [];
 
   // La pagina viene caricata in preview, ma nessuna richiesta raggiunge Supabase.
-  await page.route('https://nculgrwlzjitggjcgbpp.supabase.co/**', async route => {
+  await page.route(/^https:\/\/(?:cpumzowmadbqyecflkyl|ypkitfyqctjvojgbekmm)\.supabase\.co\//, async route => {
     supabaseRequests.push({
       method: route.request().method(),
       url: route.request().url()
