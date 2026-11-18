@@ -134,15 +134,33 @@ test.describe('Media reali in Supabase Test', () => {
     await page.goto(siteUrl, { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('networkidle');
 
-    const media = await page.evaluate(async () => {
-      const config = window.NF_SUPABASE_CONFIG;
-      if (!config) return { configured: false };
+    const config = await page.evaluate(() => window.NF_SUPABASE_CONFIG || null);
+    expect(config, 'Configurazione Supabase mancante nella Preview').not.toBeNull();
+    expect(config.projectRef).toBe('ypkitfyqctjvojgbekmm');
+    expect(config.environment).toBe('Test');
+    expect(config.url).toBe('https://ypkitfyqctjvojgbekmm.supabase.co');
+
+    const imageUrl = config.url + '/storage/v1/object/public/site-media/hero/1794592667681-yvb2g7.jpg';
+    const videoUrl = config.url + '/storage/v1/object/public/performance-videos/note-fiorentine-hero-montaggio.mp4';
+
+    const videoResponse = await page.request.get(videoUrl);
+    const videoBytes = await videoResponse.body();
+    const videoText = videoBytes.toString('latin1');
+    const videoInfo = {
+      status: videoResponse.status(),
+      contentType: videoResponse.headers()['content-type'] || '',
+      contentLength: videoBytes.length,
+      ftyp: videoText.slice(4, 8),
+      codecMarkers: ['avc1', 'hvc1', 'hev1', 'vp09', 'av01', 'mp4v', 'mp4a'].filter(marker => videoText.includes(marker))
+    };
+
+    const media = await page.evaluate(async ({ imageUrl, videoUrl }) => {
       const image = new Image();
       const imageResult = await new Promise(resolve => {
         const timer = setTimeout(() => resolve({ loaded: false, reason: 'timeout' }), 20000);
         image.onload = () => { clearTimeout(timer); resolve({ loaded: true, width: image.naturalWidth, height: image.naturalHeight }); };
         image.onerror = () => { clearTimeout(timer); resolve({ loaded: false, reason: 'image-error' }); };
-        image.src = config.url + '/storage/v1/object/public/site-media/hero/1794592667681-yvb2g7.jpg';
+        image.src = imageUrl;
       });
 
       const video = document.createElement('video');
@@ -157,20 +175,18 @@ test.describe('Media reali in Supabase Test', () => {
           clearTimeout(timer);
           resolve({ loaded: false, reason: 'video-error', code: video.error?.code || null });
         }, { once: true });
-        video.src = config.url + '/storage/v1/object/public/performance-videos/note-fiorentine-hero-montaggio.mp4';
+        video.src = videoUrl;
         video.load();
       });
+      return { imageResult, videoResult };
+    }, { imageUrl, videoUrl });
 
-      return { configured: true, projectRef: config.projectRef, environment: config.environment, url: config.url, imageResult, videoResult };
-    });
-
-    expect(media.configured).toBe(true);
-    expect(media.projectRef).toBe('ypkitfyqctjvojgbekmm');
-    expect(media.environment).toBe('Test');
-    expect(media.url).toBe('https://ypkitfyqctjvojgbekmm.supabase.co');
+    expect(videoInfo.status, JSON.stringify(videoInfo)).toBe(200);
+    expect(videoInfo.contentType, JSON.stringify(videoInfo)).toContain('video/mp4');
+    expect(videoInfo.ftyp, JSON.stringify(videoInfo)).toBe('ftyp');
     expect(media.imageResult.loaded, JSON.stringify(media.imageResult)).toBe(true);
     expect(media.imageResult.width).toBeGreaterThan(0);
-    expect(media.videoResult.loaded, JSON.stringify(media.videoResult)).toBe(true);
+    expect(media.videoResult.loaded, JSON.stringify({ videoInfo, videoResult: media.videoResult })).toBe(true);
     expect(media.videoResult.duration).toBeGreaterThan(0);
   });
 });
