@@ -56,7 +56,12 @@ jobs:
           cat /tmp/nf-site-preview.log /tmp/nf-admin-preview.log
           exit 1
 
+      - name: Install Google Chrome for Playwright
+        if: matrix.browser == 'chromium'
+        run: npx playwright install --with-deps chrome
+
       - name: Install Playwright browser
+        if: matrix.browser != 'chromium'
         run: npx playwright install --with-deps ${{ matrix.browser }}
 
       - name: Run local Playwright tests
@@ -111,8 +116,8 @@ jobs:
             const knownHomePreviewSha = isCurrentMediaMigrationPreview ? "c83c2bb956b4f524f8a0980179b2ba4264b5a790" : isCurrentI18nPreview ? "559d6bc2fc5847a6ad644314bd2d0ce29bb02f8d" : isCurrentFixPreview ? "299462d582eb74e624e4dcfc281c1fdc71ca8890" : "20df7469511196c17b132799f623b9e445ea514b";
             const knownAdminPreviewSha = isCurrentMediaMigrationPreview ? "c83c2bb956b4f524f8a0980179b2ba4264b5a790" : isCurrentI18nPreview ? "0b009ca37753fc222f81f76edc994d82788b1906" : isCurrentFixPreview ? "0b009ca37753fc222f81f76edc994d82788b1906" : "fe0586baf570752164b4ebe94b1ddfe2140aa40a";
             const siteUrl = isCurrentMediaMigrationPreview ? "https://note-fiorentine-4ow6kib2h-claudiacastellani983-5675.vercel.app/?_vercel_share=ggRQtyeDXQz8jJcD1Y9MOBhbjb2mQY2o" : isCurrentI18nPreview ? "https://note-fiorentine-7qixy2c2o-claudiacastellani983-5675.vercel.app/" : isCurrentFixPreview ? "https://note-fiorentine-git-fix-header-88edc9-claudiacastellani983-5675.vercel.app/" : "https://note-fiorentine-git-release-i1-363e1b-claudiacastellani983-5675.vercel.app/";
-            const adminBaseUrl = isCurrentMediaMigrationPreview ? "https://note-fiorentine-admin-gw5zh63ck-claudiacastellani983-5675.vercel.app/?_vercel_share=eh8K9OALE8FGeJUJMgcLuQoHmFOZYZkW" : isCurrentI18nPreview ? "https://note-fiorentine-admin-3lhpnhr86-claudiacastellani983-5675.vercel.app/" : isCurrentFixPreview ? "https://note-fiorentine-admin-3lhpnhr86-claudiacastellani983-5675.vercel.app/" : "https://note-fiorentine-admin-git-rele-1da2a5-claudiacastellani983-5675.vercel.app/";
-            const adminUrl = adminBaseUrl + (adminBaseUrl.includes("?") ? "&" : "?") + "sitePreview=" + encodeURIComponent(siteUrl);
+            const adminBaseUrl = isCurrentMediaMigrationPreview ? "https://note-fiorentine-admin-gw5zh63ck-claudiacastellani983-5675.vercel.app/" : isCurrentI18nPreview ? "https://note-fiorentine-admin-3lhpnhr86-claudiacastellani983-5675.vercel.app/" : isCurrentFixPreview ? "https://note-fiorentine-admin-3lhpnhr86-claudiacastellani983-5675.vercel.app/" : "https://note-fiorentine-admin-git-rele-1da2a5-claudiacastellani983-5675.vercel.app/";
+            const adminUrl = adminBaseUrl + "?sitePreview=" + encodeURIComponent(siteUrl);
             const homeContext = "Vercel – note-fiorentine";
             const adminContext = "Vercel – note-fiorentine-admin";
             const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -218,7 +223,7 @@ jobs:
 
   playwright-live-previews:
     needs: resolve-current-previews
-    if: needs.resolve-current-previews.outputs.all_ready == 'true'
+    if: needs.resolve-current-previews.outputs.all_ready == 'true' && github.ref != 'refs/heads/fix/header-visual-editor-integrated-media-migration-2026-11-18'
     name: Preview Vercel reali (${{ matrix.browser }})
     runs-on: ubuntu-24.04
     strategy:
@@ -287,8 +292,8 @@ jobs:
           node-version: 24
       - name: Install dependencies
         run: npm install --no-audit --no-fund
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Install Google Chrome
+        run: npx playwright install --with-deps chrome
       - name: Login, test image management and verify Storage cleanup
         run: npx playwright test tests/admin-authenticated.spec.js --project=chromium --workers=1
       - name: Upload Admin test evidence
