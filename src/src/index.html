@@ -1577,6 +1577,11 @@ Object.assign(dictionaries.de,{"Il collegamento di questo video non è valido o 
 Object.assign(dictionaries.fr,{"Il collegamento di questo video non è valido o non è supportato.":"Ce lien vidéo est invalide ou non pris en charge.","I prossimi eventi saranno pubblicati qui a breve.":"Les prochains événements seront annoncés ici prochainement.","Al momento non è possibile caricare gli eventi.":"Impossible de charger les événements pour le moment.","Scopri l’evento":"Découvrir l’événement","Menu di Capodanno":"Menu du réveillon du Nouvel An","Chiudi popup":"Fermer la fenêtre","Categoria":"Catégorie"});
 Object.assign(dictionaries.es,{"Il collegamento di questo video non è valido o non è supportato.":"El enlace de este vídeo no es válido o no es compatible.","I prossimi eventi saranno pubblicati qui a breve.":"Los próximos eventos se anunciarán aquí próximamente.","Al momento non è possibile caricare gli eventi.":"No es posible cargar los eventos en este momento.","Scopri l’evento":"Descubrir el evento","Menu di Capodanno":"Menú de Nochevieja","Chiudi popup":"Cerrar ventana emergente","Categoria":"Categoría"});
 Object.assign(dictionaries.zh,{"Il collegamento di questo video non è valido o non è supportato.":"此视频链接无效或不受支持。","I prossimi eventi saranno pubblicati qui a breve.":"近期活动信息将在此公布。","Al momento non è possibile caricare gli eventi.":"目前无法加载活动信息。","Scopri l’evento":"了解活动详情","Menu di Capodanno":"新年夜菜单","Chiudi popup":"关闭弹出窗口","Categoria":"类别"});
+Object.assign(dictionaries.en,{"Video delle serate Note Fiorentine":"Note Fiorentine live music videos"});
+Object.assign(dictionaries.de,{"Video delle serate Note Fiorentine":"Live-Musikvideos von Note Fiorentine"});
+Object.assign(dictionaries.fr,{"Video delle serate Note Fiorentine":"Vidéos des soirées musicales de Note Fiorentine"});
+Object.assign(dictionaries.es,{"Video delle serate Note Fiorentine":"Vídeos de las actuaciones musicales de Note Fiorentine"});
+Object.assign(dictionaries.zh,{"Video delle serate Note Fiorentine":"Note Fiorentine 现场音乐演出视频"});
 const map=dictionaries[lang]||{};
 Object.assign(map,{
  'Galleria immagini':({en:'Photo Gallery',de:'Fotogalerie',fr:'Galerie photos',es:'Galería de imágenes',zh:'图片集'})[lang]||'Galleria immagini',
@@ -1601,6 +1606,11 @@ Object.assign(accessibilityLabels.de,{"Chiudi popup":"Popup schließen","Categor
 Object.assign(accessibilityLabels.fr,{"Chiudi popup":"Fermer la fenêtre","Categoria":"Catégorie"});
 Object.assign(accessibilityLabels.es,{"Chiudi popup":"Cerrar ventana emergente","Categoria":"Categoría"});
 Object.assign(accessibilityLabels.zh,{"Chiudi popup":"关闭弹出窗口","Categoria":"类别"});
+Object.assign(accessibilityLabels.en,{"Video delle serate Note Fiorentine":"Note Fiorentine live music videos"});
+Object.assign(accessibilityLabels.de,{"Video delle serate Note Fiorentine":"Live-Musikvideos von Note Fiorentine"});
+Object.assign(accessibilityLabels.fr,{"Video delle serate Note Fiorentine":"Vidéos des soirées musicales de Note Fiorentine"});
+Object.assign(accessibilityLabels.es,{"Video delle serate Note Fiorentine":"Vídeos de las actuaciones musicales de Note Fiorentine"});
+Object.assign(accessibilityLabels.zh,{"Video delle serate Note Fiorentine":"Note Fiorentine 现场音乐演出视频"});
 function translateAccessibility(root){if(!root||root.nodeType!==Node.ELEMENT_NODE)return;const nodes=[root,...root.querySelectorAll('[aria-label]')];for(const el of nodes){const value=el.getAttribute('aria-label');const translated=accessibilityLabels[lang]?.[value];if(translated)el.setAttribute('aria-label',translated);}}
 document.querySelectorAll('[aria-label]').forEach(el=>{const translated=accessibilityLabels[lang]?.[el.getAttribute('aria-label')];if(translated)el.setAttribute('aria-label',translated);});
 new MutationObserver(records=>records.forEach(r=>{(r.addedNodes||[]).forEach(translateAccessibility);if(r.type==='attributes'&&r.target?.nodeType===Node.ELEMENT_NODE)translateAccessibility(r.target);})).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['aria-label']});
