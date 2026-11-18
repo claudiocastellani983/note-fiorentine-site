@@ -125,3 +125,52 @@ test.describe('Funzioni pubbliche delle preview reali', () => {
     expect(adminOverflow, 'L’Admin non deve avere overflow orizzontale a 390px').toBe(false);
   });
 });
+
+
+test.describe('Media reali in Supabase Test', () => {
+  test('Home Preview: immagine e video hero sono leggibili dallo Storage Test', async ({ page }) => {
+    test.setTimeout(60000);
+    expect(SITE_PREVIEW_URL).toBeTruthy();
+    await page.goto(SITE_PREVIEW_URL, { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('networkidle');
+
+    const media = await page.evaluate(async () => {
+      const config = window.NF_SUPABASE_CONFIG;
+      if (!config) return { configured: false };
+      const image = new Image();
+      const imageResult = await new Promise(resolve => {
+        const timer = setTimeout(() => resolve({ loaded: false, reason: 'timeout' }), 20000);
+        image.onload = () => { clearTimeout(timer); resolve({ loaded: true, width: image.naturalWidth, height: image.naturalHeight }); };
+        image.onerror = () => { clearTimeout(timer); resolve({ loaded: false, reason: 'image-error' }); };
+        image.src = config.url + '/storage/v1/object/public/site-media/hero/1794592667681-yvb2g7.jpg';
+      });
+
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      const videoResult = await new Promise(resolve => {
+        const timer = setTimeout(() => resolve({ loaded: false, reason: 'timeout' }), 25000);
+        video.addEventListener('loadedmetadata', () => {
+          clearTimeout(timer);
+          resolve({ loaded: true, duration: video.duration, width: video.videoWidth, height: video.videoHeight });
+        }, { once: true });
+        video.addEventListener('error', () => {
+          clearTimeout(timer);
+          resolve({ loaded: false, reason: 'video-error', code: video.error?.code || null });
+        }, { once: true });
+        video.src = config.url + '/storage/v1/object/public/performance-videos/note-fiorentine-hero-montaggio.mp4';
+        video.load();
+      });
+
+      return { configured: true, projectRef: config.projectRef, environment: config.environment, url: config.url, imageResult, videoResult };
+    });
+
+    expect(media.configured).toBe(true);
+    expect(media.projectRef).toBe('ypkitfyqctjvojgbekmm');
+    expect(media.environment).toBe('Test');
+    expect(media.url).toBe('https://ypkitfyqctjvojgbekmm.supabase.co');
+    expect(media.imageResult.loaded, JSON.stringify(media.imageResult)).toBe(true);
+    expect(media.imageResult.width).toBeGreaterThan(0);
+    expect(media.videoResult.loaded, JSON.stringify(media.videoResult)).toBe(true);
+    expect(media.videoResult.duration).toBeGreaterThan(0);
+  });
+});
