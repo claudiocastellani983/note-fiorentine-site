@@ -350,6 +350,25 @@ async function savePopupAdmin(){
   popupRecord={...popupRecord,active,contact_email:email,media_files:media};popupMedia=media;popupMediaInitial=media.slice();$('popupAdminFiles').value='';st.textContent='Impostazioni salvate e pubblicate.'+cleanup;say('Popup aggiornato.');renderPopupAdminMedia();
  }catch(e){if(uploaded.length&&!dbWriteSucceeded)await db.storage.from('site-media').remove(uploaded);console.error(e);st.textContent='ERRORE: '+(e.message||String(e))+(dbWriteSucceeded?' I file collegati sono stati conservati per evitare collegamenti interrotti.':'');}finally{btn.disabled=false;}
 }
+ 
+// Salvataggio Popup: delega il click in fase capture per non dipendere dal binding
+// diretto del pulsante creato dinamicamente dentro loadPopupAdmin().
+document.addEventListener('click',event=>{
+ const target=event.target;
+ const button=target instanceof Element?target.closest('#savePopupAdmin'):null;
+ if(!button)return;
+ event.preventDefault();
+ event.stopImmediatePropagation();
+ window.__NF_DEBUG?.add('POPUP_SAVE_CAPTURE','Click intercettato sul pulsante Salva impostazioni popup.');
+ const status=document.getElementById('popupAdminStatus');
+ if(status)status.textContent='Click rilevato · avvio salvataggio…';
+ Promise.resolve(savePopupAdmin()).catch(error=>{
+  console.error(error);
+  if(status)status.textContent='ERRORE: '+(error?.message||String(error));
+  window.__NF_DEBUG?.add('POPUP_SAVE_ERROR',error?.message||String(error));
+ });
+},true);
+
 function mediaUrl(path){return /^https?:\/\//i.test(path||'')?path:db.storage.from('site-media').getPublicUrl(path||'').data.publicUrl}
 async function loadMediaPopup(){
  $('add').classList.add('hidden');$('editor').classList.add('hidden');say('Caricamento immagini e popup…');
