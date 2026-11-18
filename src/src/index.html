@@ -1625,6 +1625,7 @@ function setNfSeo(lang,isMenu){
 }
 setNfSeo(lang,isMenu);
 const nav=document.querySelector('header nav');if(nav)nav.setAttribute('aria-label',({it:'Navigazione principale',en:'Main navigation',de:'Hauptnavigation',fr:'Navigation principale',es:'Navegación principal',zh:'主导航'})[lang]);
+const languageNav=document.querySelector('.language-switch');if(languageNav)languageNav.setAttribute('aria-label',({it:'Seleziona la lingua',en:'Select language',de:'Sprache auswählen',fr:'Choisir la langue',es:'Seleccionar idioma',zh:'选择语言'})[lang]);
 document.querySelectorAll('a.brand-mini[href="/"]').forEach(a=>a.href='/?lang='+lang);
 document.querySelectorAll('a[href="/menu.html"],a[href="/menu.html?lang=it"]').forEach(a=>a.href='/menu.html?lang='+lang);
 document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('href').slice(2);a.href='/?lang='+lang+'#'+h;});
