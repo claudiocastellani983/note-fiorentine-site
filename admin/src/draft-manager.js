@@ -3,7 +3,8 @@
 const KEY='nf-release-drafts-v1',VISUAL_KEY='nf-visual-draft-v1',DB='nf-release-assets-v1',STORE='assets';
 const $=id=>document.getElementById(id);
 const envName=()=>window.NF_SUPABASE_CONFIG?.environment||'configurato';
-const isAuthorizedTestAdminPreview=()=>window.NF_SUPABASE_CONFIG?.environment==='Test'&&location.hostname.startsWith('note-fiorentine-admin-')&&location.hostname.endsWith('.vercel.app');
+const isAuthorizedTestAdminPreview=()=>window.NF_SUPABASE_CONFIG?.environment==='Test'&&(location.hostname.startsWith('note-fiorentine-admin-')||location.hostname.startsWith('note-fiorentine-auditore-admin-'))&&location.hostname.endsWith('.vercel.app');
+const canPublishEventDraft=()=>{const host=location.hostname.toLowerCase(),productionHosts=new Set(['note-fiorentine-auditore-admin.vercel.app','note-fiorentine-admin.vercel.app','note-fiorentine-admin-claudiocastellani983-5675.vercel.app','note-fiorentine-admin-dhv0f1t1z-claudiocastellani983-5675.vercel.app']);return (window.NF_SUPABASE_CONFIG?.environment==='Production'&&productionHosts.has(host))||isAuthorizedTestAdminPreview()};
 let drafts=readDrafts(),dbPromise=null;
 function readDrafts(){try{const v=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(v)?v:[]}catch(_){return[]}}
 function openDb(){if(dbPromise)return dbPromise;dbPromise=new Promise((resolve,reject)=>{if(!indexedDB){reject(Error('Archivio allegati non supportato dal browser.'));return}const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(STORE))r.result.createObjectStore(STORE)};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});return dbPromise}
@@ -16,7 +17,7 @@ function snapshot(){const out=drafts.slice(),v=visualDraft();if(v&&Object.keys(v
 function say(s){const el=$('status');if(el)el.textContent=s;window.__NF_DEBUG?.setStatus?.(s)}
 function render(){const app=$('app');if(!app)return;let p=$('nfDraftPanel');if(!p){p=document.createElement('section');p.id='nfDraftPanel';p.className='panel';p.style.cssText='border-color:#c5a16b';const top=app.querySelector('.panel');if(top)top.insertAdjacentElement('afterend',p);else app.prepend(p)}const n=snapshot().length,environment=envName();p.innerHTML='<div style="display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap"><div><strong style="color:var(--gold)">Release in preparazione</strong><p class="muted" style="margin:5px 0">Le modifiche restano in bozza locale. Ambiente collegato: Supabase '+esc(environment)+'. La pubblicazione richiede conferma.</p><span class="status" id="nfDraftCount">'+n+' modifiche in attesa di revisione</span></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" id="nfDraftExport" class="primary">Esporta pacchetto</button><button type="button" id="nfDraftReview">Rivedi bozze</button><button type="button" id="nfDraftClear" class="danger">Svuota bozze</button></div></div><p class="media-note" style="margin:10px 0 0">Il pacchetto comprende modifiche strutturate e file selezionati. È un dossier per la revisione, non una pubblicazione automatica.</p>';
 const eventDrafts=drafts.filter(d=>d.section==='Eventi'&&['record','toggle-publish'].includes(d.type));
-if(eventDrafts.length){
+if(eventDrafts.length&&canPublishEventDraft()){
  const host=document.createElement('section');
  const environment=envName();
  host.id='nfEventDraftActions';

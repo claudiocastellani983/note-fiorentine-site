@@ -71,16 +71,14 @@
 (()=> {
   const host=location.hostname.toLowerCase();
   const productionHosts=new Set([
-    'www.notefiorentine.it','notefiorentine.it','note-fiorentine.vercel.app',
-    'note-fiorentine-n8y0wjydb-claudiocastellani983-5675.vercel.app',
-    'note-fiorentine-admin.vercel.app','note-fiorentine-admin-claudiocastellani983-5675.vercel.app',
-    'note-fiorentine-admin-dhv0f1t1z-claudiocastellani983-5675.vercel.app'
+    'note-fiorentine-auditore-admin.vercel.app','note-fiorentine-admin.vercel.app'
   ]);
   const production=productionHosts.has(host);
+  const preview=(host.startsWith('note-fiorentine-auditore-admin-')||host.startsWith('note-fiorentine-admin-'))&&host.endsWith('.vercel.app')&&!production;
   window.NF_SUPABASE_CONFIG=Object.freeze({
-    url:production?'https://nculgrwlzjitggjcgbpp.supabase.co':'https://iuxskknbopboynjlsxbk.supabase.co',
-    key:production?'sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0':'sb_publishable_GTGiyYl8pZsY6letaozS2Q_dmh9vrRc',
-    environment:production?'Production':'Test'
+    url:production?'https://cpumzowmadbqyecflkyl.supabase.co':'https://ypkitfyqctjvojgbekmm.supabase.co',
+    key:production?'sb_publishable_jFOfj9H7WB0sd8kev72MmQ_YWprnreE':'sb_publishable_zYUxpEdaEcv7GMiT43Zg4Q_fStrm-Kj',
+    environment:production?'Production':preview?'Test':'Non autorizzato'
   });
 })();
 </script>
@@ -148,8 +146,8 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { mountStorageOptimizer } from './src/storage-optimizer.js';
 const NF_ADMIN_HOST=location.hostname.toLowerCase();
-const NF_ADMIN_PRODUCTION=NF_ADMIN_HOST==='note-fiorentine-admin.vercel.app'||NF_ADMIN_HOST==='note-fiorentine-admin-claudiocastellani983-5675.vercel.app'||NF_ADMIN_HOST==='note-fiorentine-admin-dhv0f1t1z-claudiocastellani983-5675.vercel.app';
-const NF_ADMIN_PREVIEW=NF_ADMIN_HOST.startsWith('note-fiorentine-admin-')&&NF_ADMIN_HOST.endsWith('.vercel.app')&&!NF_ADMIN_PRODUCTION;
+const NF_ADMIN_PRODUCTION=NF_ADMIN_HOST==='note-fiorentine-auditore-admin.vercel.app'||NF_ADMIN_HOST==='note-fiorentine-admin.vercel.app'||NF_ADMIN_HOST==='note-fiorentine-admin-claudiocastellani983-5675.vercel.app'||NF_ADMIN_HOST==='note-fiorentine-admin-dhv0f1t1z-claudiocastellani983-5675.vercel.app';
+const NF_ADMIN_PREVIEW=(NF_ADMIN_HOST.startsWith('note-fiorentine-auditore-admin-')||NF_ADMIN_HOST.startsWith('note-fiorentine-admin-'))&&NF_ADMIN_HOST.endsWith('.vercel.app')&&!NF_ADMIN_PRODUCTION;
 const rawSupabase=createClient(window.NF_SUPABASE_CONFIG.url,window.NF_SUPABASE_CONFIG.key);
 const NF_ADMIN_WRITE_ENABLED=NF_ADMIN_PRODUCTION||NF_ADMIN_PREVIEW;
 const NF_PREVIEW_READ_ONLY=!NF_ADMIN_WRITE_ENABLED;

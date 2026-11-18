@@ -167,11 +167,13 @@ test('accoda eliminazione e cambio pubblicazione senza eseguirli', async ({ page
 });
 
 test('mantiene il blocco di tutte le scritture al database e allo Storage in anteprima', async () => {
-  expect(adminSource).toContain("https://iuxskknbopboynjlsxbk.supabase.co");
-  expect(adminSource).toContain("https://nculgrwlzjitggjcgbpp.supabase.co");
-  expect(adminSource).toContain("const ADMIN_PRODUCTION=ADMIN_HOST==='note-fiorentine-admin.vercel.app'");
-  expect(adminSource).toContain("const ADMIN_PREVIEW=ADMIN_HOST.startsWith('note-fiorentine-admin-')");
-  expect(adminSource).toContain("const PREVIEW_READ_ONLY=!(ADMIN_PRODUCTION||ADMIN_PREVIEW);");
+  expect(adminSource).toContain("url:production?'https://cpumzowmadbqyecflkyl.supabase.co':'https://ypkitfyqctjvojgbekmm.supabase.co'");
+  expect(adminSource).toContain("key:production?'sb_publishable_jFOfj9H7WB0sd8kev72MmQ_YWprnreE':'sb_publishable_zYUxpEdaEcv7GMiT43Zg4Q_fStrm-Kj'");
+  expect(adminSource).toContain("environment:production?'Production':preview?'Test':'Non autorizzato'");
+  expect(adminSource).toContain("const ADMIN_PRODUCTION=ADMIN_HOST==='note-fiorentine-auditore-admin.vercel.app'||ADMIN_HOST==='note-fiorentine-admin.vercel.app'");
+  expect(adminSource).toContain("const ADMIN_PREVIEW=(ADMIN_HOST.startsWith('note-fiorentine-auditore-admin-')");
+  expect(adminSource).toContain("const PREVIEW_READ_ONLY=!ADMIN_PRODUCTION&&!ADMIN_PREVIEW;");
+  expect(adminSource).toContain("if(!ADMIN_PRODUCTION||window.NF_SUPABASE_CONFIG?.environment!=='Production')");
   expect(adminSource).toContain("createClient(window.NF_SUPABASE_CONFIG.url,window.NF_SUPABASE_CONFIG.key)");
   expect(adminSource).toContain("if(PREVIEW_READ_ONLY&&['insert','update','upsert','delete'].includes(String(key)))return blockedWrite");
   expect(adminSource).toContain("if(PREVIEW_READ_ONLY&&['upload','remove','update','move','copy'].includes(String(key)))return blockedWrite");

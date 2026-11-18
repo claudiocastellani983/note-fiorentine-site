@@ -25,8 +25,8 @@ test('ottimizzazione egress presente in homepage e pannelli', async ({ browserNa
   expect(inventorySource).not.toContain('.remove(');
   expect(manager.match(/upload\(path,optimized/g)?.length || 0).toBeGreaterThanOrEqual(3);
 
-  expect(homepage).toContain("img.loading=priority?'eager':'lazy'");
-  expect(homepage).toContain("rootMargin:'350px'");
+  expect(homepage).toContain("img.loading='lazy';img.fetchPriority='low'");
+  expect(homepage).toContain("img.decoding='async'");
   expect(homepage).toContain("media.preload='none'");
   expect(manager).toContain("media.preload='none'");
   expect(manager).toContain("cacheControl:'31536000'");

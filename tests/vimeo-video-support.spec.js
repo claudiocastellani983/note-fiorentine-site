@@ -35,16 +35,17 @@ test.describe('Supporto Vimeo e YouTube nelle sezioni video', () => {
     expect(imageAdmin).toContain("item.video_url||item.youtube_url");
   });
 
-  test('Home carica i video ambienti solo nel visualizzatore dedicato e su richiesta', () => {
-    expect(home).toContain("document.dispatchEvent(new CustomEvent('nf-open-restaurant-videos'");
-    expect(home).toContain("document.addEventListener('nf-open-restaurant-videos',e=>open('restaurant-videos'");
-    expect(home).toContain("'id,title,youtube_url,video_url,video_orientation'");
-    expect(home).toContain("extractVimeoId(videoSource)");
-    expect(home).toContain('https://player.vimeo.com/video/');
+  test('Home integra Vimeo e YouTube nella galleria video degli artisti', () => {
+    expect(home).toContain("data-artist-gallery=\"videos\"");
+    expect(home).toContain("function extractYouTubeId(value)");
+    expect(home).toContain("function extractVimeoId(value)");
+    expect(home).toContain("item.video_url||item.video_path");
+    expect(home).toContain("video_path,video_url,video_orientation");
+    expect(home).toContain("https://player.vimeo.com/video/");
+    expect(home).toContain("https://www.youtube-nocookie.com/embed/");
     expect(home).toContain("frame.loading='eager'");
-    expect(home).toContain("frame.src='https://player.vimeo.com/video/'");
-    expect(home).toContain("function close(){const activeMedia=stage.querySelector('video,iframe')");
-    expect(home).toContain("if(kind==='restaurant-videos')");
+    expect(home).toContain("frame.allowFullscreen=true");
+    expect(home).toContain("Compatibilità con lo schema legacy prima dell'applicazione della migrazione video_url.");
     expect(home).toContain("Il collegamento di questo video non è valido o non è supportato.");
   });
 

@@ -13,7 +13,8 @@ test('editor Testi e grafica resta modificabile e offre controlli grafici', asyn
 test('CTA eventi centrata e immagini eventi ottimizzate prima dell’upload', async () => {
   const home = fs.readFileSync(path.join(__dirname, '../src/src/index.html'), 'utf8');
   const manager = fs.readFileSync(path.join(__dirname, '../admin/gestione-immagini.html'), 'utf8');
-  expect(home).toContain('align-self:center; justify-content:center; text-align:center; margin:20px auto 0;');
+  expect(home).toContain('id="nf-event-cta-centering-v1"');
+  expect(home).toContain('#eventList .event-action{display:table;margin:20px auto 0;text-align:center}');
   expect(manager).toContain('const optimized=await optimizeImageFile(file)');
   expect(manager).toContain('contentType:optimized.type');
 });

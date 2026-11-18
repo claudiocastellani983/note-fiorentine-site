@@ -13,10 +13,10 @@ test.beforeAll(async () => {
 test('collega l’ottimizzatore al database previsto per l’ambiente Admin', async () => {
   expect(adminSource).toContain("import{mountStorageOptimizer}from'./storage-optimizer.js';");
   expect(adminSource).toContain('id="storageOptimizerMount"');
-  expect(adminSource).toContain("mountStorageOptimizer({db,root:$('storageOptimizerMount'),readOnly:!ADMIN_PREVIEW,environment:window.NF_SUPABASE_CONFIG.environment})");
-  expect(adminSource).toContain('https://iuxskknbopboynjlsxbk.supabase.co');
-  expect(adminSource).toContain("const ADMIN_PREVIEW=ADMIN_HOST.startsWith('note-fiorentine-admin-')");
-  expect(adminSource).toContain("https://nculgrwlzjitggjcgbpp.supabase.co");
+  expect(adminSource).toContain("mountStorageOptimizer({db,root:$('storageOptimizerMount'),readOnly:PREVIEW_READ_ONLY,environment:window.NF_SUPABASE_CONFIG.environment})");
+  expect(adminSource).toContain('https://cpumzowmadbqyecflkyl.supabase.co');
+  expect(adminSource).toContain("const ADMIN_PREVIEW=(ADMIN_HOST.startsWith('note-fiorentine-auditore-admin-')");
+  expect(adminSource).toContain("https://cpumzowmadbqyecflkyl.supabase.co");
 });
 
 test('espone un solo comando che esegue analisi, conversione, verifica e sostituzione', async () => {

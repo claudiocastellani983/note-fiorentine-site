@@ -3,8 +3,8 @@ const { test, expect } = require('@playwright/test');
 test('gestione immagini: UI autenticata simulata, senza chiamate o scritture reali', async ({ page, browserName }) => {
   test.skip(browserName !== 'chromium', 'Simulazione admin eseguita una volta sola');
 
-  const baseUrl = process.env.PLAYWRIGHT_BASE_URL;
-  test.skip(!baseUrl, 'PLAYWRIGHT_BASE_URL non configurato');
+  const baseUrl = process.env.ADMIN_BASE_URL;
+  test.skip(!baseUrl, 'ADMIN_BASE_URL non configurato');
 
   const realSupabaseRequests = [];
   const pageErrors = [];
@@ -50,7 +50,7 @@ test('gestione immagini: UI autenticata simulata, senza chiamate o scritture rea
   );
 
   // Ulteriore barriera: ogni tentativo di raggiungere il progetto reale viene bloccato e registrato.
-  await page.route('https://nculgrwlzjitggjcgbpp.supabase.co/**', async route => {
+  await page.route('https://iuxskknbopboynjlsxbk.supabase.co/**', async route => {
     realSupabaseRequests.push({ method: route.request().method(), url: route.request().url() });
     await route.abort('blockedbyclient');
   });
@@ -73,10 +73,9 @@ test('gestione immagini: UI autenticata simulata, senza chiamate o scritture rea
   await expect(page.locator('#galleryAdminPanel input[type="file"]')).toHaveCount(3);
   await expect(page.locator('#artistMediaAdminPanel input[type="file"]')).toHaveCount(3);
 
-  // Sul dominio Vercel di preview anche l'area autenticata resta protetta:
-  // il tentativo di modificare il popup deve essere rifiutato prima di Supabase.
+  // Sul server locale l'host non è autorizzato: il proxy deve bloccare la scrittura prima di Supabase.
   await page.locator('#popupVisibilityBtn').click();
-  await expect(page.locator('#popupVisibilityStatus')).toContainText('Anteprima protetta');
+  await expect(page.locator('#popupVisibilityStatus')).toContainText('Scritture disabilitate');
   expect(realSupabaseRequests).toEqual([]);
   expect(pageErrors).toEqual([]);
 });
