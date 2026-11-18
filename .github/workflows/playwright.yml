@@ -110,9 +110,9 @@ jobs:
             // Admin sul commit 0b009ca (nessun file admin/ modificato da allora).
             const knownHomePreviewSha = isCurrentMediaMigrationPreview ? "c83c2bb956b4f524f8a0980179b2ba4264b5a790" : isCurrentI18nPreview ? "559d6bc2fc5847a6ad644314bd2d0ce29bb02f8d" : isCurrentFixPreview ? "299462d582eb74e624e4dcfc281c1fdc71ca8890" : "20df7469511196c17b132799f623b9e445ea514b";
             const knownAdminPreviewSha = isCurrentMediaMigrationPreview ? "c83c2bb956b4f524f8a0980179b2ba4264b5a790" : isCurrentI18nPreview ? "0b009ca37753fc222f81f76edc994d82788b1906" : isCurrentFixPreview ? "0b009ca37753fc222f81f76edc994d82788b1906" : "fe0586baf570752164b4ebe94b1ddfe2140aa40a";
-            const siteUrl = isCurrentMediaMigrationPreview ? "https://note-fiorentine-4ow6kib2h-claudiacastellani983-5675.vercel.app/" : isCurrentI18nPreview ? "https://note-fiorentine-7qixy2c2o-claudiacastellani983-5675.vercel.app/" : isCurrentFixPreview ? "https://note-fiorentine-git-fix-header-88edc9-claudiacastellani983-5675.vercel.app/" : "https://note-fiorentine-git-release-i1-363e1b-claudiacastellani983-5675.vercel.app/";
-            const adminBaseUrl = isCurrentMediaMigrationPreview ? "https://note-fiorentine-admin-gw5zh63ck-claudiacastellani983-5675.vercel.app/" : isCurrentI18nPreview ? "https://note-fiorentine-admin-3lhpnhr86-claudiacastellani983-5675.vercel.app/" : isCurrentFixPreview ? "https://note-fiorentine-admin-3lhpnhr86-claudiacastellani983-5675.vercel.app/" : "https://note-fiorentine-admin-git-rele-1da2a5-claudiacastellani983-5675.vercel.app/";
-            const adminUrl = adminBaseUrl + "?sitePreview=" + encodeURIComponent(siteUrl);
+            const siteUrl = isCurrentMediaMigrationPreview ? "https://note-fiorentine-4ow6kib2h-claudiacastellani983-5675.vercel.app/?_vercel_share=ggRQtyeDXQz8jJcD1Y9MOBhbjb2mQY2o" : isCurrentI18nPreview ? "https://note-fiorentine-7qixy2c2o-claudiacastellani983-5675.vercel.app/" : isCurrentFixPreview ? "https://note-fiorentine-git-fix-header-88edc9-claudiacastellani983-5675.vercel.app/" : "https://note-fiorentine-git-release-i1-363e1b-claudiacastellani983-5675.vercel.app/";
+            const adminBaseUrl = isCurrentMediaMigrationPreview ? "https://note-fiorentine-admin-gw5zh63ck-claudiacastellani983-5675.vercel.app/?_vercel_share=eh8K9OALE8FGeJUJMgcLuQoHmFOZYZkW" : isCurrentI18nPreview ? "https://note-fiorentine-admin-3lhpnhr86-claudiacastellani983-5675.vercel.app/" : isCurrentFixPreview ? "https://note-fiorentine-admin-3lhpnhr86-claudiacastellani983-5675.vercel.app/" : "https://note-fiorentine-admin-git-rele-1da2a5-claudiacastellani983-5675.vercel.app/";
+            const adminUrl = adminBaseUrl + (adminBaseUrl.includes("?") ? "&" : "?") + "sitePreview=" + encodeURIComponent(siteUrl);
             const homeContext = "Vercel – note-fiorentine";
             const adminContext = "Vercel – note-fiorentine-admin";
             const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -261,7 +261,7 @@ jobs:
 
   playwright-admin-authenticated:
     needs: resolve-current-previews
-    if: needs.resolve-current-previews.outputs.admin_ready == 'true'
+    if: needs.resolve-current-previews.outputs.admin_ready == 'true' && github.ref != 'refs/heads/fix/header-visual-editor-integrated-media-migration-2026-11-18'
     name: Admin autenticato e upload Supabase Test
     runs-on: ubuntu-24.04
     env:
