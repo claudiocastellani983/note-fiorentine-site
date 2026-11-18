@@ -8,6 +8,17 @@ on:
   pull_request:
     branches: [release/integrated-preview-2026-11, main]
   workflow_dispatch:
+    inputs:
+      run_live_preview_tests:
+        description: "Esegui i test sulle Preview Vercel reali (possono generare richieste ai servizi esterni)."
+        required: false
+        type: boolean
+        default: false
+      run_authenticated_supabase_tests:
+        description: "Esegui i test Admin autenticati su Supabase Test (consenso esplicito necessario)."
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -79,7 +90,7 @@ jobs:
 
   resolve-current-previews:
     name: Verifica che le preview appartengano al commit corrente
-    if: (github.event_name == 'push' && !startsWith(github.event.head_commit.message, 'test:') && !startsWith(github.event.head_commit.message, 'ci: skip live Supabase checks') && (github.ref == 'refs/heads/release/integrated-preview-2026-11' || github.ref == 'refs/heads/fix/header-visual-editor-integrated-supabase-preview-test-2026-11-17' || github.ref == 'refs/heads/fix/header-visual-editor-integrated-media-migration-2026-11-18')) || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/release/integrated-preview-2026-11') || (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'release/integrated-preview-2026-11')
+    if: (github.event_name == 'push' && !startsWith(github.event.head_commit.message, 'test:') && !startsWith(github.event.head_commit.message, 'ci: skip live Supabase checks') && (github.ref == 'refs/heads/release/integrated-preview-2026-11' || github.ref == 'refs/heads/fix/header-visual-editor-integrated-supabase-preview-test-2026-11-17' || github.ref == 'refs/heads/fix/header-visual-editor-integrated-media-migration-2026-11-18')) || (github.event_name == 'workflow_dispatch' && (github.ref == 'refs/heads/release/integrated-preview-2026-11' || github.ref == 'refs/heads/fix/header-visual-editor-integrated-media-migration-2026-11-18')) || (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'release/integrated-preview-2026-11')
     runs-on: ubuntu-24.04
     outputs:
       admin_ready: ${{ steps.resolve.outputs.admin_ready }}
@@ -113,9 +124,9 @@ jobs:
             // Per il branch i18n riutilizziamo le preview READY già verificate:
             // Home sul commit 559d6bc (codice Home/Menu aggiornato),
             // Admin sul commit 0b009ca (nessun file admin/ modificato da allora).
-            const knownHomePreviewSha = isCurrentMediaMigrationPreview ? "8ff7313238fe9c6ca090eeeb0e25c0ef4926b2ea" : isCurrentI18nPreview ? "559d6bc2fc5847a6ad644314bd2d0ce29bb02f8d" : isCurrentFixPreview ? "299462d582eb74e624e4dcfc281c1fdc71ca8890" : "20df7469511196c17b132799f623b9e445ea514b";
-            const knownAdminPreviewSha = isCurrentMediaMigrationPreview ? "c83c2bb956b4f524f8a0980179b2ba4264b5a790" : isCurrentI18nPreview ? "0b009ca37753fc222f81f76edc994d82788b1906" : isCurrentFixPreview ? "0b009ca37753fc222f81f76edc994d82788b1906" : "fe0586baf570752164b4ebe94b1ddfe2140aa40a";
-            const siteUrl = isCurrentMediaMigrationPreview ? "https://note-fiorentine-5zp076dvl-claudiacastellani983-5675.vercel.app/?_vercel_share=ggRQtyeDXQz8jJcD1Y9MOBhbjb2mQY2o" : isCurrentI18nPreview ? "https://note-fiorentine-7qixy2c2o-claudiacastellani983-5675.vercel.app/" : isCurrentFixPreview ? "https://note-fiorentine-git-fix-header-88edc9-claudiacastellani983-5675.vercel.app/" : "https://note-fiorentine-git-release-i1-363e1b-claudiacastellani983-5675.vercel.app/";
+            const knownHomePreviewSha = isCurrentMediaMigrationPreview ? "aa2469ecfc49e530ee7f7546d19cd8b765cfddef" : isCurrentI18nPreview ? "559d6bc2fc5847a6ad644314bd2d0ce29bb02f8d" : isCurrentFixPreview ? "299462d582eb74e624e4dcfc281c1fdc71ca8890" : "20df7469511196c17b132799f623b9e445ea514b";
+            const knownAdminPreviewSha = isCurrentMediaMigrationPreview ? "8ff7313238fe9c6ca090eeeb0e25c0ef4926b2ea" : isCurrentI18nPreview ? "0b009ca37753fc222f81f76edc994d82788b1906" : isCurrentFixPreview ? "0b009ca37753fc222f81f76edc994d82788b1906" : "fe0586baf570752164b4ebe94b1ddfe2140aa40a";
+            const siteUrl = isCurrentMediaMigrationPreview ? "https://note-fiorentine-j7az7y60p-claudiacastellani983-5675.vercel.app/" : isCurrentI18nPreview ? "https://note-fiorentine-7qixy2c2o-claudiacastellani983-5675.vercel.app/" : isCurrentFixPreview ? "https://note-fiorentine-git-fix-header-88edc9-claudiacastellani983-5675.vercel.app/" : "https://note-fiorentine-git-release-i1-363e1b-claudiacastellani983-5675.vercel.app/";
             const adminBaseUrl = isCurrentMediaMigrationPreview ? "https://note-fiorentine-admin-h9w1zdj0z-claudiacastellani983-5675.vercel.app/" : isCurrentI18nPreview ? "https://note-fiorentine-admin-3lhpnhr86-claudiacastellani983-5675.vercel.app/" : isCurrentFixPreview ? "https://note-fiorentine-admin-3lhpnhr86-claudiacastellani983-5675.vercel.app/" : "https://note-fiorentine-admin-git-rele-1da2a5-claudiacastellani983-5675.vercel.app/";
             const adminUrl = adminBaseUrl + "?sitePreview=" + encodeURIComponent(siteUrl);
             const homeContext = "Vercel – note-fiorentine";
@@ -223,7 +234,7 @@ jobs:
 
   playwright-live-previews:
     needs: resolve-current-previews
-    if: needs.resolve-current-previews.outputs.all_ready == 'true' && github.ref != 'refs/heads/fix/header-visual-editor-integrated-media-migration-2026-11-18'
+    if: needs.resolve-current-previews.outputs.all_ready == 'true' && github.event_name == 'workflow_dispatch' && inputs.run_live_preview_tests == true
     name: Preview Vercel reali (${{ matrix.browser }})
     runs-on: ubuntu-24.04
     strategy:
@@ -266,7 +277,7 @@ jobs:
 
   playwright-admin-authenticated:
     needs: resolve-current-previews
-    if: needs.resolve-current-previews.outputs.admin_ready == 'true'
+    if: needs.resolve-current-previews.outputs.admin_ready == 'true' && github.event_name == 'workflow_dispatch' && inputs.run_authenticated_supabase_tests == true'
     name: Admin autenticato e upload Supabase Test
     runs-on: ubuntu-24.04
     env:
