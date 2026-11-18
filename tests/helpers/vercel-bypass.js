@@ -5,8 +5,8 @@ async function attachVercelBypass(page) {
   const adminUrl = process.env.ADMIN_PREVIEW_URL;
   const siteHost = siteUrl ? new URL(siteUrl).hostname : null;
   const adminHost = adminUrl ? new URL(adminUrl).hostname : null;
-  const siteSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
-  const adminSecret = process.env.ADMIN_VERCEL_AUTOMATION_BYPASS_SECRET;
+  const siteSecret = siteUrl && new URL(siteUrl).searchParams.has('_vercel_share') ? null : process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+  const adminSecret = adminUrl && new URL(adminUrl).searchParams.has('_vercel_share') ? null : process.env.ADMIN_VERCEL_AUTOMATION_BYPASS_SECRET;
 
   await page.route('**/*', async route => {
     const requestUrl = new URL(route.request().url());
