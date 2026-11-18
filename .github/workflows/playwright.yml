@@ -234,7 +234,7 @@ jobs:
 
   playwright-live-previews:
     needs: resolve-current-previews
-    if: needs.resolve-current-previews.outputs.all_ready == 'true' && github.event_name == 'workflow_dispatch' && inputs.run_live_preview_tests == true
+    if: needs.resolve-current-previews.outputs.all_ready == 'true' && github.event_name == 'workflow_dispatch' && github.event.inputs.run_live_preview_tests == 'true'
     name: Preview Vercel reali (${{ matrix.browser }})
     runs-on: ubuntu-24.04
     strategy:
@@ -277,7 +277,7 @@ jobs:
 
   playwright-admin-authenticated:
     needs: resolve-current-previews
-    if: needs.resolve-current-previews.outputs.admin_ready == 'true' && github.event_name == 'workflow_dispatch' && inputs.run_authenticated_supabase_tests == true
+    if: needs.resolve-current-previews.outputs.admin_ready == 'true' && github.event_name == 'workflow_dispatch' && github.event.inputs.run_authenticated_supabase_tests == 'true'
     name: Admin autenticato e upload Supabase Test
     runs-on: ubuntu-24.04
     env:
