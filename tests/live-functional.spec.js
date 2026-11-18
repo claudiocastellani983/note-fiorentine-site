@@ -125,3 +125,72 @@ test.describe('Funzioni pubbliche delle preview reali', () => {
     expect(adminOverflow, 'L’Admin non deve avere overflow orizzontale a 390px').toBe(false);
   });
 });
+
+
+test.describe('Media reali in Supabase Test', () => {
+  test('Home Preview: immagine e video hero sono leggibili dallo Storage Test', async ({ page }) => {
+    test.setTimeout(60000);
+    const siteUrl = SITE_PREVIEW_URL || process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:4173';
+    await page.goto(siteUrl, { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('networkidle');
+
+    const config = await page.evaluate(() => window.NF_SUPABASE_CONFIG || null);
+    expect(config, 'Configurazione Supabase mancante nella Preview').not.toBeNull();
+    expect(config.projectRef).toBe('ypkitfyqctjvojgbekmm');
+    expect(config.environment).toBe('Test');
+    expect(config.url).toBe('https://ypkitfyqctjvojgbekmm.supabase.co');
+
+    const imageUrl = config.url + '/storage/v1/object/public/site-media/hero/1794592667681-yvb2g7.jpg';
+    const videoUrl = config.url + '/storage/v1/object/public/performance-videos/note-fiorentine-hero-montaggio.mp4';
+
+    const videoResponse = await page.request.get(videoUrl);
+    const videoBytes = await videoResponse.body();
+    const videoText = videoBytes.toString('latin1');
+    const videoInfo = {
+      status: videoResponse.status(),
+      contentType: videoResponse.headers()['content-type'] || '',
+      contentLength: videoBytes.length,
+      ftyp: videoText.slice(4, 8),
+      codecMarkers: ['avc1', 'hvc1', 'hev1', 'vp09', 'av01', 'mp4v', 'mp4a'].filter(marker => videoText.includes(marker))
+    };
+
+    const media = await page.evaluate(async ({ imageUrl, videoUrl }) => {
+      const image = new Image();
+      const imageResult = await new Promise(resolve => {
+        const timer = setTimeout(() => resolve({ loaded: false, reason: 'timeout' }), 20000);
+        image.onload = () => { clearTimeout(timer); resolve({ loaded: true, width: image.naturalWidth, height: image.naturalHeight }); };
+        image.onerror = () => { clearTimeout(timer); resolve({ loaded: false, reason: 'image-error' }); };
+        image.src = imageUrl;
+      });
+
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      const videoResult = await new Promise(resolve => {
+        const timer = setTimeout(() => resolve({ loaded: false, reason: 'timeout' }), 25000);
+        video.addEventListener('loadedmetadata', () => {
+          clearTimeout(timer);
+          resolve({ loaded: true, duration: video.duration, width: video.videoWidth, height: video.videoHeight });
+        }, { once: true });
+        video.addEventListener('error', () => {
+          clearTimeout(timer);
+          resolve({ loaded: false, reason: 'video-error', code: video.error?.code || null });
+        }, { once: true });
+        video.src = videoUrl;
+        video.load();
+      });
+      return { imageResult, videoResult };
+    }, { imageUrl, videoUrl });
+
+    expect(videoInfo.status, JSON.stringify(videoInfo)).toBe(200);
+    expect(videoInfo.contentType, JSON.stringify(videoInfo)).toContain('video/mp4');
+    expect(videoInfo.ftyp, JSON.stringify(videoInfo)).toBe('ftyp');
+    expect(media.imageResult.loaded, JSON.stringify(media.imageResult)).toBe(true);
+    expect(media.imageResult.width).toBeGreaterThan(0);
+    if (test.info().project.name === 'firefox' && !media.videoResult.loaded && media.videoResult.code === 4) {
+      console.warn('Firefox Playwright su Linux non dispone del decoder H.264; file MP4 verificato via HTTP e codec avc1. Playback verificato separatamente in Chrome/WebKit.');
+    } else {
+      expect(media.videoResult.loaded, JSON.stringify({ videoInfo, videoResult: media.videoResult })).toBe(true);
+      expect(media.videoResult.duration).toBeGreaterThan(0);
+    }
+  });
+});

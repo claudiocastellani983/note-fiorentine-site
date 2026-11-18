@@ -39,6 +39,17 @@ for (const pagePath of ['/', '/menu.html']) {
   });
 }
 
+for (const pagePath of ['/', '/menu.html']) {
+  test(`SEO: tracking parameters do not enter the canonical URL on ${pagePath}`, async ({ page }) => {
+    await page.goto(`${siteUrl}${pagePath}?lang=en&utm_source=chatgpt.com&utm_medium=referral`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      `https://www.notefiorentine.it${pagePath}?lang=en`
+    );
+    await expect(page.locator('link[rel="canonical"]')).not.toHaveAttribute('href', /utm_/);
+  });
+}
+
 test('SEO: robots.txt and sitemap expose Home and Menu in six languages', async ({ request }) => {
   const robots = await request.get(`${siteUrl}/robots.txt`);
   expect(robots.ok()).toBeTruthy();

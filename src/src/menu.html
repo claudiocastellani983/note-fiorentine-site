@@ -8,6 +8,41 @@
 <meta name="theme-color" content="#F4EBDD">
 <meta name="description" content="Note Fiorentine: ristorante toscano nel centro storico di Firenze. Musica dal vivo ogni sera dalle 19:30 alle 21:30, inclusa nella cena.">
 <title>Il Menu | Note Fiorentine – Firenze</title>
+<link rel="canonical" href="https://www.notefiorentine.it/menu.html">
+<link rel="alternate" hreflang="it" href="https://www.notefiorentine.it/menu.html">
+<link rel="alternate" hreflang="en" href="https://www.notefiorentine.it/menu.html?lang=en">
+<link rel="alternate" hreflang="de" href="https://www.notefiorentine.it/menu.html?lang=de">
+<link rel="alternate" hreflang="fr" href="https://www.notefiorentine.it/menu.html?lang=fr">
+<link rel="alternate" hreflang="es" href="https://www.notefiorentine.it/menu.html?lang=es">
+<link rel="alternate" hreflang="zh-CN" href="https://www.notefiorentine.it/menu.html?lang=zh">
+<link rel="alternate" hreflang="x-default" href="https://www.notefiorentine.it/menu.html">
+<script id="nf-head-seo">
+(function(){
+  var base='https://www.notefiorentine.it';
+  var allowed=['it','en','de','fr','es','zh'];
+  var requested=(new URLSearchParams(location.search).get('lang')||'it').toLowerCase();
+  var lang=allowed.indexOf(requested)!==-1?requested:'it';
+  var path=location.pathname.endsWith('/menu.html')?'/menu.html':'/';
+  var urls={it:base+path,en:base+path+'?lang=en',de:base+path+'?lang=de',fr:base+path+'?lang=fr',es:base+path+'?lang=es',zh:base+path+'?lang=zh'};
+  var canonical=document.querySelector('link[rel="canonical"]');
+  if(!canonical){canonical=document.createElement('link');canonical.rel='canonical';document.head.appendChild(canonical);}
+  canonical.href=urls[lang];
+  document.querySelectorAll('link[rel="alternate"][hreflang]').forEach(function(link){link.remove();});
+  allowed.forEach(function(code){
+    var link=document.createElement('link');
+    link.rel='alternate';
+    link.hreflang=code==='zh'?'zh-CN':code;
+    link.href=urls[code];
+    document.head.appendChild(link);
+  });
+  var fallback=document.createElement('link');
+  fallback.rel='alternate';
+  fallback.hreflang='x-default';
+  fallback.href=urls.it;
+  document.head.appendChild(fallback);
+  document.documentElement.lang=lang==='zh'?'zh-CN':lang;
+})();
+</script>
 <style>
 :root {
   --site-primary: #8F2928;
@@ -581,15 +616,12 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
 (()=> {
   const host=location.hostname.toLowerCase();
   const productionHosts=new Set([
-    'www.notefiorentine.it','notefiorentine.it','note-fiorentine.vercel.app',
-    'note-fiorentine-n8y0wjydb-claudiocastellani983-5675.vercel.app',
-    'note-fiorentine-admin.vercel.app','note-fiorentine-admin-claudiocastellani983-5675.vercel.app',
-    'note-fiorentine-admin-dhv0f1t1z-claudiocastellani983-5675.vercel.app'
+    'www.notefiorentine.it','notefiorentine.it','note-fiorentine.vercel.app'
   ]);
   const production=productionHosts.has(host);
   window.NF_SUPABASE_CONFIG=Object.freeze({
-    url:production?'https://cpumzowmadbqyecflkyl.supabase.co':'https://cpumzowmadbqyecflkyl.supabase.co',
-    key:production?'sb_publishable_jFOfj9H7WB0sd8kev72MmQ_YWprnreE':'sb_publishable_jFOfj9H7WB0sd8kev72MmQ_YWprnreE',
+    url:production?'https://cpumzowmadbqyecflkyl.supabase.co':'https://ypkitfyqctjvojgbekmm.supabase.co',
+    key:production?'sb_publishable_jFOfj9H7WB0sd8kev72MmQ_YWprnreE':'sb_publishable_zYUxpEdaEcv7GMiT43Zg4Q_fStrm-Kj',
     environment:production?'Production':'Test'
   });
 })();
