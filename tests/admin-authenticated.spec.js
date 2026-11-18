@@ -9,8 +9,8 @@ const { createHash, randomUUID } = require('node:crypto');
 const ADMIN_PREVIEW_URL = process.env.ADMIN_PREVIEW_URL;
 const ADMIN_EMAIL = process.env.NF_TEST_ADMIN_EMAIL;
 const ADMIN_PASSWORD = process.env.NF_TEST_ADMIN_PASSWORD;
-const SUPABASE_URL = 'https://iuxskknbopboynjlsxbk.supabase.co';
-const SUPABASE_PUBLIC_KEY = 'sb_publishable_GTGiyYl8pZsY6letaozS2Q_dmh9vrRc';
+const SUPABASE_URL = 'https://ypkitfyqctjvojgbekmm.supabase.co';
+const SUPABASE_PUBLIC_KEY = 'sb_publishable_zYUxpEdaEcv7GMiT43Zg4Q_fStrm-Kj';
 
 test('Admin: ottimizzazione WebP reale su Supabase Test, riferimento aggiornato e originale integro', async ({ page }) => {
   test.skip(!ADMIN_PREVIEW_URL || !ADMIN_EMAIL || !ADMIN_PASSWORD,
