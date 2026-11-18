@@ -81,7 +81,7 @@ jobs:
 
   resolve-current-previews:
     name: Risolvi le Preview Vercel compatibili con questo commit
-    if: github.event_name == 'workflow_dispatch' && inputs.run_live_preview_tests == true
+    if: github.ref == 'refs/heads/release/integrated-preview-2026-11' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.run_live_preview_tests == true))
     runs-on: ubuntu-24.04
     outputs:
       ready: ${{ steps.resolve.outputs.ready }}
@@ -190,7 +190,7 @@ jobs:
 
   playwright-live-previews:
     needs: resolve-current-previews
-    if: needs.resolve-current-previews.outputs.ready == 'true'
+    if: needs.resolve-current-previews.outputs.ready == 'true' && github.event_name == 'workflow_dispatch' && inputs.run_live_preview_tests == true
     name: Preview Vercel reali (${{ matrix.browser }})
     runs-on: ubuntu-24.04
     strategy:
