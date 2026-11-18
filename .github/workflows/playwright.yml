@@ -266,7 +266,7 @@ jobs:
 
   playwright-admin-authenticated:
     needs: resolve-current-previews
-    if: needs.resolve-current-previews.outputs.admin_ready == 'true' && github.ref != 'refs/heads/fix/header-visual-editor-integrated-media-migration-2026-11-18'
+    if: needs.resolve-current-previews.outputs.admin_ready == 'true'
     name: Admin autenticato e upload Supabase Test
     runs-on: ubuntu-24.04
     env:
