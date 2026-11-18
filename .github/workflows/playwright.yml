@@ -108,7 +108,7 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         with:
           script: |
-            const branch = context.payload.pull_request?.head?.ref || context.ref.replace(/^refs\/heads\//, '');
+            const branch = context.payload.pull_request?.head?.ref || (context.ref.startsWith('refs/heads/') ? context.ref.slice('refs/heads/'.length) : context.ref);
             const expectedSha = context.payload.pull_request?.head?.sha || context.sha;
             const teamId = 'team_wsIMEKcElZEKzCapp86bIHAc';
             const projects = {
