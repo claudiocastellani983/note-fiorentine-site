@@ -74,7 +74,7 @@ jobs:
 
   resolve-current-previews:
     name: Verifica che le preview appartengano al commit corrente
-    if: (github.event_name == 'push' && (github.ref == 'refs/heads/release/integrated-preview-2026-11' || github.ref == 'refs/heads/fix/header-visual-editor-integrated-supabase-preview-test-2026-11-17')) || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/release/integrated-preview-2026-11') || (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'release/integrated-preview-2026-11')
+    if: (github.event_name == 'push' && (github.ref == 'refs/heads/release/integrated-preview-2026-11' || github.ref == 'refs/heads/fix/header-visual-editor-integrated-supabase-preview-test-2026-11-17' || github.ref == 'refs/heads/fix/header-visual-editor-integrated-media-migration-2026-11-18')) || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/release/integrated-preview-2026-11') || (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'release/integrated-preview-2026-11')
     runs-on: ubuntu-24.04
     outputs:
       admin_ready: ${{ steps.resolve.outputs.admin_ready }}
@@ -104,13 +104,14 @@ jobs:
             // se da quel commit non sono cambiati i rispettivi file applicativi.
             const isCurrentFixPreview = branch === "fix/header-visual-editor-integrated-supabase-preview-test-2026-11-17";
             const isCurrentI18nPreview = branch === "fix/full-site-i18n-accessibility-2026-11-18";
+            const isCurrentMediaMigrationPreview = branch === "fix/header-visual-editor-integrated-media-migration-2026-11-18";
             // Per il branch i18n riutilizziamo le preview READY già verificate:
             // Home sul commit 559d6bc (codice Home/Menu aggiornato),
             // Admin sul commit 0b009ca (nessun file admin/ modificato da allora).
-            const knownHomePreviewSha = isCurrentI18nPreview ? "559d6bc2fc5847a6ad644314bd2d0ce29bb02f8d" : isCurrentFixPreview ? "299462d582eb74e624e4dcfc281c1fdc71ca8890" : "20df7469511196c17b132799f623b9e445ea514b";
-            const knownAdminPreviewSha = isCurrentI18nPreview ? "0b009ca37753fc222f81f76edc994d82788b1906" : isCurrentFixPreview ? "0b009ca37753fc222f81f76edc994d82788b1906" : "fe0586baf570752164b4ebe94b1ddfe2140aa40a";
-            const siteUrl = isCurrentI18nPreview ? "https://note-fiorentine-7qixy2c2o-claudiocastellani983-5675.vercel.app/" : isCurrentFixPreview ? "https://note-fiorentine-git-fix-header-88edc9-claudiocastellani983-5675.vercel.app/" : "https://note-fiorentine-git-release-i1-363e1b-claudiocastellani983-5675.vercel.app/";
-            const adminBaseUrl = isCurrentI18nPreview ? "https://note-fiorentine-admin-3lhpnhr86-claudiocastellani983-5675.vercel.app/" : isCurrentFixPreview ? "https://note-fiorentine-admin-3lhpnhr86-claudiocastellani983-5675.vercel.app/" : "https://note-fiorentine-admin-git-rele-1da2a5-claudiocastellani983-5675.vercel.app/";
+            const knownHomePreviewSha = isCurrentMediaMigrationPreview ? expectedHeadSha : isCurrentI18nPreview ? "559d6bc2fc5847a6ad644314bd2d0ce29bb02f8d" : isCurrentFixPreview ? "299462d582eb74e624e4dcfc281c1fdc71ca8890" : "20df7469511196c17b132799f623b9e445ea514b";
+            const knownAdminPreviewSha = isCurrentMediaMigrationPreview ? expectedHeadSha : isCurrentI18nPreview ? "0b009ca37753fc222f81f76edc994d82788b1906" : isCurrentFixPreview ? "0b009ca37753fc222f81f76edc994d82788b1906" : "fe0586baf570752164b4ebe94b1ddfe2140aa40a";
+            const siteUrl = isCurrentMediaMigrationPreview ? "https://note-fiorentine-git-fix-header-b81cff-claudiacastellani983-5675.vercel.app/" : isCurrentI18nPreview ? "https://note-fiorentine-7qixy2c2o-claudiacastellani983-5675.vercel.app/" : isCurrentFixPreview ? "https://note-fiorentine-git-fix-header-88edc9-claudiacastellani983-5675.vercel.app/" : "https://note-fiorentine-git-release-i1-363e1b-claudiacastellani983-5675.vercel.app/";
+            const adminBaseUrl = isCurrentMediaMigrationPreview ? "https://note-fiorentine-admin-git-fix-cd7bfd-claudiacastellani983-5675.vercel.app/" : isCurrentI18nPreview ? "https://note-fiorentine-admin-3lhpnhr86-claudiacastellani983-5675.vercel.app/" : isCurrentFixPreview ? "https://note-fiorentine-admin-3lhpnhr86-claudiacastellani983-5675.vercel.app/" : "https://note-fiorentine-admin-git-rele-1da2a5-claudiacastellani983-5675.vercel.app/";
             const adminUrl = adminBaseUrl + "?sitePreview=" + encodeURIComponent(siteUrl);
             const homeContext = "Vercel – note-fiorentine";
             const adminContext = "Vercel – note-fiorentine-admin";
