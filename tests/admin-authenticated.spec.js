@@ -618,3 +618,43 @@ test('Gestione immagini: CRUD Vimeo per galleria artisti e video ambienti su Sup
   }
   expect(errors, 'Errori JavaScript o cleanup non gestito nella Gestione immagini').toEqual([]);
 });
+
+// Migrazione reale ma idempotente: Auditore è la sorgente, Test la sola destinazione.
+// I file già presenti vengono saltati; quelli mancanti vengono copiati senza sovrascritture.
+test('Migrazione media Auditore → Test: accesso, pulsante e riepilogo completo', async ({ page }) => {
+  test.skip(!ADMIN_PREVIEW_URL || !ADMIN_EMAIL || !ADMIN_PASSWORD,
+    'Test migrazione eseguito soltanto nel job CI con credenziali amministratore.');
+  test.setTimeout(240000);
+
+  const migrationUrl = new URL('/migrazione-media.html', ADMIN_PREVIEW_URL).toString();
+  const pageErrors = [];
+  page.on('pageerror', error => pageErrors.push(error.message));
+
+  const response = await page.goto(migrationUrl, { waitUntil: 'domcontentloaded' });
+  expect(response && response.status()).toBe(200);
+  await expect(page.locator('#environmentStatus')).toContainText('Preview verificata');
+  await expect(page.locator('#loginPanel')).toBeVisible();
+  await page.locator('#email').fill(ADMIN_EMAIL);
+  await page.locator('#password').fill(ADMIN_PASSWORD);
+  await page.locator('#loginBtn').click();
+  await page.locator('#password').fill('');
+  await expect(page.locator('#migrationPanel')).toBeVisible({ timeout: 45000 });
+  await expect(page.locator('#migrateBtn')).toBeVisible();
+
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('#migrateBtn').click();
+  await expect(page.locator('#migrationStatus')).toContainText('Operazione terminata.', { timeout: 180000 });
+
+  const metrics = await page.locator('#summary .metric strong').allTextContents();
+  expect(metrics).toHaveLength(3);
+  const copied = Number(metrics[0]);
+  const skipped = Number(metrics[1]);
+  const failed = Number(metrics[2]);
+  expect(copied + skipped).toBe(29);
+  expect(failed).toBe(0);
+  await expect(page.locator('#results .result')).toHaveCount(29);
+  await expect(page.locator('#results .error')).toHaveCount(0);
+  await expect(page.locator('#results')).toContainText('site-media/');
+  await expect(page.locator('#results')).toContainText('performance-videos/');
+  expect(pageErrors).toEqual([]);
+});
