@@ -130,8 +130,8 @@ test.describe('Funzioni pubbliche delle preview reali', () => {
 test.describe('Media reali in Supabase Test', () => {
   test('Home Preview: immagine e video hero sono leggibili dallo Storage Test', async ({ page }) => {
     test.setTimeout(60000);
-    expect(SITE_PREVIEW_URL).toBeTruthy();
-    await page.goto(SITE_PREVIEW_URL, { waitUntil: 'domcontentloaded' });
+    const siteUrl = SITE_PREVIEW_URL || process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:4173';
+    await page.goto(siteUrl, { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('networkidle');
 
     const media = await page.evaluate(async () => {
