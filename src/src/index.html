@@ -2965,7 +2965,8 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 @media(max-width:760px){.nf-artists-viewer-stage iframe.nf-artist-video-frame{min-height:220px}.nf-artists-viewer-stage.nf-artists-portrait iframe.nf-artist-video-frame{height:70vh}}
 </style>
 <script id="nf-experience-gallery-i18n">
-(function(){
+(async function(){
+ const config=window.NF_SUPABASE_CONFIG;
  const lang=(new URLSearchParams(location.search).get('lang')||'it').toLowerCase();
  const copy={
   en:{galleryKicker:'Photos and videos of the restaurant',galleryTitle:'The restaurant, our cuisine and atmosphere',galleryIntro:'The rooms, the dishes and the details of Note Fiorentine. Explore the photo galleries and watch videos of the venue.',restaurantLabel:'Restaurant photos and videos',restaurantSub:'Explore the restaurant in photos and videos',kitchenLabel:'The Kitchen',kitchenSub:'Explore all photos',atmosphereLabel:'The Atmosphere',atmosphereSub:'Details and warm hospitality',videosKicker:'Restaurant videos',videosTitle:'The venue in motion',videosLoading:'Loading restaurant videos…',map:'Directions'},
@@ -2974,7 +2975,25 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
   es:{galleryKicker:'Fotos y vídeos del restaurante',galleryTitle:'El restaurante, la cocina y el ambiente',galleryIntro:'Los espacios, los platos y los detalles de Note Fiorentine. Explora las galerías de fotos y mira los vídeos del local.',restaurantLabel:'Imágenes y vídeos del restaurante',restaurantSub:'Descubre el restaurante en fotos y vídeos',kitchenLabel:'La cocina',kitchenSub:'Ver todas las fotografías',atmosphereLabel:'El ambiente',atmosphereSub:'Detalles y una cálida bienvenida',videosKicker:'Vídeos del restaurante',videosTitle:'El local en movimiento',videosLoading:'Cargando vídeos del restaurante…',map:'Cómo llegar'},
   zh:{galleryKicker:'餐厅照片与视频',galleryTitle:'餐厅、托斯卡纳美食与氛围',galleryIntro:'欣赏 Note Fiorentine 的空间、菜品与细节照片，并观看餐厅视频。',restaurantLabel:'餐厅图片与视频',restaurantSub:'通过照片和视频探索餐厅环境',kitchenLabel:'厨房',kitchenSub:'查看全部照片',atmosphereLabel:'氛围',atmosphereSub:'细节与热情款待',videosKicker:'餐厅视频',videosTitle:'动态体验餐厅',videosLoading:'正在加载餐厅视频…',map:'到达路线'}
  };
- const values=copy[lang];if(values)document.querySelectorAll('[data-nf-i18n]').forEach(node=>{const key=node.dataset.nfI18n;if(values[key])node.textContent=values[key]});
+ const italian={galleryKicker:'Immagini e video del locale',galleryTitle:'Il ristorante, la cucina e l’atmosfera',galleryIntro:'Gli ambienti, i piatti e i dettagli di Note Fiorentine. Apri le gallerie fotografiche e guarda i video del locale.'};
+ const keys={galleryKicker:'experience_gallery_kicker',galleryTitle:'experience_gallery_title',galleryIntro:'experience_gallery_intro'};
+ let values={...(copy[lang]||{})};
+ try{
+  if(config){
+   const api=config.url+'/rest/v1/site_content?select=content_value&content_key=eq.public_site';
+   const rows=await (window.NF_SITE_CONTENT_PROMISE||(window.NF_SITE_CONTENT_PROMISE=fetch(api,{headers:{apikey:config.key,Accept:'application/json'},cache:'no-store'}).then(r=>{if(!r.ok)throw Error('site_content '+r.status);return r.json()})));
+   const source=rows?.[0]?.content_value||{};
+   for(const [key,dbKey] of Object.entries(keys)){
+    const translated=lang==='it'?source[dbKey]:source._translations?.[lang]?.[dbKey];
+    if(typeof translated==='string'&&translated.trim())values[key]=translated;
+    else if(lang==='it')values[key]=italian[key];
+   }
+  }else if(lang==='it')values={...italian,...values};
+ }catch(error){console.warn('[Note Fiorentine testi Galleria]',error)}
+ document.querySelectorAll('[data-nf-i18n]').forEach(node=>{
+  const key=node.dataset.nfI18n;
+  if(values[key])node.textContent=values[key];
+ });
  const mapLabels={it:'Dove siamo',en:'Directions',de:'Anfahrt',fr:'Nous rejoindre',es:'Cómo llegar',zh:'到达路线'};
  document.querySelectorAll('[data-nf-reach-us]').forEach(node=>node.textContent=mapLabels[lang]||mapLabels.it);
 })();
