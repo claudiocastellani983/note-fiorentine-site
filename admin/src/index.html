@@ -227,8 +227,7 @@ const siteGroups=[
 {title:'Il ristorante',fields:[['intro_kicker','Soprattitolo','text'],['intro_title','Titolo','textarea'],['intro_text','Descrizione','textarea']]},
 {title:'Musica dal vivo',fields:[['music_kicker','Soprattitolo','text'],['music_title','Titolo','textarea'],['music_text','Descrizione','textarea'],['music_schedule','Orario','text'],['music_days','Frequenza','text'],['music_note','Nota sulla musica','text'],['music_image','Immagine della sezione','image'],['music_video_kicker','Soprattitolo video','text'],['music_video_title','Titolo video','text']]},
 {title:'Menu',fields:[['menu_kicker','Soprattitolo','text'],['menu_title','Titolo','text'],['menu_lead','Descrizione','textarea']]},
-{title:'Galleria · homepage attuale',fields:[['experience_gallery_kicker','Soprattitolo','text'],['experience_gallery_title','Titolo','text'],['experience_gallery_intro','Descrizione','textarea']]},
-{title:'Eventi',fields:[['events_kicker','Soprattitolo','text'],['events_title','Titolo','text'],['events_lead','Descrizione','textarea'],['event1_title','Titolo scheda 1','text'],['event1_text','Testo scheda 1','textarea'],['event2_title','Titolo scheda 2','text'],['event2_text','Testo scheda 2','textarea'],['event3_title','Titolo scheda 3','text'],['event3_text','Testo scheda 3','textarea']]},
+{title:'Galleria',fields:[['gallery_kicker','Soprattitolo','text'],['gallery_title','Titolo','text'],['gallery_lead','Descrizione','textarea']]},
 {title:'Contatti',fields:[['contact_kicker','Soprattitolo','text'],['contact_title','Titolo','textarea'],['contact_location_title','Titolo scheda posizione','text'],['contact_location_text','Testo posizione','textarea'],['contact_reservation_title','Titolo scheda prenotazioni','text'],['contact_reservation_text','Testo prenotazioni','textarea']]},
 {title:'Colori e caratteri',fields:[['color_primary','Colore principale','color'],['color_secondary','Colore secondario','color'],['color_background','Colore sfondo','color'],['color_text','Colore testo','color'],['color_accent','Colore dettagli e accenti','color'],['font_heading','Carattere titoli','font'],['font_body','Carattere testi','font']]}
 ];
@@ -238,22 +237,15 @@ intro_kicker:'Un’esperienza fiorentina',intro_title:'Il piacere di stare a tav
 music_kicker:'Restaurant & Live Music',music_title:'Ogni sera,\nla musica è di casa.',music_text:'Ogni sera, sette giorni su sette, artisti e generi musicali variabili accompagnano la vostra cena. La musica dal vivo fa parte dell’esperienza Note Fiorentine.',music_schedule:'19:30 – 21:30',music_days:'Tutte le sere',music_note:'Musica inclusa nella cena · Nessun supplemento',music_video_kicker:'L’atmosfera delle nostre serate',music_video_title:'La musica prende vita.',
 menu_kicker:'La nostra cucina',menu_title:'Il menu',menu_lead:'Sapori della tradizione toscana e piacere della tavola. La selezione completa dei piatti sarà consultabile qui.',
 events_kicker:'Appuntamenti speciali',events_title:'Eventi',events_lead:'Le serate speciali di Note Fiorentine.',event1_title:'Live music',event1_text:'Appuntamento tutte le sere, dalle 19:30 alle 21:30. Artisti e generi musicali variabili.',event2_title:'Prossimi appuntamenti',event2_text:'Il calendario delle prossime serate speciali sarà pubblicato prossimamente.',event3_title:'Una serata speciale',event3_text:'Contattaci per informazioni e prenotazioni in occasione degli eventi.',
-experience_gallery_kicker:'Immagini e video del locale',experience_gallery_title:'Il ristorante, la cucina e l’atmosfera',experience_gallery_intro:'Gli ambienti, i piatti e i dettagli di Note Fiorentine. Apri le gallerie fotografiche e guarda i video del locale.',
+
 contact_kicker:'La tua serata a Firenze',contact_title:'Ti aspettiamo da\nNote Fiorentine.',contact_location_title:'Nel cuore di Firenze',contact_location_text:'Ristorante toscano nel centro storico della città.',contact_reservation_title:'Prenota la tua serata',contact_reservation_text:'Scegli il tuo tavolo e vieni a vivere la cucina con la musica dal vivo.',
 color_primary:'#8F2928',color_secondary:'#D9C3A0',color_background:'#F4EBDD',color_text:'#392B24',color_accent:'#A97843',font_heading:'Georgia, serif',font_body:'Palatino, Georgia, serif'
 };
 let siteCurrent={};
-function siteEnglishControl([key,label,type],data){
- if(type==='image'||type==='color'||type==='font')return '';
- const value=key==='hero_secondary_label'?'Find us':(data._translations?.en?.[key]??'');
- const tag=type==='textarea'?'textarea':'input';
- const control=type==='textarea'?'<textarea data-site-en-field="'+key+'">'+esc(value)+'</textarea>':'<input type="text" data-site-en-field="'+key+'" value="'+esc(value)+'">';
- return '<div class="site-field full"><label>'+esc(label)+' · English</label>'+control+'</div>';
-}
 function siteTranslationsControl(field,data){
  const [key,label,type]=field;
  const italian=siteControl(field,data);
- if(!key.startsWith('experience_gallery_'))return italian+siteEnglishControl(field,data);
+ if(['image','color','font'].includes(type))return italian;
  const languages=[['en','English'],['de','Deutsch'],['fr','Français'],['es','Español'],['zh','中文']];
  return italian+languages.map(([lang,name])=>{
   const value=data._translations?.[lang]?.[key]??'';
@@ -264,7 +256,7 @@ function siteTranslationsControl(field,data){
  }).join('');
 }
 function siteControl([key,label,type],data){
- const value=key==='hero_secondary_label'?'Dove siamo':(data[key]??siteDefaults[key]??'');
+ const value=data[key]??siteDefaults[key]??'';
  if(type==='image')return '<div class="site-field full"><label>'+esc(label)+' (JPG, PNG, WebP o GIF · massimo 10 MB)</label><input type="file" accept="image/jpeg,image/png,image/webp,image/gif" data-site-image="'+key+'">'+(value?'<img loading="lazy" decoding="async" class="site-image-preview" data-preview="'+key+'" src="'+esc(value)+'" alt="Anteprima '+esc(label)+'">':'<p class="site-help">Nessuna immagine caricata: verrà mantenuta la grafica attuale.</p>')+'</div>';
  if(type==='color')return '<div class="site-field"><label>'+esc(label)+'</label><input type="color" data-site-field="'+key+'" value="'+esc(value)+'"></div>';
  if(type==='font')return '<div class="site-field"><label>'+esc(label)+'</label><select data-site-field="'+key+'">'+['Georgia, serif','Palatino, Georgia, serif','Arial, sans-serif','Verdana, sans-serif','Times New Roman, serif','Trebuchet MS, sans-serif'].map(x=>'<option value="'+esc(x)+'" '+(x===value?'selected':'')+'>'+esc(x)+'</option>').join('')+'</select></div>';
@@ -290,29 +282,6 @@ async function loadSiteEditor(){
    const next={...siteCurrent},uploaded=[],oldPaths=[];
    try{
      form.querySelectorAll('[data-site-field]').forEach(el=>next[el.dataset.siteField]=el.value);
-     const english={...(next._translations?.en||{})};
-     const enInputs=[...form.querySelectorAll('[data-site-en-field]')];
-     for(const el of enInputs){const k=el.dataset.siteEnField;if(el.value.trim())english[k]=el.value.trim();else delete english[k];}
-     const changedText=[...form.querySelectorAll('[data-site-field]')].filter(el=>!['color_primary','color_secondary','color_background','color_text','color_accent','font_heading','font_body'].includes(el.dataset.siteField)&&!el.dataset.siteField.startsWith('experience_gallery_')&&next[el.dataset.siteField]!==siteCurrent[el.dataset.siteField]);
-     for(const el of changedText){
-       const k=el.dataset.siteField;
-       const englishInput=form.querySelector('[data-site-en-field="'+k+'"]');
-       const oldEnglish=siteCurrent._translations?.en?.[k]??'';
-       const manuallyChanged=englishInput&&englishInput.value.trim()!==oldEnglish;
-       if(manuallyChanged)continue;
-       const italian=String(next[k]??'').trim();
-       if(!italian){delete english[k];continue;}
-       try{
-         const protectedItalian=italian.split('Note Fiorentine').join('NFBRANDTOKENXYZ');
-         const response=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(protectedItalian)+'&langpair=it|en');
-         if(!response.ok)throw Error('Traduzione HTTP '+response.status);
-         const data=await response.json(),translated=String(data?.responseData?.translatedText||'').split('NFBRANDTOKENXYZ').join('Note Fiorentine').trim();
-         if(!translated||/MYMEMORY WARNING|MYMEMORY LIMIT/i.test(translated))throw Error('Traduzione automatica non disponibile');
-         english[k]=translated;
-         if(englishInput)englishInput.value=translated;
-       }catch(err){delete english[k];console.warn('Traduzione automatica non riuscita per '+k,err);}
-     }
-     next._translations={...(next._translations||{}),en:english};
      const allTranslations={...(next._translations||{})};
      for(const el of form.querySelectorAll('[data-site-translation-field]')){
        const lang=el.dataset.siteLang,key=el.dataset.siteTranslationField;
@@ -339,7 +308,7 @@ async function loadSiteEditor(){
      if(saved.error)throw saved.error;
      siteCurrent=next;
      // I file precedenti restano conservati come copie originali.
-     say('Sito aggiornato. Le modifiche sono online.');
+     say(ADMIN_PRODUCTION?'Modifiche salvate su Production.':'Modifiche salvate su Supabase Test: non pubblicate sul sito ufficiale.');
      await loadSiteEditor();
    }catch(err){
      if(uploaded.length)await db.storage.from('site-media').remove(uploaded);
