@@ -1265,10 +1265,10 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
 <script id="nf-supabase-environment">
 (()=> {
   const host=location.hostname.toLowerCase();
-  // Solo domini effettivamente assegnati al progetto Vercel Home corrente sono Production.
-  // I vecchi alias non assegnati ricadono in Test e non possono mai puntare al database Production.
+  // Solo i due domini ufficiali pubblici possono usare il database Production.
+  // Ogni alias Vercel/Preview, compresi quelli storici, resta sul database Test.
   const productionHosts=new Set([
-    'www.notefiorentine.it','notefiorentine.it','note-fiorentine-auditore.vercel.app',
+    'www.notefiorentine.it','notefiorentine.it',
   ]);
   const production=productionHosts.has(host);
   const projectRef=production?'cpumzowmadbqyecflkyl':'ypkitfyqctjvojgbekmm';
