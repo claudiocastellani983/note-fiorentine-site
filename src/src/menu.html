@@ -687,6 +687,88 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
 @media(max-width:760px){.nf-experience-gallery-grid{grid-template-columns:1fr;gap:14px;margin-top:26px}.nf-experience-gallery-card{min-height:240px;padding:22px}.nf-experience-gallery-card:before{inset:9px}.nf-experience-videos{margin-top:38px;padding-top:28px}.nf-gallery-viewer{padding:10px}.nf-gallery-dialog{max-height:94vh;padding:13px}.nf-gallery-stage{max-height:70vh}.nf-gallery-photo{max-height:68vh}}
 @media(prefers-reduced-motion:reduce){.nf-experience-gallery-card{transition:none}}
 </style>
+
+<style id="nf-menu-responsive-centering-v2">
+/* Centratura coerente della pagina Menu su desktop, tablet landscape e mobile.
+   Non modifica font, dimensioni tipografiche o pesi. */
+:root { --nf-menu-max:1320px; --nf-menu-gutter:clamp(16px,3.4vw,48px); }
+html, body { width:100%; max-width:100%; overflow-x:clip; }
+#app { width:100%; max-width:1600px; margin-inline:auto; overflow-x:clip; }
+#app > header, #app > main, #app > footer { width:100%; margin-inline:auto; }
+#app > header > .nav {
+  width:min(100%,var(--nf-menu-max));
+  margin-inline:auto;
+  padding-inline:var(--nf-menu-gutter);
+  gap:clamp(8px,1.5vw,22px);
+}
+#app > main { width:100%; max-width:var(--nf-menu-max); margin-inline:auto; padding-inline:var(--nf-menu-gutter); }
+#app > main > #menu { width:100%; max-width:100%; margin-inline:auto; }
+#app > main > #menu > .section-kicker,
+#app > main > #menu > h1,
+#app > main > #menu > h2,
+#app > main > #menu > .section-lead {
+  width:min(100%,820px);
+  margin-inline:auto;
+  text-align:center;
+}
+#app > main > #menu .menu-category-tabs {
+  width:100%;
+  max-width:1100px;
+  margin-inline:auto;
+  justify-content:center;
+}
+#app > main > #menu .menu-items {
+  width:100%;
+  max-width:1050px;
+  margin-inline:auto;
+}
+#app > main > #menu .menu-category-description,
+#app > main > #menu .menu-loading,
+#app > main > #menu .menu-empty,
+#app > main > #menu .menu-error { margin-inline:auto; text-align:center; }
+@media (min-width:761px) and (max-width:1100px) {
+  #app > header > .nav { flex-wrap:wrap; justify-content:center; }
+  #app > header .brand-mini, #app > header .language-switch { margin-inline:auto; }
+  #app > header .navlinks { order:3; flex:1 1 100%; flex-wrap:wrap; justify-content:center; }
+  #app > main { padding-inline:clamp(20px,3vw,36px); }
+  #app > main > #menu .menu-items { max-width:100%; }
+}
+@media (max-width:760px) {
+  :root { --nf-menu-gutter:clamp(14px,4.5vw,22px); }
+  #app > header > .nav {
+    position:relative;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:center;
+    width:100%;
+    padding-inline:var(--nf-menu-gutter);
+    row-gap:10px;
+  }
+  #app > header .menu-toggle { justify-self:end; }
+  #app > header .navlinks { width:100%; }
+  #app > header .language-switch {
+    grid-column:1 / -1;
+    width:100%;
+    justify-content:center;
+    margin:0 auto;
+  }
+  #app > main { padding-inline:var(--nf-menu-gutter); }
+  #app > main > #menu { min-width:0; }
+  #app > main > #menu .menu-category-tabs {
+    width:100%;
+    max-width:100%;
+    justify-content:flex-start;
+    margin-inline:auto;
+  }
+  #app > main > #menu .menu-items {
+    width:100%;
+    max-width:100%;
+    margin-inline:auto;
+    grid-template-columns:minmax(0,1fr);
+  }
+}
+</style>
+
 </head>
 <body>
 <div id="app">
