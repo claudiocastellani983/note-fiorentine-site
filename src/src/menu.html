@@ -615,8 +615,10 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
 </style><script id="nf-supabase-environment">
 (()=> {
   const host=location.hostname.toLowerCase();
+  // Solo i domini ufficiali del sito possono usare Supabase Production.
+  // Tutti gli alias Vercel, anche storici, usano esclusivamente Supabase Test.
   const productionHosts=new Set([
-    'www.notefiorentine.it','notefiorentine.it','note-fiorentine.vercel.app'
+    'www.notefiorentine.it','notefiorentine.it'
   ]);
   const production=productionHosts.has(host);
   window.NF_SUPABASE_CONFIG=Object.freeze({
