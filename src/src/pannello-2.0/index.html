@@ -21,6 +21,76 @@ header{height:76px;padding:0 24px;border-bottom:1px solid var(--line);display:fl
 @media(max-width:1100px), (pointer:coarse) and (hover:none){.layout{grid-template-columns:1fr}aside{position:sticky;top:76px;z-index:15;padding:8px;border-right:0;border-bottom:1px solid var(--line)}nav{display:flex;overflow:auto}nav button{white-space:nowrap;padding:8px 10px}.grid2,.grid3,.split{grid-template-columns:1fr}.visual-layout{grid-template-columns:1fr;height:auto}.visual-frame{height:58vh;min-height:380px}.visual-controls{overflow:visible}main{padding:16px}.item{align-items:flex-start}.item img{width:66px;height:60px}}
 @media(max-width:480px){header{padding:0 13px;height:68px}header h1{font-size:19px}.layout{min-height:calc(100vh - 68px)}aside{top:68px}.env{font-size:9px;margin-left:5px}main{padding:12px}.pagehead h2{font-size:25px}.item{flex-wrap:wrap}.actions{width:100%}.actions button{flex:1}}
 </style>
+<style id="nf-visual-vertical-layout">
+/* Editor visuale: controlli sopra in riquadro autonomo scorrevole, anteprima sotto */
+.visual-layout{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  gap:12px!important;
+  height:auto!important;
+  min-height:0!important;
+}
+.visual-controls{
+  order:0!important;
+  position:relative!important;
+  top:auto!important;
+  width:100%!important;
+  max-height:46vh!important;
+  min-height:0!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  padding:14px!important;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--panel2);
+}
+.visual-frame{
+  order:1!important;
+  display:block!important;
+  position:relative!important;
+  width:100%!important;
+  height:72vh!important;
+  min-height:440px!important;
+  max-height:none!important;
+  overflow:auto!important;
+  grid-column:auto!important;
+  grid-row:auto!important;
+}
+html.nf-mobile-device .visual-layout{
+  display:flex!important;
+  flex-direction:column!important;
+  height:auto!important;
+  min-height:0!important;
+}
+html.nf-mobile-device .visual-controls{
+  order:0!important;
+  position:relative!important;
+  top:auto!important;
+  max-height:42vh!important;
+  min-height:220px!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  width:100%!important;
+  padding:12px!important;
+}
+html.nf-mobile-device .visual-frame{
+  order:1!important;
+  width:100%!important;
+  height:72vh!important;
+  min-height:420px!important;
+  max-height:none!important;
+  overflow:auto!important;
+}
+@media(max-width:600px){
+  .visual-controls{max-height:42vh!important;min-height:220px!important}
+  .visual-frame{height:72vh!important;min-height:420px!important}
+}
+</style>
 <style id="nf-mobile-layout-v2">
 /* Pannello 2.0: layout mobile esplicito anche con modalità desktop del browser */
 html.nf-mobile-device,html.nf-mobile-device body{width:100%;max-width:100%;overflow-x:hidden}
