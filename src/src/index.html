@@ -140,7 +140,7 @@ section { scroll-margin-top:80px; }
 .included { display:inline-block; border:1px solid #C7A77E; padding:11px 15px; color:#68452F; text-transform:uppercase; letter-spacing:.14em; font:600 10px Arial,sans-serif; width:max-content; }
 .content-section { padding:88px 6%; text-align:center; }
 .content-section.alt { background:#E8DCC9; }
-.content-section h2 { font-size:clamp(37px,5vw,57px); line-height:1.05; color:#6F3929; margin:17px 0 22px; }
+.content-section:not(#eventi) h2 { font-size:clamp(37px,5vw,57px); line-height:1.05; color:#6F3929; margin:17px 0 22px; }
 .section-lead { max-width:700px; margin:0 auto 38px; color:var(--ink-soft); font-size:17px; line-height:1.75; }
 .event-grid,.gallery-grid { max-width:1050px; margin:38px auto 0; display:grid; grid-template-columns:repeat(3,1fr); gap:18px; text-align:left; }
 .event-card { padding:27px 24px; border:1px solid var(--line); background:rgba(255,255,255,.32); }
@@ -218,7 +218,7 @@ footer .button { margin:5px auto 26px; }
  .visit { background:#302721; }
  .visit-card { background:#382F28; }
  .menu-card,.event-card { background:#382F28; }
- .menu-card h3,.event-card h3,.content-section h2 { color:#E7CDAF; }
+ .menu-card h3,.event-card h3,.content-section:not(#eventi) h2 { color:#E7CDAF; }
  .section-lead,.menu-card p,.event-card p,.menu-note { color:#D0BFAE; }
  .visit-card a { color:#E7B9A0; }
  .hero-copy p { color:#D0BFAE; }
@@ -422,7 +422,7 @@ header{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--site-
 .music-art:before{content:"";position:absolute;inset:24px;border:1px solid rgba(255,249,240,.55);font-size:0}
 .music-art:after{inset:38px;border-color:rgba(255,249,240,.28)}
 .music-copy{padding:clamp(55px,8vw,125px) clamp(34px,7vw,110px)}
-.music-copy h2,.content-section h2,.visit h2{font:400 clamp(42px,5.8vw,78px)/.98 var(--nf-editorial-serif);letter-spacing:-.045em;color:var(--site-on-secondary);margin:24px 0}
+.music-copy h2,.content-section:not(#eventi) h2,.visit h2{font:400 clamp(42px,5.8vw,78px)/.98 var(--nf-editorial-serif);letter-spacing:-.045em;color:var(--site-on-secondary);margin:24px 0}
 .music-copy p{font:400 17px/1.85 var(--nf-editorial-serif);color:var(--site-on-secondary);max-width:520px}
 .music-copy .section-kicker,.content-section .section-kicker,.visit .section-kicker{font:600 9px var(--nf-editorial-sans);letter-spacing:.24em}
 .time strong{font:400 33px var(--nf-editorial-serif)}
@@ -435,7 +435,7 @@ header{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--site-
 .video-card h3{font:400 27px var(--nf-editorial-serif)}
 .content-section{padding:clamp(80px,10vw,145px) 7%;text-align:left}
 .content-section.alt{background:var(--site-secondary)}
-.content-section h2{color:var(--site-on-background);margin:20px 0 25px}
+.content-section:not(#eventi) h2{color:var(--site-on-background);margin:20px 0 25px}
 .section-lead{margin:0 0 45px;max-width:650px;font:400 17px/1.85 var(--nf-editorial-serif);color:var(--ink-soft)}
 .event-grid{max-width:none;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:55px 0 0}
 .event-card{padding:35px 30px 38px 0;background:transparent;border:0;border-right:1px solid var(--line)}
@@ -519,7 +519,7 @@ footer .button{margin:24px auto 48px}
  .music-section{display:flex;flex-direction:column}
  .music-art{min-height:430px}
  .music-copy{padding:65px 27px 75px}
- .music-copy h2,.content-section h2,.visit h2{font-size:clamp(42px,12vw,64px)}
+ .music-copy h2,.content-section:not(#eventi) h2,.visit h2{font-size:clamp(42px,12vw,64px)}
  .music-copy p,.section-lead{font-size:16px}
  .music-videos{padding:65px 22px}
  .video-list{grid-template-columns:1fr}
@@ -1065,7 +1065,7 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
 #app main .intro h2,
 #app main .music-copy h2,
 #app main .music-videos h2,
-#app main .content-section h2,
+#app main .content-section:not(#eventi) h2,
 #app main .nf-artists-media h2,
 #app main .visit h2{
  color:var(--nf-ink)!important;font-family:var(--site-font-heading)!important;
@@ -1107,7 +1107,7 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
 #app main .gallery-tile{border-radius:0!important}
 #app a:focus-visible,#app button:focus-visible{outline:2px solid var(--nf-gold)!important;outline-offset:3px!important}
 @media(max-width:700px){
- #app main .intro h2,#app main .music-copy h2,#app main .music-videos h2,#app main .content-section h2,#app main .nf-artists-media h2,#app main .visit h2{font-size:clamp(34px,8.5vw,44px)!important;line-height:1.1!important;margin:14px 0 18px!important}
+ #app main .intro h2,#app main .music-copy h2,#app main .music-videos h2,#app main .content-section:not(#eventi) h2,#app main .nf-artists-media h2,#app main .visit h2{font-size:clamp(34px,8.5vw,44px)!important;line-height:1.1!important;margin:14px 0 18px!important}
  #app main .intro p,#app main .music-copy p,#app main .section-lead,#app main .nf-artists-intro{font-size:16px!important;line-height:1.75!important}
  #app main .content-section,#app main .visit{padding-top:58px!important;padding-bottom:58px!important}
  #app main .nf-artists-media{padding:52px 7% 60px!important}
@@ -2292,7 +2292,7 @@ header,.navlinks,.navlinks.open,.nf-gallery-site-header,.nf-gallery-site-header 
 }
 .hero-copy,.music-copy{background:#171512!important;color:#F1E7D6!important}
 .hero-copy h1,.hero-copy h1 span,.intro h2,.music-copy h2,.music-videos h2,
-.visit h2,.content-section h2,.visit-card h3,.event-card h3,.menu-item-card h3,
+.visit h2,.content-section:not(#eventi) h2,.visit-card h3,.event-card h3,.menu-item-card h3,
 .video-card h3{color:#E7D2AF!important}
 .hero-copy p,.intro p,.music-copy p,.section-lead,.visit-card p,.event-card p,
 .menu-item-description,.menu-item-allergens,.video-card p,.video-loading,
