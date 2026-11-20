@@ -1398,6 +1398,12 @@ window.NF_SUPABASE_CONFIG_PROMISE=(async()=>{
 #app main .hero-copy .actions{display:flex!important;flex-wrap:nowrap!important;gap:10px!important;width:100%!important;}
 #app main .hero-copy .actions .button{flex:1 1 0!important;min-width:0!important;max-width:none!important;white-space:nowrap!important;padding:14px 8px!important;font-size:clamp(7px,2.2vw,10px)!important;letter-spacing:clamp(.02em,.35vw,.13em)!important;}
 </style>
+
+<style id="nf-footer-actions-side-by-side">
+/* I due pulsanti in fondo alla pagina restano affiancati anche su mobile. */
+#app > footer .footer-actions{display:flex!important;flex-flow:row nowrap!important;align-items:center!important;justify-content:center!important;gap:12px!important;width:min(100%,520px)!important;margin:24px auto 48px!important;}
+#app > footer .footer-actions .button{display:inline-flex!important;flex:1 1 0!important;width:auto!important;min-width:0!important;margin:0!important;padding:15px 8px!important;white-space:nowrap!important;font-size:clamp(7px,2.2vw,10px)!important;letter-spacing:clamp(.02em,.35vw,.13em)!important;}
+</style>
 </head>
 <body>
 <div id="app">
@@ -1518,8 +1524,10 @@ window.NF_SUPABASE_CONFIG_PROMISE=(async()=>{
     <div class="footer-fleur" aria-label="Giglio di Note Fiorentine">⚜</div>
     <div class="tag">Ristorante Toscano & Live Music · Firenze</div>
     <p>Cucina toscana, musica dal vivo, emozioni da condividere.</p>
-    <a class="button primary reach-us-button" id="nf-reach-us" data-nf-reach-us href="https://www.google.com/maps/dir/?api=1&destination=Via%20dei%20Benci%2041R%2C%2050122%20Firenze%2C%20Italia" target="_blank" rel="noopener noreferrer">Dove siamo</a>
-    <a class="button primary" href="https://bookingnotefiorentine.guestplan.io" target="_blank" rel="noopener">Prenota un tavolo</a>
+    <div class="footer-actions">
+      <a class="button primary reach-us-button" id="nf-reach-us" data-nf-reach-us href="https://www.google.com/maps/dir/?api=1&destination=Via%20dei%20Benci%2041R%2C%2050122%20Firenze%2C%20Italia" target="_blank" rel="noopener noreferrer">Dove siamo</a>
+      <a class="button primary" href="https://bookingnotefiorentine.guestplan.io" target="_blank" rel="noopener">Prenota un tavolo</a>
+    </div>
     <div class="copyright">© Note Fiorentine · Firenze</div>
   </footer>
 <script id="nf-reach-us-platform-maps-v1">
