@@ -2,103 +2,22 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#F4EBDD">
-<title>Migrazione media | Note Fiorentine</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gestione media · Note Fiorentine</title>
 <style>
-:root{--red:#8F2928;--paper:#F4EBDD;--ink:#392B24;--gold:#A97843;--line:#D8C6AD}
-*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Arial,sans-serif}
-.top{height:4px;background:var(--red)}header{padding:24px 18px 18px;text-align:center;border-bottom:1px solid var(--line)}
-header .fleur{font:30px Georgia;color:var(--red)}h1{font:clamp(25px,6vw,34px) Georgia,serif;letter-spacing:.08em;margin:8px 0 5px;color:var(--red)}
-header p{font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin:0;color:#756257}
-main{max-width:760px;margin:26px auto;padding:0 16px 48px}.panel{background:#FBF7EF;border:1px solid var(--line);padding:22px;margin:16px 0;box-shadow:0 8px 24px rgba(44,33,29,.05)}
-h2{font:25px Georgia,serif;margin:0 0 9px}.muted{font-size:13px;line-height:1.65;color:#756257}
-label{display:block;font-size:13px;font-weight:700;margin:14px 0 6px}
-input{width:100%;padding:13px;border:1px solid var(--line);background:#fff;border-radius:2px;font-size:16px}
-button,a.action{display:inline-flex;justify-content:center;align-items:center;background:var(--red);color:#fff9f0;border:0;padding:13px 17px;font-size:12px;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;border-radius:2px;min-height:44px;text-decoration:none}
-button:disabled{opacity:.5;cursor:not-allowed}.secondary{background:transparent;color:var(--red);border:1px solid var(--red)}
-.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}.status{padding:12px;background:#efe5d5;border-left:3px solid var(--gold);font-size:13px;line-height:1.55;margin:14px 0;overflow-wrap:anywhere}
-.hidden{display:none!important}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
-.metric{background:#fff;border:1px solid var(--line);padding:14px}.metric strong{display:block;font:26px Georgia,serif;color:var(--red)}.metric span{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#756257}
-details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700}.results{margin-top:10px;max-height:320px;overflow:auto;background:#fff;border:1px solid var(--line);padding:10px;font-size:12px;line-height:1.5}
-.result{padding:7px 0;border-bottom:1px solid #eee}.result:last-child{border:0}.ok{color:#28643b}.skip{color:#8a5b18}.error{color:#9b2525}
-@media(max-width:520px){.panel{padding:17px}.summary{grid-template-columns:1fr 1fr}.metric:last-child{grid-column:1/-1}}
+:root{color-scheme:light;--ink:#392b24;--paper:#f4ebdd;--gold:#a97843}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 Arial,sans-serif}
+main{width:min(720px,calc(100% - 32px));margin:10vh auto;padding:28px;border:1px solid var(--gold);background:#fffaf2}
+h1{font:normal 28px Georgia,serif}p{margin:12px 0}.status{padding:16px;border-left:4px solid var(--gold);background:#f4ebdd}
+a{color:var(--ink)}
 </style>
 </head>
-<body><div class="top"></div>
-<header><div class="fleur">⚜</div><h1>NOTE FIORENTINE</h1><p>Migrazione media · Area riservata</p></header>
-<main>
-<section class="panel">
-<h2>Auditore → Test</h2>
-<p class="muted">Questa procedura copia tutti i file presenti nei bucket <b>site-media</b> e <b>performance-videos</b> dal progetto Auditore al progetto Test. Non modifica il database Auditore e non trasferisce account o credenziali.</p>
-<div class="status" id="environmentStatus" role="status">Verifica ambiente…</div>
-</section>
-<section class="panel" id="loginPanel">
-<h2>Accesso amministratore Auditore</h2>
-<p class="muted">Accedi con il tuo account amministratore già esistente in Auditore. La password viene inviata direttamente a Supabase Auth e non viene salvata in questa pagina.</p>
-<label for="email">Email</label><input id="email" type="email" autocomplete="username" value="claudiocastellani983@gmail.com">
-<label for="password">Password</label><input id="password" type="password" autocomplete="current-password">
-<div class="actions"><button id="loginBtn" type="button">Accedi</button></div>
-<div id="loginStatus" class="status hidden" role="status"></div>
-</section>
-<section class="panel hidden" id="migrationPanel">
-<h2>Trasferimento dei file</h2>
-<p class="muted">Prima di iniziare, la procedura controlla i percorsi già presenti in Test. I file esistenti vengono <b>saltati, mai sovrascritti</b>. Ogni file viene registrato come copiato, già presente oppure non trasferito.</p>
-<div class="status">Sorgente: <b>Auditore · cpumzowmadbqyecflkyl</b><br>Destinazione: <b>Test · ypkitfyqctjvojgbekmm</b><br>Bucket inclusi: <b>site-media</b> e <b>performance-videos</b></div>
-<div class="actions"><button id="migrateBtn" type="button">Avvia migrazione completa</button><button id="logoutBtn" type="button" class="secondary">Esci</button></div>
-<div id="migrationStatus" class="status hidden" role="status" aria-live="polite"></div>
-<div id="summary" class="summary hidden"></div>
-<details id="details" class="hidden"><summary>Dettaglio dei file</summary><div id="results" class="results"></div></details>
-</section>
-</main>
-<script type="module">
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-const AUDITORE_URL='https://cpumzowmadbqyecflkyl.supabase.co';
-const AUDITORE_KEY='sb_publishable_jFOfj9H7WB0sd8kev72MmQ_YWprnreE';
-const host=location.hostname.toLowerCase();
-const isPreview=host.startsWith('note-fiorentine-admin-')&&host.endsWith('.vercel.app')&&host!=='note-fiorentine-admin.vercel.app';
-const env=$('environmentStatus');
-function $(id){return document.getElementById(id)}
-const loginPanel=$('loginPanel'),migrationPanel=$('migrationPanel'),loginStatus=$('loginStatus'),migrationStatus=$('migrationStatus');
-const db=createClient(AUDITORE_URL,AUDITORE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-let session=null;
-function showLogin(message=''){loginPanel.classList.remove('hidden');migrationPanel.classList.add('hidden');if(message){loginStatus.textContent=message;loginStatus.classList.remove('hidden')}}
-function showMigration(){loginPanel.classList.add('hidden');migrationPanel.classList.remove('hidden')}
-async function verifyAdmin(candidate){
- const {data,error}=await db.from('admin_users').select('user_id').eq('user_id',candidate.user.id).maybeSingle();
- if(error)throw new Error('Verifica ruolo amministratore non riuscita: '+error.message);
- if(!data)throw new Error('Questo account non risulta amministratore in Auditore.');
- session=candidate;showMigration();
-}
-if(!isPreview){env.textContent='Bloccato: apri questa pagina da una Preview Vercel, non dal pannello ufficiale.';env.style.borderLeftColor='#9b2525';$('loginBtn').disabled=true;}
-else{env.textContent='Preview verificata. La destinazione della migrazione è esclusivamente il progetto Test.';try{const {data}=await db.auth.getSession();if(data.session)await verifyAdmin(data.session)}catch(e){await db.auth.signOut();showLogin(e.message)}}
-$('loginBtn').addEventListener('click',async()=>{
- const btn=$('loginBtn');btn.disabled=true;loginStatus.classList.remove('hidden');loginStatus.textContent='Verifica accesso…';
- try{const {data,error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)throw error;await verifyAdmin(data.session)}
- catch(e){await db.auth.signOut();showLogin(e.message||'Accesso non riuscito.')}
- finally{btn.disabled=false}
-});
-$('logoutBtn').addEventListener('click',async()=>{await db.auth.signOut();session=null;showLogin('Sessione terminata.')});
-$('migrateBtn').addEventListener('click',async()=>{
- if(!session?.access_token){showLogin('Sessione scaduta. Accedi di nuovo.');return}
- if(!confirm('Avviare la copia completa da Auditore a Test? I file già presenti in Test verranno saltati e non sovrascritti.'))return;
- const btn=$('migrateBtn');btn.disabled=true;migrationStatus.classList.remove('hidden');migrationStatus.textContent='Migrazione in corso. Non chiudere questa pagina…';$('summary').classList.add('hidden');$('details').classList.add('hidden');
- try{
-  const {data,error}=await db.functions.invoke('migrate-assets',{body:{}});
-  let result=data;
-  if(error){if(error.context instanceof Response){try{result=await error.context.clone().json()}catch{}}if(!result)throw new Error(error.message||'Errore nella chiamata di migrazione.')}
-  if(!result)throw new Error('La funzione non ha restituito un riepilogo.');
-  const copied=Number(result.copied||0),skipped=Number(result.skipped||0),failed=Number(result.failed||0),total=Number(result.total||0);
-  migrationStatus.textContent=(failed===0?'Operazione terminata. ':'Operazione terminata con errori. ')+total+' file esaminati.';
-  $('summary').innerHTML='<div class="metric"><strong>'+copied+'</strong><span>Copiati</span></div><div class="metric"><strong>'+skipped+'</strong><span>Già presenti · saltati</span></div><div class="metric"><strong>'+failed+'</strong><span>Non trasferiti</span></div>';$('summary').classList.remove('hidden');
-  const list=Array.isArray(result.results)?result.results:[];
-  $('results').replaceChildren();
-  for(const item of list){const div=document.createElement('div');div.className='result';const label=document.createElement('b');label.className=item.status==='copied'?'ok':item.status==='skipped'?'skip':'error';label.textContent=item.status==='copied'?'COPIATO':item.status==='skipped'?'GIÀ PRESENTE':'ERRORE';const detail=document.createElement('div');detail.textContent=item.bucket+'/'+item.path+(item.error?' — '+item.error:'');div.append(label,detail);$('results').append(div)}
-  $('details').classList.remove('hidden');
-  if(result.error)throw new Error(result.error);
-  if(failed>0)throw new Error(failed+' file non sono stati trasferiti. Consulta il dettaglio.');
- }catch(e){migrationStatus.textContent='Migrazione non completata: '+(e.message||String(e));}
- finally{btn.disabled=false}
-});
-</script>
-</body></html>
+<body><main>
+<h1>Gestione media · Note Fiorentine</h1>
+<div class="status"><strong>Procedura di migrazione disattivata.</strong><br>
+Questo strumento faceva riferimento a precedenti progetti Supabase e non è più utilizzabile. Il sito e il pannello amministrativo devono utilizzare esclusivamente i database correnti:
+<ul><li>TEST: NoteFiorentine-Test</li><li>PRODUCTION: NoteFiorentine-Production</li></ul>
+Non viene effettuata alcuna connessione ai vecchi database e non viene eseguita alcuna copia di dati.
+</div>
+<p>Per la gestione ordinaria di immagini e contenuti, utilizza il <a href="/src/index.html">pannello amministrativo</a>.</p>
+</main></body></html>
