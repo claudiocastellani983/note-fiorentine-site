@@ -48,7 +48,8 @@ const groups=[
 {title:'Contatti',fields:[['contact_kicker','Soprattitolo','text'],['contact_title','Titolo','textarea'],['contact_location_title','Titolo posizione','text'],['contact_location_text','Testo posizione','textarea'],['contact_reservation_title','Titolo prenotazioni','text'],['contact_reservation_text','Testo prenotazioni','textarea']]},
 {title:'Aspetto generale',fields:[['color_primary','Colore principale','color'],['color_secondary','Colore secondario','color'],['color_background','Colore sfondo','color'],['color_text','Colore testo','color'],['color_accent','Colore accento','color'],['font_heading','Font titoli','font'],['font_body','Font testi','font']]}
 ];
-function say(s){$('status').textContent=s}\nfunction stableJSON(v){if(Array.isArray(v))return '['+v.map(stableJSON).join(',')+']';if(v&&typeof v==='object')return '{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+stableJSON(v[k])).join(',')+'}';return JSON.stringify(v)}
+function say(s){$('status').textContent=s}
+function stableJSON(v){if(Array.isArray(v))return '['+v.map(stableJSON).join(',')+']';if(v&&typeof v==='object')return '{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+stableJSON(v[k])).join(',')+'}';return JSON.stringify(v)}
 function mediaUrl(path,bucket='site-media'){if(!path)return'';if(/^https?:\/\//i.test(path))return path;return db.storage.from(bucket).getPublicUrl(path).data.publicUrl}
 function filePath(name){return 'pannello-2/'+Date.now()+'-'+crypto.randomUUID()+'-'+String(name).replace(/[^a-zA-Z0-9._-]/g,'-')}
 async function adminCheck(){const a=await db.rpc('is_admin');if(a.error)throw a.error;if(a.data!==true)throw new Error('Questo account non è abilitato come amministratore nel database Test.')}
