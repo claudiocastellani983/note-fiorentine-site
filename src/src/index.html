@@ -1480,6 +1480,25 @@ html, body { width:100%; max-width:100%; overflow-x:clip; }
 }
 </style>
 
+
+<style id="nf-event-empty-center-v1">
+/* Stato vuoto Eventi: centra il messaggio nel contenitore su ogni viewport. */
+#eventi #eventList { width:min(100%, 1050px); margin:38px auto 0; justify-items:center; }
+#eventi #eventList > .event-empty {
+  display:block;
+  grid-column:1 / -1;
+  width:100%;
+  max-width:100%;
+  margin:0 auto;
+  text-align:center;
+  justify-self:center;
+}
+@media (max-width:760px) {
+  #eventi #eventList { width:100%; margin:28px auto 0; }
+  #eventi #eventList > .event-empty { width:100%; text-align:center; }
+}
+</style>
+
 </head>
 <body>
 <div id="app">
