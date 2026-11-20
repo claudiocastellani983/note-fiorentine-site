@@ -1265,17 +1265,17 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
 <script id="nf-supabase-environment">
 (()=> {
   const host=location.hostname.toLowerCase();
-  // Solo i due domini ufficiali pubblici possono usare il database Production.
-  // Ogni alias Vercel/Preview, compresi quelli storici, resta sul database Test.
+  // Solo i domini ufficiali pubblici possono usare il database Production.
+  // Tutti gli alias Vercel/Preview usano il nuovo database Test del Pannello 2.0.
   const productionHosts=new Set([
     'www.notefiorentine.it','notefiorentine.it',
   ]);
   const production=productionHosts.has(host);
-  const projectRef=production?'cpumzowmadbqyecflkyl':'ypkitfyqctjvojgbekmm';
+  const projectRef=production?'cpumzowmadbqyecflkyl':'lwmffxxxvninvmubylrw';
   window.NF_SUPABASE_CONFIG=Object.freeze({
     projectRef,
-    url:production?'https://cpumzowmadbqyecflkyl.supabase.co':'https://ypkitfyqctjvojgbekmm.supabase.co',
-    key:production?'sb_publishable_jFOfj9H7WB0sd8kev72MmQ_YWprnreE':'sb_publishable_zYUxpEdaEcv7GMiT43Zg4Q_fStrm-Kj',
+    url:production?'https://cpumzowmadbqyecflkyl.supabase.co':'https://lwmffxxxvninvmubylrw.supabase.co',
+    key:production?'sb_publishable_jFOfj9H7WB0sd8kev72MmQ_YWprnreE':'sb_publishable_jRpBMLRDvdytpe7ddMbteA_7TLRiO6',
     environment:production?'Production':'Test'
   });
 })();
