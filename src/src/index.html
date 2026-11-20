@@ -1318,17 +1318,17 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
   }
   const key=table+':'+url,cached=read(key);
   if(cached)return responseFrom(cached);
-  if(inflight.has(key))return responseFrom(await inflight.get(key));
+  if(inflight.has(key)){const pending=await inflight.get(key);return pending.entry?responseFrom(pending.entry):pending.response.clone()}
   const task=(async()=>{
    const response=await originalFetch(input,init);
-   if(!response.ok||!String(response.headers.get('content-type')||'').includes('json'))return null;
+   if(!response.ok||!String(response.headers.get('content-type')||'').includes('json'))return {response};
    const body=await response.clone().text();
-   if(new TextEncoder().encode(body).length>maxBytes)return null;
+   if(new TextEncoder().encode(body).length>maxBytes)return {response};
    const entry={body,status:response.status,statusText:response.statusText,headers:Array.from(response.headers.entries()),expiresAt:Date.now()+ttl};
-   write(key,entry);return entry;
+   write(key,entry);return {entry};
   })();
   inflight.set(key,task);
-  try{const entry=await task;if(entry)return responseFrom(entry);return originalFetch(input,init)}
+  try{const result=await task;return result.entry?responseFrom(result.entry):result.response.clone()}
   finally{inflight.delete(key)}
  };
 })();
