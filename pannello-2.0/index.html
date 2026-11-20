@@ -98,9 +98,13 @@ html.nf-mobile-device .login{width:calc(100% - 24px);max-width:420px;margin:8vh 
 </div>
 <script type="module">
 import{createClient}from'https://esm.sh/@supabase/supabase-js@2.95.0';
-const SUPABASE_URL='https://ypkitfyqctjvojgbekmm.supabase.co';
-const SUPABASE_KEY='sb_publishable_zYUxpEdaEcv7GMiT43Zg4Q_fStrm-Kj';
-const HOME_PREVIEW='https://note-fiorentine-git-fix-header-5c5371-claudiocastellani983-5675.vercel.app/';
+const panelConfigResponse=await fetch('/api/pannello-config.js',{cache:'no-store'});
+if(!panelConfigResponse.ok)throw new Error('Configurazione Supabase Test non disponibile (HTTP '+panelConfigResponse.status+').');
+const panelConfig=await panelConfigResponse.json();
+const SUPABASE_URL=String(panelConfig.supabaseUrl||'').trim();
+const SUPABASE_KEY=String(panelConfig.supabaseAnonKey||'').trim();
+if(new URL(SUPABASE_URL).hostname!=='lwmffxxxvninvmubylrw.supabase.co'||!SUPABASE_KEY)throw new Error('Configurazione rifiutata: il Pannello 2.0 deve usare esclusivamente NoteFiorentine-Test dell’account prenotazione.notefiorentine@gmail.com.');
+const HOME_PREVIEW=window.location.origin+'/';
 const db=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const $=id=>(String(id).startsWith('#')||String(id).startsWith('[')?document.querySelector(id):document.getElementById(id)), esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let user=null,siteData={},popup=null,images=[],gallery=[],categories=[],items=[],visualStyles={},visualSelected=null,visualPage='home',visualSequence=0,visualReport=null,currentLang='it',galleryCategory='all',gallerySearch='',videoRows=[],eventRows=[];
