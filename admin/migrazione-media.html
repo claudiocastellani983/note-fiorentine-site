@@ -56,7 +56,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const AUDITORE_URL='https://cpumzowmadbqyecflkyl.supabase.co';
 const AUDITORE_KEY='sb_publishable_jFOfj9H7WB0sd8kev72MmQ_YWprnreE';
 const host=location.hostname.toLowerCase();
-const isPreview=host.startsWith('note-fiorentine-admin-')&&host.endsWith('.vercel.app')&&!['note-fiorentine-admin.vercel.app','note-fiorentine-auditore-admin.vercel.app'].includes(host);
+const isPreview=host.startsWith('note-fiorentine-admin-')&&host.endsWith('.vercel.app')&&host!=='note-fiorentine-admin.vercel.app';
 const env=$('environmentStatus');
 function $(id){return document.getElementById(id)}
 const loginPanel=$('loginPanel'),migrationPanel=$('migrationPanel'),loginStatus=$('loginStatus'),migrationStatus=$('migrationStatus');
