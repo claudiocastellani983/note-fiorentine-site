@@ -1528,3 +1528,78 @@ function showCategory(category,button){
 #app>main>#menu .menu-item-description{font-size:15px!important;line-height:1.7!important}
 }
 </style>
+
+<style id="nf-menu-header-match-home-v1">
+/* Menu: replica esattamente la disposizione header mobile della Home.
+   Neutralizza il precedente override che allargava il selettore lingue su tutta la riga. */
+@media (max-width:760px){
+ #app>header>.nav{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  grid-template-areas:"brand brand" "flags toggle" "links links"!important;
+  align-items:center!important;
+  column-gap:10px!important;
+  row-gap:10px!important;
+  padding:12px 14px!important;
+  min-height:0!important;
+ }
+ #app>header .brand-mini{grid-area:brand!important;justify-self:center!important;margin:0 auto!important;text-align:center!important}
+ #app>header .brand-mini .brand-wordmark{text-align:center!important}
+ #app>header .language-switch{
+  grid-area:flags!important;
+  grid-column:auto!important;
+  justify-self:end!important;
+  display:flex!important;
+  width:auto!important;
+  max-width:100%!important;
+  justify-content:center!important;
+  gap:4px!important;
+  margin:0!important;
+  padding:0!important;
+  flex:0 0 auto!important;
+  white-space:nowrap!important;
+ }
+ #app>header .language-switch a{
+  flex:0 0 32px!important;
+  width:32px!important;
+  min-width:32px!important;
+  max-width:32px!important;
+  height:32px!important;
+  min-height:32px!important;
+  max-height:32px!important;
+  padding:0!important;
+ }
+ #app>header .menu-toggle{
+  grid-area:toggle!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  justify-self:start!important;
+  white-space:nowrap!important;
+  min-height:38px!important;
+  padding:8px 11px!important;
+ }
+ #app>header .navlinks{
+  grid-area:links!important;
+  display:none!important;
+  flex:0 0 auto!important;
+  width:100%!important;
+  min-width:0!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  gap:0!important;
+  padding:4px 0 8px!important;
+  border-top:1px solid #D8C6AD!important;
+ }
+ #app>header .navlinks.open{display:flex!important}
+ #app>header .navlinks>a{
+  display:block!important;
+  width:100%!important;
+  padding:12px 10px!important;
+  text-align:center!important;
+  border-bottom:1px solid rgba(216,198,173,.55)!important;
+  font-size:11px!important;
+ }
+ #app>header .navlinks .nav-cta{margin-top:8px!important;border:1px solid #8F2928!important}
+}
+</style>
