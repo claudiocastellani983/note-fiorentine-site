@@ -26,9 +26,10 @@
 <style id="nf-admin-media-preview-fit-v1">.site-image-preview,.media-preview{display:block;max-width:min(100%,320px);max-height:240px;width:auto;height:auto;object-fit:contain!important;object-position:center;background:#100d0b}</style><script id="nf-supabase-environment">
 (()=> {
   const host=location.hostname.toLowerCase();
+  // L'Admin corrente usa il solo dominio note-fiorentine-admin.vercel.app per Production.
+  // Il vecchio alias Auditore è escluso e non può più selezionare il database Production.
   const productionHosts=new Set([
-    'www.notefiorentine.it','notefiorentine.it','note-fiorentine.vercel.app',
-    'note-fiorentine-auditore-admin.vercel.app','note-fiorentine-admin.vercel.app'
+    'www.notefiorentine.it','notefiorentine.it','note-fiorentine-admin.vercel.app'
   ]);
   const production=productionHosts.has(host);
   const preview=(host.startsWith('note-fiorentine-auditore-admin-')||host.startsWith('note-fiorentine-admin-'))&&host.endsWith('.vercel.app')&&!production;
