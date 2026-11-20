@@ -1560,8 +1560,7 @@ links.querySelectorAll('a').forEach(link => link.addEventListener('click', () =>
 </script>
 
 <script>
-(()=>{
- const isPreview=location.hostname==='note-fiorentine-git-fix-header-5c5371-claudiocastellani983-5675.vercel.app';
+(async()=>{
  const api=(await window.NF_SUPABASE_CONFIG_PROMISE).url+'/rest/v1/site_content?select=content_value&content_key=eq.public_site';
  const key=(await window.NF_SUPABASE_CONFIG_PROMISE).key;let active=null;
  function selector(el){
