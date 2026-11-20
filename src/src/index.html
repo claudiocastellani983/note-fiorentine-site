@@ -1577,6 +1577,10 @@ links.querySelectorAll('a').forEach(link => link.addEventListener('click', () =>
   if(p.fontStyle!==undefined){if(['normal','italic'].includes(p.fontStyle))set('font-style',p.fontStyle);checks.push(el.style.getPropertyValue('font-style')!=='')}
   if(p.color!==undefined){if(typeof p.color==='string'&&/^#[0-9a-f]{6}$/i.test(p.color)){set('color',p.color);if(typeof CSS!=='undefined'&&CSS.supports('-webkit-text-fill-color',p.color))set('-webkit-text-fill-color',p.color)}checks.push(el.style.getPropertyValue('color')!=='')}
   if(p.textAlign!==undefined){if(['left','center','right','justify'].includes(p.textAlign))set('text-align',p.textAlign);checks.push(el.style.getPropertyValue('text-align')!=='')}
+  if(p.letterSpacing!==undefined){if(['normal','0.02em','0.06em','0.12em','0.2em'].includes(p.letterSpacing))set('letter-spacing',p.letterSpacing);checks.push(el.style.getPropertyValue('letter-spacing')!=='')}
+  if(p.lineHeight!==undefined){if(['normal','1','1.25','1.5','1.8'].includes(String(p.lineHeight)))set('line-height',p.lineHeight);checks.push(el.style.getPropertyValue('line-height')!=='')}
+  if(p.textTransform!==undefined){if(['none','uppercase','lowercase','capitalize'].includes(p.textTransform))set('text-transform',p.textTransform);checks.push(el.style.getPropertyValue('text-transform')!=='')}
+  if(p.backgroundColor!==undefined){if(typeof p.backgroundColor==='string'&&/^#[0-9a-f]{6}$/i.test(p.backgroundColor))set('background-color',p.backgroundColor);checks.push(el.style.getPropertyValue('background-color')!=='')}
   if(p.width!==undefined){if(/^\d+(?:\.\d+)?%$/.test(String(p.width)))set('width',p.width);checks.push(el.style.getPropertyValue('width')!=='')}
   if(p.maxWidth!==undefined){if(/^\d+(?:\.\d+)?%$/.test(String(p.maxWidth)))set('max-width',p.maxWidth);checks.push(el.style.getPropertyValue('max-width')!=='')}
   if(p.writingMode!==undefined){if(['horizontal-tb','vertical-rl','vertical-lr'].includes(p.writingMode))set('writing-mode',p.writingMode);checks.push(el.style.getPropertyValue('writing-mode')!=='')}
