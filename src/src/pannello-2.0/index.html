@@ -25,6 +25,8 @@ header{height:76px;padding:0 24px;border-bottom:1px solid var(--line);display:fl
 /* Pannello 2.0: layout mobile esplicito anche con modalità desktop del browser */
 html.nf-mobile-device,html.nf-mobile-device body{width:100%;max-width:100%;overflow-x:hidden}
 html.nf-mobile-device .layout{display:grid!important;grid-template-columns:minmax(0,1fr)!important;width:100%;min-width:0}
+/* La regola mobile non deve mai riaprire il pannello prima dell'autenticazione */
+html.nf-mobile-device #app.hidden{display:none!important}
 html.nf-mobile-device aside{position:sticky;top:68px;z-index:15;padding:8px;border-right:0;border-bottom:1px solid var(--line);min-width:0}
 html.nf-mobile-device nav{display:flex!important;flex-direction:row;gap:5px;overflow-x:auto;overflow-y:hidden;white-space:nowrap;max-width:100%;scrollbar-width:thin}
 html.nf-mobile-device nav button{flex:0 0 auto;white-space:nowrap;padding:9px 11px}
