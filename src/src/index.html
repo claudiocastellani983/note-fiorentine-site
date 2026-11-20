@@ -1587,7 +1587,7 @@ links.querySelectorAll('a').forEach(link => link.addEventListener('click', () =>
   try{
    const rows=await (window.NF_SITE_CONTENT_PROMISE||(window.NF_SITE_CONTENT_PROMISE=fetch(api,{headers:{apikey:key,Accept:'application/json'},cache:'no-store'}).then(r=>{if(!r.ok)throw Error('site_content '+r.status);return r.json()})));
    const styles=rows?.[0]?.content_value?._visual_styles||{};
-   const menuPage=/\/menu\.html$/,allowedScopes=menuPage?['menu']:['home','ristorante','artisti','atmosfera'],currentLang=(new URLSearchParams(location.search).get('lang')||'it').toLowerCase();
+   const menuPage=/\/menu(?:\.html)?\/?$/.test(location.pathname),allowedScopes=menuPage?['menu']:['home','ristorante','artisti','atmosfera'],currentLang=(new URLSearchParams(location.search).get('lang')||'it').toLowerCase();
    Object.entries(styles).forEach(([key,stored])=>{
     const parts=key.split('::');let selector=key,p={...stored};
     if(parts.length===3){if(!allowedScopes.includes(parts[0])||parts[1]!==currentLang)return;selector=parts[2]}
