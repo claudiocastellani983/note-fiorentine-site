@@ -1817,6 +1817,11 @@ document.querySelectorAll('a[href^="/#"]').forEach(a=>{const h=a.getAttribute('h
     if(email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
       const contact=document.createElement('a');contact.className='nf-popup-action nf-popup-contact';contact.href='mailto:'+email+'?subject='+encodeURIComponent(({it:'Informazioni - Note Fiorentine',en:'Information - Note Fiorentine',de:'Informationen - Note Fiorentine',fr:'Informations - Note Fiorentine',es:'Información - Note Fiorentine',zh:'Note Fiorentine 咨询'})[lang]||'Note Fiorentine');contact.textContent=contactLabel;actions.append(contact);
     }
+    const popupLinkUrl=String(data.translations?.[lang]?.link_url||data.translations?.it?.link_url||'').trim();
+    const popupLinkLabel=String(data.translations?.[lang]?.link_label||data.translations?.it?.link_label||'').trim();
+    if(/^https?:\/\//i.test(popupLinkUrl)){
+      const external=document.createElement('a');external.className='nf-popup-action nf-popup-file';external.href=popupLinkUrl;external.target='_blank';external.rel='noopener noreferrer';external.textContent=popupLinkLabel||'SCOPRI DI PIÙ';actions.append(external);
+    }
     box.append(actions);
     const media=Array.isArray(data.media_files)?data.media_files:[];
     const images=media.filter(x=>x&&x.type&&String(x.type).startsWith('image/')&&typeof x.url==='string'&&x.url.startsWith('https://'));
