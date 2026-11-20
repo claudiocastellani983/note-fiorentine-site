@@ -1289,11 +1289,21 @@ links.querySelectorAll('a').forEach(link => link.addEventListener('click', () =>
 
 <script>
 (()=>{
- const api='https://nculgrwlzjitggjcgbpp.supabase.co/rest/v1/site_content?select=content_value&content_key=eq.public_site';
- const key='sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0';let active=null;
+ const productionHosts=new Set(['www.notefiorentine.it','notefiorentine.it','note-fiorentine-auditore.vercel.app']);
+ const production=productionHosts.has(location.hostname.toLowerCase());
+ const api=(production?'https://nculgrwlzjitggjcgbpp.supabase.co':'https://ypkitfyqctjvojgbekmm.supabase.co')+'/rest/v1/site_content?select=content_value&content_key=eq.public_site';
+ const key=production?'sb_publishable_vg78G491ekPPQt4CwCeJDw_Pp1n44V0':'sb_publishable_zYUxpEdaEcv7GMiT43Zg4Q_fStrm-Kj';let active=null;
+ const params=new URLSearchParams(location.search);
+ const lang=['it','en','de','fr','es','zh'].includes((params.get('lang')||'it').toLowerCase())?(params.get('lang')||'it').toLowerCase():'it';
+ const page=params.get('visualPage')||(location.pathname.endsWith('/menu.html')?'menu':'home');
+ function resolveStyleKey(raw){const match=String(raw).match(/^(home|menu|ristorante|artisti|galleria|atmosfera)::(?:(it|en|de|fr|es|zh)::)?([\\s\\S]+)$/);if(!match)return {selector:String(raw),language:null};if(match[1]!==page||(match[2]&&match[2]!==lang))return null;return {selector:match[3],language:match[2]||null};}
  function selector(el){if(el.id)return '#'+CSS.escape(el.id);const parts=[];while(el&&el.nodeType===1&&el!==document.body){let part=el.tagName.toLowerCase();if(el.parentElement){const same=[...el.parentElement.children].filter(x=>x.tagName===el.tagName);if(same.length>1)part+=':nth-of-type('+(same.indexOf(el)+1)+')'}parts.unshift(part);el=el.parentElement}return 'body>'+parts.join('>')}
- function apply(sel,p){let el;try{el=document.querySelector(sel)}catch{}if(!el||!p)return;if((['it','en','de','fr','es'].includes((new URLSearchParams(location.search).get('lang')||'it').toLowerCase())?(new URLSearchParams(location.search).get('lang')||'it').toLowerCase():'it')==='it'&&typeof p.text==='string'){el.textContent=p.text;el.style.whiteSpace=/[\\r\\n]/.test(p.text)?'pre-wrap':''}if(p.fontSize)el.style.fontSize=p.fontSize;if(typeof p.fontFamily==='string'&&p.fontFamily.trim())el.style.fontFamily=p.fontFamily;if(['left','center','right','justify'].includes(p.textAlign))el.style.textAlign=p.textAlign}
- async function load(){try{const r=await fetch(api,{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});if(!r.ok)return;const rows=await r.json(),styles=rows?.[0]?.content_value?._visual_styles||{};Object.entries(styles).forEach(([sel,p])=>apply(sel,p))}catch(e){console.warn('Stili visuali non caricati',e)}}
+ function apply(sel,p,styleLanguage=null){let el;try{el=document.querySelector(sel)}catch{}if(!el||!p)return;
+  if(typeof p.text==='string'&&((styleLanguage&&styleLanguage===lang)||(!styleLanguage&&lang==='it'))){el.textContent=p.text;el.style.whiteSpace=/[\\r\\n]/.test(p.text)?'pre-wrap':''}
+  const css={fontSize:'fontSize',fontFamily:'fontFamily',color:'color',textAlign:'textAlign',width:'width',maxWidth:'maxWidth',objectFit:'objectFit',writingMode:'writingMode',transform:'transform',display:'display',marginLeft:'marginLeft',marginRight:'marginRight',fontWeight:'fontWeight',fontStyle:'fontStyle'};
+  for(const [source,target] of Object.entries(css)){const value=p[source];if(value!==undefined&&value!==null&&value!=='')el.style[target]=String(value)}
+ }
+ async function load(){try{const r=await fetch(api,{headers:{apikey:key,Accept:'application/json'},cache:'no-store'});if(!r.ok)throw new Error('site_content '+r.status);const rows=await r.json(),styles=rows?.[0]?.content_value?._visual_styles||{};Object.entries(styles).forEach(([raw,p])=>{const resolved=resolveStyleKey(raw);if(resolved)apply(resolved.selector,p,resolved.language)})}catch(e){console.warn('Stili visuali non caricati',e)}}
  window.nfReloadVisualStyles=load;load();
  if(new URLSearchParams(location.search).has('visual-editor')){
   const style=document.createElement('style');style.textContent='body.nf-ve-active h1,body.nf-ve-active h2,body.nf-ve-active h3,body.nf-ve-active p,body.nf-ve-active .eyebrow,body.nf-ve-active .section-kicker,body.nf-ve-active .section-lead,body.nf-ve-active .included,body.nf-ve-active .time strong,body.nf-ve-active .time small{cursor:pointer}body.nf-ve-active [data-nf-selected]{outline:3px solid #d2a84b!important;outline-offset:3px}';document.head.appendChild(style);document.body.classList.add('nf-ve-active');
