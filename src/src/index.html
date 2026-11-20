@@ -3225,6 +3225,9 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 #app main h1, #app main h2, #app main h3,
 #app main p, #app main .section-kicker,
 #app main .eyebrow, #app main .section-lead { text-align:center; }
+/* La hero attuale contiene solo il blocco testo: deve occupare tutta la larghezza, non una colonna vuota. */
+#app main .hero { grid-template-columns:minmax(0,1fr)!important; }
+#app main .hero-copy { grid-column:1/-1; width:100%; max-width:none; }
 #app .nf-gallery-dialog, #app .nf-artists-dialog,
 #app .nf-environments-choice-dialog { align-items:center; text-align:center; }
 #app .nf-gallery-top, #app .nf-artists-viewer-top,
