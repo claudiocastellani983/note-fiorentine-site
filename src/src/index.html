@@ -1541,9 +1541,70 @@ links.querySelectorAll('a').forEach(link => link.addEventListener('click', () =>
  const isPreview=location.hostname.startsWith('note-fiorentine-')&&location.hostname.endsWith('.vercel.app');
  const api=window.NF_SUPABASE_CONFIG.url+'/rest/v1/site_content?select=content_value&content_key=eq.public_site';
  const key=window.NF_SUPABASE_CONFIG.key;let active=null;
- function selector(el){if(el.id)return '#'+CSS.escape(el.id);const parts=[];while(el&&el.nodeType===1&&el!==document.body){let part=el.tagName.toLowerCase();if(el.parentElement){const same=[...el.parentElement.children].filter(x=>x.tagName===el.tagName);if(same.length>1)part+=':nth-of-type('+(same.indexOf(el)+1)+')'}parts.unshift(part);el=el.parentElement}return 'body>'+parts.join('>')}
- function apply(sel,p){let el;try{el=document.querySelector(sel)}catch{}if(typeof p==='string'){try{p=JSON.parse(p)}catch{return false}}if(!el||!p||typeof p!=='object')return false;const set=(name,value)=>{if(value!==undefined&&value!==null&&String(value)!=='')el.style.setProperty(name,String(value),'important')};if(el.matches('.menu-full-cta')){set('background-color','#8F2928');set('border-color','#8F2928');set('color','#FFF9F0');set('-webkit-text-fill-color','#FFF9F0');set('text-decoration','none')}if(typeof p.text==='string'){el.textContent=p.text;set('white-space',/[\\r\\n]/.test(p.text)?'pre-wrap':'normal')}if(p.fontSize&&/^\d+(?:\.\d+)?px$/.test(p.fontSize))set('font-size',p.fontSize);if(typeof p.fontFamily==='string'&&p.fontFamily.trim())set('font-family',p.fontFamily);if(p.fontWeight&&/^(400|500|600|700|800)$/.test(String(p.fontWeight)))set('font-weight',p.fontWeight);if(['normal','italic'].includes(p.fontStyle))set('font-style',p.fontStyle);if(typeof p.color==='string'&&/^#[0-9a-f]{6}$/i.test(p.color)){set('color',p.color);if(typeof CSS!=='undefined'&&CSS.supports('-webkit-text-fill-color',p.color))set('-webkit-text-fill-color',p.color)}if(['left','center','right','justify'].includes(p.textAlign))set('text-align',p.textAlign);if(p.width&&/^\d+(?:\.\d+)?%$/.test(p.width))set('width',p.width);if(p.maxWidth&&/^\d+(?:\.\d+)?%$/.test(p.maxWidth))set('max-width',p.maxWidth);if(['horizontal-tb','vertical-rl','vertical-lr'].includes(p.writingMode))set('writing-mode',p.writingMode);if(typeof p.transform==='string'&&/^translateY\(-?\d+px\)$/.test(p.transform))set('transform',p.transform);if(p.objectFit&&['cover','contain','fill','none','scale-down'].includes(p.objectFit))set('object-fit',p.objectFit);if(p.display&&['block','inline','inline-block','flex','grid'].includes(p.display))set('display',p.display);if(p.marginLeft!==undefined)set('margin-left',p.marginLeft);if(p.marginRight!==undefined)set('margin-right',p.marginRight);const checks=[];if(p.fontSize)checks.push(el.style.getPropertyPriority('font-size')==='important'&&el.style.getPropertyValue('font-size')!=='');if(p.fontFamily)checks.push(el.style.getPropertyPriority('font-family')==='important'&&el.style.getPropertyValue('font-family')!=='');if(p.color)checks.push(el.style.getPropertyPriority('color')==='important'&&el.style.getPropertyValue('color')!=='');return checks.every(Boolean)}
- async function load(){try{const rows=await (window.NF_SITE_CONTENT_PROMISE||(window.NF_SITE_CONTENT_PROMISE=fetch(api,{headers:{apikey:key,Accept:'application/json'},cache:'no-store'}).then(r=>{if(!r.ok)throw Error('site_content '+r.status);return r.json()}))),styles=rows?.[0]?.content_value?._visual_styles||{};const menuPage=/\/menu\.html$/,allowedScopes=menuPage?['menu']:['home','ristorante','artisti','atmosfera'],currentLang=(new URLSearchParams(location.search).get('lang')||'it').toLowerCase();Object.entries(styles).forEach(([key,stored])=>{const parts=key.split('::');let selector=key,p={...stored};if(parts.length===3){if(!allowedScopes.includes(parts[0])||parts[1]!==currentLang)return;selector=parts[2]}else if(parts.length===2){if(!allowedScopes.includes(parts[0]))return;selector=parts[1];if(currentLang!=='it')delete p.text}else if(menuPage)return;else if(currentLang!=='it')delete p.text;apply(selector,p)})}catch(e){console.warn('Stili visuali non caricati',e)}}
+ function selector(el){
+  if(el.id)return '#'+CSS.escape(el.id);
+  const parts=[];let node=el;
+  while(node&&node.nodeType===1&&node!==document.body){
+   if(node.id){parts.unshift('#'+CSS.escape(node.id));return parts.join(' > ')}
+   let part=node.tagName.toLowerCase();
+   const classes=[...node.classList].filter(name=>name!=='nf-ve-active').slice(0,2);
+   if(classes.length)part+='.'+classes.map(name=>CSS.escape(name)).join('.');
+   const parent=node.parentElement;
+   if(parent){const same=[...parent.children].filter(item=>item.tagName===node.tagName);if(same.length>1)part+=':nth-of-type('+(same.indexOf(node)+1)+')'}
+   parts.unshift(part);node=parent;
+  }
+  return 'body > '+parts.join(' > ');
+ }
+ function apply(sel,p){
+  let el;try{el=document.querySelector(sel)}catch{}
+  if(typeof p==='string'){try{p=JSON.parse(p)}catch{return false}}
+  if(!el&&p&&typeof p.text==='string'){
+   const wanted=p.text.replace(/\s+/g,' ').trim();
+   const candidates=[...document.querySelectorAll('h1,h2,h3,h4,p,a,button,label,small,strong,em,li,.eyebrow,.section-kicker,.section-lead,.included,.time strong,.time small,.nf-artists-card-copy strong,.nf-artists-card-copy small,.nf-artists-intro')];
+   const matches=candidates.filter(item=>(item.innerText||item.textContent||'').replace(/\s+/g,' ').trim()===wanted);
+   if(matches.length===1)el=matches[0];
+  }
+  if(!el||!p||typeof p!=='object'||Array.isArray(p))return false;
+  const checks=[];
+  const set=(name,value)=>{if(value!==undefined&&value!==null&&String(value)!=='')el.style.setProperty(name,String(value),'important')};
+  if(el.matches('.menu-full-cta')){set('background-color','#8F2928');set('border-color','#8F2928');set('color','#FFF9F0');set('-webkit-text-fill-color','#FFF9F0');set('text-decoration','none')}
+  if(typeof p.text==='string'){el.textContent=p.text;set('white-space',/[\r\n]/.test(p.text)?'pre-wrap':'normal');checks.push(el.textContent===p.text)}
+  if(p.fontSize!==undefined){const v=String(p.fontSize);if(/^\d+(?:\.\d+)?px$/.test(v))set('font-size',v);checks.push(el.style.getPropertyValue('font-size')!=='')}
+  if(p.fontFamily!==undefined){if(typeof p.fontFamily==='string'&&p.fontFamily.trim())set('font-family',p.fontFamily);checks.push(el.style.getPropertyValue('font-family')!=='')}
+  if(p.fontWeight!==undefined){if(/^(400|500|600|700|800)$/.test(String(p.fontWeight)))set('font-weight',p.fontWeight);checks.push(el.style.getPropertyValue('font-weight')!=='')}
+  if(p.fontStyle!==undefined){if(['normal','italic'].includes(p.fontStyle))set('font-style',p.fontStyle);checks.push(el.style.getPropertyValue('font-style')!=='')}
+  if(p.color!==undefined){if(typeof p.color==='string'&&/^#[0-9a-f]{6}$/i.test(p.color)){set('color',p.color);if(typeof CSS!=='undefined'&&CSS.supports('-webkit-text-fill-color',p.color))set('-webkit-text-fill-color',p.color)}checks.push(el.style.getPropertyValue('color')!=='')}
+  if(p.textAlign!==undefined){if(['left','center','right','justify'].includes(p.textAlign))set('text-align',p.textAlign);checks.push(el.style.getPropertyValue('text-align')!=='')}
+  if(p.width!==undefined){if(/^\d+(?:\.\d+)?%$/.test(String(p.width)))set('width',p.width);checks.push(el.style.getPropertyValue('width')!=='')}
+  if(p.maxWidth!==undefined){if(/^\d+(?:\.\d+)?%$/.test(String(p.maxWidth)))set('max-width',p.maxWidth);checks.push(el.style.getPropertyValue('max-width')!=='')}
+  if(p.writingMode!==undefined){if(['horizontal-tb','vertical-rl','vertical-lr'].includes(p.writingMode))set('writing-mode',p.writingMode);checks.push(el.style.getPropertyValue('writing-mode')!=='')}
+  if(p.transform!==undefined){if(typeof p.transform==='string'&&/^translateY\(-?\d+px\)$/.test(p.transform))set('transform',p.transform);checks.push(el.style.getPropertyValue('transform')!=='')}
+  if(p.objectFit!==undefined){if(['cover','contain','fill','none','scale-down'].includes(p.objectFit))set('object-fit',p.objectFit);checks.push(el.style.getPropertyValue('object-fit')!=='')}
+  if(p.display!==undefined){if(['block','inline','inline-block','flex','grid'].includes(p.display))set('display',p.display);checks.push(el.style.getPropertyValue('display')!=='')}
+  if(p.marginLeft!==undefined){set('margin-left',p.marginLeft);checks.push(el.style.getPropertyValue('margin-left')!=='')}
+  if(p.marginRight!==undefined){set('margin-right',p.marginRight);checks.push(el.style.getPropertyValue('margin-right')!=='')}
+  return checks.length>0&&checks.every(Boolean);
+ }
+ async function load(){
+  const report={total:0,applied:0,missing:[]};
+  try{
+   const rows=await (window.NF_SITE_CONTENT_PROMISE||(window.NF_SITE_CONTENT_PROMISE=fetch(api,{headers:{apikey:key,Accept:'application/json'},cache:'no-store'}).then(r=>{if(!r.ok)throw Error('site_content '+r.status);return r.json()})));
+   const styles=rows?.[0]?.content_value?._visual_styles||{};
+   const menuPage=/\/menu\.html$/,allowedScopes=menuPage?['menu']:['home','ristorante','artisti','atmosfera'],currentLang=(new URLSearchParams(location.search).get('lang')||'it').toLowerCase();
+   Object.entries(styles).forEach(([key,stored])=>{
+    const parts=key.split('::');let selector=key,p={...stored};
+    if(parts.length===3){if(!allowedScopes.includes(parts[0])||parts[1]!==currentLang)return;selector=parts[2]}
+    else if(parts.length===2){if(!allowedScopes.includes(parts[0]))return;selector=parts[1];if(currentLang!=='it')delete p.text}
+    else if(menuPage)return;
+    else if(currentLang!=='it')delete p.text;
+    report.total++;
+    if(apply(selector,p))report.applied++;else report.missing.push(key);
+   });
+  }catch(e){report.error=e?.message||String(e);console.warn('Stili visuali non caricati',e)}
+  window.__NF_VISUAL_LOAD_REPORT=report;
+  if(new URLSearchParams(location.search).has('visual-editor')&&window.parent!==window)window.parent.postMessage({type:'nf-visual-load-report',report},'*');
+  return report;
+ }
  window.nfReloadVisualStyles=load;load();
  if(new URLSearchParams(location.search).has('visual-editor')){
   const style=document.createElement('style');style.textContent='body.nf-ve-active h1,body.nf-ve-active h2,body.nf-ve-active h3,body.nf-ve-active p,body.nf-ve-active .eyebrow,body.nf-ve-active .section-kicker,body.nf-ve-active .section-lead,body.nf-ve-active .included,body.nf-ve-active .time strong,body.nf-ve-active .time small{cursor:pointer}body.nf-ve-active [data-nf-selected]{outline:3px solid #d2a84b!important;outline-offset:3px}';document.head.appendChild(style);document.body.classList.add('nf-ve-active');const visualTarget=new URLSearchParams(location.search).get('visualTarget');if(visualTarget)requestAnimationFrame(()=>setTimeout(()=>{try{document.querySelector(visualTarget)?.scrollIntoView({block:'start'})}catch{}},180));
@@ -3106,4 +3167,182 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
 }
 #app main .menu-full-cta:hover{background:#8F2928!important;color:#FFF9F0!important;}
 #app>main>#nf-cinematic-zone #menu .menu-full-cta,#app>main>#nf-cinematic-zone #menu .menu-full-cta:link,#app>main>#nf-cinematic-zone #menu .menu-full-cta:visited,#app>main>#nf-cinematic-zone #menu .menu-full-cta:hover,#app>main>#nf-cinematic-zone #menu .menu-full-cta:focus,#app>main>#nf-cinematic-zone #menu .menu-full-cta:active{background-color:#8F2928!important;border-color:#8F2928!important;color:#FFF9F0!important;-webkit-text-fill-color:#FFF9F0!important}
+</style>
+
+
+<style id="nf-responsive-centered-system-v1">
+/* Sistema responsive unificato: allineamento centrale e griglie proporzionate. */
+#app, #app > main { width:100%; max-width:100%; min-width:0; }
+#app { overflow-x:clip; }
+#app img, #app video, #app iframe { max-width:100%; }
+#app main .hero-copy,
+#app main .intro,
+#app main .music-copy,
+#app main .music-videos,
+#app main .content-section,
+#app main .visit,
+#app > footer { text-align:center; }
+#app main .hero-copy,
+#app main .music-copy { align-items:center; }
+#app main .hero-copy > *,
+#app main .music-copy > *,
+#app main .content-section > .section-kicker,
+#app main .content-section > h2,
+#app main .content-section > .section-lead { margin-left:auto; margin-right:auto; }
+#app main .hero-copy .actions { width:100%; justify-content:center; }
+#app main .music-copy p,
+#app main .section-lead,
+#app main .intro p,
+#app main .visit-card p { margin-left:auto; margin-right:auto; text-align:center; }
+#app main .music-copy .time { width:max-content; max-width:100%; margin:18px auto 24px; justify-content:center; }
+#app main .included { margin-left:auto; margin-right:auto; }
+#app main .event-grid,
+#app main .gallery-grid,
+#app main .nf-experience-gallery-grid,
+#app main .nf-artists-cards,
+#app main .visit-grid { margin-left:auto; margin-right:auto; }
+#app main .event-card,
+#app main .gallery-tile,
+#app main .visit-card { text-align:center; }
+#app main .event-card { display:flex; flex-direction:column; align-items:center; justify-content:center; }
+#app main .gallery-tile { align-items:center; justify-content:center; }
+#app main .nf-experience-gallery-card { align-items:center; justify-content:center; text-align:center; }
+#app main .nf-experience-gallery-card-copy { width:100%; text-align:center; }
+#app main .nf-artists-card { align-items:center; justify-content:center; text-align:center; }
+#app main .nf-artists-card-copy { align-items:center; text-align:center; }
+#app main .menu-category-tabs { justify-content:center; }
+#app main .menu-item-heading { flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:8px; }
+#app main .menu-item-card,
+#app main .menu-item-card h3,
+#app main .menu-item-description,
+#app main .menu-item-allergens { text-align:center; }
+#app main .menu-item-image { margin-left:auto; margin-right:auto; }
+#app .button { margin-left:auto; margin-right:auto; }
+#app > header .nav { justify-content:center; }
+#app > header .navlinks { justify-content:center; }
+#app > header .language-switch { justify-content:center; margin-left:0; }
+#app > footer > * { margin-left:auto; margin-right:auto; }
+
+@media (min-width:1024px) {
+  #app > header .nav { width:min(100%,1320px); min-height:82px; padding:16px clamp(28px,4vw,64px); gap:clamp(20px,3vw,42px); }
+  #app > header .navlinks { flex:1 1 auto; gap:clamp(16px,2.1vw,32px); }
+  #app > header .navlinks a { white-space:nowrap; }
+  #app main .hero { grid-template-columns:minmax(0,1fr) minmax(0,1fr); min-height:clamp(600px,72vh,820px); }
+  #app main .hero-copy { padding:clamp(64px,7vw,110px) clamp(36px,5vw,76px); }
+  #app main .hero-copy > * { max-width:620px; }
+  #app main .hero h1 { font-size:clamp(64px,6.5vw,100px); }
+  #app main .hero-art { min-height:600px; }
+  #app main .music-section { grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
+  #app main .music-copy { padding:clamp(58px,6vw,96px); }
+  #app main .event-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  #app main .gallery-grid,
+  #app main .nf-experience-gallery-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  #app main .visit-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  #app main .content-section { padding:clamp(82px,8vw,130px) clamp(34px,6vw,90px); }
+}
+
+@media (min-width:761px) and (max-width:1023px) {
+  #app > header .nav { width:100%; padding:16px clamp(20px,3vw,36px); gap:16px; flex-wrap:wrap; }
+  #app > header .brand-mini { margin-inline:auto; }
+  #app > header .navlinks { flex:1 1 100%; order:3; gap:clamp(12px,2vw,24px); }
+  #app > header .language-switch { order:2; }
+  #app main .hero { min-height:0; }
+  #app main .hero-copy { padding:clamp(48px,6vw,76px) clamp(24px,4vw,44px); }
+  #app main .hero-art { min-height:clamp(380px,52vw,540px); }
+  #app main .music-section { grid-template-columns:minmax(0,1fr); }
+  #app main .music-copy { padding:clamp(44px,6vw,70px) clamp(24px,5vw,56px); }
+  #app main .event-grid,
+  #app main .gallery-grid,
+  #app main .nf-experience-gallery-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  #app main .event-card { padding:26px 18px; border:1px solid var(--line); }
+  #app main .visit-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  #app main .nf-artists-cards { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+
+@media (min-width:761px) and (max-width:1023px) and (orientation:portrait) {
+  #app > header { position:relative; }
+  #app > header .nav { justify-content:space-between; }
+  #app > header .brand-mini { margin:0; }
+  #app > header .menu-toggle { display:block; order:2; }
+  #app > header .navlinks { display:none; position:absolute; z-index:30; top:100%; left:0; right:0; width:100%; padding:18px 24px; background:var(--site-background); border-bottom:1px solid var(--line); flex-direction:column; align-items:center; }
+  #app > header .navlinks.open { display:flex; }
+  #app > header .navlinks a { width:100%; text-align:center; padding:12px; }
+  #app > header .language-switch { order:3; margin-left:auto; }
+  #app main .hero { grid-template-columns:minmax(0,1fr); }
+  #app main .hero-copy { padding:clamp(58px,8vw,90px) 7vw; }
+  #app main .hero-art { min-height:clamp(360px,52vw,500px); }
+}
+
+@media (min-width:761px) and (max-width:1023px) and (orientation:landscape) {
+  #app > header .menu-toggle { display:none; }
+  #app > header .navlinks { display:flex; position:static; flex:1 1 auto; flex-direction:row; align-items:center; padding:0; border:0; background:transparent; }
+  #app > header .navlinks a { width:auto; padding:10px 4px; text-align:center; font-size:clamp(10px,1.15vw,13px); }
+  #app main .hero { grid-template-columns:minmax(0,1fr) minmax(0,1fr); min-height:clamp(440px,68vh,620px); }
+  #app main .hero-copy { padding:40px clamp(22px,3vw,42px); }
+  #app main .hero-art { min-height:440px; }
+}
+
+@media (max-width:760px) {
+  #app > header { position:sticky; top:0; z-index:40; }
+  #app > header .nav { display:flex; width:100%; padding:11px 16px; gap:8px; flex-wrap:wrap; justify-content:space-between; }
+  #app > header .brand-mini { margin:0; max-width:calc(100% - 150px); }
+  #app > header .brand-mini strong { font-size:clamp(14px,4vw,17px); }
+  #app > header .brand-mini small { font-size:7px; letter-spacing:.12em; }
+  #app > header .menu-toggle { display:block; margin-left:auto; }
+  #app > header .language-switch { order:3; margin:4px auto 0; width:100%; justify-content:center; }
+  #app > header .navlinks { display:none; position:relative; order:4; flex:1 1 100%; width:100%; padding:12px 0; border-top:1px solid var(--line); flex-direction:column; align-items:center; gap:6px; }
+  #app > header .navlinks.open { display:flex; }
+  #app > header .navlinks a { width:100%; padding:11px 8px; text-align:center; }
+  #app main .hero { display:flex; flex-direction:column; min-height:0; }
+  #app main .hero-copy { width:100%; padding:clamp(48px,12vw,72px) 22px; }
+  #app main .hero h1 { font-size:clamp(48px,13vw,76px); line-height:.98; }
+  #app main .hero-art { width:100%; min-height:clamp(280px,88vw,420px); }
+  #app main .art-content { padding:22px 16px; }
+  #app main .art-fleur { font-size:clamp(48px,14vw,68px); }
+  #app main .art-name { font-size:clamp(30px,9vw,46px); }
+  #app main .actions { gap:10px; }
+  #app main .actions .button { min-width:min(100%,210px); }
+  #app main .music-section { display:flex; flex-direction:column; }
+  #app main .music-copy { width:100%; padding:48px 22px 54px; }
+  #app main .music-art { min-height:clamp(250px,72vw,360px); }
+  #app main .intro,
+  #app main .content-section,
+  #app main .visit { width:100%; padding:clamp(48px,12vw,72px) 22px; }
+  #app main .intro h2,
+  #app main .music-copy h2,
+  #app main .content-section h2,
+  #app main .visit h2 { font-size:clamp(34px,9vw,52px); line-height:1.08; text-wrap:balance; }
+  #app main .intro p,
+  #app main .music-copy p,
+  #app main .section-lead,
+  #app main .visit-card p { font-size:clamp(15px,4vw,17px); line-height:1.75; }
+  #app main .music-videos { padding:38px 18px; }
+  #app main .event-grid,
+  #app main .gallery-grid,
+  #app main .nf-experience-gallery-grid,
+  #app main .nf-artists-cards,
+  #app main .visit-grid { grid-template-columns:minmax(0,1fr); width:100%; gap:14px; }
+  #app main .event-card { padding:24px 16px; border:1px solid var(--line); }
+  #app main .gallery-tile { min-height:220px; }
+  #app main .nf-experience-gallery-card { min-height:220px; padding:22px; }
+  #app main .nf-artists-card { min-height:240px; padding:22px; }
+  #app main .menu-category-tabs { width:100%; overflow-x:auto; justify-content:flex-start; flex-wrap:nowrap; padding:4px 2px 14px; }
+  #app main .menu-category-button { flex:0 0 auto; min-height:42px; }
+  #app main .menu-items { width:100%; grid-template-columns:minmax(0,1fr); }
+  #app main .menu-item-card { padding:18px 8px 20px; }
+  #app > footer { padding:48px 22px 24px; }
+  #app > footer .button { display:flex; width:min(100%,320px); }
+}
+
+@media (max-width:420px) {
+  #app > header .nav { padding-inline:12px; }
+  #app > header .brand-mini { max-width:calc(100% - 118px); }
+  #app > header .brand-mini strong { font-size:13px; letter-spacing:.08em; }
+  #app > header .brand-mini small { font-size:6px; letter-spacing:.08em; }
+  #app > header .menu-toggle { padding:8px 10px; font-size:11px; }
+  #app > header .language-switch a { min-width:34px; width:34px; height:34px; }
+  #app main .hero-copy { padding-inline:18px; }
+  #app main .hero h1 { font-size:clamp(44px,12.5vw,60px); }
+  #app main .actions .button { width:100%; max-width:290px; }
+}
 </style>
