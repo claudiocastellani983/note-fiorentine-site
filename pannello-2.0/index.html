@@ -1,7 +1,16 @@
 <!doctype html>
 <html lang="it">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<script id="nf-mobile-device-detect">
+(function(){
+  var ua=navigator.userAgent||'';
+  var touch=Number(navigator.maxTouchPoints||0)>0;
+  var mobileUA=/Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+  if(touch||mobileUA) document.documentElement.classList.add('nf-mobile-device');
+})();
+</script>
+
 <meta name="theme-color" content="#211914">
 <title>Note Fiorentine · Pannello 2.0</title>
 <style>
@@ -12,6 +21,41 @@ header{height:76px;padding:0 24px;border-bottom:1px solid var(--line);display:fl
 @media(max-width:1100px), (pointer:coarse) and (hover:none){.layout{grid-template-columns:1fr}aside{position:sticky;top:76px;z-index:15;padding:8px;border-right:0;border-bottom:1px solid var(--line)}nav{display:flex;overflow:auto}nav button{white-space:nowrap;padding:8px 10px}.grid2,.grid3,.split{grid-template-columns:1fr}.visual-layout{grid-template-columns:1fr;height:auto}.visual-frame{height:58vh;min-height:380px}.visual-controls{overflow:visible}main{padding:16px}.item{align-items:flex-start}.item img{width:66px;height:60px}}
 @media(max-width:480px){header{padding:0 13px;height:68px}header h1{font-size:19px}.layout{min-height:calc(100vh - 68px)}aside{top:68px}.env{font-size:9px;margin-left:5px}main{padding:12px}.pagehead h2{font-size:25px}.item{flex-wrap:wrap}.actions{width:100%}.actions button{flex:1}}
 </style>
+<style id="nf-mobile-layout-v2">
+/* Pannello 2.0: layout mobile esplicito anche con modalità desktop del browser */
+html.nf-mobile-device,html.nf-mobile-device body{width:100%;max-width:100%;overflow-x:hidden}
+html.nf-mobile-device .layout{display:grid!important;grid-template-columns:minmax(0,1fr)!important;width:100%;min-width:0}
+html.nf-mobile-device aside{position:sticky;top:68px;z-index:15;padding:8px;border-right:0;border-bottom:1px solid var(--line);min-width:0}
+html.nf-mobile-device nav{display:flex!important;flex-direction:row;gap:5px;overflow-x:auto;overflow-y:hidden;white-space:nowrap;max-width:100%;scrollbar-width:thin}
+html.nf-mobile-device nav button{flex:0 0 auto;white-space:nowrap;padding:9px 11px}
+html.nf-mobile-device main{width:100%;max-width:none;min-width:0;padding:14px}
+html.nf-mobile-device .pagehead{display:flex;flex-direction:column;align-items:stretch;gap:10px}
+html.nf-mobile-device .pagehead>div:last-child,html.nf-mobile-device .pagehead a{width:100%;max-width:none}
+html.nf-mobile-device .grid2,html.nf-mobile-device .grid3,html.nf-mobile-device .split{grid-template-columns:minmax(0,1fr)!important}
+html.nf-mobile-device .visual-layout{grid-template-columns:minmax(0,1fr)!important;height:auto!important;min-height:0!important}
+html.nf-mobile-device .visual-frame{width:100%;height:55vh;min-height:320px}
+html.nf-mobile-device .visual-controls{overflow:visible;min-width:0}
+html.nf-mobile-device .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+html.nf-mobile-device .media-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+html.nf-mobile-device .item{flex-wrap:wrap;align-items:flex-start;min-width:0}
+html.nf-mobile-device .item .meta{min-width:0;overflow-wrap:anywhere}
+html.nf-mobile-device .actions{width:100%;flex-wrap:wrap}
+html.nf-mobile-device .actions button{flex:1 1 auto;min-width:100px}
+html.nf-mobile-device .section,html.nf-mobile-device .card,html.nf-mobile-device .media-card{min-width:0;max-width:100%}
+html.nf-mobile-device input,html.nf-mobile-device select,html.nf-mobile-device textarea{max-width:100%;min-width:0}
+html.nf-mobile-device .login{width:calc(100% - 24px);max-width:420px;margin:8vh auto}
+@media(max-width:600px){
+ html.nf-mobile-device header{height:auto;min-height:68px;padding:10px 13px;gap:8px;flex-wrap:wrap}
+ html.nf-mobile-device header h1{font-size:19px}
+ html.nf-mobile-device .env{font-size:9px;margin-left:4px}
+ html.nf-mobile-device main{padding:12px}
+ html.nf-mobile-device .pagehead h2{font-size:25px}
+ html.nf-mobile-device .cards,html.nf-mobile-device .media-grid{grid-template-columns:minmax(0,1fr)}
+ html.nf-mobile-device .item img{width:66px;height:60px}
+ html.nf-mobile-device .visual-frame{height:52vh;min-height:290px}
+}
+</style>
+
 </head>
 <body>
 <header><div><h1>NOTE FIORENTINE</h1><small>PANNELLO 2.0 · GESTIONE SITO</small></div><div class="row" style="flex:0;justify-content:flex-end"><span class="env">TEST / PREVIEW</span><button id="logout" class="hidden">Esci</button></div></header>
