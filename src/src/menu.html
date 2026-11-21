@@ -621,11 +621,18 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
     'www.notefiorentine.it','notefiorentine.it'
   ]);
   const production=productionHosts.has(host);
-  window.NF_SUPABASE_CONFIG=Object.freeze({
-    url:production?'https://cpumzowmadbqyecflkyl.supabase.co':'https://ypkitfyqctjvojgbekmm.supabase.co',
-    key:production?'sb_publishable_jFOfj9H7WB0sd8kev72MmQ_YWprnreE':'sb_publishable_zYUxpEdaEcv7GMiT43Zg4Q_fStrm-Kj',
-    environment:production?'Production':'Test'
-  });
+  // Stesso progetto Supabase di Home e Pannello 2.0: Produzione per i domini ufficiali,
+  // Test (da /api/pannello-config) per ogni preview.
+  let cfg;
+  if(production){
+    cfg={url:'https://tbpcaqfaazajlkqfgwva.supabase.co',key:'sb_publishable_jVS_rmEYdHpC00oh_b8YsQ_3q9qz8Ht',environment:'Production'};
+  }else{
+    const x=new XMLHttpRequest();x.open('GET','/api/pannello-config',false);x.setRequestHeader('Accept','application/json');
+    try{x.send();if(x.status<200||x.status>=300)throw new Error('HTTP '+x.status);const j=JSON.parse(x.responseText);
+      cfg={url:j.supabaseUrl,key:j.supabaseAnonKey,environment:'Test'}}
+    catch(e){console.error('Configurazione Supabase Preview non disponibile',e);cfg={url:'',key:'',environment:'Test'}}
+  }
+  window.NF_SUPABASE_CONFIG=Object.freeze(cfg);
 })();
 </script>
 <style id="nf-shared-fixed-header-v2">
@@ -708,7 +715,7 @@ html, body { width:100%; max-width:100%; overflow-x:clip; }
 #app > main > #menu > h2,
 #app > main > #menu > .section-lead {
   width:min(100%,820px);
-  margin-inline:auto;
+  margin-inline:auto!important;
   text-align:center;
 }
 #app > main > #menu .menu-category-tabs {
@@ -988,7 +995,11 @@ links.querySelectorAll('a').forEach(link => link.addEventListener('click', () =>
   if(p.color!==undefined){if(safeCss('color',p.color)){set('color',p.color);if(typeof CSS!=='undefined'&&CSS.supports('-webkit-text-fill-color',String(p.color)))set('-webkit-text-fill-color',p.color);checks.push(el.style.getPropertyValue('color')!=='')}else checks.push(false)}
   return checks.length>0&&checks.every(Boolean);
  }
- async function load(){try{const rows=await (window.NF_SITE_CONTENT_PROMISE||(window.NF_SITE_CONTENT_PROMISE=fetch(api,{headers:{apikey:key,Accept:'application/json'},cache:'no-store'}).then(r=>{if(!r.ok)throw Error('site_content '+r.status);return r.json()}))),styles=rows?.[0]?.content_value?._visual_styles||{};const menuPage=/\/menu\.html$/,allowedScopes=menuPage?['menu']:['home','ristorante','artisti','atmosfera'],currentLang=(new URLSearchParams(location.search).get('lang')||'it').toLowerCase();Object.entries(styles).forEach(([key,stored])=>{const parts=key.split('::');let selector=key,p={...stored};if(parts.length===3){if(!allowedScopes.includes(parts[0])||parts[1]!==currentLang)return;selector=parts[2]}else if(parts.length===2){if(!allowedScopes.includes(parts[0]))return;selector=parts[1];if(currentLang!=='it')delete p.text}else if(menuPage)return;else if(currentLang!=='it')delete p.text;apply(selector,p)})}catch(e){console.warn('Stili visuali non caricati',e)}}
+ async function load(){const report={total:0,applied:0,missing:[],error:null};try{const rows=await (window.NF_SITE_CONTENT_PROMISE||(window.NF_SITE_CONTENT_PROMISE=fetch(api,{headers:{apikey:key,Accept:'application/json'},cache:'no-store'}).then(r=>{if(!r.ok)throw Error('site_content '+r.status);return r.json()}))),styles=rows?.[0]?.content_value?._visual_styles||{};const allowedScopes=['menu'],currentLang=(new URLSearchParams(location.search).get('lang')||'it').toLowerCase();Object.entries(styles).forEach(([key,stored])=>{const parts=key.split('::');let selector=key,p={...stored};if(parts.length===3){if(!allowedScopes.includes(parts[0])||parts[1]!==currentLang)return;selector=parts[2]}else if(parts.length===2){if(!allowedScopes.includes(parts[0]))return;selector=parts[1];if(currentLang!=='it')delete p.text}else return;report.total++;if(apply(selector,p))report.applied++;else report.missing.push(key)})}catch(e){report.error=e?.message||String(e);console.warn('Stili visuali non caricati',e)}
+  window.__NF_VISUAL_LOAD_REPORT=report;
+  if(new URLSearchParams(location.search).has('visual-editor')&&window.parent!==window)window.parent.postMessage({type:'nf-visual-load-report',report},'*');
+  return report}
+ window.nfReloadVisualStyles=load;
  load();
  if(new URLSearchParams(location.search).has('visual-editor')){
   const style=document.createElement('style');style.textContent='body.nf-ve-active h1,body.nf-ve-active h2,body.nf-ve-active h3,body.nf-ve-active p,body.nf-ve-active .eyebrow,body.nf-ve-active .section-kicker,body.nf-ve-active .section-lead,body.nf-ve-active .included,body.nf-ve-active .time strong,body.nf-ve-active .time small{cursor:pointer}body.nf-ve-active [data-nf-selected]{outline:3px solid #d2a84b!important;outline-offset:3px}';document.head.appendChild(style);document.body.classList.add('nf-ve-active');const visualTarget=new URLSearchParams(location.search).get('visualTarget');if(visualTarget)requestAnimationFrame(()=>setTimeout(()=>{try{document.querySelector(visualTarget)?.scrollIntoView({block:'start'})}catch{}},180));
