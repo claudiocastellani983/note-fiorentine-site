@@ -1745,6 +1745,21 @@ links.querySelectorAll('a').forEach(link => link.addEventListener('click', () =>
 #nf-popup-lightbox img{max-width:100%;max-height:100%;object-fit:contain}
 @media(max-width:420px){#nf-popup-box{padding:36px 16px 24px}#nf-popup-title{font-size:11px;letter-spacing:.055em}}
 </style>
+<style id="nf-header-tablet-landscape-v1">
+/* Header su tablet in orizzontale: in tedesco (fino a ~1240px) e in francese (fino a ~1130px)
+   le voci di menu non entrano su una sola riga e coprivano logo e bandierine.
+   Stesso layout su due righe già usato sotto i 1100px; le altre lingue restano su una riga. */
+@media (min-width:1101px) and (max-width:1240px){
+  html[lang="de"] #app > header > .nav{flex-wrap:wrap;justify-content:center}
+  html[lang="de"] #app .brand-mini,html[lang="de"] #app .language-switch{margin-inline:auto}
+  html[lang="de"] #app .navlinks{order:3;flex:1 1 100%;flex-wrap:wrap;justify-content:center}
+}
+@media (min-width:1101px) and (max-width:1140px){
+  html[lang="fr"] #app > header > .nav{flex-wrap:wrap;justify-content:center}
+  html[lang="fr"] #app .brand-mini,html[lang="fr"] #app .language-switch{margin-inline:auto}
+  html[lang="fr"] #app .navlinks{order:3;flex:1 1 100%;flex-wrap:wrap;justify-content:center}
+}
+</style>
 <script>(async()=>{
 const api=(await window.NF_SUPABASE_CONFIG_PROMISE).url+'/rest/v1/site_content?select=content_value&content_key=eq.public_site',key=(await window.NF_SUPABASE_CONFIG_PROMISE).key,lang=(()=>{const v=new URLSearchParams(location.search).get('lang')||'it';return ['it','en','de','fr','es','zh'].includes(v)?v:'it'})();
 const setText=(el,v)=>{if(!el||v==null||String(v)==='')return;el.replaceChildren();String(v).split(/\n/).forEach((p,i)=>{if(i)el.appendChild(document.createElement('br'));el.appendChild(document.createTextNode(p))})};
@@ -1753,7 +1768,7 @@ const rows=await (window.NF_SITE_CONTENT_PROMISE||(window.NF_SITE_CONTENT_PROMIS
 const source=rows?.[0]?.content_value||{},translations=source._translations?.[lang]||{},val=k=>lang==='it'?source[k]:(translations[k]??source[k]);document.documentElement.lang=lang==='zh'?'zh-CN':lang;
 const map={hero_kicker:'.hero-copy .eyebrow',hero_description:'.hero-copy > p',hero_primary_label:'.hero-copy .actions .primary',hero_secondary_label:'.hero-copy .actions .outline',intro_kicker:'#ristorante .section-kicker',intro_title:'#ristorante h2',intro_text:'#ristorante > p',music_kicker:'#musica .music-copy .section-kicker',music_title:'#musica .music-copy h2',music_text:'#musica .music-copy p',music_schedule:'#musica .time strong',music_days:'#musica .time small',music_video_kicker:'#musica .music-videos .section-kicker',music_video_title:'#musica .music-videos h2',menu_kicker:'#menu .section-kicker',menu_title:'#menu h2',menu_lead:'#menu .section-lead',events_kicker:'#eventi .section-kicker',events_title:'#eventi h2',events_lead:'#eventi .section-lead',event1_title:'#eventi .event-card:nth-child(1) h3',event1_text:'#eventi .event-card:nth-child(1) p',event2_title:'#eventi .event-card:nth-child(2) h3',event2_text:'#eventi .event-card:nth-child(2) p',event3_title:'#eventi .event-card:nth-child(3) h3',event3_text:'#eventi .event-card:nth-child(3) p',gallery1_title:'#galleria .gallery-tile:nth-child(1) strong',gallery1_caption:'#galleria .gallery-tile:nth-child(1) small',gallery2_title:'#galleria .gallery-tile:nth-child(2) strong',gallery2_caption:'#galleria .gallery-tile:nth-child(2) small',gallery3_title:'#galleria .gallery-tile:nth-child(3) strong',gallery3_caption:'#galleria .gallery-tile:nth-child(3) small',contact_kicker:'#contatti .section-kicker',contact_title:'#contatti h2',contact_location_title:'#contatti .visit-card:nth-child(1) h3',contact_location_text:'#contatti .visit-card:nth-child(1) p',contact_reservation_title:'#contatti .visit-card:nth-child(2) h3',contact_reservation_text:'#contatti .visit-card:nth-child(2) p'};
 for(const [k,s] of Object.entries(map)){const el=document.querySelector(s);if(el&&val(k)!==undefined)setText(el,val(k))}
-const note=val('music_note');if(note!==undefined)setText(document.querySelector('#musica .included'),(lang==='en'?'Live music included with dinner · ':'Musica inclusa nella cena · ')+note);
+const note=val('music_note');if(note!==undefined){const incl=({it:'Musica inclusa nella cena',en:'Live music included with dinner',de:'Live-Musik beim Abendessen inklusive',fr:'Musique live incluse avec le dîner',es:'Música en vivo incluida en la cena',zh:'晚餐期间含现场音乐'})[lang]||'Musica inclusa nella cena';setText(document.querySelector('#musica .included'),String(note).trim()?incl+' · '+String(note).trim():incl)}
 const vars={color_primary:'--site-primary',color_secondary:'--site-secondary',color_background:'--site-background',color_text:'--site-on-background',color_accent:'--gold',font_body:'--site-font-body',font_heading:'--site-font-heading'};
 for(const [k,v] of Object.entries(vars))if(typeof source[k]==='string'&&source[k].trim())document.documentElement.style.setProperty(v,source[k]);
 }catch(e){console.warn('Contenuti personalizzati non caricati:',e)}finally{document.documentElement.classList.remove('nf-language-pending');window.nfReloadVisualStyles?.()}
@@ -1790,7 +1805,9 @@ Object.assign(map,{
  'Galleria video':({en:'Video Gallery',de:'Videogalerie',fr:'Galerie vidéo',es:'Galería de vídeos',zh:'视频集'})[lang]||'Galleria video',
  'CHIUDI ×':({en:'CLOSE ×',de:'SCHLIESSEN ×',fr:'FERMER ×',es:'CERRAR ×',zh:'关闭 ×'})[lang]||'CHIUDI ×',
  'Scopri gli artisti':({en:'Discover the artists',de:'Künstler entdecken',fr:'Découvrir les artistes',es:'Descubre a los artistas',zh:'探索艺术家'})[lang]||'Scopri gli artisti',
- 'Guarda le performance':({en:'Watch the performances',de:'Auftritte ansehen',fr:'Voir les performances',es:'Ver las actuaciones',zh:'观看演出'})[lang]||'Guarda le performance'
+ 'Guarda le performance':({en:'Watch the performances',de:'Auftritte ansehen',fr:'Voir les performances',es:'Ver las actuaciones',zh:'观看演出'})[lang]||'Guarda le performance',
+ 'Consulta il menù completo':({en:'View the full menu',de:'Vollständige Speisekarte ansehen',fr:'Consulter la carte complète',es:'Ver la carta completa',zh:'查看完整菜单'})[lang]||'Consulta il menù completo',
+ 'Volti, immagini e momenti di musica dal vivo.':({en:'Faces, images and moments of live music.',de:'Gesichter, Bilder und Momente der Live-Musik.',fr:'Visages, images et moments de musique live.',es:'Rostros, imágenes y momentos de música en vivo.',zh:'现场音乐的面孔、影像与瞬间。'})[lang]||'Volti, immagini e momenti di musica dal vivo.'
 });
 const protectedSelectors='.brand-mini strong,.brand-mini small,.art-name,footer h2,.language-switch';
 function translateNode(node){if(!node||node.nodeType!==Node.TEXT_NODE)return;const parent=node.parentElement;if(!parent||parent.closest(protectedSelectors)||parent.closest('script,style,noscript,svg,code,[translate="no"]'))return;const raw=node.nodeValue||'',key=raw.trim(),translated=map[key];if(translated&&translated!==key){const lead=raw.match(/^\s*/)?.[0]||'',tail=raw.match(/\s*$/)?.[0]||'';node.nodeValue=lead+translated+tail;}}
