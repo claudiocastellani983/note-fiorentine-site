@@ -1238,23 +1238,15 @@ window.NF_SUPABASE_CONFIG_PROMISE=(async()=>{
   const host=location.hostname.toLowerCase();
   const productionHosts=new Set(['www.notefiorentine.it','notefiorentine.it']);
   const production=productionHosts.has(host);
-  if(production){
-    return Object.freeze({
-      projectRef:'tbpcaqfaazajlkqfgwva',
-      url:'https://tbpcaqfaazajlkqfgwva.supabase.co',
-      key:'sb_publishable_jVS_rmEYdHpC00oh_b8YsQ_3q9qz8Ht',
-      environment:'Production'
-    });
-  }
   const response=await fetch('/api/pannello-config',{cache:'no-store',headers:{Accept:'application/json'}});
-  if(!response.ok) throw new Error('Configurazione Supabase Preview non disponibile: HTTP '+response.status);
+  if(!response.ok) throw new Error('Configurazione Supabase non disponibile: HTTP '+response.status);
   const credentials=await response.json();
-  if(!credentials.supabaseUrl||!credentials.supabaseAnonKey) throw new Error('Configurazione Supabase Preview incompleta.');
+  if(!credentials.supabaseUrl||!credentials.supabaseAnonKey) throw new Error('Configurazione Supabase incompleta.');
   return Object.freeze({
     projectRef:'lwmffxxxvninvmubylrw',
     url:credentials.supabaseUrl,
     key:credentials.supabaseAnonKey,
-    environment:'Test'
+    environment:production?'Production':'Test'
   });
 })();
 </script>
