@@ -638,10 +638,31 @@ async function loadPopup(){
    {code:'zh',name:'中文',title:popup.translations?.zh?.title||'',body:popup.translations?.zh?.body||'',contact:contactField(popup.translations?.zh?.contact,defaults.zh)}
   ];
   const languageFields=popupLangs.map(l=>`<div class="section"><h3 style="font:20px Georgia,serif;color:var(--gold)">${esc(l.name)}</h3><label>Titolo aggiuntivo (opzionale)</label><input data-popup-title="${l.code}" value="${esc(l.title)}"><label>Testo descrittivo</label><textarea data-popup-body="${l.code}">${esc(l.body)}</textarea><label>Etichetta pulsante contatti</label><input data-popup-contact="${l.code}" value="${esc(l.contact)}"></div>`).join('');
-  $('page-popup').innerHTML=`<div class="section"><div class="notice">Il popup viene letto dalla Home Preview. È ammesso un solo PDF per il pulsante MENU; le immagini possono essere più di una. Sotto il menu compare CONTATTI e l’indirizzo email. Nessun pulsante Guestplan. Il popup resta disattivato finché non attivi la casella e salvi.</div><div class="check" style="margin:14px 0"><input type="checkbox" id="pActive" ${popup.active?'checked':''}><label for="pActive">Popup attivo sulla Home Preview</label></div><div class="grid2">${languageFields}<div><label>Email contatto</label><input id="pEmail" type="email" value="${esc(popup.contact_email||'notefiorentine.firenze@gmail.com')}"></div><div><label>Carica PDF o immagini (max 15 MB ciascuno)</label><input id="pFiles" type="file" multiple accept="application/pdf,image/*"></div></div><h3 style="font:21px Georgia,serif;color:var(--gold);margin-top:18px">File collegati</h3><div id="popupFiles" class="media-grid">${media.map((f,i)=>`<div class="media-card">${String(f.type||'').startsWith('image/')?`<img src="${esc(f.url||mediaUrl(f.path))}" alt="">`:'<b>PDF · MENU</b>'}<small>${esc(f.name||f.path||'File')}</small><button class="danger" data-p-remove="${i}">Rimuovi collegamento</button></div>`).join('')}</div><button id="pSave" class="primary" style="margin-top:15px">Salva popup e file</button><div id="pStatus" class="status"></div></div>`;
+  $('page-popup').innerHTML=`<div class="section"><div class="notice">Il popup viene letto dalla Home Preview. È ammesso un solo PDF per il pulsante MENU; le immagini possono essere più di una. Sotto il menu compare CONTATTI e l’indirizzo email. Nessun pulsante Guestplan. La visibilità si modifica subito con i due pulsanti dedicati; testi e file si salvano separatamente.</div><div class="section" style="margin:14px 0;padding:14px"><b>Visibilità del popup sulla Home Preview</b><div class="actions" style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0"><button type="button" id="pVisible" class="${popup.active?'primary':''}">VISIBILE</button><button type="button" id="pInvisible" class="${popup.active?'':'primary'}">INVISIBILE</button></div><div id="pVisibilityStatus" class="status">Stato registrato: ${popup.active?'VISIBILE':'INVISIBILE'}</div></div><div class="grid2">${languageFields}<div><label>Email contatto</label><input id="pEmail" type="email" value="${esc(popup.contact_email||'notefiorentine.firenze@gmail.com')}"></div><div><label>Carica PDF o immagini (max 15 MB ciascuno)</label><input id="pFiles" type="file" multiple accept="application/pdf,image/*"></div></div><h3 style="font:21px Georgia,serif;color:var(--gold);margin-top:18px">File collegati</h3><div id="popupFiles" class="media-grid">${media.map((f,i)=>`<div class="media-card">${String(f.type||'').startsWith('image/')?`<img src="${esc(f.url||mediaUrl(f.path))}" alt="">`:'<b>PDF · MENU</b>'}<small>${esc(f.name||f.path||'File')}</small><button class="danger" data-p-remove="${i}">Rimuovi collegamento</button></div>`).join('')}</div><button id="pSave" class="primary" style="margin-top:15px">Salva popup e file</button><div id="pStatus" class="status"></div></div>`;
   document.querySelectorAll('[data-p-remove]').forEach(b=>b.onclick=()=>{media.splice(Number(b.dataset.pRemove),1);popup.media_files=media;b.closest('.media-card').remove()});
+  $('pVisible').onclick=()=>setPopupVisibility(true);
+  $('pInvisible').onclick=()=>setPopupVisibility(false);
   $('pSave').onclick=savePopup;
  }catch(e){say('Errore popup: '+e.message)}
+}
+async function setPopupVisibility(visible){
+ const on=$('pVisible'),off=$('pInvisible'),status=$('pVisibilityStatus');
+ on.disabled=true;off.disabled=true;status.textContent='Aggiornamento stato…';
+ try{
+  const w=await db.from('homepage_popup').update({active:visible,updated_at:new Date().toISOString()}).eq('id',popup.id).select('id,active').single();
+  if(w.error)throw w.error;
+  if(w.data.active!==visible)throw new Error('Il database non ha confermato lo stato richiesto.');
+  const v=await db.from('homepage_popup').select('id,active').eq('id',popup.id).single();
+  if(v.error)throw v.error;
+  if(v.data.active!==visible)throw new Error('La rilettura del database non conferma lo stato richiesto.');
+  popup.active=v.data.active;
+  on.classList.toggle('primary',visible);off.classList.toggle('primary',!visible);
+  status.textContent='Stato salvato e verificato: '+(visible?'VISIBILE':'INVISIBILE')+' ✓';
+  say('Popup '+(visible?'visibile':'invisibile')+': stato salvato e verificato nel database Test.');
+ }catch(e){
+  status.textContent='ERRORE: '+e.message;
+  say('Stato popup non confermato: '+e.message);
+ }finally{on.disabled=false;off.disabled=false}
 }
 async function savePopup(){
  const b=$('pSave'),st=$('pStatus');b.disabled=true;st.textContent='Salvataggio…';
@@ -669,14 +690,14 @@ async function savePopup(){
    const contact=$('[data-popup-contact="'+code+'"]').value.trim();
    translations[code]={...(translations[code]||{}),title,body,contact};
   }
-  const patch={active:$('pActive').checked,title_it:translations.it.title,title_en:translations.en.title,body_it:translations.it.body,body_en:translations.en.body,button_label_it:translations.it.contact,button_label_en:translations.en.contact,contact_email:$('pEmail').value.trim(),translations,media_files:media,updated_at:new Date().toISOString()};
+  const patch={title_it:translations.it.title,title_en:translations.en.title,body_it:translations.it.body,body_en:translations.en.body,button_label_it:translations.it.contact,button_label_en:translations.en.contact,contact_email:$('pEmail').value.trim(),translations,media_files:media,updated_at:new Date().toISOString()};
   const w=await db.from('homepage_popup').update(patch).eq('id',popup.id).select('id').single();
   if(w.error)throw w.error;
   const v=await db.from('homepage_popup').select('*').eq('id',popup.id).single();
   if(v.error)throw v.error;
-  if(v.data.active!==patch.active||stableJSON(v.data.media_files)!==stableJSON(media)||stableJSON(v.data.translations)!==stableJSON(translations)||v.data.button_label_it!==patch.button_label_it||v.data.button_label_en!==patch.button_label_en)throw new Error('Rilettura popup non corrispondente.');
+  if(stableJSON(v.data.media_files)!==stableJSON(media)||stableJSON(v.data.translations)!==stableJSON(translations)||v.data.button_label_it!==patch.button_label_it||v.data.button_label_en!==patch.button_label_en)throw new Error('Rilettura popup non corrispondente.');
   popup=v.data;
-  st.textContent='Popup salvato e riletto dal database Test ✓';
+  st.textContent='Testi e file del popup salvati e riletti dal database Test ✓';
   say('Popup aggiornato. Apri la Home Preview in una nuova scheda per verificarlo.');
  }catch(e){st.textContent='ERRORE: '+e.message;say('Popup non confermato: '+e.message)}
  finally{b.disabled=false}
