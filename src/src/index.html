@@ -3247,6 +3247,19 @@ input,select,textarea{background:var(--nf-auditore-panel)!important;color:var(--
   background:rgba(19,16,14,.96)!important;
 }
 </style>
+
+<style id="nf-home-mobile-hero-gap-fix-v1">
+/* Home: elimina la fascia marrone opaca sopra il contenuto e lascia visibile lo sfondo cinematico. */
+@media(max-width:760px){
+  #app>main>#nf-cinematic-zone>.hero{
+    background:transparent!important;
+  }
+  #app>main>#nf-cinematic-zone>.hero>.hero-copy{
+    padding:clamp(76px,10vh,92px) 26px 70px!important;
+  }
+}
+</style>
+
 </body>
 </html>
 
