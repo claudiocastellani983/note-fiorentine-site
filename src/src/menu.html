@@ -1529,9 +1529,8 @@ function showCategory(category,button){
 }
 </style>
 
-<style id="nf-menu-header-match-home-v1">
-/* Menu: replica esattamente la disposizione header mobile della Home.
-   Neutralizza il precedente override che allargava il selettore lingue su tutta la riga. */
+<style id="nf-mobile-header-language-parity-v2">
+/* Header condiviso Home/Menu: bandiere a sinistra, pulsante MENU a destra. */
 @media (max-width:760px){
  #app>header>.nav{
   display:grid!important;
@@ -1548,7 +1547,7 @@ function showCategory(category,button){
  #app>header .language-switch{
   grid-area:flags!important;
   grid-column:auto!important;
-  justify-self:end!important;
+  justify-self:start!important;
   display:flex!important;
   width:auto!important;
   max-width:100%!important;
@@ -1574,7 +1573,7 @@ function showCategory(category,button){
   display:inline-flex!important;
   align-items:center!important;
   justify-content:center!important;
-  justify-self:start!important;
+  justify-self:end!important;
   white-space:nowrap!important;
   min-height:38px!important;
   padding:8px 11px!important;
