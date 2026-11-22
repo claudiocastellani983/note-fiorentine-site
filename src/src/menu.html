@@ -640,7 +640,7 @@ html{scroll-behavior:smooth;scroll-padding-top:105px}
   // Test (da /api/pannello-config) per ogni preview.
   let cfg;
   if(production){
-    cfg={url:'https://cpumzowmadbqyecflkyl.supabase.co',key:'sb_publishable_jFOfj9H7WB0sd8kev72MmQ_YWprnreE',environment:'Production'};
+    cfg={url:'https://tbpcaqfaazajlkqfgwva.supabase.co',key:'sb_publishable_jVS_rmEYdHpC00oh_b8YsQ_3q9qz8Ht',environment:'Production'};
   }else{
     const x=new XMLHttpRequest();x.open('GET','/api/pannello-config',false);x.setRequestHeader('Accept','application/json');
     try{x.send();if(x.status<200||x.status>=300)throw new Error('HTTP '+x.status);const j=JSON.parse(x.responseText);
