@@ -9,8 +9,9 @@
 (function(){
   var allowed=['it','en','de','fr','es','zh'];
   var requested=(new URLSearchParams(location.search).get('lang')||'it').toLowerCase();
-  if(allowed.includes(requested)&&requested!=='it'){
+  if(allowed.includes(requested)){
     document.documentElement.classList.add('nf-language-pending');
+    setTimeout(function(){document.documentElement.classList.remove('nf-language-pending')},2500);
   }
 })();
 </script>
@@ -1768,7 +1769,7 @@ for(const [k,s] of Object.entries(map)){const el=document.querySelector(s);if(el
 const note=val('music_note');if(note!==undefined){const incl=({it:'Musica inclusa nella cena',en:'Live music included with dinner',de:'Live-Musik beim Abendessen inklusive',fr:'Musique live incluse avec le dîner',es:'Música en vivo incluida en la cena',zh:'晚餐期间含现场音乐'})[lang]||'Musica inclusa nella cena';setText(document.querySelector('#musica .included'),String(note).trim()?incl+' · '+String(note).trim():incl)}
 const vars={color_primary:'--site-primary',color_secondary:'--site-secondary',color_background:'--site-background',color_text:'--site-on-background',color_accent:'--gold',font_body:'--site-font-body',font_heading:'--site-font-heading'};
 for(const [k,v] of Object.entries(vars))if(typeof source[k]==='string'&&source[k].trim())document.documentElement.style.setProperty(v,source[k]);
-}catch(e){console.warn('Contenuti personalizzati non caricati:',e)}finally{document.documentElement.classList.remove('nf-language-pending');window.nfReloadVisualStyles?.()}
+}catch(e){console.warn('Contenuti personalizzati non caricati:',e)}finally{try{await window.nfReloadVisualStyles?.()}catch(e){}document.documentElement.classList.remove('nf-language-pending')}
 })();</script>
 <script>(()=>{
 const params=new URLSearchParams(location.search),allowed=['it','en','de','fr','es','zh'];
