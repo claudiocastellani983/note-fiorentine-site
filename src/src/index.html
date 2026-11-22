@@ -1545,14 +1545,15 @@ html, body { width:100%; max-width:100%; overflow-x:clip; }
       </div>
     </section>
     <section class="intro" id="ristorante">
-      <div class="section-kicker">Un'esperienza fiorentina</div>
+      <div class="section-kicker">Un’esperienza fiorentina</div>
+      <h2>Il piacere di stare a tavola,<br>con una nota in più.</h2>
       <p>Note Fiorentine nasce da un'idea semplice: a Firenze una buona cena merita una colonna sonora. Qui trovi i sapori della cucina toscana, un'accoglienza calorosa e un'atmosfera raccolta nel centro storico.<br>Che sia una cena romantica, una serata tra amici o un viaggio a Firenze da ricordare, ti aspettiamo a tavola.</p>
       
     </section>
 
     <section class="content-section menu-section" id="menu">
       <div class="section-kicker">La nostra cucina</div>
-      <h2>Il menù</h2>
+      <h2>Il menu</h2>
       <p class="section-lead">I sapori della tradizione toscana, preparati con cura per accompagnare ogni momento a tavola. Scegli con calma.</p>
       <div class="menu-category-tabs" id="menuCategories"><p class="menu-loading">Caricamento categorie…</p></div>
       <div class="menu-items" id="menuItems"><p class="menu-loading">Caricamento piatti…</p></div>
@@ -1561,7 +1562,7 @@ html, body { width:100%; max-width:100%; overflow-x:clip; }
     </div>
     <section class="music-section" id="musica">
       <div class="music-copy">
-        <div class="section-kicker">Ristorante Toscano & Live Music</div>
+        <div class="section-kicker">Restaurant & Live Music</div>
         <h2>Ogni sera,<br>la musica è di casa.</h2>
         <p>Ogni sera, sette giorni su sette, un artista dal vivo accompagna la tua cena. I generi cambiano di sera in sera, così ogni visita è diversa. La musica è inclusa nella cena.</p>
         <div class="music-art" role="img" aria-label="Fotografia della musica dal vivo"></div>
@@ -1569,8 +1570,8 @@ html, body { width:100%; max-width:100%; overflow-x:clip; }
         <div class="included">Musica inclusa nella cena</div>
       </div>
     <div class="music-videos nf-artists-media" aria-label="Gallerie degli artisti">
-        <div class="section-kicker">I protagonisti delle nostre serate</div>
-        <h2>Gli artisti di Note Fiorentine</h2>
+        <div class="section-kicker">L’atmosfera delle nostre serate</div>
+        <h2>La musica prende vita.</h2>
         <p class="nf-artists-intro">Volti, immagini e momenti di musica dal vivo.</p>
         <div class="nf-artists-cards">
           <button type="button" class="nf-artists-card nf-artists-photo" data-artist-gallery="images" aria-label="Apri la galleria fotografica degli artisti"><span class="nf-artists-card-copy"><strong>Galleria immagini</strong><small>Scopri gli artisti</small></span></button>
@@ -1600,6 +1601,7 @@ html, body { width:100%; max-width:100%; overflow-x:clip; }
     </section>
 
       <section class="content-section alt" id="eventi">
+      <div class="section-kicker">Appuntamenti speciali</div>
       <h2>Eventi</h2>
       <p class="section-lead">Serate a tema, ricorrenze e appuntamenti speciali: qui trovi le prossime date. Nel frattempo, ogni sera c'è musica dal vivo a cena.</p>
       <div class="event-grid" id="eventList"><p class="event-empty">I prossimi eventi saranno pubblicati qui a breve.</p></div>
@@ -1704,7 +1706,7 @@ links.querySelectorAll('a').forEach(link => link.addEventListener('click', () =>
     if(parts.length===3){if(!allowedScopes.includes(parts[0])||parts[1]!==currentLang)return;selector=parts[2]}
     else if(parts.length===2){if(!allowedScopes.includes(parts[0]))return;selector=parts[1];if(currentLang!=='it')delete p.text}
     else if(menuPage)return;
-    else if(currentLang!=='it')delete p.text;
+    else delete p.text;
     report.total++;
     if(apply(selector,p))report.applied++;else report.missing.push(key);
    });
